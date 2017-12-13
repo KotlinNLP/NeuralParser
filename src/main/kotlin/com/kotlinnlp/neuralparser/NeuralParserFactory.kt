@@ -34,18 +34,55 @@ object NeuralParserFactory {
    * Build a generic [NeuralParser] given a [model].
    *
    * @param model the model of a [NeuralParser]
+   * @param beamSize the max size of the beam (default = 1)
+   * @param maxParallelThreads the max number of threads that can run in parallel (default = 1, ignored if beamSize is 1)
    *
    * @return a [NeuralParser] with the given [model]
    */
-  operator fun invoke(model: NeuralParserModel): GenericNeuralParser = when (model) {
-    is BiRNNArcStandardParserModel -> BiRNNArcStandardParser(model)
-    is BiRNNTDArcStandardParserModel -> BiRNNTDArcStandardParser(model)
-    is BiRNNTPDArcStandardParserModel -> BiRNNTPDArcStandardParser(model)
-    is BiRNNTPDJointArcStandardParserModel -> BiRNNTPDJointArcStandardParser(model)
-    is CharBasedBiRNNArcStandardParserModel -> CharBasedBiRNNArcStandardParser(model)
-    is BiRNNArcHybridParserModel -> BiRNNArcHybridParser(model)
-    is BiRNNArcEagerSpineParserModel -> BiRNNArcEagerSpineParser(model)
-    is BiRNNArcDistanceParserModel -> BiRNNArcDistanceParser(model)
+  operator fun invoke(model: NeuralParserModel,
+                      beamSize: Int,
+                      maxParallelThreads: Int): GenericNeuralParser = when (model) {
+
+    is BiRNNArcStandardParserModel -> BiRNNArcStandardParser(
+      model = model,
+      beamSize = beamSize,
+      maxParallelThreads = maxParallelThreads)
+
+    is BiRNNTDArcStandardParserModel -> BiRNNTDArcStandardParser(
+      model = model,
+      beamSize = beamSize,
+      maxParallelThreads = maxParallelThreads)
+
+    is BiRNNTPDArcStandardParserModel -> BiRNNTPDArcStandardParser(
+      model = model,
+      beamSize = beamSize,
+      maxParallelThreads = maxParallelThreads)
+
+    is BiRNNTPDJointArcStandardParserModel -> BiRNNTPDJointArcStandardParser(
+      model = model,
+      beamSize = beamSize,
+      maxParallelThreads = maxParallelThreads)
+
+    is CharBasedBiRNNArcStandardParserModel -> CharBasedBiRNNArcStandardParser(
+      model = model,
+      beamSize = beamSize,
+      maxParallelThreads = maxParallelThreads)
+
+    is BiRNNArcHybridParserModel -> BiRNNArcHybridParser(
+      model = model,
+      beamSize = beamSize,
+      maxParallelThreads = maxParallelThreads)
+
+    is BiRNNArcEagerSpineParserModel -> BiRNNArcEagerSpineParser(
+      model = model,
+      beamSize = beamSize,
+      maxParallelThreads = maxParallelThreads)
+
+    is BiRNNArcDistanceParserModel -> BiRNNArcDistanceParser(
+      model = model,
+      beamSize = beamSize,
+      maxParallelThreads = maxParallelThreads)
+
     else -> throw RuntimeException("Invalid parser model")
   }
 }
