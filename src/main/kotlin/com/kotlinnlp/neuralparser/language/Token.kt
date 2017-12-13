@@ -57,22 +57,29 @@ class Token(
   val normalizedWord: String get() = if (this.isNumber) "__num__" else this.word.toLowerCase()
 
   /**
+   * The empty filler is used to denote unspecified values, the same of the [com.kotlinnlp.conllio] library.
+   */
+  private val emptyFiller: String = com.kotlinnlp.conllio.Token.emptyFiller
+
+  /**
    * @param dependencyTree a dependency tree from which to take information about this token
+   * @param replacePOS a Boolean indicating whether to replace the token POS tag with the related one in the given
+   *                   dependency tree (default = true)
    *
    * @return the CoNLL object that represents this token
    */
-  fun toCoNLL(dependencyTree: DependencyTree? = null) = com.kotlinnlp.conllio.Token(
+  fun toCoNLL(dependencyTree: DependencyTree? = null, replacePOS: Boolean = true) = com.kotlinnlp.conllio.Token(
     id = this.id + 1, // id starts from 1 in the CoNLL format
     form = this.word,
-    lemma = com.kotlinnlp.conllio.Token.emptyFiller,
-    pos = dependencyTree?.posTags?.get(this.id)?.label ?: com.kotlinnlp.conllio.Token.emptyFiller,
-    pos2 = com.kotlinnlp.conllio.Token.emptyFiller,
+    lemma = this.emptyFiller,
+    pos = (if (replacePOS) dependencyTree?.posTags?.get(this.id)?.label else this.pos) ?: this.emptyFiller,
+    pos2 = this.emptyFiller,
     feats = emptyMap(),
     head = if (dependencyTree != null)
       dependencyTree.heads[this.id]?.plus(1) ?: 0 // the root id is 0
     else
       null,
-    deprel = dependencyTree?.deprels?.get(this.id)?.label ?: com.kotlinnlp.conllio.Token.emptyFiller,
+    deprel = dependencyTree?.deprels?.get(this.id)?.label ?: this.emptyFiller,
     multiWord = this.multiWord
   )
 
