@@ -43,7 +43,7 @@ class Validator<
   ModelType: NeuralParserModel>
 (
   private val neuralParser: NeuralParser<StateType, TransitionType, InputContextType, ItemType, *, FeaturesType,
-    SupportStructureType,ModelType>,
+    SupportStructureType, ModelType>,
   private val goldFilePath: String,
   private val outputFilePath: String? = null,
   private val verbose: Boolean = true
