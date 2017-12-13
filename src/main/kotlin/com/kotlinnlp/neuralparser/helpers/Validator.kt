@@ -11,18 +11,11 @@ import com.kotlinnlp.conllio.CoNLLUEvaluator
 import com.kotlinnlp.conllio.CoNLLWriter
 import com.kotlinnlp.conllio.CoNLLXEvaluator
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.Token
+import com.kotlinnlp.neuralparser.parsers.GenericNeuralParser
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.progressindicator.ProgressIndicatorBar
-import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
-import com.kotlinnlp.syntaxdecoder.modules.featuresextractor.features.Features
-import com.kotlinnlp.syntaxdecoder.context.InputContext
-import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
-import com.kotlinnlp.syntaxdecoder.context.items.StateItem
-import com.kotlinnlp.syntaxdecoder.modules.supportstructure.DecodingSupportStructure
 import java.io.File
 
 /**
@@ -33,17 +26,8 @@ import java.io.File
  * @property outputFilePath the file path of the output CoNLL corpus (default = null -> a temporary file is used)
  * @property verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
-class Validator<
-  StateType : State<StateType>,
-  TransitionType : Transition<TransitionType, StateType>,
-  InputContextType : InputContext<InputContextType, ItemType>,
-  ItemType : StateItem<ItemType, *, *>,
-  FeaturesType : Features<*, *>,
-  out SupportStructureType : DecodingSupportStructure,
-  ModelType: NeuralParserModel>
-(
-  private val neuralParser: NeuralParser<StateType, TransitionType, InputContextType, ItemType, *, FeaturesType,
-    SupportStructureType, ModelType>,
+class Validator(
+  private val neuralParser: GenericNeuralParser,
   private val goldFilePath: String,
   private val outputFilePath: String? = null,
   private val verbose: Boolean = true
