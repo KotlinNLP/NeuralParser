@@ -83,17 +83,19 @@ class Sentence(val tokens: List<Token>, val dependencyTree: DependencyTree? = nu
    * Convert this Sentence in a CoNLL Sentence.
    *
    * @param dependencyTree a dependency tree (optional)
+   * @param replacePOS a Boolean indicating whether to replace the token POS tag with the related one in the given
+   *                   dependency tree (default = true)
    *
    * @return a CoNLL Sentence
    */
-  fun toCoNLL(dependencyTree: DependencyTree? = null): com.kotlinnlp.conllio.Sentence {
+  fun toCoNLL(dependencyTree: DependencyTree? = null, replacePOS: Boolean = true): com.kotlinnlp.conllio.Sentence {
 
     val tree = dependencyTree ?: this.dependencyTree
 
     return com.kotlinnlp.conllio.Sentence(
       sentenceId = "_",
       text = "_",
-      tokens = this.tokens.map { it.toCoNLL(dependencyTree = tree) }.toTypedArray())
+      tokens = this.tokens.map { it.toCoNLL(dependencyTree = tree, replacePOS = replacePOS) }.toTypedArray())
   }
 
   /**
