@@ -5,16 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
+import com.kotlinnlp.neuralparser.NeuralParser
+import com.kotlinnlp.neuralparser.NeuralParserFactory
 import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.helpers.Validator
-import com.kotlinnlp.neuralparser.parsers.arcstandard.simple.BiRNNArcStandardParser
+import com.kotlinnlp.neuralparser.parsers.GenericNeuralParser
 import com.kotlinnlp.neuralparser.utils.Timer
 import com.kotlinnlp.syntaxdecoder.BeamDecoder
 import java.io.File
 import java.io.FileInputStream
 
 /**
- * Evaluate the model of a [BiRNNArcStandardParser].
+ * Evaluate the model of a generic [NeuralParser].
  *
  * Command line arguments:
  *  1. The size of the beam
@@ -29,7 +31,7 @@ fun main(args: Array<String>) {
 
   println("Loading model from '${args[2]}'.")
 
-  val parser = BiRNNArcStandardParser(
+  val parser: GenericNeuralParser = NeuralParserFactory(
     model = NeuralParserModel.load(FileInputStream(File(args[2]))),
     beamSize = beamSize,
     maxParallelThreads = maxParallelThreads)
