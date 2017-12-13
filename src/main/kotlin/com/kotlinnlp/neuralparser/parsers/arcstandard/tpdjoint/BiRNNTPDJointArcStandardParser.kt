@@ -43,7 +43,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
  *
  * @property model the parser model
  * @param wordDropoutCoefficient the word embeddings dropout coefficient (default = 0.0)
- * @param posDropoutCoefficient the word embeddings dropout coefficient (default = 0.0)
+ * @param posDropoutCoefficient the POS embeddings dropout coefficient (default = 0.0)
  * @param beamSize the max size of the beam (default = 1)
  * @param maxParallelThreads the max number of threads that can run in parallel (default = 1, ignored if beamSize is 1)
  */

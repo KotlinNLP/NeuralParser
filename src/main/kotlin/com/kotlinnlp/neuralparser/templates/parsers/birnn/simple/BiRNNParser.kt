@@ -31,7 +31,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
  *
  * @property model the parser model
  * @param wordDropoutCoefficient the word embeddings dropout coefficient
- * @param posDropoutCoefficient the word embeddings dropout coefficient
+ * @param posDropoutCoefficient the POS embeddings dropout coefficient
  * @param beamSize the max size of the beam
  * @param maxParallelThreads the max number of threads that can run in parallel (ignored if beamSize is 1)
  */

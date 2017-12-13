@@ -41,6 +41,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
  * If the beamSize is 1 then a [GreedyDecoder] is used, a [BeamDecoder] otherwise.
  *
  * @property model the parser model
+ * @param wordDropoutCoefficient the word embeddings dropout coefficient (default = 0.0)
  * @param beamSize the max size of the beam (default = 1)
  * @param maxParallelThreads the max number of threads that can run in parallel (default = 1, ignored if beamSize is 1)
  */
