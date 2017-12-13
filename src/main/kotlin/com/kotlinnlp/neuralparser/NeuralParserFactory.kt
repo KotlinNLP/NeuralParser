@@ -40,8 +40,8 @@ object NeuralParserFactory {
    * @return a [NeuralParser] with the given [model]
    */
   operator fun invoke(model: NeuralParserModel,
-                      beamSize: Int,
-                      maxParallelThreads: Int): GenericNeuralParser = when (model) {
+                      beamSize: Int = 1,
+                      maxParallelThreads: Int = 1): GenericNeuralParser = when (model) {
 
     is BiRNNArcStandardParserModel -> BiRNNArcStandardParser(
       model = model,
