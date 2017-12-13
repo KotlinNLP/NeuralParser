@@ -363,11 +363,11 @@ class Validator<
   private fun evaluateWithCoNLLScript(dependencyTrees: List<DependencyTree>): String {
 
     val outputPath: String = this.outputFilePath ?: this.getDefaultOutputPath()
+    val conllSentences: List<com.kotlinnlp.conllio.Sentence> = this.goldSentences.zip(dependencyTrees).map {
+      (sentence, tree) -> sentence.toCoNLL(dependencyTree = tree, replacePOS = false)
+    }
 
-    CoNLLWriter.toFile(
-      sentences = this.goldSentences.mapIndexed { i, it -> it.toCoNLL(dependencyTree = dependencyTrees[i]) },
-      writeComments = false,
-      outputFilePath = outputPath)
+    CoNLLWriter.toFile(sentences = conllSentences, writeComments = false, outputFilePath = outputPath)
 
     return this.conllEvaluator.evaluate(systemFilePath = outputPath, goldFilePath = this.goldFilePath)!!
   }
