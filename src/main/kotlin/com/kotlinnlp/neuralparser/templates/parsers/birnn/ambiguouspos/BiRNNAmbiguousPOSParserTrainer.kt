@@ -52,8 +52,7 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
   epochs: Int,
   batchSize: Int,
   minRelevantErrorsCountToUpdate: Int = 1,
-  validator: Validator<StateType, TransitionType, TokensAmbiguousPOSContext, DenseItem, FeaturesType,
-    SupportStructureType, ModelType>?,
+  validator: Validator?,
   modelFilename: String,
   verbose: Boolean = true
 ) :

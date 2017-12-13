@@ -61,8 +61,7 @@ abstract class Trainer<
   bestActionSelector: BestActionSelector<StateType, TransitionType, ItemType, InputContextType>,
   private val batchSize: Int,
   private val minRelevantErrorsCountToUpdate: Int,
-  private val validator: Validator<StateType, TransitionType, InputContextType, ItemType, FeaturesType,
-    SupportStructureType, ModelType>?,
+  private val validator: Validator?,
   private val modelFilename: String,
   private val verbose: Boolean = true
 ) {

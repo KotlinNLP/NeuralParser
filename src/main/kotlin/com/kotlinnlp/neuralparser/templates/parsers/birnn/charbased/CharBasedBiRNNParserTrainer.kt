@@ -57,8 +57,7 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
   batchSize: Int,
   minRelevantErrorsCountToUpdate: Int = 1,
   learningMarginThreshold: Double,
-  validator: Validator<StateType, TransitionType, TokensCharsEncodingContext, DenseItem,
-    FeaturesType, SupportStructureType, ModelType>?,
+  validator: Validator?,
   modelFilename: String,
   verbose: Boolean = true
 ) :
