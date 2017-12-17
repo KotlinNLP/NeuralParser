@@ -38,8 +38,8 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
 /**
  * A NeuralParser based on the ArcStandard transition system.
  * It uses Embeddings and ambiguous POS vectors to encode the tokens of a sentence through a BiRNN.
- * Actions are scored combining the result of specialized neural networks that score singularly the Transition, the POS
- * tag and the Deprel.
+ * Actions are scored combining the result of specialized neural networks that score singularly the Transition+Deprel (
+ * a multitask joint network), and the POS tag.
  *
  * If the beamSize is 1 then a [GreedyDecoder] is used, a [BeamDecoder] otherwise.
  *
