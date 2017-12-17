@@ -31,7 +31,7 @@ open class TPDJointStructureFactory(
   /**
    * Build a new [TPDJointSupportStructure].
    *
-   * @return a new single-prediction decoding support structure
+   * @return a new TPD Joint decoding support structure
    */
   override fun globalStructure() = TPDJointSupportStructure(
     transitionProcessor = FeedforwardNeuralProcessor(this.transitionNetwork),
