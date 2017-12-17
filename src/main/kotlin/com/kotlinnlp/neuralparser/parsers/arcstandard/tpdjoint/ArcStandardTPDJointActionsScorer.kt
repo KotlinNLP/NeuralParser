@@ -33,6 +33,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitio
  * @param posDeprelNetworkModel the model of a multi-task network to score POS tags and deprels
  * @param transitionOptimizer the optimizer of the [transitionNetwork] params
  * @param posDeprelOptimizer the optimizer of the [posDeprelNetworkModel] params
+ * @param posTags the dictionary set of POS tags
  * @param deprelTags the dictionary set of deprels
  */
 class ArcStandardTPDJointActionsScorer(
