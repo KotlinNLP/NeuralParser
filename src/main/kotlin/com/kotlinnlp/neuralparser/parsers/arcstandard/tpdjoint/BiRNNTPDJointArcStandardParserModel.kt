@@ -21,7 +21,7 @@ import com.kotlinnlp.simplednn.deeplearning.multitasknetwork.MultiTaskNetworkMod
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
 
 /**
- * The parser model for the ArcStandard parser based on the BiRNN with Transition-POS-Deprel joint scoring.
+ * The parser model for the ArcStandard parser based on the BiRNN with Transition+POS+Deprel joint scoring.
  *
  * @property corpusDictionary a corpus dictionary
  * @property unknownFormDefaultPOSTags the list of POS tags to use for unknown forms

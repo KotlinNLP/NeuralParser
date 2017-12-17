@@ -36,8 +36,10 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferState
 
 /**
- * A NeuralParser based on the ArcStandard transition system that uses Embeddings and ambiguous POS vectors to encode
- * the tokens of a sentence through a BiRNN.
+ * A NeuralParser based on the ArcStandard transition system.
+ * It uses Embeddings and ambiguous POS vectors to encode the tokens of a sentence through a BiRNN.
+ * Actions are scored combining the result of specialized neural networks that score singularly the Transition, the POS
+ * tag and the Deprel.
  *
  * If the beamSize is 1 then a [GreedyDecoder] is used, a [BeamDecoder] otherwise.
  *
