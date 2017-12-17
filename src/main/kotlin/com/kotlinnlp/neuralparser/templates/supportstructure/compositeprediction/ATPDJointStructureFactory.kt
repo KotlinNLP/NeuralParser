@@ -19,13 +19,13 @@ import com.kotlinnlp.syntaxdecoder.modules.supportstructure.SupportStructureFact
  * The factory of the decoding support structure for joint composite ATPD (Action + Transition + joint POS tag and
  * Deprel) prediction models.
  *
- * @param actionsHistoryNetwork the recurrent neural network used to encode the applied actions
+ * @param appliedActionsNetwork the recurrent neural network used to encode the applied actions
  * @param transitionNetwork the neural network used to score the transitions
  * @param posDeprelNetworkModel the neural model of the multi-task network used to score POS tags and deprels
  * @param outputErrorsInit the default initialization of the output errors
  */
 open class ATPDJointStructureFactory(
-  private val actionsHistoryNetwork: NeuralNetwork,
+  private val appliedActionsNetwork: NeuralNetwork,
   private val transitionNetwork: NeuralNetwork,
   private val posDeprelNetworkModel: MultiTaskNetworkModel,
   private val outputErrorsInit: OutputErrorsInit
@@ -39,6 +39,6 @@ open class ATPDJointStructureFactory(
   override fun globalStructure() = ATPDJointSupportStructure(
     transitionProcessor = FeedforwardNeuralProcessor(this.transitionNetwork),
     posDeprelNetwork = MultiTaskNetwork(this.posDeprelNetworkModel),
-    actionProcessor = RecurrentNeuralProcessor(this.actionsHistoryNetwork),
+    actionProcessor = RecurrentNeuralProcessor(this.appliedActionsNetwork),
     outputErrorsInit = this.outputErrorsInit)
 }
