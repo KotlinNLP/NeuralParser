@@ -69,8 +69,7 @@ fun main(args: Array<String>) {
 
   val parser = BiRNNTPDArcStandardParser(
     model = parserModel,
-    wordDropoutCoefficient = 0.25,
-    posDropoutCoefficient = 0.0)
+    wordDropoutCoefficient = 0.25)
 
   val trainer = BiRNNAmbiguousPOSParserTrainer(
     neuralParser = parser,
