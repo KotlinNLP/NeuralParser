@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.utils.features
 
-import com.kotlinnlp.simplednn.deeplearning.multipredictionscorer.MultiMap
+import com.kotlinnlp.simplednn.utils.MultiMap
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.syntaxdecoder.modules.featuresextractor.features.Features
 

@@ -12,7 +12,7 @@ import com.kotlinnlp.neuralparser.templates.featuresextractor.TokensWindowFeatur
 import com.kotlinnlp.neuralparser.templates.supportstructure.multiprediction.MPSupportStructure
 import com.kotlinnlp.neuralparser.utils.features.GroupedDenseFeatures
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
-import com.kotlinnlp.simplednn.deeplearning.multipredictionscorer.MultiMap
+import com.kotlinnlp.simplednn.utils.MultiMap
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.syntaxdecoder.modules.featuresextractor.FeaturesExtractor
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition

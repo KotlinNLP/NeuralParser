@@ -12,7 +12,7 @@ import com.kotlinnlp.neuralparser.templates.supportstructure.multiprediction.MPS
 import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.neuralparser.utils.features.GroupedDenseFeatures
 import com.kotlinnlp.neuralparser.utils.features.GroupedDenseFeaturesErrors
-import com.kotlinnlp.simplednn.deeplearning.multipredictionscorer.MultiMap
+import com.kotlinnlp.simplednn.utils.MultiMap
 import com.kotlinnlp.simplednn.deeplearning.multipredictionscorer.MultiPredictionModel
 import com.kotlinnlp.simplednn.deeplearning.multipredictionscorer.MultiPredictionOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
