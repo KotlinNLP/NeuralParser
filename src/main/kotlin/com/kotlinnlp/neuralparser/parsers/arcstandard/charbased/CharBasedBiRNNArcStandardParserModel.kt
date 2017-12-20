@@ -19,6 +19,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
 /**
  * The parser model for the ArcStandard parser based on the birnn
  *
+ * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property charEmbeddingSize the size of each char embedding vector
  * @property charsEncodingSize the size of each char encoding vector (the encoding of more char embeddings)
@@ -29,9 +30,9 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @property biRNNConnectionType the recurrent connection type of the BiRNN used to encode tokens
  * @property biRNNHiddenActivation the hidden activation function of the BiRNN used to encode tokens
  * @param scorerNetworkConfig the configuration of the scorer network
- * @property scoreAccumulatorFactory a factory of score accumulators
  */
 class CharBasedBiRNNArcStandardParserModel(
+  scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,
   charEmbeddingSize: Int,
   charsEncodingSize: Int,
@@ -41,10 +42,10 @@ class CharBasedBiRNNArcStandardParserModel(
   hanHiddenActivation: ActivationFunction,
   biRNNConnectionType: LayerType.Connection,
   biRNNHiddenActivation: ActivationFunction,
-  scorerNetworkConfig: ScorerNetworkConfiguration,
-  val scoreAccumulatorFactory: ScoreAccumulator.Factory
+  scorerNetworkConfig: ScorerNetworkConfiguration
 ) :
   CharBasedBiRNNParserModel(
+  scoreAccumulatorFactory = scoreAccumulatorFactory,
     corpusDictionary = corpusDictionary,
     charEmbeddingSize = charEmbeddingSize,
     charsEncodingSize = charsEncodingSize,

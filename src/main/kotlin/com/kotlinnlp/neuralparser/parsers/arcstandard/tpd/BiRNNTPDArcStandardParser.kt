@@ -32,7 +32,6 @@ import com.kotlinnlp.syntaxdecoder.modules.featuresextractor.FeaturesExtractor
 import com.kotlinnlp.syntaxdecoder.modules.supportstructure.SupportStructureFactory
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.TransitionSystem
-import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferState
 
 /**
@@ -143,11 +142,6 @@ class BiRNNTPDArcStandardParser(
     ArcStandardTransition,
     DenseItem,
     TokensAmbiguousPOSContext>()
-
-  /**
-   * @return the [ScoreAccumulator] factory used in this parser
-   */
-  override fun buildScorerAccumulatorFactory() = this.model.scoreAccumulatorFactory
 
   /**
    * Callback called before applying an action.

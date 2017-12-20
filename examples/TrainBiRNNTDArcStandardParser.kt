@@ -43,6 +43,7 @@ fun main(args: Array<String>) {
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
 
   val parserModel = BiRNNTDArcStandardParserModel(
+    scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
     wordEmbeddingSize = 100,
     posEmbeddingSize = 25,
@@ -52,8 +53,7 @@ fun main(args: Array<String>) {
     scorerNetworkConfig = ScorerNetworkConfiguration(
       hiddenSize = 100,
       hiddenActivation = Tanh(),
-      outputActivation = null),
-    scoreAccumulatorFactory = AverageAccumulator)
+      outputActivation = null))
 
   val parser = BiRNNTDArcStandardParser(
     model = parserModel,

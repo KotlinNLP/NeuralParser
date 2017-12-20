@@ -19,8 +19,10 @@ import com.kotlinnlp.simplednn.deeplearning.embeddings.Embedding
 import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsMapByDictionary
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
+import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
 
 /**
+ * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property charEmbeddingSize the size of each char embedding vector
  * @property charsEncodingSize the size of each char encoding vector (the encoding of more char embeddings)
@@ -32,6 +34,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
  * @property biRNNHiddenActivation the hidden activation function of the BiRNN used to encode tokens
  */
 abstract class CharBasedBiRNNParserModel(
+  scoreAccumulatorFactory: ScoreAccumulator.Factory,
   val corpusDictionary: CorpusDictionary,
   val charEmbeddingSize: Int,
   val charsEncodingSize: Int,
@@ -41,7 +44,7 @@ abstract class CharBasedBiRNNParserModel(
   val hanHiddenActivation: ActivationFunction,
   val biRNNConnectionType: LayerType.Connection,
   val biRNNHiddenActivation: ActivationFunction
-) : NeuralParserModel() {
+) : NeuralParserModel(scoreAccumulatorFactory) {
 
   companion object {
 

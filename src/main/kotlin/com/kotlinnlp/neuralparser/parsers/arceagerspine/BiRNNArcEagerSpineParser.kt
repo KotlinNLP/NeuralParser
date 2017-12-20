@@ -112,11 +112,6 @@ class BiRNNArcEagerSpineParser(
     TokensEmbeddingsContext>()
 
   /**
-   * @return the ScoreAccumulator factory used in this parser
-   */
-  override fun buildScorerAccumulatorFactory() = this.model.scoreAccumulatorFactory
-
-  /**
    * Callback called before applying an action.
    */
   override fun beforeApplyAction(action: Transition<ArcEagerSpineTransition, ArcEagerSpineState>.Action,

@@ -19,6 +19,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
 /**
  * The parser model for the ArcEagerSpine parser based on the BiRNN.
  *
+ * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property wordEmbeddingSize the size of each word embedding vector
  * @property posEmbeddingSize the size of each pos embedding vector
@@ -26,18 +27,18 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @param biRNNHiddenActivation the hidden activation function of the BiRNN used to encode tokens
  * @param biRNNLayers number of stacked BiRNNs
  * @param scorerNetworksConfig the configuration of the scorer networks
- * @property scoreAccumulatorFactory a factory of score accumulators
  */
 class BiRNNArcEagerSpineParserModel(
+  scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,
   wordEmbeddingSize: Int,
   posEmbeddingSize: Int,
   biRNNConnectionType: LayerType.Connection,
   biRNNHiddenActivation: ActivationFunction?,
   biRNNLayers: Int,
-  scorerNetworksConfig: ScorerNetworkConfiguration,
-  val scoreAccumulatorFactory: ScoreAccumulator.Factory
+  scorerNetworksConfig: ScorerNetworkConfiguration
 ) : BiRNNParserModel(
+  scoreAccumulatorFactory = scoreAccumulatorFactory,
   corpusDictionary = corpusDictionary,
   wordEmbeddingSize = wordEmbeddingSize,
   posEmbeddingSize = posEmbeddingSize,

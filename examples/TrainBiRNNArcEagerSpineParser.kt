@@ -43,6 +43,7 @@ fun main(args: Array<String>) {
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
 
   val parserModel = BiRNNArcEagerSpineParserModel(
+    scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
     wordEmbeddingSize = 50,
     posEmbeddingSize = 25,
@@ -52,9 +53,7 @@ fun main(args: Array<String>) {
     scorerNetworksConfig = ScorerNetworkConfiguration(
       hiddenSize = 100,
       hiddenActivation = Tanh(),
-      outputActivation = null
-    ),
-    scoreAccumulatorFactory = AverageAccumulator)
+      outputActivation = null))
 
   val parser = BiRNNArcEagerSpineParser(
     model = parserModel,

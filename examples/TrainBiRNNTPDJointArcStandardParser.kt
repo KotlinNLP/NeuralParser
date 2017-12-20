@@ -53,6 +53,7 @@ fun main(args: Array<String>) {
   }
 
   val parserModel = BiRNNTPDJointArcStandardParserModel(
+    scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
     unknownFormDefaultPOSTags = listOf(POSTag("NN"), POSTag("JJ")),
     wordEmbeddingSize = 100,
@@ -64,8 +65,7 @@ fun main(args: Array<String>) {
     scorerNetworksConfig = ScorerNetworkConfiguration(
       hiddenSize = 100,
       hiddenActivation = Tanh(),
-      outputActivation = null),
-    scoreAccumulatorFactory = AverageAccumulator)
+      outputActivation = null))
 
   val parser = BiRNNTPDJointArcStandardParser(
     model = parserModel,

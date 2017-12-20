@@ -26,7 +26,6 @@ import com.kotlinnlp.syntaxdecoder.modules.supportstructure.DecodingSupportStruc
 import com.kotlinnlp.syntaxdecoder.modules.supportstructure.SupportStructureFactory
 import com.kotlinnlp.syntaxdecoder.transitionsystem.ActionsGenerator
 import com.kotlinnlp.syntaxdecoder.transitionsystem.TransitionSystem
-import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
 
 /**
  * The Neural Parser.
@@ -111,11 +110,6 @@ abstract class NeuralParser<
     InputContextType>
 
   /**
-   * @return the [ScoreAccumulator] factory used in this parser
-   */
-  abstract protected fun buildScorerAccumulatorFactory(): ScoreAccumulator.Factory
-
-  /**
    * @param sentence a sentence
    * @param trainingMode a Boolean indicating whether the parser is being trained
    *
@@ -140,7 +134,7 @@ abstract class NeuralParser<
     actionsScorer = this.buildActionsScorer(),
     bestActionSelector = this.buildBestActionSelector(),
     supportStructureFactory = this.buildSupportStructureFactory(),
-    scoreAccumulatorFactory = this.buildScorerAccumulatorFactory())
+    scoreAccumulatorFactory = this.model.scoreAccumulatorFactory)
 
   /**
    * @param beamSize the max size of the beam
@@ -157,5 +151,5 @@ abstract class NeuralParser<
     actionsScorer = this.buildActionsScorer(),
     multiActionsSelector = this.buildMultiActionsSelector(),
     supportStructureFactory = this.buildSupportStructureFactory(),
-    scoreAccumulatorFactory = this.buildScorerAccumulatorFactory())
+    scoreAccumulatorFactory = this.model.scoreAccumulatorFactory)
 }

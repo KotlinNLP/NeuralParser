@@ -23,6 +23,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
 /**
  * The parser model for the ArcStandard parser based on the BiRNN with Transition+POS+Deprel joint scoring.
  *
+ * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property unknownFormDefaultPOSTags the list of POS tags to use for unknown forms
  * @property wordEmbeddingSize the size of each word embedding vector
@@ -32,9 +33,9 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @param biRNNHiddenActivation the hidden activation function of the BiRNN used to encode tokens
  * @param biRNNLayers number of stacked BiRNNs
  * @param scorerNetworksConfig the configuration of the scorer networks
- * @property scoreAccumulatorFactory a factory of score accumulators
  */
 class BiRNNTPDJointArcStandardParserModel(
+  scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,
   unknownFormDefaultPOSTags: List<POSTag>,
   wordEmbeddingSize: Int,
@@ -43,9 +44,9 @@ class BiRNNTPDJointArcStandardParserModel(
   biRNNConnectionType: LayerType.Connection,
   biRNNHiddenActivation: ActivationFunction?,
   biRNNLayers: Int,
-  scorerNetworksConfig: ScorerNetworkConfiguration,
-  val scoreAccumulatorFactory: ScoreAccumulator.Factory
+  scorerNetworksConfig: ScorerNetworkConfiguration
 ) : BiRNNAmbiguousPOSParserModel(
+  scoreAccumulatorFactory = scoreAccumulatorFactory,
   corpusDictionary = corpusDictionary,
   unknownFormDefaultPOSTags = unknownFormDefaultPOSTags,
   wordEmbeddingSize = wordEmbeddingSize,

@@ -16,10 +16,12 @@ import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNN
 import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsMapByDictionary
 import com.kotlinnlp.simplednn.utils.DictionarySet
+import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
 
 /**
  * The model of the [BiRNNAmbiguousPOSParser].
  *
+ * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property unknownFormDefaultPOSTags the list of POS tags to use for unknown forms
  * @property wordEmbeddingSize the size of each word embedding vector
@@ -30,6 +32,7 @@ import com.kotlinnlp.simplednn.utils.DictionarySet
  * @param biRNNLayers number of stacked BiRNNs
  */
 abstract class BiRNNAmbiguousPOSParserModel(
+  scoreAccumulatorFactory: ScoreAccumulator.Factory,
   val corpusDictionary: CorpusDictionary,
   val unknownFormDefaultPOSTags: List<POSTag>,
   val wordEmbeddingSize: Int,
@@ -38,7 +41,7 @@ abstract class BiRNNAmbiguousPOSParserModel(
   biRNNConnectionType: LayerType.Connection,
   biRNNHiddenActivation: ActivationFunction?,
   biRNNLayers: Int
-) : NeuralParserModel() {
+) : NeuralParserModel(scoreAccumulatorFactory) {
 
   companion object {
 

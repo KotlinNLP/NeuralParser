@@ -45,6 +45,7 @@ fun main(args: Array<String>) {
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
 
   val parserModel = BiRNNArcHybridParserModel(
+    scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
     wordEmbeddingSize = 50,
     posEmbeddingSize = 25,
@@ -56,8 +57,7 @@ fun main(args: Array<String>) {
       hiddenSize = 100,
       hiddenActivation = ReLU(),
       hiddenDropout = 0.4,
-      outputActivation = Sigmoid()),
-    scoreAccumulatorFactory = AverageAccumulator.Factory)
+      outputActivation = Sigmoid()))
 
   val parser = BiRNNArcHybridParser(
     model = parserModel,

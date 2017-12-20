@@ -48,6 +48,7 @@ fun main(args: Array<String>) {
   val wordEmbeddingSize = 50
 
   val parserModel = BiRNNArcStandardParserModel(
+    scoreAccumulatorFactory = LogarithmicAccumulator.Factory,
     corpusDictionary = corpusDictionary,
     wordEmbeddingSize = wordEmbeddingSize,
     posEmbeddingSize = posEmbeddingSize,
@@ -59,8 +60,7 @@ fun main(args: Array<String>) {
       hiddenSize = 200,
       hiddenActivation = ReLU(),
       hiddenDropout = 0.4,
-      outputActivation = Softmax()),
-    scoreAccumulatorFactory = LogarithmicAccumulator.Factory)
+      outputActivation = Softmax()))
 
   val parser = BiRNNArcStandardParser(
     model = parserModel,

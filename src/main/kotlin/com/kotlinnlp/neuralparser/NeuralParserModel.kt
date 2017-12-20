@@ -11,14 +11,19 @@ import com.kotlinnlp.neuralparser.parsers.ScorerNetworkConfiguration
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.simplednn.deeplearning.multipredictionscorer.MultiPredictionNetworkConfig
 import com.kotlinnlp.simplednn.utils.Serializer
+import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Serializable
 
 /**
  * The serializable model of a [NeuralParser].
+ *
+ * @property scoreAccumulatorFactory a factory of score accumulators
  */
-abstract class NeuralParserModel : Serializable {
+abstract class NeuralParserModel(
+  val scoreAccumulatorFactory: ScoreAccumulator.Factory
+) : Serializable {
 
   companion object {
 

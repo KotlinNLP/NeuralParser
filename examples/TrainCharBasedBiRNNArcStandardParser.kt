@@ -44,6 +44,7 @@ fun main(args: Array<String>) {
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
 
   val parserModel = CharBasedBiRNNArcStandardParserModel(
+    scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
     charEmbeddingSize = 25,
     charsEncodingSize = 25,
@@ -58,8 +59,7 @@ fun main(args: Array<String>) {
       hiddenSize = 100,
       hiddenActivation = ReLU(),
       hiddenDropout = 0.4,
-      outputActivation = Sigmoid()),
-    scoreAccumulatorFactory = AverageAccumulator.Factory)
+      outputActivation = Sigmoid()))
 
   val parser = CharBasedBiRNNArcStandardParser(model = parserModel, wordDropoutCoefficient = 0.25)
 

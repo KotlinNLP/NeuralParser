@@ -48,6 +48,7 @@ fun main(args: Array<String>) {
   val wordEmbeddingSize = 50
 
   val parserModel = BiRNNArcDistanceParserModel(
+    scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
     wordEmbeddingSize = wordEmbeddingSize,
     posEmbeddingSize = posEmbeddingSize,
@@ -59,8 +60,7 @@ fun main(args: Array<String>) {
       hiddenSize = 100,
       hiddenActivation = ReLU(),
       hiddenDropout = 0.4,
-      outputActivation = Sigmoid()),
-    scoreAccumulatorFactory = AverageAccumulator.Factory)
+      outputActivation = Sigmoid()))
 
   val parser = BiRNNArcDistanceParser(
     model = parserModel,
