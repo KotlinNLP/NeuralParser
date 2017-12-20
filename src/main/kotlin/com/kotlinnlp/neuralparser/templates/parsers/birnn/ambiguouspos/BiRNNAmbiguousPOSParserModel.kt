@@ -78,11 +78,6 @@ abstract class BiRNNAmbiguousPOSParserModel(
     size = this.wordEmbeddingSize)
 
   /**
-   * The part-of-speech embeddings.
-   */
-  val posEmbeddings = EmbeddingsMapByDictionary(dictionary = this.posTagsLabels, size = this.posEmbeddingSize)
-
-  /**
    * A map of POS tags labels to indices.
    */
   val posTagsToIndices: Map<String, Int> = mapOf(
