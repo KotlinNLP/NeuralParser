@@ -34,7 +34,8 @@ class TokensAmbiguousPOSContext(
   val preTrainedWordEmbeddings: List<Embedding>?,
   unknownItemVector: DenseNDArray,
   encodingSize: Int,
-  val tokensEncodings: Array<DenseNDArray>
+  val tokensEncodings: Array<DenseNDArray>,
+  val trainingMode: Boolean = false
 ) : TokensEncodingContext<TokensAmbiguousPOSContext>(
   tokens = tokens,
   encodingSize = encodingSize,

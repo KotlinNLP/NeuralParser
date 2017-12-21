@@ -130,7 +130,9 @@ class ArcStandardATPDFeaturesExtractor(
     supportStructure: ATPDJointSupportStructure
   ): DenseFeatures {
 
-    if (this.appliedActions.size > this.appliedActionsEncodingErrors.size) {
+    val trainingMode = decodingContext.extendedState.context.trainingMode
+
+    if (trainingMode && this.appliedActions.size > this.appliedActionsEncodingErrors.size) {
       // The backward wasn't called for the last applied action
       this.appliedActionsEncodingErrors.add(this.appliedActionZerosErrors)
     }
@@ -138,14 +140,18 @@ class ArcStandardATPDFeaturesExtractor(
     val appliedActions = decodingContext.extendedState.appliedActions
     val lastAppliedActionEmbedding: Embedding = if (appliedActions.isEmpty()) {
 
-      if (this.appliedActions.isNotEmpty()) this.backwardActionsEncoding()
+      if (trainingMode) {
 
-      this.appliedActions.add(null)
+        if (this.appliedActions.isNotEmpty()) this.backwardActionsEncoding()
+
+        this.appliedActions.add(null)
+      }
+
       this.actionsEmbeddings.getNullEmbedding()
 
     } else {
       val action = appliedActions.last()
-      this.appliedActions.add(action)
+      if (trainingMode) this.appliedActions.add(action)
       this.actionsEmbeddings[action.transition.key, action.posTagKey, action.deprelKey]
     }
 
