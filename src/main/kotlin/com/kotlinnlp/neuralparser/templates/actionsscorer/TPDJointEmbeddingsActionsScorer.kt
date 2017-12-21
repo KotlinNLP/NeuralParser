@@ -15,6 +15,7 @@ import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.utils.features.DenseFeaturesErrors
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
+import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
 import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
@@ -35,6 +36,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
  * POS and one for the deprel.
  * The POS and the deprel networks share the same input layer in a [MultiTaskNetwork].
  *
+ * @param activationFunction the function used to activate the actions scores
  * @param transitionNetwork a neural network to score the transitions
  * @param posDeprelNetworkModel the model of a multi-task network to score POS tags and deprels
  * @param transitionOptimizer the optimizer of the [transitionNetwork] params
@@ -46,6 +48,7 @@ abstract class TPDJointEmbeddingsActionsScorer<
   TransitionType : Transition<TransitionType, StateType>,
   InputContextType: TokensEncodingContext<InputContextType>>
 (
+  val activationFunction: ActivationFunction?,
   val transitionNetwork: NeuralNetwork,
   val posDeprelNetworkModel: MultiTaskNetworkModel,
   val transitionOptimizer: ParamsOptimizer<NetworkParameters>,
@@ -90,17 +93,17 @@ abstract class TPDJointEmbeddingsActionsScorer<
     supportStructure: TPDJointSupportStructure) {
 
     val inputFeatures: DenseNDArray = decodingContext.features.array
-    val transitionPrediction: DenseNDArray = supportStructure.transitionProcessor.forward(inputFeatures)
     val posDeprelPredictions: List<DenseNDArray> = supportStructure.posDeprelNetwork.forward(inputFeatures)
 
-    decodingContext.actions.forEach { action ->
+    val actionsScores = this.combineScores(
+      actions = decodingContext.actions,
+      transitionPrediction = supportStructure.transitionProcessor.forward(inputFeatures),
+      posPrediction = posDeprelPredictions[0],
+      deprelPrediction = posDeprelPredictions[1])
 
-      val t = transitionPrediction[action.transition.outcomeIndex]
-      val p = posDeprelPredictions[0][action.posTagOutcomeIndex]
-      val d = posDeprelPredictions[1][action.deprelOutcomeIndex]
+    val activatedScores: DenseNDArray = this.activationFunction?.f(actionsScores) ?: actionsScores
 
-      action.score = t + p + d
-    }
+    decodingContext.actions.forEachIndexed { i, action -> action.score = activatedScores[i] }
   }
 
   /**
@@ -183,6 +186,33 @@ abstract class TPDJointEmbeddingsActionsScorer<
     this.transitionOptimizer.update()
     this.posDeprelOptimizer.update()
   }
+
+  /**
+   * Combine the TPD scores to obtain the actions scores.
+   *
+   * @param actions the list of actions to score
+   * @param transitionPrediction the outcome array of the transition network prediction
+   * @param posPrediction the outcome array of the POS tag network prediction
+   * @param deprelPrediction the outcome array of the deprel network prediction
+   *
+   * @return the array of action scores
+   */
+  private fun combineScores(actions: List<Transition<TransitionType, StateType>.Action>,
+                            transitionPrediction: DenseNDArray,
+                            posPrediction: DenseNDArray,
+                            deprelPrediction: DenseNDArray): DenseNDArray =
+    DenseNDArrayFactory.arrayOf(doubleArrayOf(*DoubleArray(
+      size = actions.size,
+      init = { i ->
+        val action = actions[i]
+
+        val t = transitionPrediction[action.transition.outcomeIndex]
+        val p = posPrediction[action.posTagOutcomeIndex]
+        val d = deprelPrediction[action.deprelOutcomeIndex]
+
+        t + p + d
+      }
+    )))
 
   /**
    * Link [actions] errors to the output errors array of the neural network used to score the given [actions].

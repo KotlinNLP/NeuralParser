@@ -15,6 +15,7 @@ import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.utils.features.DenseFeaturesErrors
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
+import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
 import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
@@ -31,6 +32,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
  * The action score is obtained adding 3 scores coming from 3 different networks: one for the transition, one for the
  * POS and one for the deprel.
  *
+ * @param activationFunction the function used to activate the actions scores
  * @param transitionNetwork a neural network to score the transitions
  * @param posNetwork a neural network to score the posTags
  * @param deprelNetwork a neural network to score the deprels
@@ -45,6 +47,7 @@ abstract class TPDEmbeddingsActionsScorer<
   TransitionType : Transition<TransitionType, StateType>,
   InputContextType: TokensEncodingContext<InputContextType>>
 (
+  val activationFunction: ActivationFunction?,
   val transitionNetwork: NeuralNetwork,
   val posNetwork: NeuralNetwork,
   val deprelNetwork: NeuralNetwork,
@@ -90,19 +93,15 @@ abstract class TPDEmbeddingsActionsScorer<
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
     supportStructure: TPDSupportStructure) {
 
-    val transitionPrediction: DenseNDArray =
-      supportStructure.transitionProcessor.forward(decodingContext.features.array)
-    val posPrediction: DenseNDArray = supportStructure.posProcessor.forward(decodingContext.features.array)
-    val deprelPrediction: DenseNDArray = supportStructure.deprelProcessor.forward(decodingContext.features.array)
+    val actionsScores = this.combineScores(
+      actions = decodingContext.actions,
+      transitionPrediction = supportStructure.transitionProcessor.forward(decodingContext.features.array),
+      posPrediction = supportStructure.posProcessor.forward(decodingContext.features.array),
+      deprelPrediction = supportStructure.deprelProcessor.forward(decodingContext.features.array))
 
-    decodingContext.actions.forEach { action ->
+    val activatedScores: DenseNDArray = this.activationFunction?.f(actionsScores) ?: actionsScores
 
-      val t = transitionPrediction[action.transition.outcomeIndex]
-      val p = posPrediction[action.posTagOutcomeIndex]
-      val d = deprelPrediction[action.deprelOutcomeIndex]
-
-      action.score = t + p + d
-    }
+    decodingContext.actions.forEachIndexed { i, action -> action.score = activatedScores[i] }
   }
 
   /**
@@ -194,6 +193,33 @@ abstract class TPDEmbeddingsActionsScorer<
     this.deprelOptimizer.update()
     this.posOptimizer.update()
   }
+
+  /**
+   * Combine the TPD scores to obtain the actions scores.
+   *
+   * @param actions the list of actions to score
+   * @param transitionPrediction the outcome array of the transition network prediction
+   * @param posPrediction the outcome array of the POS tag network prediction
+   * @param deprelPrediction the outcome array of the deprel network prediction
+   *
+   * @return the array of action scores
+   */
+  private fun combineScores(actions: List<Transition<TransitionType, StateType>.Action>,
+                            transitionPrediction: DenseNDArray,
+                            posPrediction: DenseNDArray,
+                            deprelPrediction: DenseNDArray): DenseNDArray =
+    DenseNDArrayFactory.arrayOf(doubleArrayOf(*DoubleArray(
+      size = actions.size,
+      init = { i ->
+        val action = actions[i]
+
+        val t = transitionPrediction[action.transition.outcomeIndex]
+        val p = posPrediction[action.posTagOutcomeIndex]
+        val d = deprelPrediction[action.deprelOutcomeIndex]
+
+        t + p + d
+      }
+    )))
 
   /**
    * Link [actions] errors to the output errors array of the neural network used to score the given [actions].

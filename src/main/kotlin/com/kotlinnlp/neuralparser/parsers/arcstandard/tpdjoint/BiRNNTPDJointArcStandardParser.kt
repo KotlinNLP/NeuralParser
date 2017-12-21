@@ -90,6 +90,7 @@ class BiRNNTPDJointArcStandardParser(
    * @return the [ActionsScorer] used in this parser
    */
   override fun buildActionsScorer() = ArcStandardTPDJointActionsScorer(
+    activationFunction = this.model.actionsScoresActivation,
     transitionNetwork = this.model.transitionScorerNetwork,
     posDeprelNetworkModel = this.model.posDeprelScorerNetworkModel,
     transitionOptimizer = ParamsOptimizer(

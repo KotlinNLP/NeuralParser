@@ -53,7 +53,8 @@ fun main(args: Array<String>) {
   }
 
   val parserModel = BiRNNATPDJointArcStandardParserModel(
-    scoreAccumulatorFactory = AverageAccumulator,
+    actionsScoresActivation = null,
+    scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
     unknownFormDefaultPOSTags = listOf(POSTag("NN"), POSTag("JJ")),
     wordEmbeddingSize = 100,

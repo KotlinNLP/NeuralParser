@@ -11,6 +11,7 @@ import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.templates.actionsscorer.TPDEmbeddingsActionsScorer
 import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensAmbiguousPOSContext
+import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
 import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.ArcStandardTransition
@@ -27,6 +28,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitio
 /**
  * The ArcStandardTPDActionsScorer.
  *
+ * @param activationFunction the function used to activate the actions scores
  * @param transitionNetwork a neural network to score the transitions
  * @param posNetwork a neural network to score the posTags
  * @param deprelNetwork a neural network to score the deprels
@@ -37,6 +39,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitio
  * @param deprelTags the dictionary set of deprels
  */
 class ArcStandardTPDActionsScorer(
+  activationFunction: ActivationFunction?,
   transitionNetwork: NeuralNetwork,
   posNetwork: NeuralNetwork,
   deprelNetwork: NeuralNetwork,
@@ -51,6 +54,7 @@ class ArcStandardTPDActionsScorer(
     ArcStandardTransition,
     TokensAmbiguousPOSContext>
   (
+    activationFunction = activationFunction,
     transitionNetwork = transitionNetwork,
     posNetwork = posNetwork,
     deprelNetwork = deprelNetwork,

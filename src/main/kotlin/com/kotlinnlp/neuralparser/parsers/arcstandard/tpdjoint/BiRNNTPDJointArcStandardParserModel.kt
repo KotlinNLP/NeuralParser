@@ -23,6 +23,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
 /**
  * The parser model for the ArcStandard parser based on the BiRNN with Transition+POS+Deprel joint scoring.
  *
+ * @property actionsScoresActivation the function used to activate the actions scores (can be null)
  * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property unknownFormDefaultPOSTags the list of POS tags to use for unknown forms
@@ -35,6 +36,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @param scorerNetworksConfig the configuration of the scorer networks
  */
 class BiRNNTPDJointArcStandardParserModel(
+  val actionsScoresActivation: ActivationFunction?,
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,
   unknownFormDefaultPOSTags: List<POSTag>,

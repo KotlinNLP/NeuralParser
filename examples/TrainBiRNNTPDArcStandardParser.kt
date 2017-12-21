@@ -53,6 +53,7 @@ fun main(args: Array<String>) {
   }
 
   val parserModel = BiRNNTPDArcStandardParserModel(
+    actionsScoresActivation = null,
     scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
     unknownFormDefaultPOSTags = listOf(POSTag("NN"), POSTag("JJ")),

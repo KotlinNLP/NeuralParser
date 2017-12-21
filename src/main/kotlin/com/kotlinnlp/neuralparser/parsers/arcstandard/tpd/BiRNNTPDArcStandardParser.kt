@@ -91,6 +91,7 @@ class BiRNNTPDArcStandardParser(
    * @return the [ActionsScorer] used in this parser
    */
   override fun buildActionsScorer() = ArcStandardTPDActionsScorer(
+    activationFunction = this.model.actionsScoresActivation,
     transitionNetwork = this.model.transitionScorerNetwork,
     deprelNetwork = this.model.deprelScorerNetwork,
     posNetwork = this.model.posTagsScorerNetwork,
