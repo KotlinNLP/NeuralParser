@@ -86,9 +86,10 @@ class BiRNNATPDJoint2ArcStandardParser(
   /**
    * @return the [ActionsGenerator] used in this parser
    */
-  override fun buildActionsGenerator() = ActionsGenerator.MorphoSyntacticLabeled<StackBufferState, ArcStandardTransition>(
-    deprels = this.model.corpusDictionary.deprelTags.getElementsReversedSet().groupBy { it.direction },
-    deprelPosTagCombinations = this.model.corpusDictionary.deprelPosTagCombinations)
+  override fun buildActionsGenerator() =
+    ActionsGenerator.MorphoSyntacticLabeled<StackBufferState, ArcStandardTransition>(
+      deprels = this.model.corpusDictionary.deprelTags.getElementsReversedSet().groupBy { it.direction },
+      deprelPosTagCombinations = this.model.corpusDictionary.deprelPosTagCombinations)
 
   /**
    * @return the [ActionsScorer] used in this parser
