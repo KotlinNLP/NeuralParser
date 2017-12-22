@@ -37,7 +37,7 @@ fun main(args: Array<String>) {
 
   println("Loading training sentences...")
   val trainingSentences = ArrayList<Sentence>()
-  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true, maxSentences = 3000)
+  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true)
 
   println("Creating corpus dictionary...")
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
