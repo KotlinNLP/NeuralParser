@@ -129,13 +129,18 @@ class ArcStandardATPDFeaturesExtractor(
   ): DenseFeatures {
 
     val trainingMode = decodingContext.extendedState.context.trainingMode
+    val appliedActions = decodingContext.extendedState.appliedActions
+
+    if (trainingMode && appliedActions.isEmpty()){
+      this.appliedActionsEncodingErrors.clear()
+      this.appliedActions.clear()
+    }
 
     if (trainingMode && this.appliedActions.size > this.appliedActionsEncodingErrors.size) {
       // The backward wasn't called for the last applied action
       this.appliedActionsEncodingErrors.add(this.appliedActionZerosErrors)
     }
 
-    val appliedActions = decodingContext.extendedState.appliedActions
     val lastAppliedActionVector: DenseNDArray = if (appliedActions.isEmpty()) {
 
       if (trainingMode) {
