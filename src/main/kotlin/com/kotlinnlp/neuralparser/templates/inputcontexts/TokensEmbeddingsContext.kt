@@ -49,7 +49,7 @@ class TokensEmbeddingsContext(
   /**
    * @return the items id to initialize a [State]
    */
-  override fun getInitialStateItemsId() = if (this.skipPunctuation)
+  override fun getInitialStateItemsId() = if (!this.skipPunctuation)
     super.getInitialStateItemsId()
   else
     this.tokens
