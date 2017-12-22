@@ -28,7 +28,8 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @property actionsScoresActivation the function used to activate the actions scores (can be null)
  * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
- * @property unknownFormDefaultPOSTags the list of POS tags to use for unknown forms
+ * @property nounDefaultPOSTag the 'Noun' POS tag used for title case unknown forms
+ * @property otherDefaultPOSTags the list of POS tags used for other unknown forms
  * @property wordEmbeddingSize the size of each word embedding vector
  * @property posEmbeddingSize the size of each POS embedding vector
  * @property actionsEmbeddingsSize the size of each action embedding vector
@@ -43,7 +44,8 @@ class BiRNNATPDJointArcStandardParserModel(
   val actionsScoresActivation: ActivationFunction?,
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,
-  unknownFormDefaultPOSTags: List<POSTag>,
+  nounDefaultPOSTag: POSTag,
+  otherDefaultPOSTags: List<POSTag>,
   wordEmbeddingSize: Int,
   posEmbeddingSize: Int,
   val actionsEmbeddingsSize: Int,
@@ -56,7 +58,8 @@ class BiRNNATPDJointArcStandardParserModel(
 ) : BiRNNAmbiguousPOSParserModel(
   scoreAccumulatorFactory = scoreAccumulatorFactory,
   corpusDictionary = corpusDictionary,
-  unknownFormDefaultPOSTags = unknownFormDefaultPOSTags,
+  nounDefaultPOSTag = nounDefaultPOSTag,
+  otherDefaultPOSTags = otherDefaultPOSTags,
   wordEmbeddingSize = wordEmbeddingSize,
   posEmbeddingSize = posEmbeddingSize,
   preTrainedWordEmbeddings = preTrainedWordEmbeddings,

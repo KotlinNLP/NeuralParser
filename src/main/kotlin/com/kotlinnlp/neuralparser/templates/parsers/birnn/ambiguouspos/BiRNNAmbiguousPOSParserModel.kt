@@ -23,7 +23,8 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  *
  * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
- * @property unknownFormDefaultPOSTags the list of POS tags to use for unknown forms
+ * @property nounDefaultPOSTag the 'Noun' POS tag used for title case unknown forms
+ * @property otherDefaultPOSTags the list of POS tags used for other unknown forms
  * @property wordEmbeddingSize the size of each word embedding vector
  * @property posEmbeddingSize the size of each pos embedding vector
  * @property preTrainedWordEmbeddings pre-trained word embeddings to add to the tokens encodings (can be null)
@@ -34,7 +35,8 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
 abstract class BiRNNAmbiguousPOSParserModel(
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   val corpusDictionary: CorpusDictionary,
-  val unknownFormDefaultPOSTags: List<POSTag>,
+  val nounDefaultPOSTag: POSTag,
+  val otherDefaultPOSTags: List<POSTag>,
   val wordEmbeddingSize: Int,
   val posEmbeddingSize: Int,
   val preTrainedWordEmbeddings: EmbeddingsMap<String>?,
@@ -46,7 +48,7 @@ abstract class BiRNNAmbiguousPOSParserModel(
   companion object {
 
     /**
-     * Private val used to serialize the class (needed from Serializable)
+     * Private val used to serialize the class (needed from Serializable).
      */
     @Suppress("unused")
     private const val serialVersionUID: Long = 1L
@@ -56,6 +58,12 @@ abstract class BiRNNAmbiguousPOSParserModel(
    * The number of all possible POS tags.
    */
   val posTagsSize: Int = this.corpusDictionary.posTags.size
+
+  /**
+   * The list of POS tags used for unknown forms.
+   */
+  val unknownFormDefaultPOSTags: List<POSTag> =
+    this.otherDefaultPOSTags.toSet().union(setOf(this.nounDefaultPOSTag)).toList() // a list with unique elements
 
   /**
    * The input size of the [biRNN].

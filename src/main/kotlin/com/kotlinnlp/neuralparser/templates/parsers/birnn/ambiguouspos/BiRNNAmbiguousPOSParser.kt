@@ -85,10 +85,15 @@ abstract class BiRNNAmbiguousPOSParser<
 
     val tokens: List<Token> = sentence.tokens
     val posTags: List<List<POSTag>> = tokens.map {
-      if (this.model.corpusDictionary.formsToPosTags.containsKey(it.normalizedWord))
-        this.model.corpusDictionary.formsToPosTags[it.normalizedWord].toList()
-      else
-        this.model.unknownFormDefaultPOSTags
+      when {
+
+        this.model.corpusDictionary.formsToPosTags.containsKey(it.normalizedWord) ->
+          this.model.corpusDictionary.formsToPosTags[it.normalizedWord].toList()
+
+        it.normalizedWord.isTitleCase() -> listOf(this.model.nounDefaultPOSTag)
+
+        else -> this.model.unknownFormDefaultPOSTags
+      }
     }
 
     val wordEmbeddings: List<Embedding> = tokens.map {
@@ -160,4 +165,12 @@ abstract class BiRNNAmbiguousPOSParser<
       concatVectorsV(posVector, wordEmbedding.array.values, preTrainedWordEmbedding.array.values)
     else
       concatVectorsV(posVector, wordEmbedding.array.values)
+
+  /**
+   * Whether a string is title case: first char upper case and all the others lower case.
+   *
+   * @return a Boolean indicating if this string is title case
+   */
+  private fun String.isTitleCase(): Boolean =
+    this.first().isUpperCase() && this.substring(1, this.length).all { it.isLowerCase() }
 }
