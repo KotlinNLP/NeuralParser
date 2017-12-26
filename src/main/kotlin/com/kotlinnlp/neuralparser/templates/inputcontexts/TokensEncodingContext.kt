@@ -22,7 +22,8 @@ import com.kotlinnlp.syntaxdecoder.context.InputContext
 abstract class TokensEncodingContext<SelfType: TokensEncodingContext<SelfType>>(
   val tokens: List<Token>,
   val encodingSize: Int,
-  val nullItemVector: DenseNDArray
+  val nullItemVector: DenseNDArray,
+  val trainingMode: Boolean = false
 ) : InputContext<SelfType, DenseItem> {
 
   /**

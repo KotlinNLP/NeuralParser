@@ -31,11 +31,13 @@ class TreeEncoderContext(
   val wordEmbeddings: List<Embedding>,
   nullItemVector: DenseNDArray,
   encodingSize: Int,
-  val tokensEncodings: List<TreeEncoder.Node>
+  val tokensEncodings: List<TreeEncoder.Node>,
+  trainingMode: Boolean
 ) : TokensEncodingContext<TreeEncoderContext>(
   tokens = tokens,
   nullItemVector = nullItemVector,
-  encodingSize = encodingSize
+  encodingSize = encodingSize,
+  trainingMode = trainingMode
 ) {
 
   /**

@@ -35,11 +35,12 @@ class TokensAmbiguousPOSContext(
   unknownItemVector: DenseNDArray,
   encodingSize: Int,
   val tokensEncodings: Array<DenseNDArray>,
-  val trainingMode: Boolean = false
+  trainingMode: Boolean
 ) : TokensEncodingContext<TokensAmbiguousPOSContext>(
   tokens = tokens,
   encodingSize = encodingSize,
-  nullItemVector = unknownItemVector) {
+  nullItemVector = unknownItemVector,
+  trainingMode = trainingMode) {
 
   /**
    * @param itemId the id of an item
@@ -60,5 +61,6 @@ class TokensAmbiguousPOSContext(
     preTrainedWordEmbeddings = this.preTrainedWordEmbeddings,
     unknownItemVector = this.nullItemVector,
     encodingSize = this.encodingSize,
-    tokensEncodings = this.tokensEncodings)
+    tokensEncodings = this.tokensEncodings,
+    trainingMode = this.trainingMode)
 }

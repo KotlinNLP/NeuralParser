@@ -33,12 +33,14 @@ class TokensCharsEncodingContext(
   val wordEmbeddings: List<Embedding>,
   encodingSize: Int,
   nullItemVector: DenseNDArray,
-  val tokensEncodings: Array<DenseNDArray>
+  val tokensEncodings: Array<DenseNDArray>,
+  trainingMode: Boolean
 ) :
   TokensEncodingContext<TokensCharsEncodingContext>(
     tokens = tokens,
     encodingSize = encodingSize,
-    nullItemVector = nullItemVector
+    nullItemVector = nullItemVector,
+    trainingMode = trainingMode
   ) {
 
   /**
@@ -60,6 +62,7 @@ class TokensCharsEncodingContext(
     wordEmbeddings = this.wordEmbeddings,
     encodingSize = this.encodingSize,
     nullItemVector = this.nullItemVector,
-    tokensEncodings = this.tokensEncodings
+    tokensEncodings = this.tokensEncodings,
+    trainingMode = this.trainingMode
   )
 }

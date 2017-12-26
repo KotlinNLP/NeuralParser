@@ -32,11 +32,13 @@ class TokensEmbeddingsContext(
   unknownItemVector: DenseNDArray,
   encodingSize: Int,
   val tokensEncodings: Array<DenseNDArray>,
-  private val skipPunctuation: Boolean = false
+  private val skipPunctuation: Boolean = false,
+  trainingMode: Boolean
 ) : TokensEncodingContext<TokensEmbeddingsContext>(
   tokens = tokens,
   encodingSize = encodingSize,
-  nullItemVector = unknownItemVector) {
+  nullItemVector = unknownItemVector,
+  trainingMode = trainingMode) {
 
   /**
    * @param itemId the id of an item
@@ -66,5 +68,6 @@ class TokensEmbeddingsContext(
     wordEmbeddings = this.wordEmbeddings,
     unknownItemVector = this.nullItemVector,
     encodingSize = this.encodingSize,
-    tokensEncodings = this.tokensEncodings)
+    tokensEncodings = this.tokensEncodings,
+    trainingMode = this.trainingMode)
 }

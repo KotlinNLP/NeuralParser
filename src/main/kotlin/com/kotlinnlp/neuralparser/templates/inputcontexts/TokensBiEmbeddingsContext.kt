@@ -29,7 +29,8 @@ class TokensBiEmbeddingsContext(
   val posEmbeddings: List<Embedding>,
   val wordEmbeddings: List<Embedding>,
   val tokensDependentEncodings: List<DenseNDArray>,
-  val tokensGovernorEncodings: List<DenseNDArray>
+  val tokensGovernorEncodings: List<DenseNDArray>,
+  val trainingMode: Boolean = false
 ) :
   InputContext<TokensBiEmbeddingsContext, MultiDenseItem> {
 
