@@ -34,7 +34,7 @@ class TokensCharsEncodingContext(
   encodingSize: Int,
   nullItemVector: DenseNDArray,
   val tokensEncodings: Array<DenseNDArray>,
-  trainingMode: Boolean
+  trainingMode: Boolean = false
 ) :
   TokensEncodingContext<TokensCharsEncodingContext>(
     tokens = tokens,

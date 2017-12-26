@@ -33,7 +33,7 @@ class TokensEmbeddingsContext(
   encodingSize: Int,
   val tokensEncodings: Array<DenseNDArray>,
   private val skipPunctuation: Boolean = false,
-  trainingMode: Boolean
+  trainingMode: Boolean = false
 ) : TokensEncodingContext<TokensEmbeddingsContext>(
   tokens = tokens,
   encodingSize = encodingSize,
