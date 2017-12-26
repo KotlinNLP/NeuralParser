@@ -9,8 +9,8 @@ package com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint2
 
 import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.dependencytree.POSTag
-import com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint2.actionsembeddings.ActionsVectorsMap
-import com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint2.actionsembeddings.ActionsVectorsOptimizer
+import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsMap
+import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensAmbiguousPOSContext
 import com.kotlinnlp.neuralparser.templates.featuresextractor.EmbeddingsFeaturesExtractor
 import com.kotlinnlp.neuralparser.templates.featuresextractor.TokensWindowFeaturesExtractorTrainable

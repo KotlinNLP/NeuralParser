@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint2
 import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.parsers.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint2.actionsembeddings.ActionsVectorsMap
+import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsMap
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ActionsScorerNetworkBuilder
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserModel
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
