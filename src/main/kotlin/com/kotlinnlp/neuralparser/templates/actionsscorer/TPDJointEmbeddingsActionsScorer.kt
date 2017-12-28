@@ -197,7 +197,7 @@ abstract class TPDJointEmbeddingsActionsScorer<
    *
    * @return the array of action scores
    */
-  private fun combineScores(actions: List<Transition<TransitionType, StateType>.Action>,
+  protected open fun combineScores(actions: List<Transition<TransitionType, StateType>.Action>,
                             transitionPrediction: DenseNDArray,
                             posPrediction: DenseNDArray,
                             deprelPrediction: DenseNDArray): DenseNDArray =
@@ -224,7 +224,7 @@ abstract class TPDJointEmbeddingsActionsScorer<
    *
    * @return the array of output errors
    */
-  private fun getOutputErrors(actions: List<Transition<TransitionType, StateType>.Action>,
+  protected open fun getOutputErrors(actions: List<Transition<TransitionType, StateType>.Action>,
                               transitionOutcomes: DenseNDArray,
                               posOutcomes: DenseNDArray,
                               deprelOutcomes: DenseNDArray): Triple<DenseNDArray, DenseNDArray, DenseNDArray> {
