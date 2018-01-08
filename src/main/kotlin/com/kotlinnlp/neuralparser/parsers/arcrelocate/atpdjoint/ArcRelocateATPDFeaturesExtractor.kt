@@ -99,5 +99,6 @@ class ArcRelocateATPDFeaturesExtractor(
     stateView.state.stack.getItemOrNull(-3),
     stateView.state.stack.getItemOrNull(-2),
     stateView.state.stack.getItemOrNull(-1),
-    stateView.state.buffer.getItemOrNull(0))
+    stateView.state.buffer.getItemOrNull(0),
+    stateView.state.buffer.getItemOrNull(1))
 }

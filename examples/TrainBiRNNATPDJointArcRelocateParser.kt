@@ -72,7 +72,7 @@ fun main(args: Array<String>) {
     appliedActionsNetworkConfig = BiRNNATPDJointArcRelocateParserModel.AppliedActionsNetworkConfiguration(
       outputSize = 100,
       activation = Tanh(),
-      connectionType = LayerType.Connection.LSTM
+      connectionType = LayerType.Connection.RAN
     ))
 
   val parser = BiRNNATPDJointArcRelocateParser(
