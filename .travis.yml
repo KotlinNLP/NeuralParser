@@ -1,0 +1,18 @@
+language: java
+
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+
+os:
+  - linux
+
+jdk:
+  - oraclejdk8
+
+install: true
+
+script: mvn test compile -B -Dmaven.javadoc.skip=true
