@@ -19,7 +19,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.StateView
 
 /**
- * The FeaturesExtractor that extracts Embeddings as features for the ArcEagerSpine transition system.
+ * The FeaturesExtractor that extracts features concatenating the encodings of a tokens window.
  */
 abstract class TokensWindowFeaturesExtractorTrainable<
   StateType : State<StateType>,
