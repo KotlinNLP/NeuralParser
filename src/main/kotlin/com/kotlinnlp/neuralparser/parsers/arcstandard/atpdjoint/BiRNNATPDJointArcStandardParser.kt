@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint2
+package com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint
 
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.parsers.arcstandard.tpdjoint.ArcStandardTPDJointActionsScorer
@@ -51,8 +51,8 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
  * @param beamSize the max size of the beam (default = 1)
  * @param maxParallelThreads the max number of threads that can run in parallel (default = 1, ignored if beamSize is 1)
  */
-class BiRNNATPDJoint2ArcStandardParser(
-  model: BiRNNATPDJoint2ArcStandardParserModel,
+class BiRNNATPDJointArcStandardParser(
+  model: BiRNNATPDJointArcStandardParserModel,
   wordDropoutCoefficient: Double = 0.0,
   beamSize: Int = 1,
   maxParallelThreads: Int = 1
@@ -63,7 +63,7 @@ class BiRNNATPDJoint2ArcStandardParser(
     DenseFeaturesErrors,
     DenseFeatures,
     ATPDJointSupportStructure,
-    BiRNNATPDJoint2ArcStandardParserModel>
+    BiRNNATPDJointArcStandardParserModel>
   (
     model = model,
     wordDropoutCoefficient = wordDropoutCoefficient,

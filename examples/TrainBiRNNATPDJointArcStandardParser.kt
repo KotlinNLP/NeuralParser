@@ -10,8 +10,8 @@ import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint2.BiRNNATPDJoint2ArcStandardParser
-import com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint2.BiRNNATPDJoint2ArcStandardParserModel
+import com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint.BiRNNATPDJointArcStandardParser
+import com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint.BiRNNATPDJointArcStandardParserModel
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserTrainer
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
@@ -22,7 +22,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.ArcStanda
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.AverageAccumulator
 
 /**
- * Train a [BiRNNATPDJoint2ArcStandardParser].
+ * Train a [BiRNNATPDJointArcStandardParser].
  *
  * Command line arguments:
  *  1. The number of training epochs
@@ -52,7 +52,7 @@ fun main(args: Array<String>) {
     null
   }
 
-  val parserModel = BiRNNATPDJoint2ArcStandardParserModel(
+  val parserModel = BiRNNATPDJointArcStandardParserModel(
     actionsScoresActivation = null,
     scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
@@ -69,13 +69,13 @@ fun main(args: Array<String>) {
       hiddenSize = 100,
       hiddenActivation = Tanh(),
       outputActivation = null),
-    appliedActionsNetworkConfig = BiRNNATPDJoint2ArcStandardParserModel.AppliedActionsNetworkConfiguration(
+    appliedActionsNetworkConfig = BiRNNATPDJointArcStandardParserModel.AppliedActionsNetworkConfiguration(
       outputSize = 100,
       activation = Tanh(),
       connectionType = LayerType.Connection.RAN
     ))
 
-  val parser = BiRNNATPDJoint2ArcStandardParser(
+  val parser = BiRNNATPDJointArcStandardParser(
     model = parserModel,
     wordDropoutCoefficient = 0.25)
 

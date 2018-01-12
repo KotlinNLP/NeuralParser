@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint2
+package com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint
 
 import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
@@ -40,7 +40,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @param appliedActionsNetworkConfig the configuration of the network used to encode the last applied actions
  * @param scorerNetworksConfig the configuration of the scorer networks
  */
-class BiRNNATPDJoint2ArcStandardParserModel(
+class BiRNNATPDJointArcStandardParserModel(
   val actionsScoresActivation: ActivationFunction?,
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,
