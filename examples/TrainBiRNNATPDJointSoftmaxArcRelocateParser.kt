@@ -23,7 +23,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcrelocate.ArcReloca
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.LogarithmicAccumulator
 
 /**
- * Train a [BiRNNATPDJointArcRelocateParser].
+ * Train a [BiRNNATPDJointArcRelocateParser] with a Softmax activations of the actions scores.
  *
  * Command line arguments:
  *  1. The number of training epochs
