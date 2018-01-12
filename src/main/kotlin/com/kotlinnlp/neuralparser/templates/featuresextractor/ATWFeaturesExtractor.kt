@@ -27,8 +27,8 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.StateView
 import com.kotlinnlp.syntaxdecoder.utils.DecodingContext
 
 /**
- * The [EmbeddingsFeaturesExtractor] that extracts features combining word Embeddings, ambiguous POS vectors and an
- * encoding of the past applied actions.
+ * The [EmbeddingsFeaturesExtractor] that extracts features concatenating word Embeddings and ambiguous POS vectors of
+ * a tokens window with the encoding of the last applied actions.
  *
  * @param actionsVectors the encoding vectors of the actions
  * @param actionsVectorsOptimizer the optimizer of the [actionsVectors]
