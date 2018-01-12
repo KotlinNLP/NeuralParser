@@ -43,7 +43,7 @@ abstract class ATWFeaturesExtractor<
   private val actionsVectorsOptimizer: ActionsVectorsOptimizer,
   private val actionsEncoderOptimizer: ParamsOptimizer<NetworkParameters>,
   private val actionsEncodingSize: Int
-) : TokensWindowFeaturesExtractorTrainable<
+) : TWFeaturesExtractorTrainable<
   StateType,
   TransitionType,
   InputContextType,

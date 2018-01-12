@@ -21,7 +21,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.StateView
 /**
  * The FeaturesExtractor that extracts features concatenating the encodings of a tokens window.
  */
-abstract class TokensWindowFeaturesExtractorTrainable<
+abstract class TWFeaturesExtractorTrainable<
   StateType : State<StateType>,
   TransitionType : Transition<TransitionType, StateType>,
   InputContextType: TokensEncodingContext<InputContextType>,

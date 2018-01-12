@@ -8,7 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.arceagerspine
 
 import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensEmbeddingsContext
-import com.kotlinnlp.neuralparser.templates.featuresextractor.TokensWindowFeaturesExtractorTrainable
+import com.kotlinnlp.neuralparser.templates.featuresextractor.TWFeaturesExtractorTrainable
 import com.kotlinnlp.neuralparser.templates.supportstructure.multiprediction.MPSupportStructure
 import com.kotlinnlp.neuralparser.utils.features.GroupedDenseFeatures
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
@@ -28,7 +28,7 @@ import com.kotlinnlp.syntaxdecoder.utils.toTransitionsMap
  */
 class ArcEagerSpineEmbeddingsFeaturesExtractor
   :
-  TokensWindowFeaturesExtractorTrainable<
+  TWFeaturesExtractorTrainable<
     ArcEagerSpineState,
     ArcEagerSpineTransition,
     TokensEmbeddingsContext,

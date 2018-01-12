@@ -27,7 +27,7 @@ abstract class EmbeddingsFeaturesExtractor<
   InputContextType: TokensEncodingContext<InputContextType>,
   in SupportStructureType : DecodingSupportStructure>
   :
-  TokensWindowFeaturesExtractorTrainable<
+  TWFeaturesExtractorTrainable<
     StateType,
     TransitionType,
     InputContextType,
