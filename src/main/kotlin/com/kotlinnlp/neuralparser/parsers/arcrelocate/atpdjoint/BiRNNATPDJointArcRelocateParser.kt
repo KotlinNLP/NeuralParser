@@ -40,8 +40,8 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
  * It uses Embeddings and ambiguous POS vectors to encode the tokens of a sentence through a BiRNN.
  * The features for the actions scoring are composed by the concatenation of the token encoding and the embedding vector
  * of the last applied action.
- * Actions are scored combining the result of specialized neural networks that score singularly the Transition+Deprel
- * (a multitask joint network), and the POS tag.
+ * Actions are scored combining the results of specialized neural networks that score the Transition and the Deprel
+ * (together with a multitask joint network), and the POS tag.
  *
  * If the beamSize is 1 then a [GreedyDecoder] is used, a [BeamDecoder] otherwise.
  *
