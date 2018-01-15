@@ -302,14 +302,17 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun buildAttentionInputSequence(actionDecoder: RecurrentNeuralProcessor<DenseNDArray>,
                                           context: InputContextType,
-                                          isFirstState: Boolean): ArrayList<AugmentedArray<DenseNDArray>> =
+                                          isFirstState: Boolean): ArrayList<AugmentedArray<DenseNDArray>> {
 
-    ArrayList(context.items.map {
-      AugmentedArray(values = concatVectorsV(
-        context.getTokenEncoding(it.id),
-        if (isFirstState) this.featuresEncodingZerosArray else actionDecoder.getOutput(copy = true)
-      ))
+    val lastFeaturesEncoding: DenseNDArray = if (isFirstState)
+      this.featuresEncodingZerosArray
+    else
+      actionDecoder.getOutput(copy = true)
+
+    return ArrayList(context.items.map {
+      AugmentedArray(values = concatVectorsV(context.getTokenEncoding(it.id), lastFeaturesEncoding))
     })
+  }
 
   /**
    * Reset the history of the last sentence processed.
