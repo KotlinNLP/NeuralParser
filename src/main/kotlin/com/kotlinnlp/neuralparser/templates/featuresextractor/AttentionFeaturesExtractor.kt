@@ -225,8 +225,9 @@ abstract class AttentionFeaturesExtractor<
     supportStructure: AttentionDecodingSupportStructure
   ): DenseNDArray {
 
-    val isFirstState: Boolean = appliedActions.isEmpty()
     val appliedActions = decodingContext.extendedState.appliedActions
+    val isFirstState: Boolean = appliedActions.isEmpty()
+
     val attentionNetwork = this.getAttentionNetwork(
       supportStructure = supportStructure,
       firstState = isFirstState,
