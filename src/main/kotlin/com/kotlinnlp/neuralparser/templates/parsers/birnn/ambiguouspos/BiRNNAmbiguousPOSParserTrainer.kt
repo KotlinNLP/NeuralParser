@@ -149,7 +149,7 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
   /**
    *
    */
-  private fun propagateErrors(context: TokensAmbiguousPOSContext) {
+  protected fun propagateErrors(context: TokensAmbiguousPOSContext) {
 
     this.neuralParser.biRNNEncoder.backward(
       outputErrorsSequence = context.items.map { it.errors?.array ?: this.zerosErrors }.toTypedArray(),
