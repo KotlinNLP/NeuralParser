@@ -136,7 +136,7 @@ class BiRNNAttentionArcStandardParser(
     actionAttentionNetworkOptimizer = ParamsOptimizer(
       params = this.model.actionAttentionNetworkParams,
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
-    featuresEncodingSize = this.model.actionAttentionNetworkParams.outputSize,
+    featuresEncodingSize = this.model.featuresEncodingSize,
     posTags = this.model.corpusDictionary.posTags,
     deprelTags = this.model.corpusDictionary.deprelTags)
 
