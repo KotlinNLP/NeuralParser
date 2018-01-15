@@ -94,9 +94,9 @@ abstract class AttentionFeaturesExtractor<
   private val featuresErrorsList = mutableListOf<DenseNDArray>()
 
   /**
-   * The zeros array used as features encoding errors when no relevant errors are found.
+   * The zeros array used as null features encoding.
    */
-  private val featuresEncodingZerosErrors = DenseNDArrayFactory.zeros(Shape(featuresEncodingSize))
+  private val featuresEncodingZerosArray = DenseNDArrayFactory.zeros(Shape(featuresEncodingSize))
 
   /**
    * The structure used to store the params errors of the Attention Network during the backward.
@@ -232,10 +232,11 @@ abstract class AttentionFeaturesExtractor<
     supportStructure: AttentionDecodingSupportStructure
   ): DenseNDArray {
 
+    val isFirstState: Boolean = appliedActions.isEmpty()
     val appliedActions = decodingContext.extendedState.appliedActions
     val attentionNetwork = this.getAttentionNetwork(
       supportStructure = supportStructure,
-      firstState = appliedActions.isEmpty(),
+      firstState = isFirstState,
       trainingMode = decodingContext.extendedState.context.trainingMode)
 
     val lastAppliedActionEncoding: DenseNDArray = this.getLastAppliedActionEncoding(
@@ -243,11 +244,14 @@ abstract class AttentionFeaturesExtractor<
       trainingMode = decodingContext.extendedState.context.trainingMode)
 
     val encodedStatesAttention: DenseNDArray = attentionNetwork.forward(
-      inputSequence = this.buildAttentionInputSequence(context = decodingContext.extendedState.context))
+      inputSequence = this.buildAttentionInputSequence(
+        actionDecoder = supportStructure.actionDecoder,
+        context = decodingContext.extendedState.context,
+        isFirstState = isFirstState))
 
     return supportStructure.actionDecoder.forward(
       featuresArray = concatVectorsV(lastAppliedActionEncoding, encodedStatesAttention),
-      firstState = appliedActions.isEmpty())
+      firstState = isFirstState)
   }
 
   /**
@@ -299,12 +303,22 @@ abstract class AttentionFeaturesExtractor<
   }
 
   /**
+   * @param actionDecoder the action decoder
    * @param context the input context
+   * @param isFirstState a boolean indicating if the current is the first state of the sentence
    *
    * @return the input sequence of the decoding Attention Network
    */
-  private fun buildAttentionInputSequence(context: InputContextType): ArrayList<AugmentedArray<DenseNDArray>> =
-    ArrayList(context.items.map { AugmentedArray(values = context.getTokenEncoding(it.id)) })
+  private fun buildAttentionInputSequence(actionDecoder: RecurrentNeuralProcessor<DenseNDArray>,
+                                          context: InputContextType,
+                                          isFirstState: Boolean): ArrayList<AugmentedArray<DenseNDArray>> =
+
+    ArrayList(context.items.map {
+      AugmentedArray(values = concatVectorsV(
+        context.getTokenEncoding(it.id),
+        if (isFirstState) this.featuresEncodingZerosArray else actionDecoder.getOutput(copy = true)
+      ))
+    })
 
   /**
    * Reset the history of the last sentence processed.
@@ -323,7 +337,7 @@ abstract class AttentionFeaturesExtractor<
   private fun checkMissingBackwardCall() {
 
     if (this.appliedActions.size > this.featuresErrorsList.size) {
-      this.featuresErrorsList.add(this.featuresEncodingZerosErrors)
+      this.featuresErrorsList.add(this.featuresEncodingZerosArray)
     }
   }
 
