@@ -111,13 +111,6 @@ abstract class AttentionFeaturesExtractor<
   private lateinit var actionDecoder: RecurrentNeuralProcessor<DenseNDArray>
 
   /**
-   * The Attention Network used to decode the action features.
-   * It is saved during the extract to make the backward working on it.
-   * (Its usage makes the training no thread safe).
-   */
-  private lateinit var attentionNetwork: AttentionNetwork<DenseNDArray>
-
-  /**
    * The last decoding context used.
    * (Its usage makes the training no thread safe).
    */
@@ -249,9 +242,7 @@ abstract class AttentionFeaturesExtractor<
         context = decodingContext.extendedState.context,
         isFirstState = isFirstState))
 
-    return supportStructure.actionDecoder.forward(
-      featuresArray = concatVectorsV(lastAppliedActionEncoding, encodedStatesAttention),
-      firstState = isFirstState)
+    return concatVectorsV(lastAppliedActionEncoding, encodedStatesAttention)
   }
 
   /**
@@ -404,9 +395,9 @@ abstract class AttentionFeaturesExtractor<
         errors.length - this.decodingContext.extendedState.context.encodingSize
       )
 
-      this.lastRecurrentErrors = if (i == 0) splitErrors[0] else this.lastRecurrentErrors.assignSum(splitErrors[0])
+      this.decodingContext.extendedState.context.accumulateItemErrors(itemIndex = i, errors = splitErrors[0])
 
-      this.decodingContext.extendedState.context.accumulateItemErrors(itemIndex = i, errors = splitErrors[1])
+      this.lastRecurrentErrors = if (i == 0) splitErrors[1] else this.lastRecurrentErrors.assignSum(splitErrors[1])
     }
   }
 
@@ -416,7 +407,7 @@ abstract class AttentionFeaturesExtractor<
   private fun getAttentionParamsErrors(): AttentionNetworkParameters = try {
     this.attentionNetworkParamsErrors
   } catch (e: UninitializedPropertyAccessException) {
-    this.attentionNetworkParamsErrors = this.attentionNetwork.model.copy()
+    this.attentionNetworkParamsErrors = this.usedAttentionNetworks.last().model.copy()
     this.attentionNetworkParamsErrors
   }
 
