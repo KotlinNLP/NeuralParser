@@ -96,6 +96,11 @@ abstract class BiRNNAttentionParserModel(
   private val posTagsCount = this.corpusDictionary.posTags.size
 
   /**
+   * The size of the features encoding.
+   */
+  val featuresEncodingSize: Int = actionNetworkConfig.outputSize
+
+  /**
    * The actions encoding vectors map.
    */
   val actionsVectors = ActionsVectorsMap(
