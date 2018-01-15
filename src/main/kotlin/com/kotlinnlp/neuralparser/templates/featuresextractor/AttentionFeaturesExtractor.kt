@@ -89,11 +89,6 @@ abstract class AttentionFeaturesExtractor<
   private val usedAttentionNetworks = mutableListOf<AttentionNetwork<DenseNDArray>>()
 
   /**
-   * The structure used to store the params errors of the Attention Network during the backward.
-   */
-  private val attentionNetworkParamsErrors: AttentionNetworkParameters = this.attentionNetwork.model.copy()
-
-  /**
    * The list of the errors of all the features extracted during the decoding of the current sentence.
    */
   private val featuresErrorsList = mutableListOf<DenseNDArray>()
@@ -102,6 +97,11 @@ abstract class AttentionFeaturesExtractor<
    * The zeros array used as features encoding errors when no relevant errors are found.
    */
   private val featuresEncodingZerosErrors = DenseNDArrayFactory.zeros(Shape(featuresEncodingSize))
+
+  /**
+   * The structure used to store the params errors of the Attention Network during the backward.
+   */
+  private lateinit var attentionNetworkParamsErrors: AttentionNetworkParameters
 
   /**
    * The RNN used to decode the action features.
@@ -378,12 +378,10 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun backwardAttentionNetwork(attentionNetwork: AttentionNetwork<DenseNDArray>, outputErrors: DenseNDArray) {
 
-    attentionNetwork.backward(
-      outputErrors = outputErrors,
-      paramsErrors = this.attentionNetworkParamsErrors,
-      propagateToInput = true)
+    val paramsErrors: AttentionNetworkParameters = this.getAttentionParamsErrors()
 
-    this.actionAttentionNetworkOptimizer.accumulate(this.attentionNetworkParamsErrors)
+    attentionNetwork.backward(outputErrors = outputErrors, paramsErrors = paramsErrors, propagateToInput = true)
+    this.actionAttentionNetworkOptimizer.accumulate(paramsErrors)
 
     attentionNetwork.getInputErrors().forEachIndexed { i, errors ->
 
@@ -396,6 +394,16 @@ abstract class AttentionFeaturesExtractor<
 
       this.decodingContext.extendedState.context.accumulateItemErrors(itemIndex = i, errors = splitErrors[1])
     }
+  }
+
+  /**
+   * @return the Attention Network params errors
+   */
+  private fun getAttentionParamsErrors(): AttentionNetworkParameters = try {
+    this.attentionNetworkParamsErrors
+  } catch (e: UninitializedPropertyAccessException) {
+    this.attentionNetworkParamsErrors = this.attentionNetwork.model.copy()
+    this.attentionNetworkParamsErrors
   }
 
   /**
