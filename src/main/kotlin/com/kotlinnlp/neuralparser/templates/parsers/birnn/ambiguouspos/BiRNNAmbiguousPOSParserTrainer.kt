@@ -42,10 +42,10 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
   TransitionType : Transition<TransitionType, StateType>,
   FeaturesErrorsType: FeaturesErrors,
   FeaturesType : Features<FeaturesErrorsType, *>,
-  out SupportStructureType : DecodingSupportStructure,
+  SupportStructureType : DecodingSupportStructure,
   ModelType: BiRNNAmbiguousPOSParserModel
   >(
-  private val neuralParser: BiRNNAmbiguousPOSParser<StateType, TransitionType, FeaturesErrorsType, FeaturesType,
+  protected val neuralParser: BiRNNAmbiguousPOSParser<StateType, TransitionType, FeaturesErrorsType, FeaturesType,
     SupportStructureType, ModelType>,
   actionsErrorsSetter: ActionsErrorsSetter<StateType, TransitionType, DenseItem, TokensAmbiguousPOSContext>,
   oracleFactory: OracleFactory<StateType, TransitionType>,
