@@ -236,13 +236,13 @@ abstract class AttentionFeaturesExtractor<
       appliedActions = appliedActions,
       trainingMode = decodingContext.extendedState.context.trainingMode)
 
-    val encodedStatesAttention: DenseNDArray = attentionNetwork.forward(
+    val encodedTokensWithLastAction: DenseNDArray = attentionNetwork.forward(
       inputSequence = this.buildAttentionInputSequence(
         actionDecoder = supportStructure.actionDecoder,
         context = decodingContext.extendedState.context,
         isFirstState = isFirstState))
 
-    return concatVectorsV(lastAppliedActionEncoding, encodedStatesAttention)
+    return concatVectorsV(lastAppliedActionEncoding, encodedTokensWithLastAction)
   }
 
   /**
