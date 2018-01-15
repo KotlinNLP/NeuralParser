@@ -286,9 +286,12 @@ abstract class AttentionFeaturesExtractor<
     if (firstState) supportStructure.attentionNetworksPool.releaseAll()
 
     val attentionNetwork = supportStructure.attentionNetworksPool.getItem()
-    this.usedAttentionNetworks.add(attentionNetwork)
 
-    if (!trainingMode) supportStructure.attentionNetworksPool.releaseAll() // use always the first of the pool
+    if (trainingMode) {
+      this.usedAttentionNetworks.add(attentionNetwork)
+    } else {
+      supportStructure.attentionNetworksPool.releaseAll() // use always the first of the pool
+    }
 
     return attentionNetwork
   }
