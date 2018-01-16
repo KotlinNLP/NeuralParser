@@ -443,7 +443,7 @@ abstract class AttentionFeaturesExtractor<
     attentionNetwork.getAttentionErrors().forEachIndexed { i, errors ->
 
       val transformErrors: DenseNDArray = this.backwardTransformLayer(
-        layerIndex = i,
+        layer = this.usedTransformLayers[i],
         outputErrors = errors,
         paramsErrors = transformParamsErrors)
 
@@ -463,22 +463,22 @@ abstract class AttentionFeaturesExtractor<
   /**
    * A single transform layer backward.
    *
-   * @param layerIndex the index of the layer
+   * @param layer a transform layer
    * @param outputErrors the errors of the output
    * @param paramsErrors the structure in which to save the errors of the parameters
    *
    * @return the errors of the input
    */
-  private fun backwardTransformLayer(layerIndex: Int,
+  private fun backwardTransformLayer(layer: FeedforwardLayerStructure<DenseNDArray>,
                                      outputErrors: DenseNDArray,
                                      paramsErrors: FeedforwardLayerParameters): DenseNDArray {
 
-    this.usedTransformLayers[layerIndex].setErrors(outputErrors)
-    this.usedTransformLayers[layerIndex].backward(paramsErrors = paramsErrors, propagateToInput = true, mePropK = null)
+    layer.setErrors(outputErrors)
+    layer.backward(paramsErrors = paramsErrors, propagateToInput = true, mePropK = null)
 
     this.transformLayerOptimizer.accumulate(paramsErrors)
 
-    return this.usedTransformLayers[layerIndex].inputArray.errors
+    return layer.inputArray.errors
   }
 
   /**
