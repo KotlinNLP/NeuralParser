@@ -329,12 +329,12 @@ abstract class AttentionFeaturesExtractor<
                                      context: InputContextType,
                                      isFirstState: Boolean): ArrayList<DenseNDArray> {
 
-    this.initTransformLayers(size = context.items.size, supportStructure = supportStructure)
-
     val lastActionEncoding: DenseNDArray = if (isFirstState)
       this.actionEncodingZerosArray
     else
       supportStructure.actionRNNEncoder.getOutput(copy = true)
+
+    this.initTransformLayers(size = context.items.size, supportStructure = supportStructure)
 
     return ArrayList(context.items.mapIndexed { i, item ->
 
@@ -440,10 +440,10 @@ abstract class AttentionFeaturesExtractor<
 
     val inputErrors = attentionNetwork.getInputErrors()
 
-    attentionNetwork.getAttentionErrors().forEachIndexed { i, errors ->
+    attentionNetwork.getAttentionErrors().forEachIndexed { itemIndex, errors ->
 
       val transformErrors: DenseNDArray = this.backwardTransformLayer(
-        layer = this.usedTransformLayers[i],
+        layer = this.usedTransformLayers[itemIndex],
         outputErrors = errors,
         paramsErrors = transformParamsErrors)
 
@@ -453,10 +453,13 @@ abstract class AttentionFeaturesExtractor<
       )
 
       this.decodingContext.extendedState.context.accumulateItemErrors(
-        itemIndex = i,
-        errors = splitErrors[0].assignSum(inputErrors[i]))
+        itemIndex = itemIndex,
+        errors = splitErrors[0].assignSum(inputErrors[itemIndex]))
 
-      this.lastRecurrentErrors = if (i == 0) splitErrors[1] else this.lastRecurrentErrors.assignSum(splitErrors[1])
+      this.lastRecurrentErrors = if (itemIndex == 0)
+        splitErrors[1]
+      else
+        this.lastRecurrentErrors.assignSum(splitErrors[1])
     }
   }
 
