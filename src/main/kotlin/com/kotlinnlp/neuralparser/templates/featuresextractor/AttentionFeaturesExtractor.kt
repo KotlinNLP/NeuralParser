@@ -14,6 +14,8 @@ import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction
 import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.arrays.AugmentedArray
+import com.kotlinnlp.simplednn.core.layers.feedforward.FeedforwardLayerParameters
+import com.kotlinnlp.simplednn.core.layers.feedforward.FeedforwardLayerStructure
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
 import com.kotlinnlp.simplednn.core.neuralprocessor.recurrent.RecurrentNeuralProcessor
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
@@ -35,6 +37,7 @@ import com.kotlinnlp.syntaxdecoder.utils.DecodingContext
  *
  * @param actionsVectors the encoding vectors of the actions
  * @param actionsVectorsOptimizer the optimizer of the [actionsVectors]
+ * @param transformLayerOptimizer the optimizer of the transform layers of the Attention Network
  * @param actionEncodingRNNOptimizer the optimizer of the RNN used to encode the Actions Scorer features
  * @param stateAttentionNetworkOptimizer the optimizer of the attention network used to encode the state
  * @param featuresEncodingSize the size of the features encoding
@@ -46,6 +49,7 @@ abstract class AttentionFeaturesExtractor<
 (
   private val actionsVectors: ActionsVectorsMap,
   private val actionsVectorsOptimizer: ActionsVectorsOptimizer,
+  private val transformLayerOptimizer: ParamsOptimizer<FeedforwardLayerParameters>,
   private val actionEncodingRNNOptimizer: ParamsOptimizer<NetworkParameters>,
   private val stateAttentionNetworkOptimizer: ParamsOptimizer<AttentionNetworkParameters>,
   featuresEncodingSize: Int
@@ -99,9 +103,20 @@ abstract class AttentionFeaturesExtractor<
   private val actionEncodingZerosArray = DenseNDArrayFactory.zeros(Shape(featuresEncodingSize))
 
   /**
+   * The structure used to store the params errors of the transform layers during the backward.
+   */
+  private lateinit var transformLayerParamsErrors: FeedforwardLayerParameters
+
+  /**
    * The structure used to store the params errors of the Attention Network during the backward.
    */
   private lateinit var attentionNetworkParamsErrors: AttentionNetworkParameters
+
+  /**
+   * The transform layers used during the last forward.
+   * (Its usage makes the training no thread safe).
+   */
+  private lateinit var usedTransformLayers: List<FeedforwardLayerStructure<DenseNDArray>>
 
   /**
    * The RNN used to encode the features.
@@ -187,6 +202,7 @@ abstract class AttentionFeaturesExtractor<
   override fun newExample() {
     this.actionEncodingRNNOptimizer.newExample()
     this.stateAttentionNetworkOptimizer.newExample()
+    this.transformLayerOptimizer.newExample()
   }
 
   /**
@@ -195,6 +211,7 @@ abstract class AttentionFeaturesExtractor<
   override fun newBatch() {
     this.actionEncodingRNNOptimizer.newBatch()
     this.stateAttentionNetworkOptimizer.newBatch()
+    this.transformLayerOptimizer.newBatch()
   }
 
   /**
@@ -203,6 +220,7 @@ abstract class AttentionFeaturesExtractor<
   override fun newEpoch() {
     this.actionEncodingRNNOptimizer.newEpoch()
     this.stateAttentionNetworkOptimizer.newEpoch()
+    this.transformLayerOptimizer.newEpoch()
   }
 
   /**
@@ -210,6 +228,7 @@ abstract class AttentionFeaturesExtractor<
    */
   override fun update() {
     this.actionsVectorsOptimizer.update()
+    this.transformLayerOptimizer.update()
     this.actionEncodingRNNOptimizer.update()
     this.stateAttentionNetworkOptimizer.update()
   }
@@ -225,22 +244,24 @@ abstract class AttentionFeaturesExtractor<
     supportStructure: AttentionDecodingSupportStructure
   ): DenseNDArray {
 
+    val context: InputContextType = decodingContext.extendedState.context
     val appliedActions = decodingContext.extendedState.appliedActions
     val isFirstState: Boolean = appliedActions.isEmpty()
 
     val attentionNetwork = this.getAttentionNetwork(
       supportStructure = supportStructure,
       firstState = isFirstState,
-      trainingMode = decodingContext.extendedState.context.trainingMode)
+      trainingMode = context.trainingMode)
 
     val lastAppliedActionEncoding: DenseNDArray = this.getLastAppliedActionEncoding(
       appliedActions = appliedActions,
-      trainingMode = decodingContext.extendedState.context.trainingMode)
+      trainingMode = context.trainingMode)
 
     val encodedState: DenseNDArray = attentionNetwork.forward(
-      inputSequence = this.buildAttentionInputSequence(
-        actionEncoder = supportStructure.actionRNNEncoder,
-        context = decodingContext.extendedState.context,
+      inputSequence = ArrayList(context.items.map { AugmentedArray(values = context.getTokenEncoding(it.id)) }),
+      attentionSequence = this.buildAttentionSequence(
+        supportStructure = supportStructure,
+        context = context,
         isFirstState = isFirstState))
 
     return concatVectorsV(lastAppliedActionEncoding, encodedState)
@@ -298,24 +319,44 @@ abstract class AttentionFeaturesExtractor<
   }
 
   /**
-   * @param actionEncoder the action encoder
+   * @param supportStructure the decoding support structure
    * @param context the input context
    * @param isFirstState a boolean indicating if the current is the first state of the sentence
    *
-   * @return the input sequence of the decoding Attention Network
+   * @return the input of the transform layer
    */
-  private fun buildAttentionInputSequence(actionEncoder: RecurrentNeuralProcessor<DenseNDArray>,
-                                          context: InputContextType,
-                                          isFirstState: Boolean): ArrayList<AugmentedArray<DenseNDArray>> {
+  private fun buildAttentionSequence(supportStructure: AttentionDecodingSupportStructure,
+                                     context: InputContextType,
+                                     isFirstState: Boolean): ArrayList<DenseNDArray> {
+
+    this.initTransformLayers(size = context.items.size, supportStructure = supportStructure)
 
     val lastActionEncoding: DenseNDArray = if (isFirstState)
       this.actionEncodingZerosArray
     else
-      actionEncoder.getOutput(copy = true)
+      supportStructure.actionRNNEncoder.getOutput(copy = true)
 
-    return ArrayList(context.items.map {
-      AugmentedArray(values = concatVectorsV(context.getTokenEncoding(it.id), lastActionEncoding))
+    return ArrayList(context.items.mapIndexed { i, item ->
+
+      this.usedTransformLayers[i].setInput(concatVectorsV(context.getTokenEncoding(item.id), lastActionEncoding))
+      this.usedTransformLayers[i].forward()
+
+      this.usedTransformLayers[i].outputArray.values
     })
+  }
+
+  /**
+   * Initialize the list of transform layers to use for the current decoding.
+   *
+   * @param size the number of layers to initialize
+   */
+  private fun initTransformLayers(size: Int, supportStructure: AttentionDecodingSupportStructure) {
+
+    supportStructure.transformLayersPool.releaseAll()
+
+    this.usedTransformLayers = List(
+      size = size,
+      init = { supportStructure.transformLayersPool.getItem() })
   }
 
   /**
@@ -393,22 +434,63 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun backwardAttentionNetwork(attentionNetwork: AttentionNetwork<DenseNDArray>, outputErrors: DenseNDArray) {
 
-    val paramsErrors: AttentionNetworkParameters = this.getAttentionParamsErrors()
+    val transformParamsErrors: FeedforwardLayerParameters = this.getTransformParamsErrors()
+    val attentionParamsErrors: AttentionNetworkParameters = this.getAttentionParamsErrors()
 
-    attentionNetwork.backward(outputErrors = outputErrors, paramsErrors = paramsErrors, propagateToInput = true)
-    this.stateAttentionNetworkOptimizer.accumulate(paramsErrors)
+    attentionNetwork.backward(outputErrors = outputErrors, paramsErrors = attentionParamsErrors, propagateToInput = true)
+    this.stateAttentionNetworkOptimizer.accumulate(attentionParamsErrors)
 
-    attentionNetwork.getInputErrors().forEachIndexed { i, errors ->
+    val inputErrors = attentionNetwork.getInputErrors()
 
-      val splitErrors: Array<DenseNDArray> = errors.splitV(
+    attentionNetwork.getAttentionErrors().forEachIndexed { i, errors ->
+
+      val transformErrors: DenseNDArray = this.backwardTransformLayer(
+        layerIndex = i,
+        outputErrors = errors,
+        paramsErrors = transformParamsErrors)
+
+      val splitErrors: Array<DenseNDArray> = transformErrors.splitV(
         this.decodingContext.extendedState.context.encodingSize,
-        errors.length - this.decodingContext.extendedState.context.encodingSize
+        transformErrors.length - this.decodingContext.extendedState.context.encodingSize
       )
 
-      this.decodingContext.extendedState.context.accumulateItemErrors(itemIndex = i, errors = splitErrors[0])
+      this.decodingContext.extendedState.context.accumulateItemErrors(
+        itemIndex = i,
+        errors = splitErrors[0].assignSum(inputErrors[i]))
 
       this.lastRecurrentErrors = if (i == 0) splitErrors[1] else this.lastRecurrentErrors.assignSum(splitErrors[1])
     }
+  }
+
+  /**
+   * A single transform layer backward.
+   *
+   * @param layerIndex the index of the layer
+   * @param outputErrors the errors of the output
+   * @param paramsErrors the structure in which to save the errors of the parameters
+   *
+   * @return the errors of the input
+   */
+  private fun backwardTransformLayer(layerIndex: Int,
+                                     outputErrors: DenseNDArray,
+                                     paramsErrors: FeedforwardLayerParameters): DenseNDArray {
+
+    this.usedTransformLayers[layerIndex].setErrors(outputErrors)
+    this.usedTransformLayers[layerIndex].backward(paramsErrors = paramsErrors, propagateToInput = true, mePropK = null)
+
+    this.transformLayerOptimizer.accumulate(paramsErrors)
+
+    return this.usedTransformLayers[layerIndex].inputArray.errors
+  }
+
+  /**
+   * @return the transform layers params errors
+   */
+  private fun getTransformParamsErrors(): FeedforwardLayerParameters = try {
+    this.transformLayerParamsErrors
+  } catch (e: UninitializedPropertyAccessException) {
+    this.transformLayerParamsErrors = this.usedTransformLayers.last().params.copy() as FeedforwardLayerParameters
+    this.transformLayerParamsErrors
   }
 
   /**
