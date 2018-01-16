@@ -16,6 +16,7 @@ import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsMap
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
 import com.kotlinnlp.simplednn.core.layers.LayerConfiguration
 import com.kotlinnlp.simplednn.core.layers.LayerType
+import com.kotlinnlp.simplednn.core.layers.feedforward.FeedforwardLayerParameters
 import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.AttentionNetworkParameters
 import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsMap
@@ -110,10 +111,17 @@ abstract class BiRNNAttentionParserModel(
     deprelsSize = this.deprelsCount + 1) // + shift offset
 
   /**
+   * The parameters of the transform layers used to create the attention arrays of the [stateAttentionNetworkParams].
+   */
+  val transformLayerParams = FeedforwardLayerParameters(
+    inputSize = this.biRNN.outputSize + actionRNNConfig.outputSize,
+    outputSize = this.attentionSize)
+
+  /**
    * The parameters of the attention network that encodes the state.
    */
   val stateAttentionNetworkParams = AttentionNetworkParameters(
-    inputSize = this.biRNN.outputSize + actionRNNConfig.outputSize,
+    inputSize = this.biRNN.outputSize,
     attentionSize = this.attentionSize)
 
   /**
