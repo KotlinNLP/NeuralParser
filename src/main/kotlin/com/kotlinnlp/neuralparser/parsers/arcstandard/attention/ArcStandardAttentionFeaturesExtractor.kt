@@ -13,6 +13,7 @@ import com.kotlinnlp.neuralparser.templates.featuresextractor.AttentionFeaturesE
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsMap
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensAmbiguousPOSContext
+import com.kotlinnlp.simplednn.core.layers.feedforward.FeedforwardLayerParameters
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.AttentionNetworkParameters
@@ -31,6 +32,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
  *
  * @param actionsVectors the encoding vectors of the actions
  * @param actionsVectorsOptimizer the optimizer of the [actionsVectors]
+ * @param transformLayerOptimizer the optimizer of the transform layers of the Attention Network
  * @param actionEncodingRNNOptimizer the optimizer of the RNN used to encode the Actions Scorer features
  * @param stateAttentionNetworkOptimizer the optimizer of the attention network used to encode the state
  * @param featuresEncodingSize the size of the features encoding
@@ -40,6 +42,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
 class ArcStandardAttentionFeaturesExtractor(
   actionsVectors: ActionsVectorsMap,
   actionsVectorsOptimizer: ActionsVectorsOptimizer,
+  transformLayerOptimizer: ParamsOptimizer<FeedforwardLayerParameters>,
   actionEncodingRNNOptimizer: ParamsOptimizer<NetworkParameters>,
   stateAttentionNetworkOptimizer: ParamsOptimizer<AttentionNetworkParameters>,
   featuresEncodingSize: Int,
@@ -52,6 +55,7 @@ class ArcStandardAttentionFeaturesExtractor(
 (
   actionsVectors = actionsVectors,
   actionsVectorsOptimizer = actionsVectorsOptimizer,
+  transformLayerOptimizer = transformLayerOptimizer,
   actionEncodingRNNOptimizer = actionEncodingRNNOptimizer,
   stateAttentionNetworkOptimizer = stateAttentionNetworkOptimizer,
   featuresEncodingSize = featuresEncodingSize

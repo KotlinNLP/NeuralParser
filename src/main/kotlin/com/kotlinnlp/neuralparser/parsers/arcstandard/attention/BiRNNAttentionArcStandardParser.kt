@@ -112,6 +112,7 @@ class BiRNNAttentionArcStandardParser(
    */
   override fun buildSupportStructureFactory() = AttentionDecodingStructureFactory(
     actionEncodingRNN = this.model.actionEncodingRNN,
+    transformLayerParams = this.model.transformLayerParams,
     stateAttentionNetworkParams = this.model.stateAttentionNetworkParams,
     transitionNetwork = this.model.transitionScorerNetwork,
     posDeprelNetworkModel = this.model.posDeprelScorerNetworkModel,
@@ -129,6 +130,9 @@ class BiRNNAttentionArcStandardParser(
     actionsVectors = this.model.actionsVectors,
     actionsVectorsOptimizer = ActionsVectorsOptimizer(
       actionsVectorsMap = this.model.actionsVectors,
+      updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
+    transformLayerOptimizer = ParamsOptimizer(
+      params = this.model.transformLayerParams,
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
     actionEncodingRNNOptimizer = ParamsOptimizer(
       params = this.model.actionEncodingRNN.model,
