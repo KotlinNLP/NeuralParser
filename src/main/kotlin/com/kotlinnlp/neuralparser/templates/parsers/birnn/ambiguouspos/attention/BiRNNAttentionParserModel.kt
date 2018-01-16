@@ -35,12 +35,12 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @property wordEmbeddingSize the size of each word embedding vector
  * @property posEmbeddingSize the size of each POS embedding vector
  * @property actionsEmbeddingsSize the size of each action embedding vector
- * @property attentionSize the attention size of the action attention network
+ * @property attentionSize the attention size of the state attention network
  * @property preTrainedWordEmbeddings pre-trained word embeddings to add to the tokens encodings (default = null)
  * @param biRNNConnectionType the recurrent connection type of the BiRNN used to encode tokens
  * @param biRNNHiddenActivation the hidden activation function of the BiRNN used to encode tokens
  * @param biRNNLayers number of stacked BiRNNs
- * @param actionNetworkConfig the configuration of the memory network used to decode the actions scorer features
+ * @param actionRNNConfig the configuration of the recurrent neural network used to encode the Actions Scorer features
  * @param scorerNetworksConfig the configuration of the scorer networks
  * @param numberOfTransitions the number of transitions of the transition system
  * @param numberOfTransitionsVectors the number of different transitions vectors
@@ -59,7 +59,7 @@ abstract class BiRNNAttentionParserModel(
   biRNNConnectionType: LayerType.Connection,
   biRNNHiddenActivation: ActivationFunction?,
   biRNNLayers: Int,
-  actionNetworkConfig: ActionNetworkConfiguration,
+  actionRNNConfig: ActionRNNConfiguration,
   scorerNetworksConfig: ScorerNetworkConfiguration,
   numberOfTransitions: Int,
   numberOfTransitionsVectors: Int
@@ -98,7 +98,7 @@ abstract class BiRNNAttentionParserModel(
   /**
    * The size of the features encoding.
    */
-  val featuresEncodingSize: Int = actionNetworkConfig.outputSize
+  val featuresEncodingSize: Int = actionRNNConfig.outputSize
 
   /**
    * The actions encoding vectors map.
@@ -110,26 +110,26 @@ abstract class BiRNNAttentionParserModel(
     deprelsSize = this.deprelsCount + 1) // + shift offset
 
   /**
-   * The parameters of the attention network used to decode the action features.
+   * The parameters of the attention network that encodes the state.
    */
-  val actionAttentionNetworkParams = AttentionNetworkParameters(
-    inputSize = this.biRNN.outputSize + actionNetworkConfig.outputSize,
+  val stateAttentionNetworkParams = AttentionNetworkParameters(
+    inputSize = this.biRNN.outputSize + actionRNNConfig.outputSize,
     attentionSize = this.attentionSize)
 
   /**
-   * The neural network that encodes the last applied actions together with the tokens window encoding.
+   * The RNN that encodes the last applied action together with the state encoding to obtain the ActionsScorer features.
    */
-  val actionDecodingNetwork = NeuralNetwork(
+  val actionEncodingRNN = NeuralNetwork(
     LayerConfiguration(
-      size = this.actionAttentionNetworkParams.outputSize + 3 * this.actionsEmbeddingsSize,
+      size = this.stateAttentionNetworkParams.outputSize + 3 * this.actionsEmbeddingsSize,
       inputType = LayerType.Input.Dense,
-      dropout = actionNetworkConfig.dropout
+      dropout = actionRNNConfig.dropout
     ),
     LayerConfiguration(
-      size = actionNetworkConfig.outputSize,
-      activationFunction = actionNetworkConfig.activation,
-      connectionType = actionNetworkConfig.connectionType,
-      meProp = actionNetworkConfig.meProp
+      size = actionRNNConfig.outputSize,
+      activationFunction = actionRNNConfig.activation,
+      connectionType = actionRNNConfig.connectionType,
+      meProp = actionRNNConfig.meProp
     )
   )
 
@@ -137,7 +137,7 @@ abstract class BiRNNAttentionParserModel(
    * The neural network of the actions scorer that scores the transition.
    */
   val transitionScorerNetwork: NeuralNetwork = ActionsScorerNetworkBuilder(
-    inputSize = actionNetworkConfig.outputSize,
+    inputSize = actionRNNConfig.outputSize,
     inputType = LayerType.Input.Dense,
     outputSize = numberOfTransitions,
     scorerNetworkConfig = scorerNetworksConfig
@@ -147,7 +147,7 @@ abstract class BiRNNAttentionParserModel(
    * The model of the neural network of the actions scorer that scores POS tag and deprel.
    */
   val posDeprelScorerNetworkModel = MultiTaskNetworkModel(
-    inputSize = actionNetworkConfig.outputSize,
+    inputSize = actionRNNConfig.outputSize,
     inputType = LayerType.Input.Dense,
     inputDropout = scorerNetworksConfig.inputDropout,
     hiddenSize = scorerNetworksConfig.hiddenSize,

@@ -11,7 +11,7 @@ import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.parsers.ScorerNetworkConfiguration
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention.BiRNNAttentionParserModel
-import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention.ActionNetworkConfiguration
+import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention.ActionRNNConfiguration
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsMap
@@ -29,12 +29,12 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @property wordEmbeddingSize the size of each word embedding vector
  * @property posEmbeddingSize the size of each POS embedding vector
  * @property actionsEmbeddingsSize the size of each action embedding vector
- * @property attentionSize the attention size of the action attention network
+ * @property attentionSize the attention size of the state attention network
  * @property preTrainedWordEmbeddings pre-trained word embeddings to add to the tokens encodings (default = null)
  * @param biRNNConnectionType the recurrent connection type of the BiRNN used to encode tokens
  * @param biRNNHiddenActivation the hidden activation function of the BiRNN used to encode tokens
  * @param biRNNLayers number of stacked BiRNNs
- * @param actionNetworkConfig the configuration of the memory network used to decode the actions scorer features
+ * @param actionRNNConfig the configuration of the recurrent neural network used to encode the Actions Scorer features
  * @param scorerNetworksConfig the configuration of the scorer networks
  */
 class BiRNNAttentionArcStandardParserModel(
@@ -51,7 +51,7 @@ class BiRNNAttentionArcStandardParserModel(
   biRNNConnectionType: LayerType.Connection,
   biRNNHiddenActivation: ActivationFunction?,
   biRNNLayers: Int,
-  actionNetworkConfig: ActionNetworkConfiguration,
+  actionRNNConfig: ActionRNNConfiguration,
   scorerNetworksConfig: ScorerNetworkConfiguration
 ) : BiRNNAttentionParserModel(
   actionsScoresActivation = actionsScoresActivation,
@@ -67,7 +67,7 @@ class BiRNNAttentionArcStandardParserModel(
   biRNNConnectionType = biRNNConnectionType,
   biRNNHiddenActivation = biRNNHiddenActivation,
   biRNNLayers = biRNNLayers,
-  actionNetworkConfig = actionNetworkConfig,
+  actionRNNConfig = actionRNNConfig,
   scorerNetworksConfig = scorerNetworksConfig,
   numberOfTransitions = 4, // Shift, Wait, Root, ArcLeft, ArcRight
   numberOfTransitionsVectors = 4 // Shift and Wait considered the same

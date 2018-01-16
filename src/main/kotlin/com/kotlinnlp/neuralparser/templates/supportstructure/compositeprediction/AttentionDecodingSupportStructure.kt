@@ -16,19 +16,20 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
  * The [TPDJointSupportStructure] of an actions scorer that contains:
- * - a [RecurrentNeuralProcessor] to decode the action features;
+ * - a [RecurrentNeuralProcessor] to encode the action features;
+ * - an [AttentionNetworksPool] to encode the state;
  * - a [FeedforwardNeuralProcessor] to score the transitions;
  * - a [MultiTaskNetwork] to score POS tags and deprels.
  *
- * @property actionDecoder the recurrent neural processor used to decode the action features
- * @property attentionNetworksPool the pool attention networks used to decode the action features
+ * @property actionRNNEncoder the recurrent neural processor used to encode the Actions Scorer features
+ * @property stateAttentionNetworksPool the pool attention networks used to encode the state
  * @property transitionProcessor the neural processor used to score the transitions
  * @property posDeprelNetwork the multi-task network used to score POS tags and deprels
  * @property outputErrorsInit the default initialization of the output errors
  */
 class AttentionDecodingSupportStructure(
-  val actionDecoder: RecurrentNeuralProcessor<DenseNDArray>,
-  val attentionNetworksPool: AttentionNetworksPool<DenseNDArray>,
+  val actionRNNEncoder: RecurrentNeuralProcessor<DenseNDArray>,
+  val stateAttentionNetworksPool: AttentionNetworksPool<DenseNDArray>,
   transitionProcessor: FeedforwardNeuralProcessor<DenseNDArray>,
   posDeprelNetwork:  MultiTaskNetwork<DenseNDArray>,
   outputErrorsInit: OutputErrorsInit

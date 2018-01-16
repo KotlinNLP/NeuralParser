@@ -11,7 +11,7 @@ import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFuncti
 import com.kotlinnlp.simplednn.core.layers.LayerType
 
 /**
- * The configuration of the Recurrent Neural Network used to decode the actions features.
+ * The configuration of the Recurrent Neural Network used to encode the Actions Scorer features.
  *
  * @property connectionType the type of recurrent connection
  * @property activation the activation function
@@ -19,7 +19,7 @@ import com.kotlinnlp.simplednn.core.layers.LayerType
  * @property dropout the probability of dropout (default 0.0)
  * @property meProp whether to use the 'meProp' errors propagation algorithm for the output layer (default false)
  */
-data class ActionNetworkConfiguration(
+data class ActionRNNConfiguration(
   val connectionType: LayerType.Connection,
   val activation: ActivationFunction,
   val outputSize: Int,
@@ -31,7 +31,7 @@ data class ActionNetworkConfiguration(
    */
   init {
     require(this.connectionType.property == LayerType.Property.Recurrent) {
-      "The hidden connection type of the network that decodes the action features must be Recurrent."
+      "The hidden connection type of the network that encodes the Actions Scorer features must be Recurrent."
     }
   }
 }

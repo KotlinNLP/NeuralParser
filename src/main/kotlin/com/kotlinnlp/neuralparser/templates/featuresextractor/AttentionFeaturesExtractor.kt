@@ -35,8 +35,8 @@ import com.kotlinnlp.syntaxdecoder.utils.DecodingContext
  *
  * @param actionsVectors the encoding vectors of the actions
  * @param actionsVectorsOptimizer the optimizer of the [actionsVectors]
- * @param actionDecoderOptimizer the optimizer of the RNN used to decode the action features
- * @param actionAttentionNetworkOptimizer the optimizer of the attention network used to decode the action features
+ * @param actionEncodingRNNOptimizer the optimizer of the RNN used to encode the Actions Scorer features
+ * @param stateAttentionNetworkOptimizer the optimizer of the attention network used to encode the state
  * @param featuresEncodingSize the size of the features encoding
  */
 abstract class AttentionFeaturesExtractor<
@@ -46,8 +46,8 @@ abstract class AttentionFeaturesExtractor<
 (
   private val actionsVectors: ActionsVectorsMap,
   private val actionsVectorsOptimizer: ActionsVectorsOptimizer,
-  private val actionDecoderOptimizer: ParamsOptimizer<NetworkParameters>,
-  private val actionAttentionNetworkOptimizer: ParamsOptimizer<AttentionNetworkParameters>,
+  private val actionEncodingRNNOptimizer: ParamsOptimizer<NetworkParameters>,
+  private val stateAttentionNetworkOptimizer: ParamsOptimizer<AttentionNetworkParameters>,
   featuresEncodingSize: Int
 ) : FeaturesExtractorTrainable<
   StateType,
@@ -89,14 +89,14 @@ abstract class AttentionFeaturesExtractor<
   private val usedAttentionNetworks = mutableListOf<AttentionNetwork<DenseNDArray>>()
 
   /**
-   * The list of the errors of all the features extracted during the decoding of the current sentence.
+   * The list of the errors of all the action encodings obtained during the encoding of the current sentence.
    */
-  private val featuresErrorsList = mutableListOf<DenseNDArray>()
+  private val actionEncodingErrorsList = mutableListOf<DenseNDArray>()
 
   /**
-   * The zeros array used as null features encoding.
+   * The zeros array used as null action encoding.
    */
-  private val featuresEncodingZerosArray = DenseNDArrayFactory.zeros(Shape(featuresEncodingSize))
+  private val actionEncodingZerosArray = DenseNDArrayFactory.zeros(Shape(featuresEncodingSize))
 
   /**
    * The structure used to store the params errors of the Attention Network during the backward.
@@ -104,11 +104,11 @@ abstract class AttentionFeaturesExtractor<
   private lateinit var attentionNetworkParamsErrors: AttentionNetworkParameters
 
   /**
-   * The RNN used to decode the action features.
+   * The RNN used to encode the features.
    * It is saved during the extract to make the backward working on it.
    * (Its usage makes the training no thread safe).
    */
-  private lateinit var actionDecoder: RecurrentNeuralProcessor<DenseNDArray>
+  private lateinit var actionRNNEncoder: RecurrentNeuralProcessor<DenseNDArray>
 
   /**
    * The last decoding context used.
@@ -141,11 +141,11 @@ abstract class AttentionFeaturesExtractor<
       this.checkMissingBackwardCall()
     }
 
-    this.actionDecoder = supportStructure.actionDecoder
+    this.actionRNNEncoder = supportStructure.actionRNNEncoder
     this.decodingContext = decodingContext
 
-    return DenseFeatures(array = supportStructure.actionDecoder.forward(
-      featuresArray = this.getActionFeatures(decodingContext = decodingContext, supportStructure = supportStructure),
+    return DenseFeatures(array = supportStructure.actionRNNEncoder.forward(
+      featuresArray = this.getActionRNNInputFeatures(decodingContext = decodingContext, supportStructure = supportStructure),
       firstState = decodingContext.extendedState.appliedActions.isEmpty()))
   }
 
@@ -156,7 +156,7 @@ abstract class AttentionFeaturesExtractor<
 
     this.checkMissingBackwardCall()
 
-    this.backwardEncoderDecoder()
+    this.backwardEncoders()
 
     this.resetHistory()
   }
@@ -177,7 +177,7 @@ abstract class AttentionFeaturesExtractor<
     propagateToInput: Boolean
   ) {
     if (propagateToInput) {
-      this.featuresErrorsList.add(decodingContext.features.errors.array)
+      this.actionEncodingErrorsList.add(decodingContext.features.errors.array)
     }
   }
 
@@ -185,24 +185,24 @@ abstract class AttentionFeaturesExtractor<
    * Beat the occurrence of a new example.
    */
   override fun newExample() {
-    this.actionDecoderOptimizer.newExample()
-    this.actionAttentionNetworkOptimizer.newExample()
+    this.actionEncodingRNNOptimizer.newExample()
+    this.stateAttentionNetworkOptimizer.newExample()
   }
 
   /**
    * Beat the occurrence of a new batch.
    */
   override fun newBatch() {
-    this.actionDecoderOptimizer.newBatch()
-    this.actionAttentionNetworkOptimizer.newBatch()
+    this.actionEncodingRNNOptimizer.newBatch()
+    this.stateAttentionNetworkOptimizer.newBatch()
   }
 
   /**
    * Beat the occurrence of a new epoch.
    */
   override fun newEpoch() {
-    this.actionDecoderOptimizer.newEpoch()
-    this.actionAttentionNetworkOptimizer.newEpoch()
+    this.actionEncodingRNNOptimizer.newEpoch()
+    this.stateAttentionNetworkOptimizer.newEpoch()
   }
 
   /**
@@ -210,17 +210,17 @@ abstract class AttentionFeaturesExtractor<
    */
   override fun update() {
     this.actionsVectorsOptimizer.update()
-    this.actionDecoderOptimizer.update()
-    this.actionAttentionNetworkOptimizer.update()
+    this.actionEncodingRNNOptimizer.update()
+    this.stateAttentionNetworkOptimizer.update()
   }
 
   /**
    * @param decodingContext the decoding context
    * @param supportStructure the decoding support structure
    *
-   * @return the features for the Actions Scorer, extracted from the given [decodingContext]
+   * @return the input features for the action RNN encoder
    */
-  private fun getActionFeatures(
+  private fun getActionRNNInputFeatures(
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
     supportStructure: AttentionDecodingSupportStructure
   ): DenseNDArray {
@@ -239,7 +239,7 @@ abstract class AttentionFeaturesExtractor<
 
     val encodedTokensWithLastAction: DenseNDArray = attentionNetwork.forward(
       inputSequence = this.buildAttentionInputSequence(
-        actionDecoder = supportStructure.actionDecoder,
+        actionEncoder = supportStructure.actionRNNEncoder,
         context = decodingContext.extendedState.context,
         isFirstState = isFirstState))
 
@@ -272,7 +272,7 @@ abstract class AttentionFeaturesExtractor<
   }
 
   /**
-   * Get an available Attention Network to encode the last applied action.
+   * Get an available Attention Network to encode the state.
    *
    * @param supportStructure the decoding support structure
    * @param firstState a boolean indicating if the current is the first state
@@ -284,37 +284,37 @@ abstract class AttentionFeaturesExtractor<
                                   firstState: Boolean,
                                   trainingMode: Boolean): AttentionNetwork<DenseNDArray> {
 
-    if (firstState) supportStructure.attentionNetworksPool.releaseAll()
+    if (firstState) supportStructure.stateAttentionNetworksPool.releaseAll()
 
-    val attentionNetwork = supportStructure.attentionNetworksPool.getItem()
+    val attentionNetwork = supportStructure.stateAttentionNetworksPool.getItem()
 
     if (trainingMode) {
       this.usedAttentionNetworks.add(attentionNetwork)
     } else {
-      supportStructure.attentionNetworksPool.releaseAll() // use always the first of the pool
+      supportStructure.stateAttentionNetworksPool.releaseAll() // use always the first of the pool
     }
 
     return attentionNetwork
   }
 
   /**
-   * @param actionDecoder the action decoder
+   * @param actionEncoder the action encoder
    * @param context the input context
    * @param isFirstState a boolean indicating if the current is the first state of the sentence
    *
    * @return the input sequence of the decoding Attention Network
    */
-  private fun buildAttentionInputSequence(actionDecoder: RecurrentNeuralProcessor<DenseNDArray>,
+  private fun buildAttentionInputSequence(actionEncoder: RecurrentNeuralProcessor<DenseNDArray>,
                                           context: InputContextType,
                                           isFirstState: Boolean): ArrayList<AugmentedArray<DenseNDArray>> {
 
-    val lastFeaturesEncoding: DenseNDArray = if (isFirstState)
-      this.featuresEncodingZerosArray
+    val lastActionEncoding: DenseNDArray = if (isFirstState)
+      this.actionEncodingZerosArray
     else
-      actionDecoder.getOutput(copy = true)
+      actionEncoder.getOutput(copy = true)
 
     return ArrayList(context.items.map {
-      AugmentedArray(values = concatVectorsV(context.getTokenEncoding(it.id), lastFeaturesEncoding))
+      AugmentedArray(values = concatVectorsV(context.getTokenEncoding(it.id), lastActionEncoding))
     })
   }
 
@@ -325,7 +325,7 @@ abstract class AttentionFeaturesExtractor<
 
     this.appliedActions.clear()
     this.usedAttentionNetworks.clear()
-    this.featuresErrorsList.clear()
+    this.actionEncodingErrorsList.clear()
   }
 
   /**
@@ -334,28 +334,28 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun checkMissingBackwardCall() {
 
-    if (this.appliedActions.size > this.featuresErrorsList.size) {
-      this.featuresErrorsList.add(this.featuresEncodingZerosArray)
+    if (this.appliedActions.size > this.actionEncodingErrorsList.size) {
+      this.actionEncodingErrorsList.add(this.actionEncodingZerosArray)
     }
   }
 
   /**
-   * Encoder and decoder backward.
+   * Encoders backward.
    */
-  private fun backwardEncoderDecoder() {
+  private fun backwardEncoders() {
 
-    (0 until this.featuresErrorsList.size).reversed().forEach { i ->
+    (0 until this.actionEncodingErrorsList.size).reversed().forEach { i ->
 
-      val isLastStep: Boolean = i == this.featuresErrorsList.lastIndex
+      val isLastStep: Boolean = i == this.actionEncodingErrorsList.lastIndex
       val errors = if (isLastStep)
-        this.featuresErrorsList[i]
+        this.actionEncodingErrorsList[i]
       else
-        this.featuresErrorsList[i].sum(this.lastRecurrentErrors)
+        this.actionEncodingErrorsList[i].sum(this.lastRecurrentErrors)
 
       this.backwardStep(outputErrors = errors, stepIndex = i)
     }
 
-    this.actionDecoderOptimizer.accumulate(this.actionDecoder.getParamsErrors(copy = false))
+    this.actionEncodingRNNOptimizer.accumulate(this.actionRNNEncoder.getParamsErrors(copy = false))
   }
 
   /**
@@ -363,9 +363,9 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun backwardStep(outputErrors: DenseNDArray, stepIndex: Int) {
 
-    this.actionDecoder.backwardStep(outputErrors = outputErrors, propagateToInput = true)
+    this.actionRNNEncoder.backwardStep(outputErrors = outputErrors, propagateToInput = true)
 
-    val errors: DenseNDArray = this.actionDecoder.getInputErrors(elementIndex = stepIndex, copy = false)
+    val errors: DenseNDArray = this.actionRNNEncoder.getInputErrors(elementIndex = stepIndex, copy = false)
     val splitErrors: Array<DenseNDArray> = errors.splitV(
       this.actionEncodingSize,
       errors.length - this.actionEncodingSize
@@ -385,7 +385,7 @@ abstract class AttentionFeaturesExtractor<
   /**
    * Backward of the given [attentionNetwork].
    *
-   * @param attentionNetwork an Attention Network used to decode the current sentence
+   * @param attentionNetwork an Attention Network used to encode the current state
    * @param outputErrors the output errors of the given [attentionNetwork]
    */
   private fun backwardAttentionNetwork(attentionNetwork: AttentionNetwork<DenseNDArray>, outputErrors: DenseNDArray) {
@@ -393,7 +393,7 @@ abstract class AttentionFeaturesExtractor<
     val paramsErrors: AttentionNetworkParameters = this.getAttentionParamsErrors()
 
     attentionNetwork.backward(outputErrors = outputErrors, paramsErrors = paramsErrors, propagateToInput = true)
-    this.actionAttentionNetworkOptimizer.accumulate(paramsErrors)
+    this.stateAttentionNetworkOptimizer.accumulate(paramsErrors)
 
     attentionNetwork.getInputErrors().forEachIndexed { i, errors ->
 

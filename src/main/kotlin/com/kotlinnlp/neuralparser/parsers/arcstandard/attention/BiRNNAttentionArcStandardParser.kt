@@ -39,10 +39,10 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
 /**
  * A NeuralParser based on the ArcStandard transition system.
  * It uses Embeddings and ambiguous POS vectors to encode the tokens of a sentence through a BiRNN.
- * The features for the actions scoring are composed by the decoding of the token encodings and the embedding vectors
- * of the last applied action through a recurrent system.
+ * The features for the actions scoring are composed by the encoding of the token and the embedding vectors of the last
+ * applied action through a recurrent system.
  * Actions are scored combining the result of specialized neural networks that score singularly the Transition+Deprel
- * (a multitask joint network), and the POS tag.
+ * (a multitask joint network) and the POS tag.
  *
  * If the beamSize is 1 then a [GreedyDecoder] is used, a [BeamDecoder] otherwise.
  *
@@ -111,8 +111,8 @@ class BiRNNAttentionArcStandardParser(
    * @return the [SupportStructureFactory] used in this parser
    */
   override fun buildSupportStructureFactory() = AttentionDecodingStructureFactory(
-    actionDecodingNetwork = this.model.actionDecodingNetwork,
-    actionAttentionNetworkParams = this.model.actionAttentionNetworkParams,
+    actionEncodingRNN = this.model.actionEncodingRNN,
+    stateAttentionNetworkParams = this.model.stateAttentionNetworkParams,
     transitionNetwork = this.model.transitionScorerNetwork,
     posDeprelNetworkModel = this.model.posDeprelScorerNetworkModel,
     outputErrorsInit = if (this.useSoftmaxOutput){
@@ -130,11 +130,11 @@ class BiRNNAttentionArcStandardParser(
     actionsVectorsOptimizer = ActionsVectorsOptimizer(
       actionsVectorsMap = this.model.actionsVectors,
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
-    actionDecoderOptimizer = ParamsOptimizer(
-      params = this.model.actionDecodingNetwork.model,
+    actionEncodingRNNOptimizer = ParamsOptimizer(
+      params = this.model.actionEncodingRNN.model,
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
-    actionAttentionNetworkOptimizer = ParamsOptimizer(
-      params = this.model.actionAttentionNetworkParams,
+    stateAttentionNetworkOptimizer = ParamsOptimizer(
+      params = this.model.stateAttentionNetworkParams,
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
     featuresEncodingSize = this.model.featuresEncodingSize,
     posTags = this.model.corpusDictionary.posTags,

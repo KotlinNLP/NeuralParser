@@ -31,8 +31,8 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
  *
  * @param actionsVectors the encoding vectors of the actions
  * @param actionsVectorsOptimizer the optimizer of the [actionsVectors]
- * @param actionDecoderOptimizer the optimizer of the RNN used to decode the action features
- * @param actionAttentionNetworkOptimizer the optimizer of the attention network used to decode the action features
+ * @param actionEncodingRNNOptimizer the optimizer of the RNN used to encode the Actions Scorer features
+ * @param stateAttentionNetworkOptimizer the optimizer of the attention network used to encode the state
  * @param featuresEncodingSize the size of the features encoding
  * @param posTags the dictionary set of POS tags
  * @param deprelTags the dictionary set of deprels
@@ -40,8 +40,8 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
 class ArcStandardAttentionFeaturesExtractor(
   actionsVectors: ActionsVectorsMap,
   actionsVectorsOptimizer: ActionsVectorsOptimizer,
-  actionDecoderOptimizer: ParamsOptimizer<NetworkParameters>,
-  actionAttentionNetworkOptimizer: ParamsOptimizer<AttentionNetworkParameters>,
+  actionEncodingRNNOptimizer: ParamsOptimizer<NetworkParameters>,
+  stateAttentionNetworkOptimizer: ParamsOptimizer<AttentionNetworkParameters>,
   featuresEncodingSize: Int,
   private val deprelTags: DictionarySet<Deprel>,
   private val posTags: DictionarySet<POSTag>
@@ -52,8 +52,8 @@ class ArcStandardAttentionFeaturesExtractor(
 (
   actionsVectors = actionsVectors,
   actionsVectorsOptimizer = actionsVectorsOptimizer,
-  actionDecoderOptimizer = actionDecoderOptimizer,
-  actionAttentionNetworkOptimizer = actionAttentionNetworkOptimizer,
+  actionEncodingRNNOptimizer = actionEncodingRNNOptimizer,
+  stateAttentionNetworkOptimizer = stateAttentionNetworkOptimizer,
   featuresEncodingSize = featuresEncodingSize
 ) {
 
