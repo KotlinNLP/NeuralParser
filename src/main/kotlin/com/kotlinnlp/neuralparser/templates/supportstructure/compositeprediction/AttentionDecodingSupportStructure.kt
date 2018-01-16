@@ -11,6 +11,7 @@ import com.kotlinnlp.neuralparser.templates.supportstructure.OutputErrorsInit
 import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.recurrent.RecurrentNeuralProcessor
 import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.AttentionNetworksPool
+import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.FeedforwardLayersPool
 import com.kotlinnlp.simplednn.deeplearning.multitasknetwork.MultiTaskNetwork
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
@@ -22,6 +23,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * - a [MultiTaskNetwork] to score POS tags and deprels.
  *
  * @property actionRNNEncoder the recurrent neural processor used to encode the Actions Scorer features
+ * @property transformLayersPool the pool of layers used to create the attention arrays of the Attention Network
  * @property stateAttentionNetworksPool the pool attention networks used to encode the state
  * @property transitionProcessor the neural processor used to score the transitions
  * @property posDeprelNetwork the multi-task network used to score POS tags and deprels
@@ -30,6 +32,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 class AttentionDecodingSupportStructure(
   val actionRNNEncoder: RecurrentNeuralProcessor<DenseNDArray>,
   val stateAttentionNetworksPool: AttentionNetworksPool<DenseNDArray>,
+  val transformLayersPool: FeedforwardLayersPool<DenseNDArray>,
   transitionProcessor: FeedforwardNeuralProcessor<DenseNDArray>,
   posDeprelNetwork:  MultiTaskNetwork<DenseNDArray>,
   outputErrorsInit: OutputErrorsInit
