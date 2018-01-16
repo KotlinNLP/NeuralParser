@@ -452,15 +452,29 @@ abstract class AttentionFeaturesExtractor<
         transformErrors.length - this.decodingContext.extendedState.context.encodingSize
       )
 
-      this.decodingContext.extendedState.context.accumulateItemErrors(
-        itemIndex = itemIndex,
-        errors = splitErrors[0].assignSum(inputErrors[itemIndex]))
+      this.accumulateInputErrors(
+        lastActionEncodingErrors = splitErrors[1],
+        itemErrors = splitErrors[0].assignSum(inputErrors[itemIndex]),
+        itemIndex = itemIndex)
+    }
+  }
+
+  /**
+   * Accumulate the errors of a single input, already split in the errors of the last action encoding and the errors
+   * of a token encoding.
+   *
+   * @param lastActionEncodingErrors the errors of the last action encoding, associated to a token
+   * @param itemErrors the errors of the related token
+   * @param itemIndex the index of the item
+   */
+  private fun accumulateInputErrors(lastActionEncodingErrors: DenseNDArray, itemErrors: DenseNDArray, itemIndex: Int) {
+
+      this.decodingContext.extendedState.context.accumulateItemErrors(itemIndex = itemIndex, errors = itemErrors)
 
       this.lastRecurrentErrors = if (itemIndex == 0)
-        splitErrors[1]
+        lastActionEncodingErrors
       else
-        this.lastRecurrentErrors.assignSum(splitErrors[1])
-    }
+        this.lastRecurrentErrors.assignSum(lastActionEncodingErrors)
   }
 
   /**
