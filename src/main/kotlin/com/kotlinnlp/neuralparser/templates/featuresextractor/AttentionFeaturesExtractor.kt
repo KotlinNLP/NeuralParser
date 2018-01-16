@@ -338,7 +338,7 @@ abstract class AttentionFeaturesExtractor<
 
     return ArrayList(context.items.mapIndexed { i, item ->
 
-      this.usedTransformLayers[i].setInput(concatVectorsV(context.getTokenEncoding(item.id), lastActionEncoding))
+      this.usedTransformLayers[i].setInput(concatVectorsV(lastActionEncoding, context.getTokenEncoding(item.id)))
       this.usedTransformLayers[i].forward()
 
       this.usedTransformLayers[i].outputArray.values
@@ -438,7 +438,9 @@ abstract class AttentionFeaturesExtractor<
     attentionNetwork.backward(outputErrors = outputErrors, paramsErrors = attentionParamsErrors, propagateToInput = true)
     this.stateAttentionNetworkOptimizer.accumulate(attentionParamsErrors)
 
-    val inputErrors = attentionNetwork.getInputErrors()
+    val inputErrors: Array<DenseNDArray> = attentionNetwork.getInputErrors()
+    val itemEncodingSize: Int = this.decodingContext.extendedState.context.encodingSize
+    val actionEncodingSize: Int = this.usedTransformLayers.last().inputArray.size - itemEncodingSize
 
     attentionNetwork.getAttentionErrors().forEachIndexed { itemIndex, errors ->
 
@@ -447,14 +449,11 @@ abstract class AttentionFeaturesExtractor<
         outputErrors = errors,
         paramsErrors = transformParamsErrors)
 
-      val splitErrors: Array<DenseNDArray> = transformErrors.splitV(
-        this.decodingContext.extendedState.context.encodingSize,
-        transformErrors.length - this.decodingContext.extendedState.context.encodingSize
-      )
+      val splitErrors: Array<DenseNDArray> = transformErrors.splitV(actionEncodingSize, itemEncodingSize)
 
       this.accumulateInputErrors(
-        lastActionEncodingErrors = splitErrors[1],
-        itemErrors = splitErrors[0].assignSum(inputErrors[itemIndex]),
+        lastActionEncodingErrors = splitErrors[0],
+        itemErrors = splitErrors[1].assignSum(inputErrors[itemIndex]),
         itemIndex = itemIndex)
     }
   }
