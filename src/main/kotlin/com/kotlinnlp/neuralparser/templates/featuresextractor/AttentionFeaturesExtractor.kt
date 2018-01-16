@@ -352,18 +352,21 @@ abstract class AttentionFeaturesExtractor<
       else
         this.actionEncodingErrorsList[i].sum(this.lastRecurrentErrors)
 
-      this.backwardStep(outputErrors = errors, stepIndex = i)
+      this.backwardStep(encodingErrors = errors, stepIndex = i)
     }
 
     this.actionEncodingRNNOptimizer.accumulate(this.actionRNNEncoder.getParamsErrors(copy = false))
   }
 
   /**
+   * A single step of backward among the RNN input sequence.
    *
+   * @param encodingErrors the errors of a single encoding step
+   * @param stepIndex the step index
    */
-  private fun backwardStep(outputErrors: DenseNDArray, stepIndex: Int) {
+  private fun backwardStep(encodingErrors: DenseNDArray, stepIndex: Int) {
 
-    this.actionRNNEncoder.backwardStep(outputErrors = outputErrors, propagateToInput = true)
+    this.actionRNNEncoder.backwardStep(outputErrors = encodingErrors, propagateToInput = true)
 
     val errors: DenseNDArray = this.actionRNNEncoder.getInputErrors(elementIndex = stepIndex, copy = false)
     val splitErrors: Array<DenseNDArray> = errors.splitV(
