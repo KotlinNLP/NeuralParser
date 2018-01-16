@@ -354,9 +354,7 @@ abstract class AttentionFeaturesExtractor<
 
     supportStructure.transformLayersPool.releaseAll()
 
-    this.usedTransformLayers = List(
-      size = size,
-      init = { supportStructure.transformLayersPool.getItem() })
+    this.usedTransformLayers = List(size = size, init = { supportStructure.transformLayersPool.getItem() })
   }
 
   /**
