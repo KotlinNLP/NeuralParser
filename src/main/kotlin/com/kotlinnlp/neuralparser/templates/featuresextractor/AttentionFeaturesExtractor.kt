@@ -238,27 +238,30 @@ abstract class AttentionFeaturesExtractor<
    * Beat the occurrence of a new example.
    */
   override fun newExample() {
-    this.memoryRNNOptimizer.newExample()
-    this.stateAttentionNetworkOptimizer.newExample()
     this.transformLayerOptimizer.newExample()
+    this.stateAttentionNetworkOptimizer.newExample()
+    this.memoryRNNOptimizer.newExample()
+    this.featuresLayerOptimizer.newExample()
   }
 
   /**
    * Beat the occurrence of a new batch.
    */
   override fun newBatch() {
-    this.memoryRNNOptimizer.newBatch()
-    this.stateAttentionNetworkOptimizer.newBatch()
     this.transformLayerOptimizer.newBatch()
+    this.stateAttentionNetworkOptimizer.newBatch()
+    this.memoryRNNOptimizer.newBatch()
+    this.featuresLayerOptimizer.newBatch()
   }
 
   /**
    * Beat the occurrence of a new epoch.
    */
   override fun newEpoch() {
-    this.memoryRNNOptimizer.newEpoch()
-    this.stateAttentionNetworkOptimizer.newEpoch()
     this.transformLayerOptimizer.newEpoch()
+    this.stateAttentionNetworkOptimizer.newEpoch()
+    this.memoryRNNOptimizer.newEpoch()
+    this.featuresLayerOptimizer.newEpoch()
   }
 
   /**
@@ -267,8 +270,9 @@ abstract class AttentionFeaturesExtractor<
   override fun update() {
     this.actionsVectorsOptimizer.update()
     this.transformLayerOptimizer.update()
-    this.memoryRNNOptimizer.update()
     this.stateAttentionNetworkOptimizer.update()
+    this.memoryRNNOptimizer.update()
+    this.featuresLayerOptimizer.update()
   }
 
   /**
@@ -492,6 +496,8 @@ abstract class AttentionFeaturesExtractor<
 
     this.featuresLayer.setErrors(featuresErrors)
     this.featuresLayer.backward(paramsErrors = paramsErrors, propagateToInput = true, mePropK = null)
+
+    this.featuresLayerOptimizer.accumulate(paramsErrors)
 
     return this.featuresLayer.inputArray.errors
   }
