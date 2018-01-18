@@ -12,7 +12,7 @@ import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.ScorerNetworkConfiguration
 import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.BiRNNAttentionArcStandardParser
 import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.BiRNNAttentionArcStandardParserModel
-import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention.ActionRNNConfiguration
+import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention.MemoryRNNConfiguration
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention.BiRNNAttentionParserTrainer
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
@@ -66,8 +66,9 @@ fun main(args: Array<String>) {
     biRNNConnectionType = LayerType.Connection.RAN,
     biRNNHiddenActivation = Tanh(),
     biRNNLayers = 2,
-    attentionSize = 25,
-    actionRNNConfig = ActionRNNConfiguration(
+    attentionSize = 50,
+    featuresSize = 100,
+    memoryRNNConfig = MemoryRNNConfiguration(
       outputSize = 100,
       activation = Tanh(),
       connectionType = LayerType.Connection.LSTM
