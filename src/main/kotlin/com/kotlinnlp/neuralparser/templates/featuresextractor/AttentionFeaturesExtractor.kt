@@ -336,12 +336,12 @@ abstract class AttentionFeaturesExtractor<
 
     this.initTransformLayers(size = context.items.size, supportStructure = supportStructure)
 
-    return ArrayList(context.items.mapIndexed { i, item ->
+    return ArrayList(context.items.zip(this.usedTransformLayers).map { (item, layer) ->
 
-      this.usedTransformLayers[i].setInput(concatVectorsV(lastActionEncoding, context.getTokenEncoding(item.id)))
-      this.usedTransformLayers[i].forward()
+      layer.setInput(concatVectorsV(lastActionEncoding, context.getTokenEncoding(item.id)))
+      layer.forward()
 
-      this.usedTransformLayers[i].outputArray.values
+      layer.outputArray.values
     })
   }
 
