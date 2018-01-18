@@ -332,7 +332,7 @@ abstract class AttentionFeaturesExtractor<
     val lastActionEncoding: DenseNDArray = if (isFirstState)
       this.actionEncodingZerosArray
     else
-      supportStructure.actionRNNEncoder.getOutput(copy = true)
+      supportStructure.actionRNNEncoder.getOutput(copy = false)
 
     this.initTransformLayers(size = context.items.size, supportStructure = supportStructure)
 
