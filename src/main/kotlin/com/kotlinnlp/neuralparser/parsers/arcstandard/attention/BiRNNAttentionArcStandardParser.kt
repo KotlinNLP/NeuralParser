@@ -111,9 +111,10 @@ class BiRNNAttentionArcStandardParser(
    * @return the [SupportStructureFactory] used in this parser
    */
   override fun buildSupportStructureFactory() = AttentionDecodingStructureFactory(
-    actionEncodingRNN = this.model.actionEncodingRNN,
+    actionMemoryRNN = this.model.actionMemoryRNN,
     transformLayerParams = this.model.transformLayerParams,
     stateAttentionNetworkParams = this.model.stateAttentionNetworkParams,
+    featuresLayerParams = this.model.featuresLayerParams,
     transitionNetwork = this.model.transitionScorerNetwork,
     posDeprelNetworkModel = this.model.posDeprelScorerNetworkModel,
     outputErrorsInit = if (this.useSoftmaxOutput){
@@ -134,13 +135,17 @@ class BiRNNAttentionArcStandardParser(
     transformLayerOptimizer = ParamsOptimizer(
       params = this.model.transformLayerParams,
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
-    actionEncodingRNNOptimizer = ParamsOptimizer(
-      params = this.model.actionEncodingRNN.model,
+    memoryRNNOptimizer = ParamsOptimizer(
+      params = this.model.actionMemoryRNN.model,
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
     stateAttentionNetworkOptimizer = ParamsOptimizer(
       params = this.model.stateAttentionNetworkParams,
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
-    featuresEncodingSize = this.model.featuresEncodingSize,
+    featuresLayerOptimizer = ParamsOptimizer(
+      params = this.model.featuresLayerParams,
+      updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
+    memoryEncodingSize = this.model.featuresLayerParams.outputSize,
+    featuresSize = this.model.featuresSize,
     posTags = this.model.corpusDictionary.posTags,
     deprelTags = this.model.corpusDictionary.deprelTags)
 

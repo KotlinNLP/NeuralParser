@@ -33,9 +33,11 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
  * @param actionsVectors the encoding vectors of the actions
  * @param actionsVectorsOptimizer the optimizer of the [actionsVectors]
  * @param transformLayerOptimizer the optimizer of the transform layers of the Attention Network
- * @param actionEncodingRNNOptimizer the optimizer of the RNN used to encode the Actions Scorer features
  * @param stateAttentionNetworkOptimizer the optimizer of the attention network used to encode the state
- * @param featuresEncodingSize the size of the features encoding
+ * @param memoryRNNOptimizer the optimizer of the memory RNN
+ * @param featuresLayerOptimizer the optimizer of the features layer
+ * @param memoryEncodingSize the size of the memory encoding
+ * @param featuresSize the size of the features
  * @param posTags the dictionary set of POS tags
  * @param deprelTags the dictionary set of deprels
  */
@@ -43,9 +45,11 @@ class ArcStandardAttentionFeaturesExtractor(
   actionsVectors: ActionsVectorsMap,
   actionsVectorsOptimizer: ActionsVectorsOptimizer,
   transformLayerOptimizer: ParamsOptimizer<FeedforwardLayerParameters>,
-  actionEncodingRNNOptimizer: ParamsOptimizer<NetworkParameters>,
   stateAttentionNetworkOptimizer: ParamsOptimizer<AttentionNetworkParameters>,
-  featuresEncodingSize: Int,
+  memoryRNNOptimizer: ParamsOptimizer<NetworkParameters>,
+  featuresLayerOptimizer: ParamsOptimizer<FeedforwardLayerParameters>,
+  memoryEncodingSize: Int,
+  featuresSize: Int,
   private val deprelTags: DictionarySet<Deprel>,
   private val posTags: DictionarySet<POSTag>
 ) : AttentionFeaturesExtractor<
@@ -56,9 +60,11 @@ class ArcStandardAttentionFeaturesExtractor(
   actionsVectors = actionsVectors,
   actionsVectorsOptimizer = actionsVectorsOptimizer,
   transformLayerOptimizer = transformLayerOptimizer,
-  actionEncodingRNNOptimizer = actionEncodingRNNOptimizer,
+  memoryRNNOptimizer = memoryRNNOptimizer,
   stateAttentionNetworkOptimizer = stateAttentionNetworkOptimizer,
-  featuresEncodingSize = featuresEncodingSize
+  featuresLayerOptimizer = featuresLayerOptimizer,
+  memoryEncodingSize = memoryEncodingSize,
+  featuresSize = featuresSize
 ) {
 
   /**
