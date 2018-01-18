@@ -144,7 +144,7 @@ class BiRNNAttentionArcStandardParser(
     featuresLayerOptimizer = ParamsOptimizer(
       params = this.model.featuresLayerParams,
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
-    memoryEncodingSize = this.model.featuresLayerParams.outputSize,
+    memoryEncodingSize = this.model.actionMemoryRNN.layersConfiguration.last().size,
     featuresSize = this.model.featuresSize,
     posTags = this.model.corpusDictionary.posTags,
     deprelTags = this.model.corpusDictionary.deprelTags)

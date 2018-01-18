@@ -149,7 +149,7 @@ abstract class BiRNNAttentionParserModel(
    * The neural network of the actions scorer that scores the transition.
    */
   val transitionScorerNetwork: NeuralNetwork = ActionsScorerNetworkBuilder(
-    inputSize = memoryRNNConfig.outputSize,
+    inputSize = this.featuresSize,
     inputType = LayerType.Input.Dense,
     outputSize = numberOfTransitions,
     scorerNetworkConfig = scorerNetworksConfig
@@ -159,7 +159,7 @@ abstract class BiRNNAttentionParserModel(
    * The model of the neural network of the actions scorer that scores POS tag and deprel.
    */
   val posDeprelScorerNetworkModel = MultiTaskNetworkModel(
-    inputSize = memoryRNNConfig.outputSize,
+    inputSize = this.featuresSize,
     inputType = LayerType.Input.Dense,
     inputDropout = scorerNetworksConfig.inputDropout,
     hiddenSize = scorerNetworksConfig.hiddenSize,
