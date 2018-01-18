@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction
 
 import com.kotlinnlp.neuralparser.templates.supportstructure.OutputErrorsInit
+import com.kotlinnlp.simplednn.core.layers.feedforward.FeedforwardLayerStructure
 import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.recurrent.RecurrentNeuralProcessor
 import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.AttentionNetworksPool
@@ -19,20 +20,24 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * The [TPDJointSupportStructure] of an actions scorer that contains:
  * - a [RecurrentNeuralProcessor] to encode the action features;
  * - an [AttentionNetworksPool] to encode the state;
+ * - a pool of [FeedforwardLayerStructure]s to get the attention arrays;
+ * - a [FeedforwardLayerStructure] to encode the features;
  * - a [FeedforwardNeuralProcessor] to score the transitions;
  * - a [MultiTaskNetwork] to score POS tags and deprels.
  *
- * @property actionRNNEncoder the recurrent neural processor used to encode the Actions Scorer features
+ * @property actionMemoryEncoder the action memory RNN
  * @property transformLayersPool the pool of layers used to create the attention arrays of the Attention Network
  * @property stateAttentionNetworksPool the pool attention networks used to encode the state
  * @property transitionProcessor the neural processor used to score the transitions
+ * @property featuresLayer the Feedforward layer used to encode the features
  * @property posDeprelNetwork the multi-task network used to score POS tags and deprels
  * @property outputErrorsInit the default initialization of the output errors
  */
 class AttentionDecodingSupportStructure(
-  val actionRNNEncoder: RecurrentNeuralProcessor<DenseNDArray>,
+  val actionMemoryEncoder: RecurrentNeuralProcessor<DenseNDArray>,
   val stateAttentionNetworksPool: AttentionNetworksPool<DenseNDArray>,
   val transformLayersPool: FeedforwardLayersPool<DenseNDArray>,
+  val featuresLayer: FeedforwardLayerStructure<DenseNDArray>,
   transitionProcessor: FeedforwardNeuralProcessor<DenseNDArray>,
   posDeprelNetwork:  MultiTaskNetwork<DenseNDArray>,
   outputErrorsInit: OutputErrorsInit
@@ -40,4 +45,10 @@ class AttentionDecodingSupportStructure(
   transitionProcessor = transitionProcessor,
   posDeprelNetwork = posDeprelNetwork,
   outputErrorsInit = outputErrorsInit
-)
+) {
+
+  /**
+   * The last encoded state, as output of the Attention Network.
+   */
+  lateinit var lastEncodedState: DenseNDArray
+}
