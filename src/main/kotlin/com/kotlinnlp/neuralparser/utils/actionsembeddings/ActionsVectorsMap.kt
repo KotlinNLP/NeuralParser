@@ -67,8 +67,8 @@ class ActionsVectorsMap(
 
   /**
    * @param tId the transition id
-   * @param pId the POS tag id
-   * @param dId the deprel id
+   * @param pId the POS tag id (can be null)
+   * @param dId the deprel id (can be null)
    *
    * @throws KotlinNullPointerException if [tId] is not within the range [0, [transitionsSize])
    * @throws KotlinNullPointerException if [pId] is not within the range [0, [posTagsSize])
@@ -76,7 +76,7 @@ class ActionsVectorsMap(
    *
    * @return the embedding vector related to the given ids
    */
-  operator fun get(tId: Int, pId: Int, dId: Int): DenseNDArray = concatVectorsV(
+  operator fun get(tId: Int, pId: Int?, dId: Int?): DenseNDArray = concatVectorsV(
     this.transitionEmbeddings.get(tId).array.values,
     this.posTagEmbeddings.get(pId).array.values,
     this.deprelEmbeddings.get(dId).array.values

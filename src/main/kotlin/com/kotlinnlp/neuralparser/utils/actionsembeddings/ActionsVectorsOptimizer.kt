@@ -54,11 +54,11 @@ class ActionsVectorsOptimizer(actionsVectorsMap: ActionsVectorsMap, updateMethod
    * Accumulate errors of the embedding vectors associated to the given ids.
    *
    * @param tId the transition id
-   * @param pId the POS tag id
-   * @param dId the deprel id
+   * @param pId the POS tag id (can be null)
+   * @param dId the deprel id (can be null)
    * @param errors errors to accumulate
    */
-  fun accumulate(tId: Int, pId: Int, dId: Int, errors: DenseNDArray) {
+  fun accumulate(tId: Int, pId: Int?, dId: Int?, errors: DenseNDArray) {
 
     val splitErrors: Array<DenseNDArray> = errors.splitV(errors.length / 3)
 
