@@ -10,21 +10,15 @@ package com.kotlinnlp.neuralparser.templates.supportstructure.singleprediction
 import com.kotlinnlp.neuralparser.templates.supportstructure.OutputErrorsInit
 import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.syntaxdecoder.modules.supportstructure.DecodingSupportStructure
 
 /**
  * The decoding support structure of an actions scorer that contains a [FeedforwardNeuralProcessor].
  * (SP = Single Prediction).
+ *
+ * @property processor the neural processor used to score actions
+ * @property outputErrorsInit the default initialization of the [processor] output errors
  */
-interface SPSupportStructure : DecodingSupportStructure {
-
-  /**
-   * The neural processor used to score actions.
-   */
-  val processor: FeedforwardNeuralProcessor<DenseNDArray>
-
-  /**
-   * The default initialization of the [processor] output errors.
-   */
-  val outputErrorsInit: OutputErrorsInit
-}
+class SPSimpleSupportStructure(
+  override val processor: FeedforwardNeuralProcessor<DenseNDArray>,
+  override val outputErrorsInit: OutputErrorsInit
+) : SPSupportStructure

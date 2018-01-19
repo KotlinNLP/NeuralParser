@@ -28,7 +28,7 @@ class SPStructureFactory(
    *
    * @return a new single-prediction decoding support structure
    */
-  override fun globalStructure() = SPSupportStructure(
+  override fun globalStructure() = SPSimpleSupportStructure(
     processor = FeedforwardNeuralProcessor(this.network),
     outputErrorsInit = this.outputErrorsInit)
 }
