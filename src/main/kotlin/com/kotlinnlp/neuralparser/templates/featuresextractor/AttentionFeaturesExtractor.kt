@@ -128,10 +128,10 @@ abstract class AttentionFeaturesExtractor<
   private lateinit var featuresLayerParamsErrors: FeedforwardLayerParameters
 
   /**
-   * The transform layers used during the last forward.
+   * The list of transform layers groups used during the last forward.
    * (Its usage makes the training no thread safe).
    */
-  private lateinit var usedTransformLayers: List<FeedforwardLayerStructure<DenseNDArray>>
+  private val usedTransformLayers = mutableListOf<List<FeedforwardLayerStructure<DenseNDArray>>>()
 
   /**
    * The features layers used during the last forward.
@@ -275,7 +275,6 @@ abstract class AttentionFeaturesExtractor<
     supportStructure: AttentionSupportStructure
   ): DenseNDArray {
 
-
     val memoryEncoding: DenseNDArray = this.getMemoryEncoding(
       decodingContext = decodingContext,
       supportStructure = supportStructure)
@@ -373,7 +372,8 @@ abstract class AttentionFeaturesExtractor<
       attentionSequence = this.buildAttentionSequence(
         supportStructure = supportStructure,
         context = context,
-        memoryEncoding = memoryEncoding))
+        memoryEncoding = memoryEncoding,
+        isFirstState = isFirstState))
   }
 
   /**
@@ -406,16 +406,23 @@ abstract class AttentionFeaturesExtractor<
    * @param supportStructure the decoding support structure
    * @param context the input context
    * @param memoryEncoding the memory encoding array
+   * @param isFirstState a boolean indicating if the current is the first state
    *
    * @return the input of the transform layer
    */
   private fun buildAttentionSequence(supportStructure: AttentionSupportStructure,
                                      context: InputContextType,
-                                     memoryEncoding: DenseNDArray): ArrayList<DenseNDArray> {
+                                     memoryEncoding: DenseNDArray,
+                                     isFirstState: Boolean): ArrayList<DenseNDArray> {
 
-    this.initTransformLayers(size = context.items.size, supportStructure = supportStructure)
+    if (isFirstState) {
+      supportStructure.transformLayersPool.releaseAll()
+      this.usedTransformLayers.clear()
+    }
 
-    return ArrayList(context.items.zip(this.usedTransformLayers).map { (item, layer) ->
+    this.addTransformLayers(size = context.items.size, supportStructure = supportStructure)
+
+    return ArrayList(context.items.zip(this.usedTransformLayers.last()).map { (item, layer) ->
 
       layer.setInput(concatVectorsV(memoryEncoding, context.getTokenEncoding(item.id)))
       layer.forward()
@@ -425,15 +432,15 @@ abstract class AttentionFeaturesExtractor<
   }
 
   /**
-   * Initialize the list of transform layers to use for the current decoding.
+   * Add a group of transform layers to use for the current decoding.
    *
    * @param size the number of layers to initialize
    */
-  private fun initTransformLayers(size: Int, supportStructure: AttentionSupportStructure) {
+  private fun addTransformLayers(size: Int, supportStructure: AttentionSupportStructure) {
 
-    supportStructure.transformLayersPool.releaseAll()
+    val layers = List(size = size, init = { supportStructure.transformLayersPool.getItem() })
 
-    this.usedTransformLayers = List(size = size, init = { supportStructure.transformLayersPool.getItem() })
+    this.usedTransformLayers.add(layers)
   }
 
   /**
@@ -520,9 +527,7 @@ abstract class AttentionFeaturesExtractor<
       else
         stateEncodingOutputPart.assignSum(this.recurrentStateEncodingErrors)
 
-      this.backwardAttentionNetwork(
-        attentionNetwork = this.usedAttentionNetworks[stepIndex],
-        outputErrors = stateEncodingErrors)
+      this.backwardAttentionNetwork(stepIndex = stepIndex, outputErrors = stateEncodingErrors)
 
       if (stepIndex > 0) {
         this.memoryEncoderBackwardStep(
@@ -569,12 +574,16 @@ abstract class AttentionFeaturesExtractor<
   }
 
   /**
-   * Backward of the given [attentionNetwork].
+   * Backward of the Attention Network used during the given decoding [stepIndex].
    *
-   * @param attentionNetwork an Attention Network used to encode the current state
-   * @param outputErrors the output errors of the given [attentionNetwork]
+   * @param stepIndex the index of the current decoding step
+   * @param outputErrors the output errors of the given Attention Network
    */
-  private fun backwardAttentionNetwork(attentionNetwork: AttentionNetwork<DenseNDArray>, outputErrors: DenseNDArray) {
+  private fun backwardAttentionNetwork(stepIndex: Int, outputErrors: DenseNDArray) {
+
+    val attentionNetwork = this.usedAttentionNetworks[stepIndex]
+    val transformLayers = this.usedTransformLayers[stepIndex]
+    val attentionArraySize: Int = this.usedTransformLayers.last().last().inputArray.size
 
     val transformParamsErrors: FeedforwardLayerParameters = this.getTransformParamsErrors()
     val attentionParamsErrors: AttentionNetworkParameters = this.getAttentionParamsErrors()
@@ -587,11 +596,12 @@ abstract class AttentionFeaturesExtractor<
     attentionNetwork.getAttentionErrors().forEachIndexed { itemIndex, errors ->
 
       val attentionArrayErrors: DenseNDArray = this.backwardTransformLayer(
-        layer = this.usedTransformLayers[itemIndex],
+        layer = transformLayers[itemIndex],
         outputErrors = errors,
         paramsErrors = transformParamsErrors)
 
-      val (memoryEncodingPart, tokenEncodingPart) = this.splitAttentionErrors(attentionArrayErrors)
+      val (memoryEncodingPart, tokenEncodingPart) = this.splitAttentionErrors(
+        errors = attentionArrayErrors, attentionArraySize = attentionArraySize)
 
       this.accumulateInputErrors(
         memoryEncodingErrors = memoryEncodingPart,
@@ -623,13 +633,14 @@ abstract class AttentionFeaturesExtractor<
 
   /**
    * @param errors the errors of an encoded attention array of the Attention Network
+   * @param attentionArraySize the size of the attention arrays
    *
    * @return a Pair containing partitions of the memory encoding and the token encoding errors
    */
-  private fun splitAttentionErrors(errors: DenseNDArray): Pair<DenseNDArray, DenseNDArray> {
+  private fun splitAttentionErrors(errors: DenseNDArray, attentionArraySize: Int): Pair<DenseNDArray, DenseNDArray> {
 
     val tokenEncodingSize: Int = this.decodingContext.extendedState.context.encodingSize
-    val memoryEncodingSize: Int = this.usedTransformLayers.last().inputArray.size - tokenEncodingSize
+    val memoryEncodingSize: Int = attentionArraySize - tokenEncodingSize
 
     val splitErrors: Array<DenseNDArray> = errors.splitV(memoryEncodingSize, tokenEncodingSize)
 
@@ -715,7 +726,7 @@ abstract class AttentionFeaturesExtractor<
   private fun getTransformParamsErrors(): FeedforwardLayerParameters = try {
     this.transformLayerParamsErrors
   } catch (e: UninitializedPropertyAccessException) {
-    this.transformLayerParamsErrors = this.usedTransformLayers.last().params.copy() as FeedforwardLayerParameters
+    this.transformLayerParamsErrors = this.usedTransformLayers.last().last().params.copy() as FeedforwardLayerParameters
     this.transformLayerParamsErrors
   }
 
