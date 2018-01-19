@@ -38,7 +38,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @param memoryRNNConfig the configuration of the memory RNN
  * @param scorerNetworksConfig the configuration of the scorer networks
  */
-class BiRNNAttentionArcStandardParserModel(
+class BiRNNAttentionArcStandardTPDJointParserModel(
   actionsScoresActivation: ActivationFunction?,
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,

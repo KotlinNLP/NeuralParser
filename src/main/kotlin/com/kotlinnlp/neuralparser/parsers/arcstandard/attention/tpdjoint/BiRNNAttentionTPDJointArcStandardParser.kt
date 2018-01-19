@@ -51,8 +51,8 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
  * @param beamSize the max size of the beam (default = 1)
  * @param maxParallelThreads the max number of threads that can run in parallel (default = 1, ignored if beamSize is 1)
  */
-class BiRNNAttentionArcStandardParser(
-  model: BiRNNAttentionArcStandardParserModel,
+class BiRNNAttentionTPDJointArcStandardParser(
+  model: BiRNNAttentionArcStandardTPDJointParserModel,
   wordDropoutCoefficient: Double = 0.0,
   beamSize: Int = 1,
   maxParallelThreads: Int = 1
@@ -63,7 +63,7 @@ class BiRNNAttentionArcStandardParser(
     DenseFeaturesErrors,
     DenseFeatures,
     AttentionTPDJointSupportStructure,
-    BiRNNAttentionArcStandardParserModel>
+    BiRNNAttentionArcStandardTPDJointParserModel>
   (
     model = model,
     wordDropoutCoefficient = wordDropoutCoefficient,
@@ -127,7 +127,7 @@ class BiRNNAttentionArcStandardParser(
   /**
    * @return the [FeaturesExtractor] used in this parser
    */
-  override fun buildFeaturesExtractor() = ArcStandardAttentionFeaturesExtractor<AttentionTPDJointSupportStructure>(
+  override fun buildFeaturesExtractor() = ArcStandardAttentionTPDJointFeaturesExtractor<AttentionTPDJointSupportStructure>(
     actionsVectors = this.model.actionsVectors,
     actionsVectorsOptimizer = ActionsVectorsOptimizer(
       actionsVectorsMap = this.model.actionsVectors,
