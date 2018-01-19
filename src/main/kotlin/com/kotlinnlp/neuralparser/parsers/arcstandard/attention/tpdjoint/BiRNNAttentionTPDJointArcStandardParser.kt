@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint
 
+import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.ArcStandardAttentionFeaturesExtractor
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.parsers.arcstandard.tpdjoint.ArcStandardTPDJointActionsScorer
 import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensAmbiguousPOSContext

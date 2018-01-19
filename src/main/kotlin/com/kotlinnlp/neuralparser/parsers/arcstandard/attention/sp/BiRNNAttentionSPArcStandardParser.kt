@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.arcstandard.attention.sp
 
-import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint.ArcStandardAttentionFeaturesExtractor
+import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.ArcStandardAttentionFeaturesExtractor
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensAmbiguousPOSContext
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParser

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint
+package com.kotlinnlp.neuralparser.parsers.arcstandard.attention
 
 import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.dependencytree.POSTag
