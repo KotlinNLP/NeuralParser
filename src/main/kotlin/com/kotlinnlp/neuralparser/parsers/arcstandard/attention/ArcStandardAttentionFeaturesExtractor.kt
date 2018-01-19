@@ -29,7 +29,13 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitio
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferState
 
 /**
- * The [AttentionFeaturesExtractor] for the [BiRNNAttentionTPDJointArcStandardParser].
+ * The [AttentionFeaturesExtractor] that uses an Attention Network to combine the tokens encodings with the actions
+ * history, memorized with a RNN.
+ *
+ * The algorithm is a free interpretation of the key concepts described in the paper below.
+ *
+ * Reference:
+ * [Jiangming Liu and Yue Zhang - Encoder-Decoder Shift-Reduce Syntactic Parsing](http://www.aclweb.org/anthology/W17-6315)
  *
  * @param actionsVectors the encoding vectors of the actions
  * @param actionsVectorsOptimizer the optimizer of the [actionsVectors]
