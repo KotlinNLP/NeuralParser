@@ -127,7 +127,7 @@ class BiRNNAttentionTPDJointArcStandardParser(
   /**
    * @return the [FeaturesExtractor] used in this parser
    */
-  override fun buildFeaturesExtractor() = ArcStandardAttentionTPDJointFeaturesExtractor<AttentionTPDJointSupportStructure>(
+  override fun buildFeaturesExtractor() = ArcStandardAttentionFeaturesExtractor<AttentionTPDJointSupportStructure>(
     actionsVectors = this.model.actionsVectors,
     actionsVectorsOptimizer = ActionsVectorsOptimizer(
       actionsVectorsMap = this.model.actionsVectors,

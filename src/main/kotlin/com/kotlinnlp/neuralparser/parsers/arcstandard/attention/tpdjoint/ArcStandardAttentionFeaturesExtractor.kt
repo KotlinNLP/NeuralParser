@@ -42,7 +42,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
  * @param posTags the dictionary set of POS tags
  * @param deprelTags the dictionary set of deprels
  */
-class ArcStandardAttentionTPDJointFeaturesExtractor<in SupportStructureType: AttentionSupportStructure>(
+class ArcStandardAttentionFeaturesExtractor<in SupportStructureType: AttentionSupportStructure>(
   actionsVectors: ActionsVectorsMap,
   actionsVectorsOptimizer: ActionsVectorsOptimizer,
   transformLayerOptimizer: ParamsOptimizer<FeedforwardLayerParameters>,
@@ -87,7 +87,7 @@ class ArcStandardAttentionTPDJointFeaturesExtractor<in SupportStructureType: Att
   override val Transition<ArcStandardTransition, StackBufferState>.Action.deprelKey: Int
     get() = when {
       this.transition is Shift -> 0
-      this is DependencyRelation -> this@ArcStandardAttentionTPDJointFeaturesExtractor.deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
+      this is DependencyRelation -> this@ArcStandardAttentionFeaturesExtractor.deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
       else -> throw RuntimeException("unknown action")
     }
 
@@ -97,7 +97,7 @@ class ArcStandardAttentionTPDJointFeaturesExtractor<in SupportStructureType: Att
   override val Transition<ArcStandardTransition, StackBufferState>.Action.posTagKey: Int
     get() = when {
       this.transition is Shift -> 0
-      this is DependencyRelation -> this@ArcStandardAttentionTPDJointFeaturesExtractor.posTags.getId(this.posTag!!)!! + 1 // + shift offset
+      this is DependencyRelation -> this@ArcStandardAttentionFeaturesExtractor.posTags.getId(this.posTag!!)!! + 1 // + shift offset
       else -> throw RuntimeException("unknown action")
     }
 }
