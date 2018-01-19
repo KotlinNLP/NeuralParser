@@ -25,8 +25,8 @@ import com.kotlinnlp.simplednn.deeplearning.multitasknetwork.MultiTaskNetworkMod
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
 
 /**
- * The parser model for the ArcStandard parser based on the BiRNN withTransition+POS+Deprel joint scoring with attention
- * features decoding.
+ * The parser model for the ArcStandard parser based on the BiRNN with attention features encoding and
+ * Transition+POS+Deprel joint scoring.
  *
  * @property actionsScoresActivation the function used to activate the actions scores (can be null)
  * @property scoreAccumulatorFactory a factory of score accumulators

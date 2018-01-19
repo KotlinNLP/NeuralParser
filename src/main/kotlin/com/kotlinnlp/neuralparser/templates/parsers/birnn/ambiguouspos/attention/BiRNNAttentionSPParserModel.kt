@@ -23,8 +23,8 @@ import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsMap
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
 
 /**
- * The parser model for the ArcStandard parser based on the BiRNN with single-prediction actions scoring with attention
- * features encoding.
+ * The parser model for the ArcStandard parser based on the BiRNN with features encoding and single-prediction actions
+ * scoring.
  *
  * @property actionsScoresActivation the function used to activate the actions scores (can be null)
  * @property scoreAccumulatorFactory a factory of score accumulators
