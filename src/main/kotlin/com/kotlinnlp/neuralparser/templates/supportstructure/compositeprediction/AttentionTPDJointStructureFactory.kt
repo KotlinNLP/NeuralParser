@@ -8,13 +8,10 @@
 package com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction
 
 import com.kotlinnlp.neuralparser.templates.supportstructure.OutputErrorsInit
-import com.kotlinnlp.simplednn.core.arrays.AugmentedArray
 import com.kotlinnlp.simplednn.core.functionalities.activations.ReLU
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
-import com.kotlinnlp.simplednn.core.layers.LayerUnit
 import com.kotlinnlp.simplednn.core.layers.feedforward.FeedforwardLayerParameters
-import com.kotlinnlp.simplednn.core.layers.feedforward.FeedforwardLayerStructure
 import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.recurrent.RecurrentNeuralProcessor
@@ -60,9 +57,8 @@ open class AttentionTPDJointStructureFactory(
     stateAttentionNetworksPool = AttentionNetworksPool(
       model = this.stateAttentionNetworkParams,
       inputType = LayerType.Input.Dense),
-    featuresLayer = FeedforwardLayerStructure(
-      inputArray = AugmentedArray(size = this.featuresLayerParams.inputSize),
-      outputArray = LayerUnit(size = this.featuresLayerParams.outputSize),
+    featuresLayersPool = FeedforwardLayersPool(
+      inputType = LayerType.Input.Dense,
       params = this.featuresLayerParams,
       activationFunction = ReLU()
     ),

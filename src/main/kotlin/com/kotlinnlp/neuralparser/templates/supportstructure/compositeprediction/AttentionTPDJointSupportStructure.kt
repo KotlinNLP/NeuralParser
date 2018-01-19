@@ -21,7 +21,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * - a [RecurrentNeuralProcessor] to encode the action features;
  * - an [AttentionNetworksPool] to encode the state;
  * - a pool of [FeedforwardLayerStructure]s to get the attention arrays;
- * - a [FeedforwardLayerStructure] to encode the features;
+ * - a pool of [FeedforwardLayerStructure]s to encode the features;
  * - a [FeedforwardNeuralProcessor] to score the transitions;
  * - a [MultiTaskNetwork] to score POS tags and deprels.
  *
@@ -29,7 +29,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * @property transformLayersPool the pool of layers used to create the attention arrays of the Attention Network
  * @property stateAttentionNetworksPool the pool attention networks used to encode the state
  * @property transitionProcessor the neural processor used to score the transitions
- * @property featuresLayer the Feedforward layer used to encode the features
+ * @property featuresLayersPool the pool of Feedforward layers used to encode the features
  * @property posDeprelNetwork the multi-task network used to score POS tags and deprels
  * @property outputErrorsInit the default initialization of the output errors
  */
@@ -37,7 +37,7 @@ class AttentionTPDJointSupportStructure(
   override val actionMemoryEncoder: RecurrentNeuralProcessor<DenseNDArray>,
   override val stateAttentionNetworksPool: AttentionNetworksPool<DenseNDArray>,
   override val transformLayersPool: FeedforwardLayersPool<DenseNDArray>,
-  override val featuresLayer: FeedforwardLayerStructure<DenseNDArray>,
+  override val featuresLayersPool: FeedforwardLayersPool<DenseNDArray>,
   override val transitionProcessor: FeedforwardNeuralProcessor<DenseNDArray>,
   override val posDeprelNetwork:  MultiTaskNetwork<DenseNDArray>,
   override val outputErrorsInit: OutputErrorsInit

@@ -18,16 +18,16 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
  * The [TPDJointSupportStructure] of an actions scorer that contains:
- * - a [FeedforwardNeuralProcessor] to score the actions;
  * - a [RecurrentNeuralProcessor] to encode the action features;
  * - an [AttentionNetworksPool] to encode the state;
  * - a pool of [FeedforwardLayerStructure]s to get the attention arrays;
- * - a [FeedforwardLayerStructure] to encode the features.
+ * - a pool of [FeedforwardLayerStructure]s to encode the features;
+ * - a [FeedforwardNeuralProcessor] to score the actions.
  *
  * @property actionMemoryEncoder the action memory RNN
  * @property transformLayersPool the pool of layers used to create the attention arrays of the Attention Network
  * @property stateAttentionNetworksPool the pool attention networks used to encode the state
- * @property featuresLayer the Feedforward layer used to encode the features
+ * @property featuresLayersPool the pool of Feedforward layers used to encode the features
  * @property processor the neural processor used to score actions
  * @property outputErrorsInit the default initialization of the output errors
  */
@@ -35,7 +35,7 @@ class AttentionSPSupportStructure(
   override val actionMemoryEncoder: RecurrentNeuralProcessor<DenseNDArray>,
   override val stateAttentionNetworksPool: AttentionNetworksPool<DenseNDArray>,
   override val transformLayersPool: FeedforwardLayersPool<DenseNDArray>,
-  override val featuresLayer: FeedforwardLayerStructure<DenseNDArray>,
+  override val featuresLayersPool: FeedforwardLayersPool<DenseNDArray>,
   override val processor: FeedforwardNeuralProcessor<DenseNDArray>,
   override val outputErrorsInit: OutputErrorsInit
 ) : AttentionSupportStructure, SPSupportStructure {

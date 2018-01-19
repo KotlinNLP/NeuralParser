@@ -7,7 +7,6 @@
 
 package com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction
 
-import com.kotlinnlp.simplednn.core.layers.feedforward.FeedforwardLayerStructure
 import com.kotlinnlp.simplednn.core.neuralprocessor.recurrent.RecurrentNeuralProcessor
 import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.AttentionNetworksPool
 import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.FeedforwardLayersPool
@@ -35,9 +34,9 @@ interface AttentionSupportStructure : DecodingSupportStructure {
   val transformLayersPool: FeedforwardLayersPool<DenseNDArray>
 
   /**
-   * The Feedforward layer used to encode the features.
+   * The pool of Feedforward layers used to encode the features.
    */
-  val featuresLayer: FeedforwardLayerStructure<DenseNDArray>
+  val featuresLayersPool: FeedforwardLayersPool<DenseNDArray>
 
   /**
    * The last encoded state, as output of the Attention Network.
