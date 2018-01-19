@@ -11,6 +11,7 @@ import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.templates.featuresextractor.AttentionFeaturesExtractor
 import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensAmbiguousPOSContext
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParser
+import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserModel
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserTrainer
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.syntaxdecoder.modules.actionserrorssetter.ActionsErrorsSetter
@@ -39,7 +40,7 @@ class BiRNNAttentionParserTrainer<
   FeaturesErrorsType: FeaturesErrors,
   FeaturesType : Features<FeaturesErrorsType, *>,
   SupportStructureType : DecodingSupportStructure,
-  ModelType: BiRNNAttentionParserModel
+  ModelType: BiRNNAmbiguousPOSParserModel
   >(
   neuralParser: BiRNNAmbiguousPOSParser<StateType, TransitionType, FeaturesErrorsType, FeaturesType,
     SupportStructureType, ModelType>,
