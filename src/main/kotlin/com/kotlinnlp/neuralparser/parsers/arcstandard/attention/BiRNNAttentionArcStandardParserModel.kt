@@ -19,7 +19,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
 
 /**
  * The parser model for the ArcStandard parser based on the BiRNN with Transition+POS+Deprel joint scoring with
- * attention features decoding.
+ * attention features encoding.
  *
  * @property actionsScoresActivation the function used to activate the actions scores (can be null)
  * @property scoreAccumulatorFactory a factory of score accumulators
