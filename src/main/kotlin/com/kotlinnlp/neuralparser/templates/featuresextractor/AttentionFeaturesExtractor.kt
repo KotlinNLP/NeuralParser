@@ -263,7 +263,6 @@ abstract class AttentionFeaturesExtractor<
     this.featuresLayerOptimizer.update()
   }
 
-
   /**
    * @param decodingContext the decoding context
    * @param supportStructure the decoding support structure
