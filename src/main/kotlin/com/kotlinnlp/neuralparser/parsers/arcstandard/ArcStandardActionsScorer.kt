@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.arcstandard.simple
+package com.kotlinnlp.neuralparser.parsers.arcstandard
 
 import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.neuralparser.templates.actionsscorer.SPEmbeddingsActionsScorer

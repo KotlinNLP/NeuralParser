@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.arcstandard.simple
 
 import com.kotlinnlp.neuralparser.parsers.ArcStandardSPEmbeddingsFeaturesExtractor
+import com.kotlinnlp.neuralparser.parsers.arcstandard.ArcStandardActionsScorer
 import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensEmbeddingsContext
 import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.simple.BiRNNParser
