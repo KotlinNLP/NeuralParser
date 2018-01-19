@@ -13,6 +13,7 @@ import com.kotlinnlp.neuralparser.templates.featuresextractor.AttentionFeaturesE
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsMap
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensAmbiguousPOSContext
+import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction.AttentionSupportStructure
 import com.kotlinnlp.simplednn.core.layers.feedforward.FeedforwardLayerParameters
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
@@ -41,7 +42,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
  * @param posTags the dictionary set of POS tags
  * @param deprelTags the dictionary set of deprels
  */
-class ArcStandardAttentionFeaturesExtractor(
+class ArcStandardAttentionFeaturesExtractor<in SupportStructureType: AttentionSupportStructure>(
   actionsVectors: ActionsVectorsMap,
   actionsVectorsOptimizer: ActionsVectorsOptimizer,
   transformLayerOptimizer: ParamsOptimizer<FeedforwardLayerParameters>,
@@ -55,7 +56,8 @@ class ArcStandardAttentionFeaturesExtractor(
 ) : AttentionFeaturesExtractor<
   StackBufferState,
   ArcStandardTransition,
-  TokensAmbiguousPOSContext>
+  TokensAmbiguousPOSContext,
+  SupportStructureType>
 (
   actionsVectors = actionsVectors,
   actionsVectorsOptimizer = actionsVectorsOptimizer,
