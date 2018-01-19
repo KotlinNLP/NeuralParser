@@ -90,20 +90,26 @@ class ArcStandardAttentionFeaturesExtractor<in SupportStructureType: AttentionSu
   /**
    * The actions embeddings map key of the deprel of this action.
    */
-  override val Transition<ArcStandardTransition, StackBufferState>.Action.deprelKey: Int
+  override val Transition<ArcStandardTransition, StackBufferState>.Action.deprelKey: Int?
     get() = when {
       this.transition is Shift -> 0
-      this is DependencyRelation -> this@ArcStandardAttentionFeaturesExtractor.deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
+      this is DependencyRelation -> if (this.deprel != null)
+        this@ArcStandardAttentionFeaturesExtractor.deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
+      else
+        null
       else -> throw RuntimeException("unknown action")
     }
 
   /**
    * The actions embeddings map key of the POS tag of this action.
    */
-  override val Transition<ArcStandardTransition, StackBufferState>.Action.posTagKey: Int
+  override val Transition<ArcStandardTransition, StackBufferState>.Action.posTagKey: Int?
     get() = when {
       this.transition is Shift -> 0
-      this is DependencyRelation -> this@ArcStandardAttentionFeaturesExtractor.posTags.getId(this.posTag!!)!! + 1 // + shift offset
+      this is DependencyRelation -> if (this.posTag != null)
+        this@ArcStandardAttentionFeaturesExtractor.posTags.getId(this.posTag!!)!! + 1 // + shift offset
+      else
+        null
       else -> throw RuntimeException("unknown action")
     }
 }

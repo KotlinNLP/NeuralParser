@@ -72,14 +72,14 @@ abstract class AttentionFeaturesExtractor<
   abstract protected val Transition<TransitionType, StateType>.key: Int
 
   /**
-   * The actions embeddings map key of the deprel of this action.
+   * The actions embeddings map key of the deprel of this action (can be null).
    */
-  abstract protected val Transition<TransitionType, StateType>.Action.deprelKey: Int
+  abstract protected val Transition<TransitionType, StateType>.Action.deprelKey: Int?
 
   /**
-   * The actions embeddings map key of the POS tag of this action.
+   * The actions embeddings map key of the POS tag of this action (can be null).
    */
-  abstract protected val Transition<TransitionType, StateType>.Action.posTagKey: Int
+  abstract protected val Transition<TransitionType, StateType>.Action.posTagKey: Int?
 
   /**
    * The size of the action encoding vectors.
