@@ -656,12 +656,12 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun accumulateInputErrors(memoryEncodingErrors: DenseNDArray, itemErrors: DenseNDArray, itemIndex: Int) {
 
-      this.decodingContext.extendedState.context.accumulateItemErrors(itemIndex = itemIndex, errors = itemErrors)
+    this.decodingContext.extendedState.context.accumulateItemErrors(itemIndex = itemIndex, errors = itemErrors)
 
-      this.recurrentMemoryErrors = if (itemIndex == 0)
-        memoryEncodingErrors
-      else
-        this.recurrentMemoryErrors.assignSum(memoryEncodingErrors)
+    this.recurrentMemoryErrors = if (itemIndex == 0)
+      memoryEncodingErrors
+    else
+      this.recurrentMemoryErrors.assignSum(memoryEncodingErrors)
   }
 
   /**
@@ -705,18 +705,14 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun accumulateActionEmbeddingErrors(errors: DenseNDArray, actionIndex: Int) {
 
-    if (actionIndex == 0) {
-      this.actionsVectorsOptimizer.accumulateNullEmbeddingsErrors(errors)
+    val action = this.appliedActions[actionIndex]!!
 
-    } else {
-      val action = this.appliedActions[actionIndex]!!
-      this.actionsVectorsOptimizer.accumulate(
-        tId = action.transition.key,
-        pId = action.posTagKey,
-        dId = action.deprelKey,
-        errors = errors
-      )
-    }
+    this.actionsVectorsOptimizer.accumulate(
+      tId = action.transition.key,
+      pId = action.posTagKey,
+      dId = action.deprelKey,
+      errors = errors
+    )
   }
 
   /**
