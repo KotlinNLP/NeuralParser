@@ -27,7 +27,7 @@ import com.kotlinnlp.neuralparser.parsers.arcstandard.atpdjoint.BiRNNATPDJointAr
 import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.sp.BiRNNAttentionSPArcStandardParser
 import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.sp.BiRNNAttentionSPArcStandardParserModel
 import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint.BiRNNAttentionTPDJointArcStandardParser
-import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint.BiRNNAttentionArcStandardTPDJointParserModel
+import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint.BiRNNAttentionTPDJointArcStandardParserModel
 import com.kotlinnlp.neuralparser.parsers.arcstandard.tpdjoint.BiRNNTPDJointArcStandardParser
 import com.kotlinnlp.neuralparser.parsers.arcstandard.tpdjoint.BiRNNTPDJointArcStandardParserModel
 
@@ -79,7 +79,7 @@ object NeuralParserFactory {
       beamSize = beamSize,
       maxParallelThreads = maxParallelThreads)
 
-    is BiRNNAttentionArcStandardTPDJointParserModel -> BiRNNAttentionTPDJointArcStandardParser(
+    is BiRNNAttentionTPDJointArcStandardParserModel -> BiRNNAttentionTPDJointArcStandardParser(
       model = model,
       beamSize = beamSize,
       maxParallelThreads = maxParallelThreads)

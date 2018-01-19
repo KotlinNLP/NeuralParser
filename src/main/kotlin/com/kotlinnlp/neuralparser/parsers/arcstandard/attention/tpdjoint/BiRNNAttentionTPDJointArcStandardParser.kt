@@ -52,7 +52,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
  * @param maxParallelThreads the max number of threads that can run in parallel (default = 1, ignored if beamSize is 1)
  */
 class BiRNNAttentionTPDJointArcStandardParser(
-  model: BiRNNAttentionArcStandardTPDJointParserModel,
+  model: BiRNNAttentionTPDJointArcStandardParserModel,
   wordDropoutCoefficient: Double = 0.0,
   beamSize: Int = 1,
   maxParallelThreads: Int = 1
@@ -63,7 +63,7 @@ class BiRNNAttentionTPDJointArcStandardParser(
     DenseFeaturesErrors,
     DenseFeatures,
     AttentionTPDJointSupportStructure,
-    BiRNNAttentionArcStandardTPDJointParserModel>
+    BiRNNAttentionTPDJointArcStandardParserModel>
   (
     model = model,
     wordDropoutCoefficient = wordDropoutCoefficient,

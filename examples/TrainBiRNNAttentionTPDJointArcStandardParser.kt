@@ -11,7 +11,7 @@ import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.ScorerNetworkConfiguration
 import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint.BiRNNAttentionTPDJointArcStandardParser
-import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint.BiRNNAttentionArcStandardTPDJointParserModel
+import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint.BiRNNAttentionTPDJointArcStandardParserModel
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention.MemoryRNNConfiguration
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention.BiRNNAttentionParserTrainer
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
@@ -53,7 +53,7 @@ fun main(args: Array<String>) {
     null
   }
 
-  val parserModel = BiRNNAttentionArcStandardTPDJointParserModel(
+  val parserModel = BiRNNAttentionTPDJointArcStandardParserModel(
     actionsScoresActivation = null,
     scoreAccumulatorFactory = AverageAccumulator,
     corpusDictionary = corpusDictionary,
