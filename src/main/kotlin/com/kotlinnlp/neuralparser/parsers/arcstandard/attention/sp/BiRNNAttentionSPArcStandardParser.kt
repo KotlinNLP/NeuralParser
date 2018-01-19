@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.arcstandard.attention.sp
 
 import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.ArcStandardAttentionFeaturesExtractor
+import com.kotlinnlp.neuralparser.parsers.arcstandard.simple.ArcStandardActionsScorer
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensAmbiguousPOSContext
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParser
@@ -92,7 +93,7 @@ class BiRNNAttentionSPArcStandardParser(
   /**
    * @return the [ActionsScorer] used in this parser
    */
-  override fun buildActionsScorer() = ArcStandardAttentionSPActionsScorer<AttentionSPSupportStructure>(
+  override fun buildActionsScorer() = ArcStandardActionsScorer<AttentionSPSupportStructure, TokensAmbiguousPOSContext>(
     network = this.model.actionsNetwork,
     optimizer = ParamsOptimizer(
       params = this.model.actionsNetwork.model,
