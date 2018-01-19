@@ -26,13 +26,9 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * @property posDeprelNetwork the multi-task network used to score POS tags and deprels
  * @property outputErrorsInit the default initialization of the output errors
  */
-open class ATPDJointSupportStructure(
+class ATPDJointSupportStructure(
   val actionProcessor: RecurrentNeuralProcessor<DenseNDArray>,
-  transitionProcessor: FeedforwardNeuralProcessor<DenseNDArray>,
-  posDeprelNetwork:  MultiTaskNetwork<DenseNDArray>,
-  outputErrorsInit: OutputErrorsInit
-) : TPDJointSupportStructure(
-  transitionProcessor = transitionProcessor,
-  posDeprelNetwork = posDeprelNetwork,
-  outputErrorsInit = outputErrorsInit
-)
+  override val transitionProcessor: FeedforwardNeuralProcessor<DenseNDArray>,
+  override val posDeprelNetwork:  MultiTaskNetwork<DenseNDArray>,
+  override val outputErrorsInit: OutputErrorsInit
+) : TPDJointSupportStructure
