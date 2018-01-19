@@ -47,7 +47,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @param numberOfTransitions the number of transitions of the transition system
  * @param numberOfTransitionsVectors the number of different transitions vectors
  */
-abstract class BiRNNAttentionParserModel(
+abstract class BiRNNAttentionTPDJointParserModel(
   val actionsScoresActivation: ActivationFunction?,
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,

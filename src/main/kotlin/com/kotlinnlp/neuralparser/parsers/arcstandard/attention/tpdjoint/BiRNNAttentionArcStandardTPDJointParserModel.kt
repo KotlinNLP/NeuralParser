@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint
 import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.parsers.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention.BiRNNAttentionParserModel
+import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention.BiRNNAttentionTPDJointParserModel
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention.MemoryRNNConfiguration
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
 import com.kotlinnlp.simplednn.core.layers.LayerType
@@ -55,7 +55,7 @@ class BiRNNAttentionArcStandardTPDJointParserModel(
   biRNNLayers: Int,
   memoryRNNConfig: MemoryRNNConfiguration,
   scorerNetworksConfig: ScorerNetworkConfiguration
-) : BiRNNAttentionParserModel(
+) : BiRNNAttentionTPDJointParserModel(
   actionsScoresActivation = actionsScoresActivation,
   scoreAccumulatorFactory = scoreAccumulatorFactory,
   corpusDictionary = corpusDictionary,
