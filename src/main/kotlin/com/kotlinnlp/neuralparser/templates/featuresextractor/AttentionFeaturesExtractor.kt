@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.templates.featuresextractor
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsMap
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensEncodingContext
-import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction.AttentionDecodingSupportStructure
+import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction.AttentionSupportStructure
 import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.arrays.AugmentedArray
@@ -47,7 +47,8 @@ import com.kotlinnlp.syntaxdecoder.utils.DecodingContext
 abstract class AttentionFeaturesExtractor<
   StateType : State<StateType>,
   TransitionType : Transition<TransitionType, StateType>,
-  InputContextType: TokensEncodingContext<InputContextType>>
+  InputContextType: TokensEncodingContext<InputContextType>,
+  in SupportStructureType: AttentionSupportStructure>
 (
   private val actionsVectors: ActionsVectorsMap,
   private val actionsVectorsOptimizer: ActionsVectorsOptimizer,
@@ -63,7 +64,7 @@ abstract class AttentionFeaturesExtractor<
   InputContextType,
   DenseItem,
   DenseFeatures,
-  AttentionDecodingSupportStructure>() {
+  SupportStructureType>() {
 
   /**
    * The actions embeddings map key of the transition of this action.
@@ -177,7 +178,7 @@ abstract class AttentionFeaturesExtractor<
    */
   override fun extract(
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
-    supportStructure: AttentionDecodingSupportStructure
+    supportStructure: SupportStructureType
   ): DenseFeatures {
 
     if (decodingContext.extendedState.context.trainingMode) {
@@ -226,7 +227,7 @@ abstract class AttentionFeaturesExtractor<
   override fun backward(
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem,
       DenseFeatures>,
-    supportStructure: AttentionDecodingSupportStructure,
+    supportStructure: SupportStructureType,
     propagateToInput: Boolean
   ) {
     if (propagateToInput) {
@@ -284,7 +285,7 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun getFeaturesLayerInput(
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
-    supportStructure: AttentionDecodingSupportStructure,
+    supportStructure: AttentionSupportStructure,
     memoryEncoding: DenseNDArray
   ): DenseNDArray {
 
@@ -307,7 +308,7 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun getEncodedState(
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
-    supportStructure: AttentionDecodingSupportStructure,
+    supportStructure: AttentionSupportStructure,
     memoryEncoding: DenseNDArray
   ): DenseNDArray {
 
@@ -337,7 +338,7 @@ abstract class AttentionFeaturesExtractor<
    *
    * @return an available Attention Network
    */
-  private fun getAttentionNetwork(supportStructure: AttentionDecodingSupportStructure,
+  private fun getAttentionNetwork(supportStructure: AttentionSupportStructure,
                                   firstState: Boolean,
                                   trainingMode: Boolean): AttentionNetwork<DenseNDArray> {
 
@@ -361,7 +362,7 @@ abstract class AttentionFeaturesExtractor<
    *
    * @return the input of the transform layer
    */
-  private fun buildAttentionSequence(supportStructure: AttentionDecodingSupportStructure,
+  private fun buildAttentionSequence(supportStructure: AttentionSupportStructure,
                                      context: InputContextType,
                                      memoryEncoding: DenseNDArray): ArrayList<DenseNDArray> {
 
@@ -381,7 +382,7 @@ abstract class AttentionFeaturesExtractor<
    *
    * @param size the number of layers to initialize
    */
-  private fun initTransformLayers(size: Int, supportStructure: AttentionDecodingSupportStructure) {
+  private fun initTransformLayers(size: Int, supportStructure: AttentionSupportStructure) {
 
     supportStructure.transformLayersPool.releaseAll()
 
@@ -396,7 +397,7 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun getMemoryEncoding(
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
-    supportStructure: AttentionDecodingSupportStructure
+    supportStructure: AttentionSupportStructure
   ): DenseNDArray {
 
     val appliedActions = decodingContext.extendedState.appliedActions
