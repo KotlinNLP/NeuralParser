@@ -134,18 +134,17 @@ abstract class AttentionFeaturesExtractor<
   private lateinit var usedTransformLayers: List<FeedforwardLayerStructure<DenseNDArray>>
 
   /**
+   * The features layers used during the last forward.
+   * (Its usage makes the training no thread safe).
+   */
+  private val usedFeaturesLayers = mutableListOf<FeedforwardLayerStructure<DenseNDArray>>()
+
+  /**
    * The action memory RNN.
    * It is saved during the extract to make the backward working on it.
    * (Its usage makes the training no thread safe).
    */
   private lateinit var actionMemoryEncoder: RecurrentNeuralProcessor<DenseNDArray>
-
-  /**
-   * The features layer.
-   * It is saved during the extract to make the backward working on it.
-   * (Its usage makes the training no thread safe).
-   */
-  private lateinit var featuresLayer: FeedforwardLayerStructure<DenseNDArray>
 
   /**
    * The last decoding context used.
@@ -186,21 +185,9 @@ abstract class AttentionFeaturesExtractor<
     }
 
     this.actionMemoryEncoder = supportStructure.actionMemoryEncoder
-    this.featuresLayer = supportStructure.featuresLayer
     this.decodingContext = decodingContext
 
-    val memoryEncoding: DenseNDArray = this.getMemoryEncoding(
-      decodingContext = decodingContext,
-      supportStructure = supportStructure)
-
-    supportStructure.featuresLayer.setInput(this.getFeaturesLayerInput(
-      decodingContext = decodingContext,
-      supportStructure = supportStructure,
-      memoryEncoding = memoryEncoding))
-
-    supportStructure.featuresLayer.forward()
-
-    return DenseFeatures(array = supportStructure.featuresLayer.outputArray.values)
+    return DenseFeatures(this.getFeatures(decodingContext = decodingContext, supportStructure = supportStructure))
   }
 
   /**
@@ -274,6 +261,66 @@ abstract class AttentionFeaturesExtractor<
     this.stateAttentionNetworkOptimizer.update()
     this.memoryRNNOptimizer.update()
     this.featuresLayerOptimizer.update()
+  }
+
+
+  /**
+   * @param decodingContext the decoding context
+   * @param supportStructure the decoding support structure
+   *
+   * @return the features array
+   */
+  private fun getFeatures(
+    decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
+    supportStructure: AttentionSupportStructure
+  ): DenseNDArray {
+
+
+    val memoryEncoding: DenseNDArray = this.getMemoryEncoding(
+      decodingContext = decodingContext,
+      supportStructure = supportStructure)
+
+    val featuresLayer: FeedforwardLayerStructure<DenseNDArray> = this.getFeaturesLayer(
+      supportStructure = supportStructure,
+      decodingContext = decodingContext)
+
+    featuresLayer.setInput(this.getFeaturesLayerInput(
+      decodingContext = decodingContext,
+      supportStructure = supportStructure,
+      memoryEncoding = memoryEncoding))
+
+    featuresLayer.forward()
+
+    return featuresLayer.outputArray.values
+  }
+
+  /**
+   * Get an available features layer to encode the features.
+   *
+   * @param decodingContext the decoding context
+   * @param supportStructure the decoding support structure
+   *
+   * @return an available features layer
+   */
+  private fun getFeaturesLayer(
+    decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
+    supportStructure: AttentionSupportStructure
+  ): FeedforwardLayerStructure<DenseNDArray> {
+
+    val trainingMode = decodingContext.extendedState.context.trainingMode
+    val firstState = decodingContext.extendedState.appliedActions.isEmpty()
+
+    if (firstState) supportStructure.featuresLayersPool.releaseAll()
+
+    val layer = supportStructure.featuresLayersPool.getItem()
+
+    if (trainingMode) {
+      this.usedFeaturesLayers.add(layer)
+    } else {
+      supportStructure.featuresLayersPool.releaseAll() // use always the first of the pool
+    }
+
+    return layer
   }
 
   /**
@@ -442,6 +489,7 @@ abstract class AttentionFeaturesExtractor<
 
     this.appliedActions.clear()
     this.usedAttentionNetworks.clear()
+    this.usedFeaturesLayers.clear()
     this.featuresErrorsList.clear()
   }
 
@@ -464,7 +512,7 @@ abstract class AttentionFeaturesExtractor<
     (0 until this.featuresErrorsList.size).reversed().forEach { stepIndex ->
 
       val (stateEncodingOutputPart, memoryEncodingOutputPart) = this.splitFeaturesLayerInputErrors(
-        errors = this.getFeaturesLayerInputErrors(featuresErrors = this.featuresErrorsList[stepIndex])
+        errors = this.getFeaturesLayerInputErrors(stepIndex = stepIndex)
       )
 
       val stateEncodingErrors: DenseNDArray = if (stepIndex == this.featuresErrorsList.lastIndex)
@@ -487,20 +535,22 @@ abstract class AttentionFeaturesExtractor<
   }
 
   /**
-   * @param featuresErrors the features errors
+   * @param stepIndex an encoding step index
    *
-   * @return the input errors of the features layer
+   * @return the input errors of the features layer used in the given step
    */
-  private fun getFeaturesLayerInputErrors(featuresErrors: DenseNDArray): DenseNDArray {
+  private fun getFeaturesLayerInputErrors(stepIndex: Int): DenseNDArray {
 
+    val layer: FeedforwardLayerStructure<DenseNDArray> = this.usedFeaturesLayers[stepIndex]
+    val featuresErrors = this.featuresErrorsList[stepIndex]
     val paramsErrors: FeedforwardLayerParameters = this.getFeaturesLayerParamsErrors()
 
-    this.featuresLayer.setErrors(featuresErrors)
-    this.featuresLayer.backward(paramsErrors = paramsErrors, propagateToInput = true, mePropK = null)
+    layer.setErrors(featuresErrors)
+    layer.backward(paramsErrors = paramsErrors, propagateToInput = true, mePropK = null)
 
     this.featuresLayerOptimizer.accumulate(paramsErrors)
 
-    return this.featuresLayer.inputArray.errors
+    return layer.inputArray.errors
   }
 
   /**
@@ -685,7 +735,7 @@ abstract class AttentionFeaturesExtractor<
   private fun getFeaturesLayerParamsErrors(): FeedforwardLayerParameters = try {
     this.featuresLayerParamsErrors
   } catch (e: UninitializedPropertyAccessException) {
-    this.featuresLayerParamsErrors = this.featuresLayer.params.copy() as FeedforwardLayerParameters
+    this.featuresLayerParamsErrors = this.usedFeaturesLayers.last().params.copy() as FeedforwardLayerParameters
     this.featuresLayerParamsErrors
   }
 }
