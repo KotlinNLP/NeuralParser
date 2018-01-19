@@ -26,7 +26,7 @@ import com.kotlinnlp.simplednn.deeplearning.multitasknetwork.MultiTaskNetworkMod
 import com.kotlinnlp.syntaxdecoder.modules.supportstructure.SupportStructureFactory
 
 /**
- * The factory of the decoding support structure for attention decoding prediction models.
+ * The factory of the decoding support structure for attention TPD joint prediction models.
  *
  * @param actionMemoryRNN the action memory RNN
  * @param transformLayerParams the parameters of the transform layers for the attention network
@@ -36,7 +36,7 @@ import com.kotlinnlp.syntaxdecoder.modules.supportstructure.SupportStructureFact
  * @param posDeprelNetworkModel the neural model of the multi-task network used to score POS tags and deprels
  * @param outputErrorsInit the default initialization of the output errors
  */
-open class AttentionDecodingStructureFactory(
+open class AttentionTPDJointStructureFactory(
   private val actionMemoryRNN: NeuralNetwork,
   private val transformLayerParams: FeedforwardLayerParameters,
   private val stateAttentionNetworkParams: AttentionNetworkParameters,
@@ -44,14 +44,14 @@ open class AttentionDecodingStructureFactory(
   private val transitionNetwork: NeuralNetwork,
   private val posDeprelNetworkModel: MultiTaskNetworkModel,
   private val outputErrorsInit: OutputErrorsInit
-) : SupportStructureFactory<AttentionDecodingSupportStructure> {
+) : SupportStructureFactory<AttentionTPDJointSupportStructure> {
 
   /**
-   * Build a new [AttentionDecodingSupportStructure].
+   * Build a new [AttentionTPDJointSupportStructure].
    *
    * @return a new attention decoding support structure
    */
-  override fun globalStructure() = AttentionDecodingSupportStructure(
+  override fun globalStructure() = AttentionTPDJointSupportStructure(
     actionMemoryEncoder = RecurrentNeuralProcessor(this.actionMemoryRNN),
     transformLayersPool = FeedforwardLayersPool(
       inputType = LayerType.Input.Dense,
