@@ -98,6 +98,18 @@ abstract class AttentionFeaturesExtractor<
   private val usedAttentionNetworks = mutableListOf<AttentionNetwork<DenseNDArray>>()
 
   /**
+   * The list of transform layers groups used during the last forward.
+   * (Its usage makes the training no thread safe).
+   */
+  private val usedTransformLayers = mutableListOf<List<FeedforwardLayerStructure<DenseNDArray>>>()
+
+  /**
+   * The features layers used during the last forward.
+   * (Its usage makes the training no thread safe).
+   */
+  private val usedFeaturesLayers = mutableListOf<FeedforwardLayerStructure<DenseNDArray>>()
+
+  /**
    * The list of the errors of all the features extracted during the encoding of the current sentence.
    */
   private val featuresErrorsList = mutableListOf<DenseNDArray>()
@@ -126,18 +138,6 @@ abstract class AttentionFeaturesExtractor<
    * The structure used to store the params errors of the features layer during the backward.
    */
   private lateinit var featuresLayerParamsErrors: FeedforwardLayerParameters
-
-  /**
-   * The list of transform layers groups used during the last forward.
-   * (Its usage makes the training no thread safe).
-   */
-  private val usedTransformLayers = mutableListOf<List<FeedforwardLayerStructure<DenseNDArray>>>()
-
-  /**
-   * The features layers used during the last forward.
-   * (Its usage makes the training no thread safe).
-   */
-  private val usedFeaturesLayers = mutableListOf<FeedforwardLayerStructure<DenseNDArray>>()
 
   /**
    * The action memory RNN.
