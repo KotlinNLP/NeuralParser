@@ -8,8 +8,8 @@
 package com.kotlinnlp.neuralparser.parsers.arcstandard.simple
 
 import com.kotlinnlp.dependencytree.Deprel
-import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensEmbeddingsContext
 import com.kotlinnlp.neuralparser.templates.actionsscorer.SPEmbeddingsActionsScorer
+import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensEncodingContext
 import com.kotlinnlp.neuralparser.templates.supportstructure.singleprediction.SPSupportStructure
 import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
@@ -28,7 +28,10 @@ import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
  * @param optimizer the optimizer of the [network] params
  * @param deprelTags the dictionary set of deprels
  */
-class ArcStandardActionsScorer<in SupportStructureType : SPSupportStructure>(
+class ArcStandardActionsScorer<
+  in SupportStructureType : SPSupportStructure,
+  InputContextType: TokensEncodingContext<InputContextType>>
+(
   private val network: NeuralNetwork,
   private val optimizer: ParamsOptimizer<NetworkParameters>,
   private val deprelTags: DictionarySet<Deprel>
@@ -36,7 +39,7 @@ class ArcStandardActionsScorer<in SupportStructureType : SPSupportStructure>(
   SPEmbeddingsActionsScorer<
     StackBufferState,
     ArcStandardTransition,
-    TokensEmbeddingsContext,
+    InputContextType,
     SupportStructureType>(network, optimizer, deprelTags)
 {
 
