@@ -13,8 +13,8 @@ import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensAmbiguousPOSCont
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParser
 import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.templates.supportstructure.OutputErrorsInit
-import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction.AttentionDecodingSupportStructure
-import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction.AttentionDecodingStructureFactory
+import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction.AttentionTPDJointSupportStructure
+import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction.AttentionTPDJointStructureFactory
 import com.kotlinnlp.neuralparser.utils.features.DenseFeaturesErrors
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
@@ -62,7 +62,7 @@ class BiRNNAttentionArcStandardParser(
     ArcStandardTransition,
     DenseFeaturesErrors,
     DenseFeatures,
-    AttentionDecodingSupportStructure,
+    AttentionTPDJointSupportStructure,
     BiRNNAttentionArcStandardParserModel>
   (
     model = model,
@@ -110,7 +110,7 @@ class BiRNNAttentionArcStandardParser(
   /**
    * @return the [SupportStructureFactory] used in this parser
    */
-  override fun buildSupportStructureFactory() = AttentionDecodingStructureFactory(
+  override fun buildSupportStructureFactory() = AttentionTPDJointStructureFactory(
     actionMemoryRNN = this.model.actionMemoryRNN,
     transformLayerParams = this.model.transformLayerParams,
     stateAttentionNetworkParams = this.model.stateAttentionNetworkParams,
@@ -127,7 +127,7 @@ class BiRNNAttentionArcStandardParser(
   /**
    * @return the [FeaturesExtractor] used in this parser
    */
-  override fun buildFeaturesExtractor() = ArcStandardAttentionFeaturesExtractor(
+  override fun buildFeaturesExtractor() = ArcStandardAttentionFeaturesExtractor<AttentionTPDJointSupportStructure>(
     actionsVectors = this.model.actionsVectors,
     actionsVectorsOptimizer = ActionsVectorsOptimizer(
       actionsVectorsMap = this.model.actionsVectors,
