@@ -33,22 +33,18 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * @property posDeprelNetwork the multi-task network used to score POS tags and deprels
  * @property outputErrorsInit the default initialization of the output errors
  */
-class AttentionDecodingSupportStructure(
-  val actionMemoryEncoder: RecurrentNeuralProcessor<DenseNDArray>,
-  val stateAttentionNetworksPool: AttentionNetworksPool<DenseNDArray>,
-  val transformLayersPool: FeedforwardLayersPool<DenseNDArray>,
-  val featuresLayer: FeedforwardLayerStructure<DenseNDArray>,
-  transitionProcessor: FeedforwardNeuralProcessor<DenseNDArray>,
-  posDeprelNetwork:  MultiTaskNetwork<DenseNDArray>,
-  outputErrorsInit: OutputErrorsInit
-) : TPDJointSupportStructure(
-  transitionProcessor = transitionProcessor,
-  posDeprelNetwork = posDeprelNetwork,
-  outputErrorsInit = outputErrorsInit
-) {
+class AttentionTPDJointSupportStructure(
+  override val actionMemoryEncoder: RecurrentNeuralProcessor<DenseNDArray>,
+  override val stateAttentionNetworksPool: AttentionNetworksPool<DenseNDArray>,
+  override val transformLayersPool: FeedforwardLayersPool<DenseNDArray>,
+  override val featuresLayer: FeedforwardLayerStructure<DenseNDArray>,
+  override val transitionProcessor: FeedforwardNeuralProcessor<DenseNDArray>,
+  override val posDeprelNetwork:  MultiTaskNetwork<DenseNDArray>,
+  override val outputErrorsInit: OutputErrorsInit
+) : AttentionSupportStructure, TPDJointSupportStructure {
 
   /**
    * The last encoded state, as output of the Attention Network.
    */
-  lateinit var lastEncodedState: DenseNDArray
+  override lateinit var lastEncodedState: DenseNDArray
 }
