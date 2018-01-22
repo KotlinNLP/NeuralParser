@@ -106,7 +106,7 @@ abstract class AttentionFeaturesExtractor<
   }
 
   /**
-   * Backward errors through this [FeaturesExtractor], starting from the errors of the features contained in the given
+   * Backward errors through this features extractor, starting from the errors of the features contained in the given
    * [decodingContext].
    * Errors are required to be already set into the given features.
    *
@@ -191,9 +191,8 @@ abstract class AttentionFeaturesExtractor<
    *
    * @return the encoding vector of the given [action]
    */
-  private fun getActionEncoding(action: Transition<TransitionType, StateType>.Action): DenseNDArray {
-    return this.actionsVectorsMap[action.transition.key, action.posTagKey, action.deprelKey]
-  }
+  private fun getActionEncoding(action: Transition<TransitionType, StateType>.Action): DenseNDArray =
+    this.actionsVectorsMap[action.transition.key, action.posTagKey, action.deprelKey]
 
   /**
    * Accumulate errors of an action embedding.
