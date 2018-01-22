@@ -139,7 +139,7 @@ abstract class AttentionFeaturesExtractor<
           .format(appliedActions.size - 1, actionEncodingsErrors.size)
       }
 
-      appliedActions.zip(actionEncodingsErrors).forEach { (action, errors) ->
+      appliedActions.zip(actionEncodingsErrors).forEach { (action, errors) -> // the last action is ignored
         this.accumulateActionEncodingErrors(action = action, errors = errors)
       }
 
