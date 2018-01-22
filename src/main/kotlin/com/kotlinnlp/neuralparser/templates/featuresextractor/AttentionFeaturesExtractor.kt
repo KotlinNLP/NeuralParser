@@ -134,6 +134,10 @@ abstract class AttentionFeaturesExtractor<
       val predictionsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getPredictionsErrors().reversed()
       val appliedActions = this.curDecodingContext!!.extendedState.appliedActions
 
+      require(appliedActions.size == predictionsErrors.size) {
+        "Errors not aligned with the applied actions. Expected ${appliedActions.size}, found ${predictionsErrors.size}."
+      }
+
       appliedActions.zip(predictionsErrors).forEach { (action, errors) ->
         this.accumulateActionEncodingErrors(action = action, errors = errors)
       }
