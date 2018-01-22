@@ -14,7 +14,6 @@ import com.kotlinnlp.neuralparser.templates.parsers.birnn.ActionsScorerNetworkBu
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserModel
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsMap
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
-import com.kotlinnlp.simplednn.core.functionalities.activations.ReLU
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
@@ -105,12 +104,12 @@ class BiRNNAttentionTPDJointArcStandardParserModel(
   val recurrentAttentiveNetworkModel = RecurrentAttentiveNetworkModel(
     inputSize = this.biRNN.outputSize,
     attentionSize = attentionSize,
-    contextSize = recurrentContextSize,
+    recurrentContextSize = recurrentContextSize,
+    contextLabelSize = tpdSingleEmbeddingSize * 3, // transition, pos, deprel
+    outputSize = featuresSize,
     contextActivation = Tanh(),
     contextRecurrenceType = LayerType.Connection.LSTM,
-    labelSize = tpdSingleEmbeddingSize * 3, // transition, pos, deprel
-    outputActivationFunction = Tanh(),
-    outputSize = featuresSize)
+    outputActivationFunction = Tanh())
 
   /**
    * The neural network of the actions scorer that scores the transition.

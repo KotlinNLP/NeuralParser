@@ -100,9 +100,9 @@ abstract class AttentionFeaturesExtractor<
     }
 
     return DenseFeatures(this.recurrentAttentiveNetwork.forward(
-      firstState = firstState,
-      sequence = context.items.map { context.getTokenEncoding(it.id) },
-      lastPrediction = lastActionEncoding))
+      inputSequence = context.items.map { context.getTokenEncoding(it.id) },
+      lastPredictionLabel = lastActionEncoding,
+      firstState = firstState))
   }
 
   /**
@@ -130,15 +130,16 @@ abstract class AttentionFeaturesExtractor<
 
       this.recurrentAttentiveNetwork.backward(this.featuresErrorsList)
 
-      val itemsErrors: Array<DenseNDArray> = this.recurrentAttentiveNetwork.getItemsErrors()
-      val predictionsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getPredictionsErrors().reversed()
+      val itemsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getInputSequenceErrors()
+      val actionEncodingsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getContextLabelsErrors().reversed()
       val appliedActions = this.curDecodingContext!!.extendedState.appliedActions
 
-      require(appliedActions.size == predictionsErrors.size) {
-        "Errors not aligned with the applied actions. Expected ${appliedActions.size}, found ${predictionsErrors.size}."
+      require(appliedActions.size == actionEncodingsErrors.size) {
+        "Errors not aligned with the applied actions. Expected %d, found %d."
+          .format(appliedActions.size, actionEncodingsErrors.size)
       }
 
-      appliedActions.zip(predictionsErrors).forEach { (action, errors) ->
+      appliedActions.zip(actionEncodingsErrors).forEach { (action, errors) ->
         this.accumulateActionEncodingErrors(action = action, errors = errors)
       }
 
