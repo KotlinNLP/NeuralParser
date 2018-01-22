@@ -131,7 +131,7 @@ abstract class AttentionFeaturesExtractor<
       this.recurrentAttentiveNetwork.backward(this.featuresErrorsList)
 
       val itemsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getInputSequenceErrors()
-      val actionEncodingsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getContextLabelsErrors().reversed()
+      val actionEncodingsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getContextLabelsErrors()
       val appliedActions = this.curDecodingContext!!.extendedState.appliedActions
 
       require(actionEncodingsErrors.size == appliedActions.size - 1) {
