@@ -1,18 +1,8 @@
-/* Copyright 2017-present The KotlinNLP Authors. All Rights Reserved.
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * ------------------------------------------------------------------*/
-
-package com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention
+package com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos
 
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.templates.featuresextractor.AttentionFeaturesExtractor
 import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensAmbiguousPOSContext
-import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParser
-import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserModel
-import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserTrainer
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.syntaxdecoder.modules.actionserrorssetter.ActionsErrorsSetter
 import com.kotlinnlp.syntaxdecoder.modules.supportstructure.DecodingSupportStructure
@@ -34,7 +24,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
  * @param modelFilename the name of the file in which to save the best trained model
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
-class BiRNNAttentionParserTrainer<
+class BiRNNAttentionAmbiguousPOSParserTrainer<
   StateType : State<StateType>,
   TransitionType : Transition<TransitionType, StateType>,
   FeaturesErrorsType: FeaturesErrors,

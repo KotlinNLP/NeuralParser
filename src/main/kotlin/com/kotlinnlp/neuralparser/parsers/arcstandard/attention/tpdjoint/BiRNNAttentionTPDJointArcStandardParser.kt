@@ -7,20 +7,20 @@
 
 package com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint
 
-import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.ArcStandardAttentionFeaturesExtractor
-import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.parsers.arcstandard.tpdjoint.ArcStandardTPDJointActionsScorer
 import com.kotlinnlp.neuralparser.templates.inputcontexts.TokensAmbiguousPOSContext
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParser
 import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.templates.supportstructure.OutputErrorsInit
-import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction.AttentionTPDJointSupportStructure
-import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction.AttentionTPDJointStructureFactory
+import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction.TPDJointSupportStructure
+import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction.TPDJointStructureFactory
+import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.utils.features.DenseFeaturesErrors
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
+import com.kotlinnlp.simplednn.deeplearning.recurrentattentivedecoder.RecurrentAttentiveNetwork
 import com.kotlinnlp.syntaxdecoder.BeamDecoder
 import com.kotlinnlp.syntaxdecoder.transitionsystem.ActionsGenerator
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.ArcStandard
@@ -40,10 +40,8 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferS
 /**
  * A NeuralParser based on the ArcStandard transition system.
  * It uses Embeddings and ambiguous POS vectors to encode the tokens of a sentence through a BiRNN.
- * The features for the actions scoring are composed by the encoding of the token and the embedding vectors of the last
- * applied action through a recurrent system.
- * Actions are scored combining the result of specialized neural networks that score singularly the Transition+Deprel
- * (a multitask joint network) and the POS tag.
+ * Actions are scored combining the result of specialized neural networks that score singularly the Transition+Deprel (
+ * a multitask joint network), and the POS tag.
  *
  * If the beamSize is 1 then a [GreedyDecoder] is used, a [BeamDecoder] otherwise.
  *
@@ -63,7 +61,7 @@ class BiRNNAttentionTPDJointArcStandardParser(
     ArcStandardTransition,
     DenseFeaturesErrors,
     DenseFeatures,
-    AttentionTPDJointSupportStructure,
+    TPDJointSupportStructure,
     BiRNNAttentionTPDJointArcStandardParserModel>
   (
     model = model,
@@ -87,10 +85,9 @@ class BiRNNAttentionTPDJointArcStandardParser(
   /**
    * @return the [ActionsGenerator] used in this parser
    */
-  override fun buildActionsGenerator() =
-    ActionsGenerator.MorphoSyntacticLabeled<StackBufferState, ArcStandardTransition>(
-      deprels = this.model.corpusDictionary.deprelTags.getElementsReversedSet().groupBy { it.direction },
-      deprelPosTagCombinations = this.model.corpusDictionary.deprelPosTagCombinations)
+  override fun buildActionsGenerator() = ActionsGenerator.MorphoSyntacticLabeled<StackBufferState, ArcStandardTransition>(
+    deprels = this.model.corpusDictionary.deprelTags.getElementsReversedSet().groupBy { it.direction },
+    deprelPosTagCombinations = this.model.corpusDictionary.deprelPosTagCombinations)
 
   /**
    * @return the [ActionsScorer] used in this parser
@@ -111,11 +108,7 @@ class BiRNNAttentionTPDJointArcStandardParser(
   /**
    * @return the [SupportStructureFactory] used in this parser
    */
-  override fun buildSupportStructureFactory() = AttentionTPDJointStructureFactory(
-    actionMemoryRNN = this.model.actionMemoryRNN,
-    transformLayerParams = this.model.transformLayerParams,
-    stateAttentionNetworkParams = this.model.stateAttentionNetworkParams,
-    featuresLayerParams = this.model.featuresLayerParams,
+  override fun buildSupportStructureFactory() = TPDJointStructureFactory(
     transitionNetwork = this.model.transitionScorerNetwork,
     posDeprelNetworkModel = this.model.posDeprelScorerNetworkModel,
     outputErrorsInit = if (this.useSoftmaxOutput){
@@ -128,27 +121,17 @@ class BiRNNAttentionTPDJointArcStandardParser(
   /**
    * @return the [FeaturesExtractor] used in this parser
    */
-  override fun buildFeaturesExtractor() = ArcStandardAttentionFeaturesExtractor<AttentionTPDJointSupportStructure>(
-    actionsVectors = this.model.actionsVectors,
+  override fun buildFeaturesExtractor() = ArcStandardAttentionTPDJointFeaturesExtractor(
+    actionsVectorsMap = this.model.actionsVectors,
     actionsVectorsOptimizer = ActionsVectorsOptimizer(
       actionsVectorsMap = this.model.actionsVectors,
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
-    transformLayerOptimizer = ParamsOptimizer(
-      params = this.model.transformLayerParams,
-      updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
-    memoryRNNOptimizer = ParamsOptimizer(
-      params = this.model.actionMemoryRNN.model,
-      updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
-    stateAttentionNetworkOptimizer = ParamsOptimizer(
-      params = this.model.stateAttentionNetworkParams,
-      updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
-    featuresLayerOptimizer = ParamsOptimizer(
-      params = this.model.featuresLayerParams,
-      updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
-    memoryEncodingSize = this.model.actionMemoryRNN.layersConfiguration.last().size,
-    featuresSize = this.model.featuresSize,
     posTags = this.model.corpusDictionary.posTags,
-    deprelTags = this.model.corpusDictionary.deprelTags)
+    deprelTags = this.model.corpusDictionary.deprelTags,
+    featuresSize = this.model.recurrentAttentiveNetworkModel.outputSize,
+    recurrentAttentiveNetwork = RecurrentAttentiveNetwork(
+      model = this.model.recurrentAttentiveNetworkModel,
+      updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)))
 
   /**
    * @return the [BestActionSelector] used in this parser during greedy decoding

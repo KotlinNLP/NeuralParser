@@ -12,8 +12,8 @@ import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.ScorerNetworkConfiguration
 import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint.BiRNNAttentionTPDJointArcStandardParser
 import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint.BiRNNAttentionTPDJointArcStandardParserModel
-import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention.MemoryRNNConfiguration
-import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.attention.BiRNNAttentionParserTrainer
+import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserTrainer
+import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAttentionAmbiguousPOSParserTrainer
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
@@ -41,7 +41,7 @@ fun main(args: Array<String>) {
 
   println("Loading training sentences...")
   val trainingSentences = ArrayList<Sentence>()
-  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true)
+  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true, maxSentences = 300)
 
   println("Creating corpus dictionary...")
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
@@ -61,34 +61,30 @@ fun main(args: Array<String>) {
     otherDefaultPOSTags = listOf(POSTag("JJ")),
     wordEmbeddingSize = 100,
     posEmbeddingSize = 25,
-    actionsEmbeddingsSize = 25,
     preTrainedWordEmbeddings = preTrainedEmbeddings,
-    biRNNConnectionType = LayerType.Connection.RAN,
+    biRNNConnectionType = LayerType.Connection.LSTM,
     biRNNHiddenActivation = Tanh(),
     biRNNLayers = 2,
-    attentionSize = 50,
-    featuresSize = 100,
-    memoryRNNConfig = MemoryRNNConfiguration(
-      outputSize = 100,
-      activation = Tanh(),
-      connectionType = LayerType.Connection.LSTM
-    ),
     scorerNetworksConfig = ScorerNetworkConfiguration(
       hiddenSize = 100,
       hiddenActivation = Tanh(),
-      outputActivation = null))
+      outputActivation = null),
+    attentionSize = 50,
+    tpdSingleEmbeddingSize = 20,
+    recurrentContextSize = 200,
+    featuresSize = 200)
 
   val parser = BiRNNAttentionTPDJointArcStandardParser(
     model = parserModel,
     wordDropoutCoefficient = 0.25)
 
-  val trainer = BiRNNAttentionParserTrainer(
+  val trainer = BiRNNAttentionAmbiguousPOSParserTrainer(
     neuralParser = parser,
     actionsErrorsSetter = HingeLossActionsErrorsSetter(learningMarginThreshold = 1.0),
     oracleFactory = ArcStandardOracle,
     epochs = epochs,
     batchSize = 1,
-    minRelevantErrorsCountToUpdate = 50,
+    minRelevantErrorsCountToUpdate = 1,
     validator = Validator(
       neuralParser = parser,
       goldFilePath = validationSetPath),
