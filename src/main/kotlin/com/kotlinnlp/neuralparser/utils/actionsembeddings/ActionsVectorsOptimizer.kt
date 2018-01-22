@@ -8,8 +8,12 @@
 package com.kotlinnlp.neuralparser.utils.actionsembeddings
 
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
+import com.kotlinnlp.simplednn.core.optimizer.ScheduledUpdater
 import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import com.kotlinnlp.simplednn.utils.scheduling.BatchScheduling
+import com.kotlinnlp.simplednn.utils.scheduling.EpochScheduling
+import com.kotlinnlp.simplednn.utils.scheduling.ExampleScheduling
 
 /**
  * The optimizer of the [ActionsVectorsMap].
@@ -17,7 +21,10 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * @param actionsVectorsMap the [ActionsVectorsMap] to optimize
  * @param updateMethod the update method for the optimization (e.g. ADAM, AdaGrad, ...)
  */
-class ActionsVectorsOptimizer(actionsVectorsMap: ActionsVectorsMap, updateMethod: UpdateMethod<*>) {
+class ActionsVectorsOptimizer(
+  actionsVectorsMap: ActionsVectorsMap,
+  val updateMethod: UpdateMethod<*>
+) : ScheduledUpdater {
 
   /**
    * The optimizer of the transition embeddings maps.
@@ -43,7 +50,7 @@ class ActionsVectorsOptimizer(actionsVectorsMap: ActionsVectorsMap, updateMethod
   /**
    * Update the embeddings.
    */
-  fun update() {
+  override fun update() {
 
     this.transitionEmbeddingOptimizer.update()
     this.posTagEmbeddingOptimizer.update()
@@ -79,5 +86,35 @@ class ActionsVectorsOptimizer(actionsVectorsMap: ActionsVectorsMap, updateMethod
     this.transitionEmbeddingOptimizer.accumulate(embeddingKey = null, errors = splitErrors[0])
     this.posTagEmbeddingOptimizer.accumulate(embeddingKey = null, errors = splitErrors[1])
     this.deprelEmbeddingOptimizer.accumulate(embeddingKey = null, errors = splitErrors[2])
+  }
+
+  /**
+   * Method to call every new epoch.
+   */
+  override fun newEpoch() {
+
+    if (this.updateMethod is EpochScheduling) {
+      this.updateMethod.newEpoch()
+    }
+  }
+
+  /**
+   * Method to call every new batch.
+   */
+  override fun newBatch() {
+
+    if (this.updateMethod is BatchScheduling) {
+      this.updateMethod.newBatch()
+    }
+  }
+
+  /**
+   * Method to call every new example.
+   */
+  override fun newExample() {
+
+    if (this.updateMethod is ExampleScheduling) {
+      this.updateMethod.newExample()
+    }
   }
 }
