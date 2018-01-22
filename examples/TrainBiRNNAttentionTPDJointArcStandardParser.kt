@@ -12,7 +12,6 @@ import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.ScorerNetworkConfiguration
 import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint.BiRNNAttentionTPDJointArcStandardParser
 import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint.BiRNNAttentionTPDJointArcStandardParserModel
-import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserTrainer
 import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAttentionAmbiguousPOSParserTrainer
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
@@ -41,7 +40,7 @@ fun main(args: Array<String>) {
 
   println("Loading training sentences...")
   val trainingSentences = ArrayList<Sentence>()
-  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true, maxSentences = 300)
+  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true)
 
   println("Creating corpus dictionary...")
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
