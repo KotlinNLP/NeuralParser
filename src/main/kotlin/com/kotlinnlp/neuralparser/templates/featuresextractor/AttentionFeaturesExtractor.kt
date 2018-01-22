@@ -102,7 +102,8 @@ abstract class AttentionFeaturesExtractor<
     return DenseFeatures(this.recurrentAttentiveNetwork.forward(
       inputSequence = context.items.map { context.getTokenEncoding(it.id) },
       lastPredictionLabel = lastActionEncoding,
-      firstState = firstState))
+      firstState = firstState,
+      trainingMode = context.trainingMode))
   }
 
   /**
