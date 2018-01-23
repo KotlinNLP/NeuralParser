@@ -155,7 +155,6 @@ abstract class AttentionFeaturesExtractor<
    */
   override fun update() {
     this.actionsVectorsOptimizer.update()
-    this.recurrentAttentiveNetworkOptimizer.update()
   }
 
   /**
