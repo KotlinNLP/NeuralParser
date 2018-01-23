@@ -12,6 +12,8 @@ import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsMap
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
+import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
+import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.deeplearning.recurrentattentivedecoder.RecurrentAttentiveNetwork
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -24,6 +26,8 @@ import com.kotlinnlp.syntaxdecoder.utils.DecodingContext
 
 /**
  * The FeaturesExtractor that extracts features concatenating the encodings of a tokens window.
+ *
+ * @param recurrentAttentiveNetworkUpdateMethod the update method to optimize the [recurrentAttentiveNetwork] params
  */
 abstract class AttentionFeaturesExtractor<
   StateType : State<StateType>,
@@ -34,7 +38,8 @@ abstract class AttentionFeaturesExtractor<
   featuresSize: Int,
   private val actionsVectorsMap: ActionsVectorsMap,
   private val actionsVectorsOptimizer: ActionsVectorsOptimizer,
-  private val recurrentAttentiveNetwork: RecurrentAttentiveNetwork
+  private val recurrentAttentiveNetwork: RecurrentAttentiveNetwork,
+  private val recurrentAttentiveNetworkUpdateMethod: UpdateMethod<*>
 ) : FeaturesExtractorTrainable<
     StateType,
     TransitionType,
@@ -52,6 +57,13 @@ abstract class AttentionFeaturesExtractor<
    * The list of the errors of all the features extracted during the encoding of the current sentence.
    */
   private val featuresErrorsList = mutableListOf<DenseNDArray>()
+
+  /**
+   * The optimizer of the [recurrentAttentiveNetwork].
+   */
+  private val recurrentAttentiveNetworkOptimizer = ParamsOptimizer(
+    params = this.recurrentAttentiveNetwork.model.params,
+    updateMethod = this.recurrentAttentiveNetworkUpdateMethod)
 
   /**
    * The actions embeddings map key of the transition of this action.
@@ -130,6 +142,8 @@ abstract class AttentionFeaturesExtractor<
     if (this.featuresErrorsList.isNotEmpty()) {
 
       this.recurrentAttentiveNetwork.backward(this.featuresErrorsList)
+      this.recurrentAttentiveNetworkOptimizer.accumulate(this.recurrentAttentiveNetwork.getParamsErrors(copy = false))
+      this.recurrentAttentiveNetworkOptimizer.update()
 
       val itemsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getInputSequenceErrors()
       val actionEncodingsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getContextLabelsErrors()
@@ -155,7 +169,7 @@ abstract class AttentionFeaturesExtractor<
    */
   override fun update() {
     this.actionsVectorsOptimizer.update()
-    this.recurrentAttentiveNetwork.update()
+    this.recurrentAttentiveNetworkOptimizer.update()
   }
 
   /**
@@ -163,7 +177,7 @@ abstract class AttentionFeaturesExtractor<
    */
   override fun newBatch() {
     this.actionsVectorsOptimizer.newBatch()
-    this.recurrentAttentiveNetwork.newBatch()
+    this.recurrentAttentiveNetworkOptimizer.newBatch()
   }
 
   /**
@@ -171,7 +185,7 @@ abstract class AttentionFeaturesExtractor<
    */
   override fun newExample() {
     this.actionsVectorsOptimizer.newExample()
-    this.recurrentAttentiveNetwork.newExample()
+    this.recurrentAttentiveNetworkOptimizer.newExample()
   }
 
   /**
@@ -179,7 +193,7 @@ abstract class AttentionFeaturesExtractor<
    */
   override fun newEpoch() {
     this.actionsVectorsOptimizer.newEpoch()
-    this.recurrentAttentiveNetwork.newEpoch()
+    this.recurrentAttentiveNetworkOptimizer.newEpoch()
   }
 
   /**
