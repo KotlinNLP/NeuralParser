@@ -139,7 +139,10 @@ abstract class AttentionFeaturesExtractor<
 
       this.recurrentAttentiveNetwork.backward(this.featuresErrorsList)
 
-      this.recurrentAttentiveNetworkOptimizer.accumulate(this.recurrentAttentiveNetwork.getParamsErrors(copy = false))
+      this.recurrentAttentiveNetworkOptimizer.accumulate(
+        paramsErrors = this.recurrentAttentiveNetwork.getParamsErrors(copy = false),
+        copy = false)
+
       this.recurrentAttentiveNetworkOptimizer.update()
 
       this.propagateErrorsToActionEncodings()
