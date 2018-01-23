@@ -104,12 +104,13 @@ abstract class AttentionFeaturesExtractor<
     val appliedActions = decodingContext.extendedState.appliedActions
     val firstState = appliedActions.isEmpty()
 
-    if (firstState) this.featuresErrorsList.clear()
+    if (firstState) {
+      this.featuresErrorsList.clear()
+      this.recurrentAttentiveNetwork.setInputSequence(context.items.map { context.getTokenEncoding(it.id) })
+    }
 
     return DenseFeatures(this.recurrentAttentiveNetwork.forward(
-      inputSequence = context.items.map { context.getTokenEncoding(it.id) },
       lastPredictionLabel = if (firstState) null else this.getActionEncoding(appliedActions.last()),
-      firstState = firstState,
       trainingMode = context.trainingMode))
   }
 
