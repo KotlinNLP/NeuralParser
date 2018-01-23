@@ -101,19 +101,14 @@ abstract class AttentionFeaturesExtractor<
     this.checkMissingBackwardCall()
 
     val context = decodingContext.extendedState.context
-    val firstState = decodingContext.extendedState.appliedActions.isEmpty()
+    val appliedActions = decodingContext.extendedState.appliedActions
+    val firstState = appliedActions.isEmpty()
 
     if (firstState) this.featuresErrorsList.clear()
 
-    val lastActionEncoding: DenseNDArray? = if (firstState) {
-      null
-    } else {
-      this.getActionEncoding(decodingContext.extendedState.appliedActions.last())
-    }
-
     return DenseFeatures(this.recurrentAttentiveNetwork.forward(
       inputSequence = context.items.map { context.getTokenEncoding(it.id) },
-      lastPredictionLabel = lastActionEncoding,
+      lastPredictionLabel = if (firstState) null else this.getActionEncoding(appliedActions.last()),
       firstState = firstState,
       trainingMode = context.trainingMode))
   }
