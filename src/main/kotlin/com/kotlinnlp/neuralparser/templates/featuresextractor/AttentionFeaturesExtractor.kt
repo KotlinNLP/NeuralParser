@@ -142,16 +142,17 @@ abstract class AttentionFeaturesExtractor<
       this.recurrentAttentiveNetworkOptimizer.update()
 
       val itemsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getInputSequenceErrors()
-      val actionEncodingsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getContextLabelsErrors()
+      val prevActionEncodingsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getContextLabelsErrors()
+
       val appliedActions = this.curDecodingContext!!.extendedState.appliedActions
       val prevAppliedActions = listOf(null) + appliedActions.subList(0, appliedActions.lastIndex)
 
-      require(actionEncodingsErrors.size == prevAppliedActions.size) {
+      require(prevActionEncodingsErrors.size == prevAppliedActions.size) {
         "Errors not aligned with the applied actions. Expected %d, found %d."
-          .format(prevAppliedActions.size, actionEncodingsErrors.size)
+          .format(prevAppliedActions.size, prevActionEncodingsErrors.size)
       }
 
-      prevAppliedActions.zip(actionEncodingsErrors).forEach { (action, errors) -> // the last action is ignored
+      prevAppliedActions.zip(prevActionEncodingsErrors).forEach { (action, errors) -> // the last action is ignored
         this.accumulateActionEncodingErrors(action = action, errors = errors)
       }
 
