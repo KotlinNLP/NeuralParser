@@ -130,9 +130,8 @@ class BiRNNAttentionTPDJointArcStandardParser(
     posTags = this.model.corpusDictionary.posTags,
     deprelTags = this.model.corpusDictionary.deprelTags,
     featuresSize = this.model.recurrentAttentiveNetworkModel.outputSize,
-    recurrentAttentiveNetwork = RecurrentAttentiveNetwork(
-      model = this.model.recurrentAttentiveNetworkModel,
-      updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)))
+    recurrentAttentiveNetwork = RecurrentAttentiveNetwork(model = this.model.recurrentAttentiveNetworkModel),
+    recurrentAttentiveNetworkUpdateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999))
 
   /**
    * @return the [BestActionSelector] used in this parser during greedy decoding

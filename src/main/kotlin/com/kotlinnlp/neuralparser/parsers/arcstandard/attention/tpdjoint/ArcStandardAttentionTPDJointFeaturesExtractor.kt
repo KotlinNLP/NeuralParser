@@ -15,6 +15,7 @@ import com.kotlinnlp.neuralparser.templates.featuresextractor.EmbeddingsFeatures
 import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction.TPDJointSupportStructure
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsMap
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
+import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.deeplearning.recurrentattentivedecoder.RecurrentAttentiveNetwork
 import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.syntaxdecoder.syntax.DependencyRelation
@@ -35,6 +36,7 @@ class ArcStandardAttentionTPDJointFeaturesExtractor(
   actionsVectorsMap: ActionsVectorsMap,
   actionsVectorsOptimizer: ActionsVectorsOptimizer,
   recurrentAttentiveNetwork: RecurrentAttentiveNetwork,
+  recurrentAttentiveNetworkUpdateMethod: UpdateMethod<*>,
   private val deprelTags: DictionarySet<Deprel>,
   private val posTags: DictionarySet<POSTag>
 ): AttentionFeaturesExtractor<
@@ -46,7 +48,8 @@ class ArcStandardAttentionTPDJointFeaturesExtractor(
   featuresSize = featuresSize,
   actionsVectorsMap = actionsVectorsMap,
   actionsVectorsOptimizer = actionsVectorsOptimizer,
-  recurrentAttentiveNetwork = recurrentAttentiveNetwork
+  recurrentAttentiveNetwork = recurrentAttentiveNetwork,
+  recurrentAttentiveNetworkUpdateMethod = recurrentAttentiveNetworkUpdateMethod
 ) {
 
   /**
@@ -67,7 +70,8 @@ class ArcStandardAttentionTPDJointFeaturesExtractor(
   override val Transition<ArcStandardTransition, StackBufferState>.Action.deprelKey: Int?
     get() = when {
       this.transition is Shift -> 0
-      this is DependencyRelation -> this@ArcStandardAttentionTPDJointFeaturesExtractor.deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
+      this is DependencyRelation ->
+        this@ArcStandardAttentionTPDJointFeaturesExtractor.deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
       else -> throw RuntimeException("unknown action")
     }
 
@@ -77,7 +81,8 @@ class ArcStandardAttentionTPDJointFeaturesExtractor(
   override val Transition<ArcStandardTransition, StackBufferState>.Action.posTagKey: Int?
     get() = when {
       this.transition is Shift -> 0
-      this is DependencyRelation -> this@ArcStandardAttentionTPDJointFeaturesExtractor.posTags.getId(this.posTag!!)!! + 1 // + shift offset
+      this is DependencyRelation ->
+        this@ArcStandardAttentionTPDJointFeaturesExtractor.posTags.getId(this.posTag!!)!! + 1 // + shift offset
       else -> throw RuntimeException("unknown action")
     }
 }
