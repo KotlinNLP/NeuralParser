@@ -138,27 +138,12 @@ abstract class AttentionFeaturesExtractor<
     if (this.featuresErrorsList.isNotEmpty()) {
 
       this.recurrentAttentiveNetwork.backward(this.featuresErrorsList)
+
       this.recurrentAttentiveNetworkOptimizer.accumulate(this.recurrentAttentiveNetwork.getParamsErrors(copy = false))
       this.recurrentAttentiveNetworkOptimizer.update()
 
-      val itemsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getInputSequenceErrors()
-      val prevActionEncodingsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getContextLabelsErrors()
-
-      val appliedActions = this.curDecodingContext!!.extendedState.appliedActions
-      val prevAppliedActions = listOf(null) + appliedActions.subList(0, appliedActions.lastIndex)
-
-      require(prevActionEncodingsErrors.size == prevAppliedActions.size) {
-        "Errors not aligned with the applied actions. Expected %d, found %d."
-          .format(prevAppliedActions.size, prevActionEncodingsErrors.size)
-      }
-
-      prevAppliedActions.zip(prevActionEncodingsErrors).forEach { (action, errors) -> // the last action is ignored
-        this.accumulateActionEncodingErrors(action = action, errors = errors)
-      }
-
-      this.accumulateItemsErrors(
-        decodingContext = this.curDecodingContext!!,
-        itemsErrors = itemsErrors.mapIndexed { itemIndex, errors -> Pair(itemIndex, errors) })
+      this.propagateErrorsToActionEncodings()
+      this.propagateErrorsToItems()
     }
   }
 
@@ -216,6 +201,26 @@ abstract class AttentionFeaturesExtractor<
       this.actionsVectorsMap[action.transition.key, action.posTagKey, action.deprelKey]
 
   /**
+   * Propagate the errors to the action encodings.
+   */
+  private fun propagateErrorsToActionEncodings() {
+
+    val prevActionEncodingsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getContextLabelsErrors()
+
+    val appliedActions = this.curDecodingContext!!.extendedState.appliedActions
+    val prevAppliedActions = listOf(null) + appliedActions.subList(0, appliedActions.lastIndex)
+
+    require(prevActionEncodingsErrors.size == prevAppliedActions.size) {
+      "Errors not aligned with the applied actions. Expected %d, found %d."
+        .format(prevAppliedActions.size, prevActionEncodingsErrors.size)
+    }
+
+    prevAppliedActions.zip(prevActionEncodingsErrors).forEach { (action, errors) -> // the last action is ignored
+      this.accumulateActionEncodingErrors(action = action, errors = errors)
+    }
+  }
+
+  /**
    * Accumulate errors of an action embedding.
    *
    * @param action the action
@@ -236,6 +241,18 @@ abstract class AttentionFeaturesExtractor<
   }
 
   /**
+   * Propagate the errors to the items.
+   */
+  private fun propagateErrorsToItems() {
+
+    val itemsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getInputSequenceErrors()
+
+    this.accumulateItemsErrors(
+      decodingContext = this.curDecodingContext!!,
+      itemsErrors = itemsErrors.mapIndexed { itemIndex, errors -> Pair(itemIndex, errors) })
+  }
+
+  /**
    * Accumulate the given [itemsErrors] into the related items of the given [decodingContext].
    *
    * @param decodingContext the decoding context that contains extracted features with their errors
@@ -243,8 +260,8 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun accumulateItemsErrors(
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
-    itemsErrors: List<Pair<Int?, DenseNDArray>>) {
-
+    itemsErrors: List<Pair<Int?, DenseNDArray>>
+  ) {
     itemsErrors.forEach {
       decodingContext.extendedState.context.accumulateItemErrors(itemIndex = it.first, errors = it.second)
     }
