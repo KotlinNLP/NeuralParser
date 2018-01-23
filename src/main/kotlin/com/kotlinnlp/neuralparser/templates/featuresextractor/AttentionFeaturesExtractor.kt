@@ -110,7 +110,7 @@ abstract class AttentionFeaturesExtractor<
     }
 
     return DenseFeatures(this.recurrentAttentiveNetwork.forward(
-      lastPredictionLabel = if (firstState) null else this.getActionEncoding(appliedActions.last()),
+      lastPredictionLabel = this.getActionEncoding(if (firstState) null else appliedActions.last()),
       trainingMode = context.trainingMode))
   }
 
@@ -144,13 +144,14 @@ abstract class AttentionFeaturesExtractor<
       val itemsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getInputSequenceErrors()
       val actionEncodingsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getContextLabelsErrors()
       val appliedActions = this.curDecodingContext!!.extendedState.appliedActions
+      val prevAppliedActions = listOf(null) + appliedActions.subList(0, appliedActions.lastIndex)
 
-      require(actionEncodingsErrors.size == appliedActions.size - 1) {
+      require(actionEncodingsErrors.size == prevAppliedActions.size) {
         "Errors not aligned with the applied actions. Expected %d, found %d."
-          .format(appliedActions.size - 1, actionEncodingsErrors.size)
+          .format(prevAppliedActions.size, actionEncodingsErrors.size)
       }
 
-      appliedActions.zip(actionEncodingsErrors).forEach { (action, errors) -> // the last action is ignored
+      prevAppliedActions.zip(actionEncodingsErrors).forEach { (action, errors) -> // the last action is ignored
         this.accumulateActionEncodingErrors(action = action, errors = errors)
       }
 
@@ -203,12 +204,15 @@ abstract class AttentionFeaturesExtractor<
   }
 
   /**
-   * @param action an action
+   * @param action an action (can be null)
    *
    * @return the encoding vector of the given [action]
    */
-  private fun getActionEncoding(action: Transition<TransitionType, StateType>.Action): DenseNDArray =
-    this.actionsVectorsMap[action.transition.key, action.posTagKey, action.deprelKey]
+  private fun getActionEncoding(action: Transition<TransitionType, StateType>.Action?): DenseNDArray =
+    if (action == null)
+      this.actionsVectorsMap.getNullVector()
+    else
+      this.actionsVectorsMap[action.transition.key, action.posTagKey, action.deprelKey]
 
   /**
    * Accumulate errors of an action embedding.
@@ -216,15 +220,18 @@ abstract class AttentionFeaturesExtractor<
    * @param action the action
    * @param errors the errors to optimize the embeddings of the given [action]
    */
-  private fun accumulateActionEncodingErrors(action: Transition<TransitionType, StateType>.Action,
+  private fun accumulateActionEncodingErrors(action: Transition<TransitionType, StateType>.Action?,
                                              errors: DenseNDArray) {
 
-    this.actionsVectorsOptimizer.accumulate(
-      tId = action.transition.key,
-      pId = action.posTagKey,
-      dId = action.deprelKey,
-      errors = errors
-    )
+    if (action == null)
+      this.actionsVectorsOptimizer.accumulateNullEmbeddingsErrors(errors)
+    else
+      this.actionsVectorsOptimizer.accumulate(
+        tId = action.transition.key,
+        pId = action.posTagKey,
+        dId = action.deprelKey,
+        errors = errors
+      )
   }
 
   /**
