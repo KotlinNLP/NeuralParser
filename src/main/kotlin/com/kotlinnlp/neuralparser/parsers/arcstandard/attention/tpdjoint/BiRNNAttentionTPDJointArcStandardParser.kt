@@ -20,7 +20,7 @@ import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
-import com.kotlinnlp.simplednn.deeplearning.recurrentattentivedecoder.RecurrentAttentiveNetwork
+import com.kotlinnlp.simplednn.deeplearning.attentiverecurrentnetwork.AttentiveRecurrentNetwork
 import com.kotlinnlp.syntaxdecoder.BeamDecoder
 import com.kotlinnlp.syntaxdecoder.transitionsystem.ActionsGenerator
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.ArcStandard
@@ -129,9 +129,9 @@ class BiRNNAttentionTPDJointArcStandardParser(
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),
     posTags = this.model.corpusDictionary.posTags,
     deprelTags = this.model.corpusDictionary.deprelTags,
-    featuresSize = this.model.recurrentAttentiveNetworkModel.outputSize,
-    recurrentAttentiveNetwork = RecurrentAttentiveNetwork(model = this.model.recurrentAttentiveNetworkModel),
-    recurrentAttentiveNetworkUpdateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999))
+    featuresSize = this.model.attentiveRecurrentNetworkModel.outputSize,
+    attentiveRecurrentNetwork = AttentiveRecurrentNetwork(model = this.model.attentiveRecurrentNetworkModel),
+    attentiveRecurrentNetworkUpdateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999))
 
   /**
    * @return the [BestActionSelector] used in this parser during greedy decoding

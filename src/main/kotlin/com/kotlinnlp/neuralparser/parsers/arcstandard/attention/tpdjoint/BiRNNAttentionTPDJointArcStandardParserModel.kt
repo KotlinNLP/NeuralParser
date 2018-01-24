@@ -20,7 +20,7 @@ import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.deeplearning.multitasknetwork.MultiTaskNetworkConfig
 import com.kotlinnlp.simplednn.deeplearning.multitasknetwork.MultiTaskNetworkModel
-import com.kotlinnlp.simplednn.deeplearning.recurrentattentivedecoder.RecurrentAttentiveNetworkModel
+import com.kotlinnlp.simplednn.deeplearning.attentiverecurrentnetwork.AttentiveRecurrentNetworkModel
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
 
 /**
@@ -101,7 +101,7 @@ class BiRNNAttentionTPDJointArcStandardParserModel(
   /**
    *
    */
-  val recurrentAttentiveNetworkModel = RecurrentAttentiveNetworkModel(
+  val attentiveRecurrentNetworkModel = AttentiveRecurrentNetworkModel(
     inputSize = this.biRNN.outputSize,
     attentionSize = attentionSize,
     recurrentContextSize = recurrentContextSize,
@@ -115,7 +115,7 @@ class BiRNNAttentionTPDJointArcStandardParserModel(
    * The neural network of the actions scorer that scores the transition.
    */
   val transitionScorerNetwork: NeuralNetwork = ActionsScorerNetworkBuilder(
-    inputSize = this.recurrentAttentiveNetworkModel.outputSize, // the input is a tokens window of 4 elements
+    inputSize = this.attentiveRecurrentNetworkModel.outputSize, // the input is a tokens window of 4 elements
     inputType = LayerType.Input.Dense,
     outputSize = 4, // Shift, Root, ArcLeft, ArcRight
     scorerNetworkConfig = scorerNetworksConfig
@@ -125,7 +125,7 @@ class BiRNNAttentionTPDJointArcStandardParserModel(
    * The model of the neural network of the actions scorer that scores POS tag and deprel.
    */
   val posDeprelScorerNetworkModel = MultiTaskNetworkModel(
-    inputSize = this.recurrentAttentiveNetworkModel.outputSize, // the input is a tokens window of 4 elements
+    inputSize = this.attentiveRecurrentNetworkModel.outputSize, // the input is a tokens window of 4 elements
     inputType = LayerType.Input.Dense,
     inputDropout = scorerNetworksConfig.inputDropout,
     hiddenSize = scorerNetworksConfig.hiddenSize,

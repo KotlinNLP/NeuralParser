@@ -16,7 +16,7 @@ import com.kotlinnlp.neuralparser.templates.supportstructure.compositeprediction
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsMap
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
-import com.kotlinnlp.simplednn.deeplearning.recurrentattentivedecoder.RecurrentAttentiveNetwork
+import com.kotlinnlp.simplednn.deeplearning.attentiverecurrentnetwork.AttentiveRecurrentNetwork
 import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.syntaxdecoder.syntax.DependencyRelation
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
@@ -35,8 +35,8 @@ class ArcStandardAttentionTPDJointFeaturesExtractor(
   featuresSize: Int,
   actionsVectorsMap: ActionsVectorsMap,
   actionsVectorsOptimizer: ActionsVectorsOptimizer,
-  recurrentAttentiveNetwork: RecurrentAttentiveNetwork,
-  recurrentAttentiveNetworkUpdateMethod: UpdateMethod<*>,
+  attentiveRecurrentNetwork: AttentiveRecurrentNetwork,
+  attentiveRecurrentNetworkUpdateMethod: UpdateMethod<*>,
   private val deprelTags: DictionarySet<Deprel>,
   private val posTags: DictionarySet<POSTag>
 ): AttentionFeaturesExtractor<
@@ -48,8 +48,8 @@ class ArcStandardAttentionTPDJointFeaturesExtractor(
   featuresSize = featuresSize,
   actionsVectorsMap = actionsVectorsMap,
   actionsVectorsOptimizer = actionsVectorsOptimizer,
-  recurrentAttentiveNetwork = recurrentAttentiveNetwork,
-  recurrentAttentiveNetworkUpdateMethod = recurrentAttentiveNetworkUpdateMethod
+  attentiveRecurrentNetwork = attentiveRecurrentNetwork,
+  attentiveRecurrentNetworkUpdateMethod = attentiveRecurrentNetworkUpdateMethod
 ) {
 
   /**

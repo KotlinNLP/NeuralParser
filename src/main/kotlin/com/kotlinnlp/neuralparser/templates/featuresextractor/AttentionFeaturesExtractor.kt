@@ -14,7 +14,7 @@ import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
-import com.kotlinnlp.simplednn.deeplearning.recurrentattentivedecoder.RecurrentAttentiveNetwork
+import com.kotlinnlp.simplednn.deeplearning.attentiverecurrentnetwork.AttentiveRecurrentNetwork
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
@@ -27,7 +27,7 @@ import com.kotlinnlp.syntaxdecoder.utils.DecodingContext
 /**
  * The FeaturesExtractor that extracts features concatenating the encodings of a tokens window.
  *
- * @param recurrentAttentiveNetworkUpdateMethod the update method to optimize the [recurrentAttentiveNetwork] params
+ * @param attentiveRecurrentNetworkUpdateMethod the update method to optimize the [attentiveRecurrentNetwork] params
  */
 abstract class AttentionFeaturesExtractor<
   StateType : State<StateType>,
@@ -38,8 +38,8 @@ abstract class AttentionFeaturesExtractor<
   featuresSize: Int,
   private val actionsVectorsMap: ActionsVectorsMap,
   private val actionsVectorsOptimizer: ActionsVectorsOptimizer,
-  private val recurrentAttentiveNetwork: RecurrentAttentiveNetwork,
-  private val recurrentAttentiveNetworkUpdateMethod: UpdateMethod<*>
+  private val attentiveRecurrentNetwork: AttentiveRecurrentNetwork,
+  private val attentiveRecurrentNetworkUpdateMethod: UpdateMethod<*>
 ) : FeaturesExtractorTrainable<
     StateType,
     TransitionType,
@@ -59,11 +59,11 @@ abstract class AttentionFeaturesExtractor<
   private val featuresErrorsList = mutableListOf<DenseNDArray>()
 
   /**
-   * The optimizer of the [recurrentAttentiveNetwork].
+   * The optimizer of the [attentiveRecurrentNetwork].
    */
   private val recurrentAttentiveNetworkOptimizer = ParamsOptimizer(
-    params = this.recurrentAttentiveNetwork.model.params,
-    updateMethod = this.recurrentAttentiveNetworkUpdateMethod)
+    params = this.attentiveRecurrentNetwork.model.params,
+    updateMethod = this.attentiveRecurrentNetworkUpdateMethod)
 
   /**
    * The actions embeddings map key of the transition of this action.
@@ -107,10 +107,10 @@ abstract class AttentionFeaturesExtractor<
 
     if (firstState) {
       this.featuresErrorsList.clear()
-      this.recurrentAttentiveNetwork.setInputSequence(context.items.map { context.getTokenEncoding(it.id) })
+      this.attentiveRecurrentNetwork.setInputSequence(context.items.map { context.getTokenEncoding(it.id) })
     }
 
-    return DenseFeatures(this.recurrentAttentiveNetwork.forward(
+    return DenseFeatures(this.attentiveRecurrentNetwork.forward(
       lastPredictionLabel = this.getActionEncoding(if (firstState) null else appliedActions.last()),
       trainingMode = context.trainingMode))
   }
@@ -138,10 +138,10 @@ abstract class AttentionFeaturesExtractor<
 
     if (this.featuresErrorsList.isNotEmpty()) {
 
-      this.recurrentAttentiveNetwork.backward(this.featuresErrorsList)
+      this.attentiveRecurrentNetwork.backward(this.featuresErrorsList)
 
       this.recurrentAttentiveNetworkOptimizer.accumulate(
-        paramsErrors = this.recurrentAttentiveNetwork.getParamsErrors(copy = false),
+        paramsErrors = this.attentiveRecurrentNetwork.getParamsErrors(copy = false),
         copy = false)
 
       this.recurrentAttentiveNetworkOptimizer.update()
@@ -208,7 +208,7 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun propagateErrorsToActionEncodings() {
 
-    val prevActionEncodingsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getContextLabelsErrors()
+    val prevActionEncodingsErrors: List<DenseNDArray> = this.attentiveRecurrentNetwork.getContextLabelsErrors()
 
     val appliedActions = this.curDecodingContext.extendedState.appliedActions
     val prevAppliedActions = listOf(null) + appliedActions.subList(0, appliedActions.lastIndex)
@@ -248,7 +248,7 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun propagateErrorsToItems() {
 
-    val itemsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getInputSequenceErrors()
+    val itemsErrors: List<DenseNDArray> = this.attentiveRecurrentNetwork.getInputSequenceErrors()
 
     this.accumulateItemsErrors(
       decodingContext = this.curDecodingContext,
