@@ -83,7 +83,8 @@ abstract class AttentionFeaturesExtractor<
   /**
    * The current decoding context.
    */
-  private var curDecodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>? = null
+  private lateinit var curDecodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem,
+    DenseFeatures>
 
   /**
    * Extract features using the given [decodingContext] amd [supportStructure].
@@ -186,7 +187,7 @@ abstract class AttentionFeaturesExtractor<
    * It happens when the minimum number of relevant errors is not reached after the application of an action.
    */
   private fun checkMissingBackwardCall() {
-    if (this.curDecodingContext!!.extendedState.appliedActions.size > this.featuresErrorsList.size) {
+    if (this.curDecodingContext.extendedState.appliedActions.size > this.featuresErrorsList.size) {
       this.featuresErrorsList.add(this.featuresZerosArray)
     }
   }
@@ -209,7 +210,7 @@ abstract class AttentionFeaturesExtractor<
 
     val prevActionEncodingsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getContextLabelsErrors()
 
-    val appliedActions = this.curDecodingContext!!.extendedState.appliedActions
+    val appliedActions = this.curDecodingContext.extendedState.appliedActions
     val prevAppliedActions = listOf(null) + appliedActions.subList(0, appliedActions.lastIndex)
 
     require(prevActionEncodingsErrors.size == prevAppliedActions.size) {
@@ -250,7 +251,7 @@ abstract class AttentionFeaturesExtractor<
     val itemsErrors: List<DenseNDArray> = this.recurrentAttentiveNetwork.getInputSequenceErrors()
 
     this.accumulateItemsErrors(
-      decodingContext = this.curDecodingContext!!,
+      decodingContext = this.curDecodingContext,
       itemsErrors = itemsErrors.mapIndexed { itemIndex, errors -> Pair(itemIndex, errors) })
   }
 
