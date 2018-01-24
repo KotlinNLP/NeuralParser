@@ -208,7 +208,7 @@ abstract class AttentionFeaturesExtractor<
    */
   private fun propagateErrorsToActionEncodings() {
 
-    val prevActionEncodingsErrors: List<DenseNDArray> = this.attentiveRecurrentNetwork.getContextLabelsErrors()
+    val prevActionEncodingsErrors: List<DenseNDArray?> = this.attentiveRecurrentNetwork.getContextLabelsErrors()
 
     val appliedActions = this.curDecodingContext.extendedState.appliedActions
     val prevAppliedActions = listOf(null) + appliedActions.subList(0, appliedActions.lastIndex)
@@ -219,7 +219,9 @@ abstract class AttentionFeaturesExtractor<
     }
 
     prevAppliedActions.zip(prevActionEncodingsErrors).forEach { (action, errors) -> // the last action is ignored
-      this.accumulateActionEncodingErrors(action = action, errors = errors)
+      if (action != null && errors != null) { // false in the first state
+        this.accumulateActionEncodingErrors(action = action, errors = errors)
+      }
     }
   }
 
