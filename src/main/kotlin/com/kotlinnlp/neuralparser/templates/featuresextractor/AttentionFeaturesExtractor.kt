@@ -15,6 +15,7 @@ import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.deeplearning.attentiverecurrentnetwork.AttentiveRecurrentNetwork
+import com.kotlinnlp.simplednn.simplemath.concatVectorsV
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
@@ -108,6 +109,10 @@ abstract class AttentionFeaturesExtractor<
     if (firstState) {
       this.featuresErrorsList.clear()
       this.attentiveRecurrentNetwork.setInputSequence(context.items.map { context.getTokenEncoding(it.id) })
+      this.attentiveRecurrentNetwork.setInitHidden(array = concatVectorsV(
+        context.getTokenEncoding(context.items.last().id).getRange(0, context.encodingSize / 2),
+        context.getTokenEncoding(context.items.first().id).getRange(context.encodingSize / 2, context.encodingSize)
+      ))
     }
 
     return DenseFeatures(this.attentiveRecurrentNetwork.forward(
@@ -255,6 +260,8 @@ abstract class AttentionFeaturesExtractor<
     this.accumulateItemsErrors(
       decodingContext = this.curDecodingContext,
       itemsErrors = itemsErrors.mapIndexed { itemIndex, errors -> Pair(itemIndex, errors) })
+
+    this.propagateInitHiddenErrors()
   }
 
   /**
@@ -270,5 +277,25 @@ abstract class AttentionFeaturesExtractor<
     itemsErrors.forEach {
       decodingContext.extendedState.context.accumulateItemErrors(itemIndex = it.first, errors = it.second)
     }
+  }
+
+  /**
+   * Propagate the errors of the init hidden array to the items.
+   */
+  private fun propagateInitHiddenErrors() {
+
+    val context: InputContextType = this.curDecodingContext.extendedState.context
+
+    val initHiddenErrors: DenseNDArray = this.attentiveRecurrentNetwork.getInitHiddenErrors()
+    val halfErrorsSize: Int = initHiddenErrors.length / 2
+    val halfZerosErrors: DenseNDArray = DenseNDArrayFactory.zeros(Shape(halfErrorsSize))
+
+    this.curDecodingContext.extendedState.context.accumulateItemErrors(
+      itemIndex = context.items.last().id,
+      errors = concatVectorsV(initHiddenErrors.getRange(0, halfErrorsSize), halfZerosErrors))
+
+    this.curDecodingContext.extendedState.context.accumulateItemErrors(
+      itemIndex = context.items.first().id,
+      errors = concatVectorsV(halfZerosErrors, initHiddenErrors.getRange(halfErrorsSize, initHiddenErrors.length)))
   }
 }
