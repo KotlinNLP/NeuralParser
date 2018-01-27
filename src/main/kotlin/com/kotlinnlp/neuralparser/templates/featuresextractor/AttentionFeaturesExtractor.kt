@@ -257,26 +257,11 @@ abstract class AttentionFeaturesExtractor<
 
     val itemsErrors: List<DenseNDArray> = this.attentiveRecurrentNetwork.getInputSequenceErrors()
 
-    this.accumulateItemsErrors(
-      decodingContext = this.curDecodingContext,
-      itemsErrors = itemsErrors.mapIndexed { itemIndex, errors -> Pair(itemIndex, errors) })
+    itemsErrors.forEachIndexed { itemIndex, errors ->
+      this.curDecodingContext.extendedState.context.accumulateItemErrors(itemIndex = itemIndex, errors = errors)
+    }
 
     this.propagateInitHiddenErrors()
-  }
-
-  /**
-   * Accumulate the given [itemsErrors] into the related items of the given [decodingContext].
-   *
-   * @param decodingContext the decoding context that contains extracted features with their errors
-   * @param itemsErrors a list of Pairs <itemId, itemErrors>
-   */
-  private fun accumulateItemsErrors(
-    decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
-    itemsErrors: List<Pair<Int?, DenseNDArray>>
-  ) {
-    itemsErrors.forEach {
-      decodingContext.extendedState.context.accumulateItemErrors(itemIndex = it.first, errors = it.second)
-    }
   }
 
   /**
