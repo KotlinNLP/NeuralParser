@@ -70,7 +70,6 @@ fun main(args: Array<String>) {
       outputActivation = null),
     attentionSize = 50,
     tpdSingleEmbeddingSize = 20,
-    recurrentContextSize = 200,
     featuresSize = 200)
 
   val parser = BiRNNAttentionTPDJointArcStandardParser(

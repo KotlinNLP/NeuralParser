@@ -54,9 +54,7 @@ class BiRNNAttentionTPDJointArcStandardParserModel(
   scorerNetworksConfig: ScorerNetworkConfiguration,
   attentionSize: Int,
   tpdSingleEmbeddingSize: Int,
-  recurrentContextSize: Int,
   featuresSize: Int
-
 ) : BiRNNAmbiguousPOSParserModel(
   scoreAccumulatorFactory = scoreAccumulatorFactory,
   corpusDictionary = corpusDictionary,
@@ -104,7 +102,7 @@ class BiRNNAttentionTPDJointArcStandardParserModel(
   val attentiveRecurrentNetworkModel = AttentiveRecurrentNetworkModel(
     inputSize = this.biRNN.outputSize,
     attentionSize = attentionSize,
-    recurrentContextSize = recurrentContextSize,
+    recurrentContextSize = this.biRNN.outputSize,
     contextLabelSize = tpdSingleEmbeddingSize * 3, // transition, pos, deprel
     outputSize = featuresSize,
     contextActivation = Tanh(),
