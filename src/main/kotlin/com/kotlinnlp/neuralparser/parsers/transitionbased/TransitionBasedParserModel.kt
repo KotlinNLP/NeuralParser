@@ -7,14 +7,13 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased
 
+import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.simplednn.deeplearning.multipredictionscorer.MultiPredictionNetworkConfig
 import com.kotlinnlp.simplednn.utils.Serializer
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
 import java.io.InputStream
-import java.io.OutputStream
-import java.io.Serializable
 
 /**
  * The serializable model of a [TransitionBasedParser].
@@ -23,12 +22,12 @@ import java.io.Serializable
  */
 abstract class TransitionBasedParserModel(
   val scoreAccumulatorFactory: ScoreAccumulator.Factory
-) : Serializable {
+) : NeuralParserModel() {
 
   companion object {
 
     /**
-     * Private val used to serialize the class (needed from Serializable)
+     * Private val used to serialize the class (needed by Serializable).
      */
     @Suppress("unused")
     private const val serialVersionUID: Long = 1L
@@ -43,13 +42,6 @@ abstract class TransitionBasedParserModel(
     fun <ModelType: TransitionBasedParserModel> load(inputStream: InputStream): ModelType =
       Serializer.deserialize(inputStream)
   }
-
-  /**
-   * Serialize this [TransitionBasedParserModel] and write it to an output stream.
-   *
-   * @param outputStream the [OutputStream] in which to write this serialized [TransitionBasedParserModel]
-   */
-  fun dump(outputStream: OutputStream) = Serializer.serialize(this, outputStream)
 
   /**
    * Utility method: build the configuration of a multi-prediction network with dense input.
