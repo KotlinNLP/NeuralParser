@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.charbased
 
-import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserModel
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.simplednn.core.arrays.UpdatableDenseArray
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
@@ -44,7 +44,7 @@ abstract class CharBasedBiRNNParserModel(
   val hanHiddenActivation: ActivationFunction,
   val biRNNConnectionType: LayerType.Connection,
   val biRNNHiddenActivation: ActivationFunction
-) : NeuralParserModel(scoreAccumulatorFactory) {
+) : TransitionBasedParserModel(scoreAccumulatorFactory) {
 
   companion object {
 

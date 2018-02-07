@@ -8,8 +8,8 @@
 package com.kotlinnlp.neuralparser.helpers
 
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParser
-import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserModel
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.utils.Timer
 import com.kotlinnlp.progressindicator.ProgressIndicatorBar
@@ -30,7 +30,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 /**
- * The training helper of the [NeuralParser].
+ * The training helper of the [TransitionBasedParser].
  *
  * @param neuralParser a neural parser
  * @param actionsErrorsSetter the actions errors setter
@@ -51,9 +51,9 @@ abstract class Trainer<
   FeaturesErrorsType : FeaturesErrors,
   FeaturesType : Features<FeaturesErrorsType, *>,
   out SupportStructureType : DecodingSupportStructure,
-  ModelType: NeuralParserModel>
+  ModelType: TransitionBasedParserModel>
 (
-  private val neuralParser: NeuralParser<StateType, TransitionType, InputContextType, ItemType, FeaturesErrorsType,
+  private val neuralParser: TransitionBasedParser<StateType, TransitionType, InputContextType, ItemType, FeaturesErrorsType,
     FeaturesType, SupportStructureType, ModelType>,
   actionsErrorsSetter: ActionsErrorsSetter<StateType, TransitionType, ItemType, InputContextType>,
   oracleFactory: OracleFactory<StateType, TransitionType>,

@@ -28,7 +28,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.ActionsGenerator
 import com.kotlinnlp.syntaxdecoder.transitionsystem.TransitionSystem
 
 /**
- * The Neural Parser.
+ * A transition based Neural Parser.
  *
  * If the beamSize is 1 then a [GreedyDecoder] is used, a [BeamDecoder] otherwise.
  *
@@ -36,7 +36,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.TransitionSystem
  * @param beamSize the max size of the beam (a [GreedyDecoder] is used if it is 1, a [BeamDecoder] otherwise)
  * @param maxParallelThreads the max number of threads that can run in parallel (ignored if beamSize is 1)
  */
-abstract class NeuralParser<
+abstract class TransitionBasedParser<
   StateType : State<StateType>,
   TransitionType : Transition<TransitionType, StateType>,
   InputContextType : InputContext<InputContextType, ItemType>,
@@ -44,7 +44,7 @@ abstract class NeuralParser<
   FeaturesErrorsType: FeaturesErrors,
   FeaturesType : Features<FeaturesErrorsType, *>,
   SupportStructureType : DecodingSupportStructure,
-  out ModelType: NeuralParserModel>
+  out ModelType: TransitionBasedParserModel>
 (
   val model: ModelType,
   beamSize: Int,

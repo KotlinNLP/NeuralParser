@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple
 
-import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParser
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEmbeddingsContext
@@ -25,7 +25,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
 
 /**
- * A [NeuralParser] that uses Embeddings to encode the tokens of a sentence through a BiRNN.
+ * A [TransitionBasedParser] that uses Embeddings to encode the tokens of a sentence through a BiRNN.
  *
  * If the beamSize is 1 then a [GreedyDecoder] is used, a [BeamDecoder] otherwise.
  *
@@ -49,7 +49,7 @@ abstract class BiRNNParser<
   beamSize: Int,
   maxParallelThreads: Int
 ) :
-  NeuralParser<
+  TransitionBasedParser<
     StateType,
     TransitionType,
     TokensEmbeddingsContext,

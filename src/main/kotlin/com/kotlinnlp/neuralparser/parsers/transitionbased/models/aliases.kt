@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.models
 
-import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParser
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arceagerspine.ArcEagerSpineActionsScorer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.ArcStandardEmbeddingsFeaturesExtractor
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEmbeddingsContext
@@ -16,22 +16,10 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstruc
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.singleprediction.SPSupportStructure
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
 
-/**
- * Generic NeuralParser
- */
-
-typealias GenericNeuralParser = NeuralParser<*, *, *, *, *, *, *, *>
-
-/**
- * ActionsScorer
- */
+typealias GenericTransitionBasedParser = TransitionBasedParser<*, *, *, *, *, *, *, *>
 
 typealias SimpleArcEagerSpineActionsScorer = ArcEagerSpineActionsScorer<TokensEmbeddingsContext, DenseItem,
   MPSupportStructure>
-
-/**
- * FeaturesExtractor
- */
 
 typealias ArcStandardSPEmbeddingsFeaturesExtractor = ArcStandardEmbeddingsFeaturesExtractor<SPSupportStructure>
 typealias ArcStandardCPEmbeddingsFeaturesExtractor = ArcStandardEmbeddingsFeaturesExtractor<TDSupportStructure>

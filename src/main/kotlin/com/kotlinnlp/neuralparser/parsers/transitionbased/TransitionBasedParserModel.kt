@@ -17,11 +17,11 @@ import java.io.OutputStream
 import java.io.Serializable
 
 /**
- * The serializable model of a [NeuralParser].
+ * The serializable model of a [TransitionBasedParser].
  *
  * @property scoreAccumulatorFactory a factory of score accumulators
  */
-abstract class NeuralParserModel(
+abstract class TransitionBasedParserModel(
   val scoreAccumulatorFactory: ScoreAccumulator.Factory
 ) : Serializable {
 
@@ -34,19 +34,20 @@ abstract class NeuralParserModel(
     private const val serialVersionUID: Long = 1L
 
     /**
-     * Read a [NeuralParserModel] (serialized) from an input stream and decode it.
+     * Read a [TransitionBasedParserModel] (serialized) from an input stream and decode it.
      *
-     * @param inputStream the [InputStream] from which to read the serialized [NeuralParserModel]
+     * @param inputStream the [InputStream] from which to read the serialized [TransitionBasedParserModel]
      *
-     * @return the [NeuralParserModel] read from [inputStream] and decoded
+     * @return the [TransitionBasedParserModel] read from [inputStream] and decoded
      */
-    fun <ModelType: NeuralParserModel> load(inputStream: InputStream): ModelType = Serializer.deserialize(inputStream)
+    fun <ModelType: TransitionBasedParserModel> load(inputStream: InputStream): ModelType =
+      Serializer.deserialize(inputStream)
   }
 
   /**
-   * Serialize this [NeuralParserModel] and write it to an output stream.
+   * Serialize this [TransitionBasedParserModel] and write it to an output stream.
    *
-   * @param outputStream the [OutputStream] in which to write this serialized [NeuralParserModel]
+   * @param outputStream the [OutputStream] in which to write this serialized [TransitionBasedParserModel]
    */
   fun dump(outputStream: OutputStream) = Serializer.serialize(this, outputStream)
 

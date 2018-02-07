@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased
 
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.GenericNeuralParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.GenericTransitionBasedParser
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arceagerspine.BiRNNArcEagerSpineParser
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arceagerspine.BiRNNArcEagerSpineParserModel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.archybrid.BiRNNArcHybridParser
@@ -28,22 +28,22 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.tpd
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.tpdjoint.BiRNNTPDJointArcStandardParserModel
 
 /**
- * The factory of a generic [NeuralParser].
+ * The factory of a generic [TransitionBasedParser].
  */
-object NeuralParserFactory {
+object TransitionBasedParserFactory {
 
   /**
-   * Build a generic [NeuralParser] given a [model].
+   * Build a generic [TransitionBasedParser] given a [model].
    *
-   * @param model the model of a [NeuralParser]
+   * @param model the model of a [TransitionBasedParser]
    * @param beamSize the max size of the beam (default = 1)
    * @param maxParallelThreads the max number of threads that can run in parallel (default = 1, ignored if beamSize is 1)
    *
-   * @return a [NeuralParser] with the given [model]
+   * @return a [TransitionBasedParser] with the given [model]
    */
-  operator fun invoke(model: NeuralParserModel,
+  operator fun invoke(model: TransitionBasedParserModel,
                       beamSize: Int = 1,
-                      maxParallelThreads: Int = 1): GenericNeuralParser = when (model) {
+                      maxParallelThreads: Int = 1): GenericTransitionBasedParser = when (model) {
 
     is BiRNNArcStandardParserModel -> BiRNNArcStandardParser(
       model = model,

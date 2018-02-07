@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple
 
-import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserModel
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
 import com.kotlinnlp.simplednn.core.layers.LayerType
@@ -33,7 +33,7 @@ abstract class BiRNNParserModel(
   biRNNConnectionType: LayerType.Connection,
   biRNNHiddenActivation: ActivationFunction?,
   biRNNLayers: Int
-) : NeuralParserModel(scoreAccumulatorFactory) {
+) : TransitionBasedParserModel(scoreAccumulatorFactory) {
 
   companion object {
 

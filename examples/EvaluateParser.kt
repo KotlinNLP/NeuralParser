@@ -5,18 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParser
-import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParserFactory
-import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserFactory
+import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserModel
 import com.kotlinnlp.neuralparser.helpers.Validator
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.GenericNeuralParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.GenericTransitionBasedParser
 import com.kotlinnlp.neuralparser.utils.Timer
 import com.kotlinnlp.syntaxdecoder.BeamDecoder
 import java.io.File
 import java.io.FileInputStream
 
 /**
- * Evaluate the model of a generic [NeuralParser].
+ * Evaluate the model of a generic [TransitionBasedParser].
  *
  * Command line arguments:
  *  1. The size of the beam
@@ -31,8 +31,8 @@ fun main(args: Array<String>) {
 
   println("Loading model from '${args[2]}'.")
 
-  val parser: GenericNeuralParser = NeuralParserFactory(
-    model = NeuralParserModel.load(FileInputStream(File(args[2]))),
+  val parser: GenericTransitionBasedParser = TransitionBasedParserFactory(
+    model = TransitionBasedParserModel.load(FileInputStream(File(args[2]))),
     beamSize = beamSize,
     maxParallelThreads = maxParallelThreads)
 
