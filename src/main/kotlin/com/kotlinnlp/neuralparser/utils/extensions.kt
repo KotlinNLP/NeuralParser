@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.utils
 
 import com.kotlinnlp.conllio.CoNLLReader
+import com.kotlinnlp.conllio.Sentence.InvalidTree
 import com.kotlinnlp.neuralparser.language.Sentence
 
 /**
@@ -31,13 +32,22 @@ fun List<Int>.getOrElse(index: Int?, defaultValue: Int): Int =
  *
  * @param filePath the file path of the tree-bank in CoNLL format
  * @param maxSentences the maximum number of sentences to load (null = unlimited)
+ * @param skipNonProjective whether to skip non-projective sentences
+ *
+ * @throws InvalidTree if the tree of a sentence is not valid
  */
-fun ArrayList<Sentence>.loadFromTreeBank(filePath: String, maxSentences: Int? = null, skipNonProjective: Boolean = false) =
+fun ArrayList<Sentence>.loadFromTreeBank(filePath: String,
+                                         maxSentences: Int? = null,
+                                         skipNonProjective: Boolean = false) =
+
   CoNLLReader.fromFile(filePath).forEachIndexed { index, sentence ->
-    if (sentence.hasAnnotatedHeads()) sentence.assertValidCoNLLTree()
+
     if (maxSentences == null || index < maxSentences) {
-      if (!skipNonProjective || !sentence.isNonProjective()) {
-        this.add(Sentence.fromCoNLL(sentence))
-      }
+
+      if (sentence.hasAnnotatedHeads()) sentence.assertValidCoNLLTree()
+
+      val skip: Boolean = skipNonProjective && sentence.isNonProjective()
+
+      if (!skip) this.add(Sentence.fromCoNLL(sentence))
     }
   }
