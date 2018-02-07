@@ -95,7 +95,7 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
    */
   private val preTrainedEmbeddingsOptimizer = if (this.neuralParser.model.preTrainedWordEmbeddings != null)
     EmbeddingsOptimizer(
-      embeddingsMap = this.neuralParser.model.preTrainedWordEmbeddings,
+      embeddingsMap = this.neuralParser.model.preTrainedWordEmbeddings!!,
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999))
   else
     null

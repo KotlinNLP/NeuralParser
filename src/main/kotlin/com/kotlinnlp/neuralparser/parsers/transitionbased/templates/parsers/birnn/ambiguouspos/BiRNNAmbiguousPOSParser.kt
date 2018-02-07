@@ -69,12 +69,12 @@ abstract class BiRNNAmbiguousPOSParser<
   /**
    * A [DeepBiRNNEncoder] to encode the tokens of a sentence.
    */
-  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(this.model.biRNN)
+  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(model.biRNN)
 
   /**
    * A [DeepBiRNNEncoder] to encode the a null token
    */
-  val paddingVectorEncoder = DeepBiRNNEncoder<DenseNDArray>(this.model.biRNN)
+  val paddingVectorEncoder = DeepBiRNNEncoder<DenseNDArray>(model.biRNN)
 
   /**
    * @param sentence a sentence
@@ -104,7 +104,7 @@ abstract class BiRNNAmbiguousPOSParser<
     }
 
     val preTrainedEmbeddings: List<Embedding>? = if (this.model.preTrainedWordEmbeddings != null)
-      tokens.map { this.model.preTrainedWordEmbeddings.get(it.normalizedWord) }
+      tokens.map { this.model.preTrainedWordEmbeddings!!.get(it.normalizedWord) }
     else
       null
 
