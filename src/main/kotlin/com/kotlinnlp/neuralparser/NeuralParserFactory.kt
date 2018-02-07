@@ -19,6 +19,9 @@ object NeuralParserFactory {
    * Build a generic [NeuralParser] given a [model].
    *
    * @param model the model of a [NeuralParser]
+   * @param beamSize the size of the beam (ignored if the model is not related to a TransitionBasedParser)
+   * @param maxParallelThreads the max number of parallel threads (ignored if the model is not related to a
+   *                           TransitionBasedParser or the beamSize is 1)
    *
    * @return a [NeuralParser] with the given [model]
    */

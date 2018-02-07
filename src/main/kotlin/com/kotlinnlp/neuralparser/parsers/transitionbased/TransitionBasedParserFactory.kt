@@ -37,7 +37,8 @@ object TransitionBasedParserFactory {
    *
    * @param model the model of a [TransitionBasedParser]
    * @param beamSize the max size of the beam (default = 1)
-   * @param maxParallelThreads the max number of threads that can run in parallel (default = 1, ignored if beamSize is 1)
+   * @param maxParallelThreads the max number of threads that can run in parallel (default = 1, ignored if beamSize
+   *                           is 1)
    *
    * @return a [TransitionBasedParser] with the given [model]
    */
