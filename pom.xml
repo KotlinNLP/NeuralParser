@@ -68,6 +68,7 @@
         <conllio.version>0.1.1</conllio.version>
         <simplednn.version>0.3.0</simplednn.version>
         <syntaxdecoder.version>0.1.0</syntaxdecoder.version>
+        <dependencytree.version>0.2.0</dependencytree.version>
     </properties>
 
     <repositories>
@@ -283,6 +284,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>syntaxdecoder</artifactId>
             <version>${syntaxdecoder.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>dependencytree</artifactId>
+            <version>${dependencytree.version}</version>
         </dependency>
     </dependencies>
 </project>
