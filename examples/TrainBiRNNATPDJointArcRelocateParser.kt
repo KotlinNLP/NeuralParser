@@ -9,10 +9,10 @@ import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.helpers.Validator
-import com.kotlinnlp.neuralparser.parsers.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.parsers.arcrelocate.atpdjoint.BiRNNATPDJointArcRelocateParser
-import com.kotlinnlp.neuralparser.parsers.arcrelocate.atpdjoint.BiRNNATPDJointArcRelocateParserModel
-import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserTrainer
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcrelocate.atpdjoint.BiRNNATPDJointArcRelocateParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcrelocate.atpdjoint.BiRNNATPDJointArcRelocateParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserTrainer
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType

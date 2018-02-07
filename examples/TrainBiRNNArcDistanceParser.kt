@@ -8,10 +8,10 @@
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.language.Sentence
-import com.kotlinnlp.neuralparser.parsers.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.parsers.arcdistance.BiRNNArcDistanceParser
-import com.kotlinnlp.neuralparser.parsers.arcdistance.BiRNNArcDistanceParserModel
-import com.kotlinnlp.neuralparser.templates.parsers.birnn.simple.BiRNNParserTrainer
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcdistance.BiRNNArcDistanceParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcdistance.BiRNNArcDistanceParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple.BiRNNParserTrainer
 import com.kotlinnlp.simplednn.core.functionalities.activations.ReLU
 import com.kotlinnlp.simplednn.core.functionalities.activations.Sigmoid
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank

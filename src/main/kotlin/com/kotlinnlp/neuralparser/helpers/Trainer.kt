@@ -8,8 +8,8 @@
 package com.kotlinnlp.neuralparser.helpers
 
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.NeuralParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParserModel
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.utils.Timer
 import com.kotlinnlp.progressindicator.ProgressIndicatorBar

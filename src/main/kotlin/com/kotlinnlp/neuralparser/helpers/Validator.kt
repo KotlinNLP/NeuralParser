@@ -13,7 +13,7 @@ import com.kotlinnlp.conllio.CoNLLXEvaluator
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.Token
-import com.kotlinnlp.neuralparser.parsers.GenericNeuralParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.GenericNeuralParser
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.progressindicator.ProgressIndicatorBar
 import java.io.File

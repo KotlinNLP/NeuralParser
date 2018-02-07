@@ -9,10 +9,10 @@ import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.helpers.Validator
-import com.kotlinnlp.neuralparser.parsers.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint.BiRNNAttentionTPDJointArcStandardParser
-import com.kotlinnlp.neuralparser.parsers.arcstandard.attention.tpdjoint.BiRNNAttentionTPDJointArcStandardParserModel
-import com.kotlinnlp.neuralparser.templates.parsers.birnn.ambiguouspos.BiRNNAttentionAmbiguousPOSParserTrainer
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.attention.tpdjoint.BiRNNAttentionTPDJointArcStandardParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.attention.tpdjoint.BiRNNAttentionTPDJointArcStandardParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ambiguouspos.BiRNNAttentionAmbiguousPOSParserTrainer
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
@@ -54,7 +54,7 @@ fun main(args: Array<String>) {
 
   val parserModel = BiRNNAttentionTPDJointArcStandardParserModel(
     actionsScoresActivation = null,
-    scoreAccumulatorFactory = AverageAccumulator,
+    scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
     nounDefaultPOSTag = POSTag("NN"),
     otherDefaultPOSTags = listOf(POSTag("JJ")),

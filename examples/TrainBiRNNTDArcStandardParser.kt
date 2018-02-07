@@ -7,11 +7,11 @@
 
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
-import com.kotlinnlp.neuralparser.templates.parsers.birnn.simple.BiRNNParserTrainer
+import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple.BiRNNParserTrainer
 import com.kotlinnlp.neuralparser.helpers.Validator
-import com.kotlinnlp.neuralparser.parsers.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.parsers.arcstandard.td.BiRNNTDArcStandardParser
-import com.kotlinnlp.neuralparser.parsers.arcstandard.td.BiRNNTDArcStandardParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.td.BiRNNTDArcStandardParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.td.BiRNNTDArcStandardParserModel
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType

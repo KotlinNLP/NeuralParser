@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.NeuralParserFactory
-import com.kotlinnlp.neuralparser.NeuralParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParserFactory
+import com.kotlinnlp.neuralparser.parsers.transitionbased.NeuralParserModel
 import com.kotlinnlp.neuralparser.helpers.Validator
-import com.kotlinnlp.neuralparser.parsers.GenericNeuralParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.GenericNeuralParser
 import com.kotlinnlp.neuralparser.utils.Timer
 import com.kotlinnlp.syntaxdecoder.BeamDecoder
 import java.io.File
