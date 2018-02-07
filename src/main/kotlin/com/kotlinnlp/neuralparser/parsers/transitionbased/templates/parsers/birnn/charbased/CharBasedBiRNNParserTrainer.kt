@@ -7,8 +7,8 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.charbased
 
-import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedTrainer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensCharsEncodingContext
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adagrad.AdaGradMethod
@@ -61,7 +61,7 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
   modelFilename: String,
   verbose: Boolean = true
 ) :
-  Trainer<
+  TransitionBasedTrainer<
     StateType,
     TransitionType,
     TokensCharsEncodingContext,
@@ -146,9 +146,9 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
                                  context: TokensCharsEncodingContext) = Unit
 
   /**
-   *
+   * Update the neural components of the parser.
    */
-  override fun update() {
+  override fun updateNeuralComponents() {
 
     this.wordEmbeddingsOptimizer.update()
     this.charsEmbeddingsOptimizer.update()

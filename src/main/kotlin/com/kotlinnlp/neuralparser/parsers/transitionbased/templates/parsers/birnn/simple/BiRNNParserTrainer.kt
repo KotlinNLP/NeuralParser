@@ -8,8 +8,8 @@
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple
 
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEmbeddingsContext
-import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedTrainer
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNOptimizer
@@ -56,7 +56,7 @@ open class BiRNNParserTrainer<StateType : State<StateType>,
   modelFilename: String,
   verbose: Boolean = true
 ) :
-  Trainer<
+  TransitionBasedTrainer<
     StateType,
     TransitionType,
     TokensEmbeddingsContext,
@@ -134,9 +134,9 @@ open class BiRNNParserTrainer<StateType : State<StateType>,
                                  context: TokensEmbeddingsContext) = Unit
 
   /**
-   *
+   * Update the neural components of the parser.
    */
-  override fun update() {
+  override fun updateNeuralComponents() {
 
     this.wordEmbeddingsOptimizer.update()
     this.posEmbeddingsOptimizer.update()
