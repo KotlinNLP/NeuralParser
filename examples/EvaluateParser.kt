@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParser
-import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserFactory
-import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserModel
+import com.kotlinnlp.neuralparser.NeuralParser
+import com.kotlinnlp.neuralparser.NeuralParserFactory
+import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.GenericTransitionBasedParser
 import com.kotlinnlp.neuralparser.utils.Timer
@@ -16,27 +16,31 @@ import java.io.File
 import java.io.FileInputStream
 
 /**
- * Evaluate the model of a generic [TransitionBasedParser].
+ * Evaluate the model of a generic [NeuralParser].
  *
  * Command line arguments:
- *  1. The size of the beam
- *  2. The max number of parallel threads
- *  3. The file path of the model
- *  4. The file path of the validation set
+ *  1. The path of the model file
+ *  2. The path of the validation set file
+ *  3. The size of the beam (optional)
+ *  4. The max number of parallel threads (optional)
  */
 fun main(args: Array<String>) {
 
-  val beamSize = args[0].toInt()
-  val maxParallelThreads = args[1].toInt()
+  val modelPath: String = args[0]
+  val validationSetPath: String = args[1]
+  val beamSize: Int = if (args.size > 2) args[2].toInt() else 1
+  val maxParallelThreads: Int = if (args.size > 3) args[3].toInt() else 1
 
-  println("Loading model from '${args[2]}'.")
+  require(beamSize > 0 && maxParallelThreads > 0)
 
-  val parser: GenericTransitionBasedParser = TransitionBasedParserFactory(
-    model = TransitionBasedParserModel.load(FileInputStream(File(args[2]))),
+  println("Loading model from '$modelPath'.")
+
+  val parser: NeuralParser<*> = NeuralParserFactory(
+    model = NeuralParserModel.load(FileInputStream(File(modelPath))),
     beamSize = beamSize,
     maxParallelThreads = maxParallelThreads)
 
-  val validator = Validator(neuralParser = parser, goldFilePath = args[3])
+  val validator = Validator(neuralParser = parser, goldFilePath = validationSetPath)
 
   println("\nBeam size = $beamSize, MaxParallelThreads = $maxParallelThreads\n")
 
@@ -46,7 +50,7 @@ fun main(args: Array<String>) {
   println("\n$evaluation")
   println("\nElapsed time: ${timer.formatElapsedTime()}")
 
-  if (beamSize > 1) {
+  if (parser is GenericTransitionBasedParser && beamSize > 1) {
     (parser.syntaxDecoder as BeamDecoder).close()
   }
 }
