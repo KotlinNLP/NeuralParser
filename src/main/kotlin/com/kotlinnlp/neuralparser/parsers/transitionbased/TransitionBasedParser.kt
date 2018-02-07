@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.transitionbased
 
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.syntaxdecoder.BeamDecoder
 import com.kotlinnlp.syntaxdecoder.GreedyDecoder
@@ -32,7 +33,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.TransitionSystem
  *
  * If the beamSize is 1 then a [GreedyDecoder] is used, a [BeamDecoder] otherwise.
  *
- * @property model a neural parser model
+ * @property model the model of this neural parser
  * @param beamSize the max size of the beam (a [GreedyDecoder] is used if it is 1, a [BeamDecoder] otherwise)
  * @param maxParallelThreads the max number of threads that can run in parallel (ignored if beamSize is 1)
  */
@@ -46,10 +47,11 @@ abstract class TransitionBasedParser<
   SupportStructureType : DecodingSupportStructure,
   out ModelType: TransitionBasedParserModel>
 (
-  val model: ModelType,
+  override val model: ModelType,
   beamSize: Int,
   maxParallelThreads: Int
-) {
+) :
+  NeuralParser<ModelType> {
 
   /**
    * The syntax decoder of this parser.
@@ -59,11 +61,13 @@ abstract class TransitionBasedParser<
     = if (beamSize == 1) this.buildGreedyDecoder() else this.buildBeamDecoder(beamSize, maxParallelThreads)
 
   /**
+   * Parse a sentence, giving its dependency tree.
+   *
    * @param sentence a [Sentence]
    *
-   * @return a dependency tree for the given [sentence]
+   * @return the dependency tree predicted for the given [sentence]
    */
-  fun parse(sentence: Sentence): DependencyTree {
+  override fun parse(sentence: Sentence): DependencyTree {
 
     return this.syntaxDecoder.decode(
       context = this.buildContext(sentence = sentence, trainingMode = false),
