@@ -121,7 +121,7 @@ abstract class TransitionBasedTrainer<
 
     val context: InputContextType = this.neuralParser.buildContext(sentence, trainingMode = true)
     val goldTree: DependencyTree = checkNotNull(sentence.dependencyTree) {
-      "The gold dependency tree of a sentence was null during its training."
+      "The gold dependency tree of a sentence cannot be null during the training."
     }
 
     this.beforeSentenceLearning(context)
