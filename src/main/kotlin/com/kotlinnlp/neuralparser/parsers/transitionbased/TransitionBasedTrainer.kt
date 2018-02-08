@@ -11,9 +11,6 @@ import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.language.Sentence
-import com.kotlinnlp.progressindicator.ProgressIndicatorBar
-import com.kotlinnlp.simplednn.dataset.Shuffler
-import com.kotlinnlp.simplednn.helpers.training.utils.ExamplesIndices
 import com.kotlinnlp.syntaxdecoder.transitionsystem.oracle.OracleFactory
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.modules.bestactionselector.BestActionSelector
@@ -82,32 +79,6 @@ abstract class TransitionBasedTrainer<
   )
 
   /**
-   * Train the Transition System.
-   *
-   * @param trainingSentences the training sentences
-   * @param shuffler a shuffle to shuffle the sentences at each epoch (can be null)
-   */
-  private fun trainEpoch(trainingSentences: ArrayList<Sentence>, shuffler: Shuffler?) {
-
-    val progress = ProgressIndicatorBar(trainingSentences.size)
-
-    this.newBatch()
-
-    ExamplesIndices(trainingSentences.size, shuffler = shuffler).forEach { sentenceIndex ->
-
-      progress.tick()
-
-      this.trainSentence(sentence = trainingSentences[sentenceIndex])
-
-      if (this.syntaxDecoderTrainer.relevantErrorsCount >= this.minRelevantErrorsCountToUpdate) {
-        this.syntaxDecoderTrainer.update()
-        this.update()
-        this.newBatch()
-      }
-    }
-  }
-
-  /**
    * @return the count of the relevant errors
    */
   override fun getRelevantErrorsCount(): Int = this.syntaxDecoderTrainer.relevantErrorsCount
@@ -116,8 +87,9 @@ abstract class TransitionBasedTrainer<
    * Train the Transition System with the given [sentence].
    *
    * @param sentence a sentence
+   * @param goldPOSSentence an optional sentence with gold annotated POS in its dependency tree
    */
-  override fun trainSentence(sentence: Sentence) {
+  override fun trainSentence(sentence: Sentence, goldPOSSentence: Sentence?) {
 
     val context: InputContextType = this.neuralParser.buildContext(sentence, trainingMode = true)
     val goldTree: DependencyTree = checkNotNull(sentence.dependencyTree) {
