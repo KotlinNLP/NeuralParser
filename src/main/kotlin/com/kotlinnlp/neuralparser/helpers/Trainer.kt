@@ -102,7 +102,9 @@ abstract class Trainer(
 
     this.newBatch()
 
-    ExamplesIndices(trainingSentences.size, shuffler = shuffler).forEach { sentenceIndex ->
+    ExamplesIndices(trainingSentences.size, shuffler = shuffler).forEachIndexed { i, sentenceIndex ->
+
+      val endOfBatch: Boolean = (i + 1) % this.batchSize == 0 || i == trainingSentences.lastIndex
 
       progress.tick()
 
@@ -110,7 +112,7 @@ abstract class Trainer(
         sentence = trainingSentences[sentenceIndex],
         goldPOSSentence = goldPOSSentences?.get(sentenceIndex))
 
-      if (this.getRelevantErrorsCount() >= this.minRelevantErrorsCountToUpdate) {
+      if (endOfBatch && this.getRelevantErrorsCount() >= this.minRelevantErrorsCountToUpdate) {
         this.update()
         this.newBatch()
       }
