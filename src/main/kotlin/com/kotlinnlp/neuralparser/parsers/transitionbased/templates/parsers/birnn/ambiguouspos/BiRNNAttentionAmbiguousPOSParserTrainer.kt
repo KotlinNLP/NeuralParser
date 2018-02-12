@@ -17,7 +17,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
  *
  * @param neuralParser a neural parser
  * @param epochs the number of training epochs
- * @param batchSize the size of the batches of sentences
+ * @param batchSize the number of sentences that compose a batch
  * @param minRelevantErrorsCountToUpdate the min number of relevant errors needed to update the neural parser
  *                                       (default = 1)
  * @param validator the validation helper (if it is null no validation is done after each epoch)

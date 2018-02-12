@@ -20,7 +20,7 @@ import java.io.FileOutputStream
  * The training helper of the [NeuralParser].
  *
  * @param neuralParser a neural parser
- * @param batchSize the size of the batches of sentences
+ * @param batchSize the number of sentences that compose a batch
  * @param epochs the number of training epochs
  * @param validator the validation helper (if it is null no validation is done after each epoch)
  * @param modelFilename the name of the file in which to save the best trained model

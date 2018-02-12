@@ -30,7 +30,7 @@ import com.kotlinnlp.syntaxdecoder.modules.supportstructure.DecodingSupportStruc
  * @param actionsErrorsSetter the actions errors setter
  * @param oracleFactory the oracle factory
  * @param bestActionSelector the best action selector
- * @param batchSize the size of the batches of sentences
+ * @param batchSize the number of sentences that compose a batch
  * @param epochs the number of training epochs
  * @param validator the validation helper (if it is null no validation is done after each epoch)
  * @param modelFilename the name of the file in which to save the best trained model
