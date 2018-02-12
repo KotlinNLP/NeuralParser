@@ -51,6 +51,8 @@ abstract class Trainer(
    * Check requirements.
    */
   init {
+    require(this.epochs > 0) { "The number of epochs must be > 0" }
+    require(this.batchSize > 0) { "The size of the batch must be > 0" }
     require(this.minRelevantErrorsCountToUpdate > 0) { "minRelevantErrorsCountToUpdate must be > 0" }
   }
 
