@@ -45,7 +45,7 @@ abstract class BiRNNParserModel(
   }
 
   /**
-   * The input size of the [biRNN].
+   * The input size of the [deepBiRNN].
    */
   private val biRNNInputSize: Int = this.posEmbeddingSize + this.wordEmbeddingSize
 
@@ -66,7 +66,7 @@ abstract class BiRNNParserModel(
   /**
    * A [DeepBiRNN] network.
    */
-  val biRNN = DeepBiRNN(
+  val deepBiRNN = DeepBiRNN(
     inputSize = this.biRNNInputSize,
     hiddenActivation = biRNNHiddenActivation,
     recurrentConnectionType = biRNNConnectionType,

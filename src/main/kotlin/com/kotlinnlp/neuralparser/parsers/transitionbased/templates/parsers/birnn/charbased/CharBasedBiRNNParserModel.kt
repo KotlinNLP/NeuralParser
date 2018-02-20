@@ -56,7 +56,7 @@ abstract class CharBasedBiRNNParserModel(
   }
 
   /**
-   * The input size of the [biRNN].
+   * The input size of the [deepBiRNN].
    */
   private val biRNNInputSize: Int = this.charsEncodingSize + this.wordEmbeddingSize
 
@@ -90,7 +90,7 @@ abstract class CharBasedBiRNNParserModel(
   /**
    * A [DeepBiRNN] network.
    */
-  val biRNN = DeepBiRNN(
+  val deepBiRNN = DeepBiRNN(
     inputSize = this.biRNNInputSize,
     hiddenActivation = this.biRNNHiddenActivation,
     recurrentConnectionType = this.biRNNConnectionType,
@@ -102,7 +102,7 @@ abstract class CharBasedBiRNNParserModel(
    */
   val unknownItemEmbedding = Embedding(
     id = -1,
-    array = UpdatableDenseArray(Shape(this.biRNN.outputSize)))
+    array = UpdatableDenseArray(Shape(this.deepBiRNN.outputSize)))
 
   /**
    * Initialize chars embeddings and the nullItemVector.

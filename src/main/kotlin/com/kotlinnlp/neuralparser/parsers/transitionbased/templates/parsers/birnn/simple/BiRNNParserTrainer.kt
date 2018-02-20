@@ -82,7 +82,7 @@ open class BiRNNParserTrainer<StateType : State<StateType>,
    * The errors to propagate to the BiRNN in case of no other errors are given for an item.
    */
   private val zerosErrors: DenseNDArray =
-    DenseNDArrayFactory.zeros(Shape(this.neuralParser.model.biRNN.outputSize))
+    DenseNDArrayFactory.zeros(Shape(this.neuralParser.model.deepBiRNN.outputSize))
 
   /**
    *
@@ -102,7 +102,7 @@ open class BiRNNParserTrainer<StateType : State<StateType>,
    * The optimizer of the deep-BiRNN.
    */
   private val deepBiRNNOptimizer = ParamsOptimizer(
-    params = this.neuralParser.model.biRNN.model,
+    params = this.neuralParser.model.deepBiRNN.model,
     updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999))
 
   /**

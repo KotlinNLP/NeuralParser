@@ -100,9 +100,9 @@ class BiRNNAttentionTPDJointArcStandardParserModel(
    *
    */
   val attentiveRecurrentNetworkModel = AttentiveRecurrentNetworkModel(
-    inputSize = this.biRNN.outputSize,
+    inputSize = this.deepBiRNN.outputSize,
     attentionSize = attentionSize,
-    recurrentContextSize = this.biRNN.outputSize,
+    recurrentContextSize = this.deepBiRNN.outputSize,
     contextLabelSize = tpdSingleEmbeddingSize * 3, // transition, pos, deprel
     outputSize = featuresSize,
     contextActivation = Tanh(),

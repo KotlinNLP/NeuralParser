@@ -68,7 +68,7 @@ abstract class CharBasedBiRNNParser<
   /**
    * A [DeepBiRNNEncoder] to encode the tokens of a sentence.
    */
-  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(this.model.biRNN)
+  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(this.model.deepBiRNN)
 
   /**
    * A [HANEncodersPool] to encode the chars of a token.
@@ -106,7 +106,7 @@ abstract class CharBasedBiRNNParser<
         size = tokens.size,
         init = { i -> this.buildTokenEmbedding(charsEncoding = charsEncodings[i], wordEmbedding = wordEmbeddings[i]) }
       )),
-      encodingSize = this.model.biRNN.outputSize,
+      encodingSize = this.model.deepBiRNN.outputSize,
       nullItemVector = this.model.unknownItemEmbedding.array.values // TODO
     )
   }

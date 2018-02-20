@@ -85,7 +85,8 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
   /**
    *
    */
-  private val zerosErrors: DenseNDArray = DenseNDArrayFactory.zeros(Shape(this.neuralParser.model.biRNN.outputSize))
+  private val zerosErrors: DenseNDArray =
+    DenseNDArrayFactory.zeros(Shape(this.neuralParser.model.deepBiRNN.outputSize))
 
   /**
    *
@@ -112,7 +113,7 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
    * The optimizer of the deep-BiRNN.
    */
   private val deepBiRNNOptimizer = ParamsOptimizer(
-    params = this.neuralParser.model.biRNN.model,
+    params = this.neuralParser.model.deepBiRNN.model,
     updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999))
 
   /**

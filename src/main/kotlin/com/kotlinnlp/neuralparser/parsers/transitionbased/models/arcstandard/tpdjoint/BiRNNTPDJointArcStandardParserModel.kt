@@ -85,7 +85,7 @@ class BiRNNTPDJointArcStandardParserModel(
    * The neural network of the actions scorer that scores the transition.
    */
   val transitionScorerNetwork: NeuralNetwork = ActionsScorerNetworkBuilder(
-    inputSize = 4 * this.biRNN.outputSize, // the input is a tokens window of 4 elements
+    inputSize = 4 * this.deepBiRNN.outputSize, // the input is a tokens window of 4 elements
     inputType = LayerType.Input.Dense,
     outputSize = 4, // Shift, Root, ArcLeft, ArcRight
     scorerNetworkConfig = scorerNetworksConfig
@@ -95,7 +95,7 @@ class BiRNNTPDJointArcStandardParserModel(
    * The model of the neural network of the actions scorer that scores POS tag and deprel.
    */
   val posDeprelScorerNetworkModel = MultiTaskNetworkModel(
-    inputSize = 4 * this.biRNN.outputSize, // the input is a tokens window of 4 elements
+    inputSize = 4 * this.deepBiRNN.outputSize, // the input is a tokens window of 4 elements
     inputType = LayerType.Input.Dense,
     inputDropout = scorerNetworksConfig.inputDropout,
     hiddenSize = scorerNetworksConfig.hiddenSize,

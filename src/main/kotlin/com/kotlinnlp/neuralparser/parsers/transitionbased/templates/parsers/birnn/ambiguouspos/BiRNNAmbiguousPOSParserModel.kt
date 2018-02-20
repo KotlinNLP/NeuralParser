@@ -66,7 +66,7 @@ abstract class BiRNNAmbiguousPOSParserModel(
     this.otherDefaultPOSTags.toSet().union(setOf(this.nounDefaultPOSTag)).toList() // a list with unique elements
 
   /**
-   * The input size of the [biRNN].
+   * The input size of the [deepBiRNN].
    */
   private val biRNNInputSize: Int =
     this.posTagsSize + this.wordEmbeddingSize + (this.preTrainedWordEmbeddings?.size ?: 0)
@@ -97,7 +97,7 @@ abstract class BiRNNAmbiguousPOSParserModel(
   /**
    * A [DeepBiRNN] network.
    */
-  val biRNN = DeepBiRNN(
+  val deepBiRNN = DeepBiRNN(
     inputSize = this.biRNNInputSize,
     hiddenActivation = biRNNHiddenActivation,
     recurrentConnectionType = biRNNConnectionType,

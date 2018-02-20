@@ -59,7 +59,7 @@ class BiRNNArcHybridParserModel(
    * The neural network of the actions scorer.
    */
   val actionsScorerNetwork: NeuralNetwork = ActionsScorerNetworkBuilder(
-    inputSize = 4 * this.biRNN.outputSize, // the input is a tokens window of 4 elements
+    inputSize = 4 * this.deepBiRNN.outputSize, // the input is a tokens window of 4 elements
     inputType = LayerType.Input.Dense,
     outputSize = this.corpusDictionary.deprelTags.size + 2, // Deprels + Shift + Swap
     scorerNetworkConfig = scorerNetworkConfig
