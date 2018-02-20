@@ -65,6 +65,7 @@ class BiRNNArcEagerSpineParserModel(
    */
   init {
 
+    val biRNNOutput: Int = this.biRNN.outputSize
     val sortedDeprels: Set<Deprel> = corpusDictionary.deprelTags.getElementsReversedSet()
     val rootDeprelsCount: Int = sortedDeprels.filter { it.direction == Deprel.Position.ROOT }.count()
     val leftDeprelsCount: Int = sortedDeprels.filter { it.direction == Deprel.Position.LEFT }.count()
@@ -72,13 +73,13 @@ class BiRNNArcEagerSpineParserModel(
 
     this.actionsScorerNetworkModel = MultiPredictionModel(
       this.buildMPNetworkConfig( // Shift
-        inputSize = 2 * this.biRNN.outputSize, outputSize = 1, scorerNetworksConfig = scorerNetworksConfig),
+        scorerNetworksConfig = scorerNetworksConfig, inputSize = 2 * biRNNOutput, outputSize = 1),
       this.buildMPNetworkConfig( // Root
-        inputSize = this.biRNN.outputSize, outputSize = rootDeprelsCount, scorerNetworksConfig = scorerNetworksConfig),
+        scorerNetworksConfig = scorerNetworksConfig, inputSize = 1 * biRNNOutput, outputSize = rootDeprelsCount),
       this.buildMPNetworkConfig( // ArcLeft
-        inputSize = 2 * this.biRNN.outputSize, outputSize = leftDeprelsCount, scorerNetworksConfig = scorerNetworksConfig),
+        scorerNetworksConfig = scorerNetworksConfig, inputSize = 2 * biRNNOutput, outputSize = leftDeprelsCount),
       this.buildMPNetworkConfig( // ArcRight
-        inputSize = 2 * this.biRNN.outputSize, outputSize = rightDeprelsCount, scorerNetworksConfig = scorerNetworksConfig)
+        scorerNetworksConfig = scorerNetworksConfig, inputSize = 2 * biRNNOutput, outputSize = rightDeprelsCount)
     )
   }
 }
