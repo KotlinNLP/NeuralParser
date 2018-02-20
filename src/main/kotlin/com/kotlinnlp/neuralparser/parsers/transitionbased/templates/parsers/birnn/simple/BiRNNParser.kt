@@ -67,12 +67,12 @@ abstract class BiRNNParser<
   /**
    * A [DeepBiRNNEncoder] to encode the tokens of a sentence.
    */
-  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(this.model.biRNN)
+  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(model.biRNN)
 
   /**
    * A [DeepBiRNNEncoder] to encode the a null token
    */
-  val paddingVectorEncoder = DeepBiRNNEncoder<DenseNDArray>(this.model.biRNN)
+  val paddingVectorEncoder = DeepBiRNNEncoder<DenseNDArray>(model.biRNN)
 
   /**
    * @param sentence a sentence
