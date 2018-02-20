@@ -16,7 +16,6 @@ import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMetho
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.han.HANEncoder
 import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.han.HierarchySequence
-import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNOptimizer
 import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -110,10 +109,10 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
     updateMethod = AdaGradMethod(learningRate = 0.1))
 
   /**
-   *
+   * The optimizer of the deep-BiRNN.
    */
-  private val biRNNOptimizer = DeepBiRNNOptimizer(
-    network = this.neuralParser.model.biRNN,
+  private val deepBiRNNOptimizer = ParamsOptimizer(
+    params = this.neuralParser.model.biRNN.model,
     updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999))
 
   /**
@@ -121,8 +120,8 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
    */
   override fun beforeSentenceLearning(context: TokensCharsEncodingContext) {
 
-    this.biRNNOptimizer.newBatch()
-    this.biRNNOptimizer.newExample()
+    this.deepBiRNNOptimizer.newBatch()
+    this.deepBiRNNOptimizer.newExample()
 
     this.wordEmbeddingsOptimizer.newBatch()
     this.wordEmbeddingsOptimizer.newExample()
@@ -153,7 +152,7 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
     this.wordEmbeddingsOptimizer.update()
     this.charsEmbeddingsOptimizer.update()
     this.attentionNetworkOptimizer.update()
-    this.biRNNOptimizer.update()
+    this.deepBiRNNOptimizer.update()
   }
 
   /**
@@ -165,7 +164,7 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
       outputErrorsSequence = context.items.map { it.errors?.array ?: this.zerosErrors }.toTypedArray(),
       propagateToInput = true)
 
-    this.biRNNOptimizer.accumulate(errors = this.neuralParser.biRNNEncoder.getParamsErrors(copy = false))
+    this.deepBiRNNOptimizer.accumulate(this.neuralParser.biRNNEncoder.getParamsErrors(copy = false))
 
     this.neuralParser.biRNNEncoder.getInputSequenceErrors(copy = false).forEachIndexed { i, tokenErrors ->
       this.accumulateTokenErrors(context = context, tokenIndex = i, errors = tokenErrors)

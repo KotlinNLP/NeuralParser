@@ -12,7 +12,7 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedTrainer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensAmbiguousPOSContext
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
-import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNOptimizer
+import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -101,10 +101,10 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
     null
 
   /**
-   * The optimizer of the BiRNN.
+   * The optimizer of the deep-BiRNN.
    */
-  private val biRNNOptimizer = DeepBiRNNOptimizer(
-    network = this.neuralParser.model.biRNN,
+  private val deepBiRNNOptimizer = ParamsOptimizer(
+    params = this.neuralParser.model.biRNN.model,
     updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999))
 
   /**
@@ -112,8 +112,8 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
    */
   override fun beforeSentenceLearning(context: TokensAmbiguousPOSContext) {
 
-    this.biRNNOptimizer.newBatch()
-    this.biRNNOptimizer.newExample()
+    this.deepBiRNNOptimizer.newBatch()
+    this.deepBiRNNOptimizer.newExample()
 
     this.wordEmbeddingsOptimizer.newBatch()
     this.wordEmbeddingsOptimizer.newExample()
@@ -141,7 +141,7 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
    */
   override fun updateNeuralComponents() {
 
-    this.biRNNOptimizer.update()
+    this.deepBiRNNOptimizer.update()
     this.wordEmbeddingsOptimizer.update()
     this.preTrainedEmbeddingsOptimizer?.update()
   }
@@ -155,7 +155,7 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
       outputErrorsSequence = context.items.map { it.errors?.array ?: this.zerosErrors }.toTypedArray(),
       propagateToInput = true)
 
-    this.biRNNOptimizer.accumulate(errors = this.neuralParser.biRNNEncoder.getParamsErrors(copy = false))
+    this.deepBiRNNOptimizer.accumulate(this.neuralParser.biRNNEncoder.getParamsErrors(copy = false))
 
     this.neuralParser.biRNNEncoder.getInputSequenceErrors(copy = false).forEachIndexed { i, tokenErrors ->
       this.accumulateTokenErrors(context = context, tokenIndex = i, errors = tokenErrors)
@@ -167,7 +167,7 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
         outputErrorsSequence = arrayOf(context.nullItemErrors!!),
         propagateToInput = true)
 
-      this.biRNNOptimizer.accumulate(errors = this.neuralParser.paddingVectorEncoder.getParamsErrors(copy = false))
+      this.deepBiRNNOptimizer.accumulate(this.neuralParser.paddingVectorEncoder.getParamsErrors(copy = false))
 
       this.accumulateNullTokenErrors(
         errors = this.neuralParser.paddingVectorEncoder.getInputSequenceErrors(copy = false).first())
