@@ -190,17 +190,17 @@ abstract class Trainer(
   /**
    * Beat the occurrence of a new batch.
    */
-  open protected fun newBatch() = Unit
+  protected open fun newBatch() = Unit
 
   /**
    * Beat the occurrence of a new epoch.
    */
-  open protected fun newEpoch() = Unit
+  protected open fun newEpoch() = Unit
 
   /**
    * Update the [neuralParser].
    */
-  abstract protected fun update()
+  protected abstract fun update()
 
   /**
    * Train the [neuralParser] with the given [sentence].
@@ -208,10 +208,10 @@ abstract class Trainer(
    * @param sentence a sentence
    * @param goldPOSSentence an optional sentence with gold annotated POS in its dependency tree
    */
-  abstract protected fun trainSentence(sentence: Sentence, goldPOSSentence: Sentence?)
+  protected abstract fun trainSentence(sentence: Sentence, goldPOSSentence: Sentence?)
 
   /**
    * @return the count of the relevant errors
    */
-  abstract protected fun getRelevantErrorsCount(): Int
+  protected abstract fun getRelevantErrorsCount(): Int
 }
