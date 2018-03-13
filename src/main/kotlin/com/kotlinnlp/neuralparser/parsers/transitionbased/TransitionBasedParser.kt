@@ -77,40 +77,40 @@ abstract class TransitionBasedParser<
   /**
    * @return the [TransitionSystem] used in this parser
    */
-  abstract protected fun buildTransitionSystem(): TransitionSystem<StateType, TransitionType>
+  protected abstract fun buildTransitionSystem(): TransitionSystem<StateType, TransitionType>
 
   /**
    * @return the [ActionsGenerator] used in this parser
    */
-  abstract protected fun buildActionsGenerator(): ActionsGenerator<StateType, TransitionType>
+  protected abstract fun buildActionsGenerator(): ActionsGenerator<StateType, TransitionType>
 
   /**
    * @return the [ActionsScorer] used in this parser
    */
-  abstract protected fun buildActionsScorer(): ActionsScorer<StateType, TransitionType, InputContextType, ItemType,
+  protected abstract fun buildActionsScorer(): ActionsScorer<StateType, TransitionType, InputContextType, ItemType,
     FeaturesType, SupportStructureType>
 
   /**
    * @return the [SupportStructureFactory] used in this parser
    */
-  abstract protected fun buildSupportStructureFactory(): SupportStructureFactory<SupportStructureType>
+  protected abstract fun buildSupportStructureFactory(): SupportStructureFactory<SupportStructureType>
 
   /**
    * @return the [FeaturesExtractor] used in this parser
    */
-  abstract protected fun buildFeaturesExtractor(): FeaturesExtractor<StateType, TransitionType, InputContextType,
+  protected abstract fun buildFeaturesExtractor(): FeaturesExtractor<StateType, TransitionType, InputContextType,
     ItemType, FeaturesType, SupportStructureType>
 
   /**
    * @return the [BestActionSelector] used in this parser during greedy decoding
    */
-  abstract protected fun buildBestActionSelector(): BestActionSelector<StateType, TransitionType, ItemType,
+  protected abstract fun buildBestActionSelector(): BestActionSelector<StateType, TransitionType, ItemType,
     InputContextType>
 
   /**
    * @return the [MultiActionsSelector] used in this parser during beam decoding
    */
-  abstract protected fun buildMultiActionsSelector(): MultiActionsSelector<StateType, TransitionType, ItemType,
+  protected abstract fun buildMultiActionsSelector(): MultiActionsSelector<StateType, TransitionType, ItemType,
     InputContextType>
 
   /**
@@ -124,7 +124,7 @@ abstract class TransitionBasedParser<
   /**
    * Callback called before applying an action.
    */
-  abstract protected fun beforeApplyAction(
+  protected abstract fun beforeApplyAction(
     action: Transition<TransitionType, StateType>.Action,
     context: InputContextType)
 
