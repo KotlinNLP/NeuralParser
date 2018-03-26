@@ -114,18 +114,26 @@ class Validator(
    * [outputFilePath]).
    *
    * @param printCoNLLScriptEvaluation whether to print the output string of the official CoNLL evaluation script
+   * @param afterParsing the callback to call after having analysed a sentence (can be null)
    *
    * @return the output of the evaluation script of the CoNLL
    */
-  fun evaluate(printCoNLLScriptEvaluation: Boolean = false): Statistics {
+  fun evaluate(printCoNLLScriptEvaluation: Boolean = false,
+               afterParsing: ((sentence: Sentence, dependencyTree: DependencyTree) -> Unit)? = null): Statistics {
 
     val progress: ProgressIndicatorBar? = if (this.verbose) ProgressIndicatorBar(this.goldSentences.size) else null
 
     if (this.verbose) println("Start validation on %d sentences:".format(this.goldSentences.size))
 
     val dependencyTrees: List<DependencyTree> = this.goldSentences.map {
+
       progress?.tick()
-      this.neuralParser.parse(it)
+
+      val result: DependencyTree = this.neuralParser.parse(it)
+
+      afterParsing?.invoke(it, result)
+
+      result
     }
 
     if (printCoNLLScriptEvaluation) {
