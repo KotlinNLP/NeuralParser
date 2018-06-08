@@ -10,8 +10,8 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.models.arceagerspine
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEmbeddingsContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.featuresextractor.TWFeaturesExtractorTrainable
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.multiprediction.MPSupportStructure
-import com.kotlinnlp.neuralparser.utils.features.GroupedDenseFeatures
-import com.kotlinnlp.neuralparser.utils.items.DenseItem
+import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.GroupedDenseFeatures
+import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.syntaxdecoder.modules.featuresextractor.FeaturesExtractor
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition

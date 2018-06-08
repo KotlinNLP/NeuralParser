@@ -9,8 +9,8 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.actionsscor
 
 import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.multiprediction.MPSupportStructure
-import com.kotlinnlp.neuralparser.utils.features.GroupedDenseFeatures
-import com.kotlinnlp.neuralparser.utils.features.GroupedDenseFeaturesErrors
+import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.GroupedDenseFeatures
+import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.GroupedDenseFeaturesErrors
 import com.kotlinnlp.simplednn.deeplearning.multipredictionscorer.MultiPredictionModel
 import com.kotlinnlp.simplednn.deeplearning.multipredictionscorer.MultiPredictionOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.utils.actionsembeddings
+package com.kotlinnlp.neuralparser.parsers.transitionbased.utils.actionsembeddings
 
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.simplemath.concatVectorsV
