@@ -12,8 +12,8 @@ import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEmbeddingsContext
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
+import com.kotlinnlp.simplednn.core.embeddings.Embedding
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
-import com.kotlinnlp.simplednn.deeplearning.embeddings.Embedding
 import com.kotlinnlp.simplednn.simplemath.concatVectorsV
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.syntaxdecoder.BeamDecoder
@@ -98,7 +98,7 @@ abstract class BiRNNParser<
       this.buildTokenEmbedding(posEmbedding = posEmbeddings[i], wordEmbedding = wordEmbeddings[i])
     }
 
-    val paddingVector: DenseNDArray = this.paddingVectorEncoder.encode(arrayOf(
+    val paddingVector: DenseNDArray = this.paddingVectorEncoder.encode(listOf(
       this.buildTokenEmbedding(
         posEmbedding = this.model.posEmbeddings.nullEmbedding,
         wordEmbedding = this.model.wordEmbeddings.nullEmbedding))).first()
@@ -108,7 +108,7 @@ abstract class BiRNNParser<
       items = tokens.map { DenseItem(it.id) },
       posEmbeddings = posEmbeddings,
       wordEmbeddings = wordEmbeddings,
-      tokensEncodings = this.biRNNEncoder.encode(sequence = tokensEmbeddings.toTypedArray()),
+      tokensEncodings = this.biRNNEncoder.encode(sequence = tokensEmbeddings),
       encodingSize = this.model.deepBiRNN.outputSize,
       unknownItemVector = paddingVector)
   }

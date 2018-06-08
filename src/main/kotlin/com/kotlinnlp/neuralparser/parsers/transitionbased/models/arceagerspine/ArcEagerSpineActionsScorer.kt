@@ -12,7 +12,6 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.actionsscore
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.multiprediction.MPSupportStructure
 import com.kotlinnlp.simplednn.deeplearning.multipredictionscorer.MultiPredictionModel
 import com.kotlinnlp.simplednn.deeplearning.multipredictionscorer.MultiPredictionOptimizer
-import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.syntaxdecoder.context.InputContext
 import com.kotlinnlp.syntaxdecoder.context.items.StateItem
 import com.kotlinnlp.syntaxdecoder.syntax.DependencyRelation
@@ -20,6 +19,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arceagerspine.ArcEagerSpineState
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arceagerspine.ArcEagerSpineTransition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arceagerspine.transitions.Shift
+import com.kotlinnlp.utils.DictionarySet
 
 /**
  * The ArcEagerSpineActionsScorer.

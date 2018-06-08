@@ -11,9 +11,9 @@ import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedTrainer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensAmbiguousPOSContext
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsOptimizer
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
-import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
@@ -153,7 +153,7 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
   protected fun propagateErrors(context: TokensAmbiguousPOSContext) {
 
     this.neuralParser.biRNNEncoder.backward(
-      outputErrorsSequence = context.items.map { it.errors?.array ?: this.zerosErrors }.toTypedArray(),
+      outputErrorsSequence = context.items.map { it.errors?.array ?: this.zerosErrors },
       propagateToInput = true)
 
     this.deepBiRNNOptimizer.accumulate(this.neuralParser.biRNNEncoder.getParamsErrors(copy = false))
@@ -165,7 +165,7 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
     if (context.nullItemErrors != null) {
 
       this.neuralParser.paddingVectorEncoder.backward(
-        outputErrorsSequence = arrayOf(context.nullItemErrors!!),
+        outputErrorsSequence = listOf(context.nullItemErrors!!),
         propagateToInput = true)
 
       this.deepBiRNNOptimizer.accumulate(this.neuralParser.paddingVectorEncoder.getParamsErrors(copy = false))

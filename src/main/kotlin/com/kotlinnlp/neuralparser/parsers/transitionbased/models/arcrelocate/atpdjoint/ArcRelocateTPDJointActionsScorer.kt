@@ -12,7 +12,6 @@ import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.actionsscorer.TPDJointEmbeddingsActionsScorer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensAmbiguousPOSContext
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
-import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcrelocate.ArcRelocateTransition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferState
@@ -25,6 +24,7 @@ import com.kotlinnlp.simplednn.deeplearning.multitasknetwork.MultiTaskNetworkPar
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcrelocate.transitions.*
+import com.kotlinnlp.utils.DictionarySet
 
 /**
  * The ArcRelocateTPDJointActionsScorer.

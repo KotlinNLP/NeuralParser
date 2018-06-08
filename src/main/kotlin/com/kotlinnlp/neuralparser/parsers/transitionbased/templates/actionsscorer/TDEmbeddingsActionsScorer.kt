@@ -10,7 +10,6 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.actionsscor
 import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEncodingContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.compositeprediction.TDSupportStructure
-import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.utils.features.DenseFeaturesErrors
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
@@ -24,6 +23,7 @@ import com.kotlinnlp.syntaxdecoder.modules.actionsscorer.ActionsScorer
 import com.kotlinnlp.syntaxdecoder.modules.actionsscorer.ActionsScorerTrainable
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
+import com.kotlinnlp.utils.DictionarySet
 
 /**
  * The Transition+Deprel Embeddings ActionsScorer.

@@ -11,7 +11,6 @@ import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEmbeddingsContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.actionsscorer.SPEmbeddingsActionsScorer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.singleprediction.SPSupportStructure
-import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
 import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
@@ -21,6 +20,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.archybrid.ArcHybridTr
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.archybrid.transitions.Shift
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.archybrid.transitions.Swap
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferState
+import com.kotlinnlp.utils.DictionarySet
 
 /**
  * The ArcHybridActionsScorer.

@@ -16,7 +16,6 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.featuresextractor.EmbeddingsFeaturesExtractor
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
-import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.syntaxdecoder.syntax.DependencyRelation
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcrelocate.ArcRelocateTransition
@@ -24,6 +23,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcrelocate.transitio
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.StateView
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferState
 import com.kotlinnlp.syntaxdecoder.utils.getItemOrNull
+import com.kotlinnlp.utils.DictionarySet
 
 /**
  * The [EmbeddingsFeaturesExtractor] that extracts features combining word Embeddings and ambiguous POS vectors for the

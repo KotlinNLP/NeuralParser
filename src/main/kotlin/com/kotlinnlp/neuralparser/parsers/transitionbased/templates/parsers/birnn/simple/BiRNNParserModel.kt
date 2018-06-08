@@ -9,12 +9,12 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.bir
 
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserModel
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNN
-import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsMapByDictionary
-import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
+import com.kotlinnlp.utils.DictionarySet
 
 /**
  * @property scoreAccumulatorFactory a factory of score accumulators

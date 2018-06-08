@@ -12,11 +12,11 @@ import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensCharsEncodingContext
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
-import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.han.HANEncoder
-import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.han.HANEncodersPool
-import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.han.HierarchySequence
+import com.kotlinnlp.simplednn.core.embeddings.Embedding
+import com.kotlinnlp.simplednn.deeplearning.attention.han.HANEncoder
+import com.kotlinnlp.simplednn.deeplearning.attention.han.HANEncodersPool
+import com.kotlinnlp.simplednn.deeplearning.attention.han.HierarchySequence
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
-import com.kotlinnlp.simplednn.deeplearning.embeddings.Embedding
 import com.kotlinnlp.simplednn.simplemath.concatVectorsV
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.syntaxdecoder.BeamDecoder
@@ -102,7 +102,7 @@ abstract class CharBasedBiRNNParser<
       usedEncoders = usedEncoders,
       charsEmbeddings = charsEmbeddings,
       wordEmbeddings = wordEmbeddings,
-      tokensEncodings = this.biRNNEncoder.encode(sequence = Array(
+      tokensEncodings = this.biRNNEncoder.encode(sequence = List(
         size = tokens.size,
         init = { i -> this.buildTokenEmbedding(charsEncoding = charsEncodings[i], wordEmbedding = wordEmbeddings[i]) }
       )),

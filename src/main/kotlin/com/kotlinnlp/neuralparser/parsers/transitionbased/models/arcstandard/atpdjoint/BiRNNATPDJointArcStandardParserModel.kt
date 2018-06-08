@@ -13,11 +13,11 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkCo
 import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsMap
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ActionsScorerNetworkBuilder
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserModel
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
-import com.kotlinnlp.simplednn.core.layers.LayerConfiguration
+import com.kotlinnlp.simplednn.core.layers.LayerInterface
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
-import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.deeplearning.multitasknetwork.MultiTaskNetworkConfig
 import com.kotlinnlp.simplednn.deeplearning.multitasknetwork.MultiTaskNetworkModel
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
@@ -124,11 +124,11 @@ class BiRNNATPDJointArcStandardParserModel(
    * The neural network that encodes the last applied actions.
    */
   val appliedActionsNetwork = NeuralNetwork(
-      LayerConfiguration(
+      LayerInterface(
         size = 3 * this.actionsEmbeddingsSize,
-        inputType = LayerType.Input.Dense
+        type = LayerType.Input.Dense
       ),
-      LayerConfiguration(
+    LayerInterface(
         size = appliedActionsNetworkConfig.outputSize,
         activationFunction = appliedActionsNetworkConfig.activation,
         connectionType = appliedActionsNetworkConfig.connectionType,

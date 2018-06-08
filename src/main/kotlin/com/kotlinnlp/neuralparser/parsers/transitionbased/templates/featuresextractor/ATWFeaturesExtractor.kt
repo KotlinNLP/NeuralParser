@@ -54,18 +54,18 @@ abstract class ATWFeaturesExtractor<
   /**
    * The actions embeddings map key of the transition of this action.
    */
-  abstract protected val Transition<TransitionType, StateType>.key: Int
+  protected abstract val Transition<TransitionType, StateType>.key: Int
 
   /**
    * The actions embeddings map key of the deprel of this action.
    */
-  abstract protected val Transition<TransitionType, StateType>.Action.deprelKey: Int
+  protected abstract val Transition<TransitionType, StateType>.Action.deprelKey: Int
 
 
   /**
    * The actions embeddings map key of the POS tag of this action.
    */
-  abstract protected val Transition<TransitionType, StateType>.Action.posTagKey: Int
+  protected abstract val Transition<TransitionType, StateType>.Action.posTagKey: Int
 
 
   /**
@@ -135,7 +135,7 @@ abstract class ATWFeaturesExtractor<
 
     return DenseFeatures(array = concatVectorsV(
       supportStructure.actionProcessor.forward(
-        featuresArray = lastAppliedActionVector,
+        features = lastAppliedActionVector,
         firstState = appliedActions.isEmpty()),
       this.extractViewFeatures(
         stateView = StateView(state = decodingContext.extendedState.state),
@@ -164,13 +164,13 @@ abstract class ATWFeaturesExtractor<
       val itemsWindow: List<Int?> = this.getTokensWindow(StateView(state = decodingContext.extendedState.state))
 
       val errors: DenseNDArray = decodingContext.features.errors.array
-      val splitErrors: Array<DenseNDArray> = errors.splitV(
+      val splitErrors: List<DenseNDArray> = errors.splitV(
         this.actionsEncodingSize,
         errors.length - this.actionsEncodingSize
       )
 
       this.appliedActionsEncodingErrors.add(splitErrors[0])
-      val tokensErrors: Array<DenseNDArray> = splitErrors[1].splitV(decodingContext.extendedState.context.encodingSize)
+      val tokensErrors: List<DenseNDArray> = splitErrors[1].splitV(decodingContext.extendedState.context.encodingSize)
 
       this.accumulateItemsErrors(decodingContext = decodingContext, itemsErrors = itemsWindow.zip(tokensErrors))
     }
@@ -228,7 +228,7 @@ abstract class ATWFeaturesExtractor<
     }
 
     this.actionsEncoder.backward(
-      outputErrorsSequence = this.appliedActionsEncodingErrors.toTypedArray(),
+      outputErrorsSequence = this.appliedActionsEncodingErrors,
       propagateToInput = true)
 
     this.actionsEncoderOptimizer.accumulate(this.actionsEncoder.getParamsErrors(copy = false))

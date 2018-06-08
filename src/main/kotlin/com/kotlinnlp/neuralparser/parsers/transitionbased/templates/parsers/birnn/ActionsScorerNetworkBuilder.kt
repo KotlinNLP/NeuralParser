@@ -8,7 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn
 
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
-import com.kotlinnlp.simplednn.core.layers.LayerConfiguration
+import com.kotlinnlp.simplednn.core.layers.LayerInterface
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 
@@ -30,19 +30,19 @@ object ActionsScorerNetworkBuilder {
                       outputSize: Int,
                       scorerNetworkConfig: ScorerNetworkConfiguration) = NeuralNetwork(
 
-    LayerConfiguration(
+    LayerInterface(
       size = inputSize,
-      inputType = inputType,
+      type = inputType,
       dropout = scorerNetworkConfig.inputDropout
     ),
-    LayerConfiguration(
+    LayerInterface(
       size = scorerNetworkConfig.hiddenSize,
       activationFunction = scorerNetworkConfig.hiddenActivation,
       connectionType = LayerType.Connection.Feedforward,
       dropout = scorerNetworkConfig.hiddenDropout,
       meProp = scorerNetworkConfig.hiddenMeProp
     ),
-    LayerConfiguration(
+    LayerInterface(
       size = outputSize,
       activationFunction = scorerNetworkConfig.outputActivation,
       connectionType = LayerType.Connection.Feedforward,

@@ -82,7 +82,7 @@ abstract class EmbeddingsFeaturesExtractor<
       val itemsWindow: List<Int?> = this.getTokensWindow(StateView(state = decodingContext.extendedState.state))
 
       val errors: DenseNDArray = decodingContext.features.errors.array
-      val tokensErrors: Array<DenseNDArray> = errors.splitV(decodingContext.extendedState.context.encodingSize)
+      val tokensErrors: List<DenseNDArray> = errors.splitV(decodingContext.extendedState.context.encodingSize)
 
       this.accumulateItemsErrors(decodingContext = decodingContext, itemsErrors = itemsWindow.zip(tokensErrors))
     }

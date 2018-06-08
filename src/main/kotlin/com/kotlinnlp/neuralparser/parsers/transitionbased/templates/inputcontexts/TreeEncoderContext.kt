@@ -9,7 +9,7 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontex
 
 import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
-import com.kotlinnlp.simplednn.deeplearning.embeddings.Embedding
+import com.kotlinnlp.simplednn.core.embeddings.Embedding
 import com.kotlinnlp.simplednn.deeplearning.treernn.TreeEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 

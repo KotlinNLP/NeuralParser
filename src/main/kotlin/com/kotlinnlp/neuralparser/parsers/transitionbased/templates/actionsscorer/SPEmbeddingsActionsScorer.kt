@@ -11,7 +11,6 @@ import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEncodingContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.OutputErrorsInit
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.singleprediction.SPSupportStructure
-import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.utils.features.DenseFeaturesErrors
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
@@ -25,6 +24,7 @@ import com.kotlinnlp.syntaxdecoder.modules.actionsscorer.ActionsScorer
 import com.kotlinnlp.syntaxdecoder.modules.actionsscorer.ActionsScorerTrainable
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
+import com.kotlinnlp.utils.DictionarySet
 
 /**
  * The Single Prediction Embeddings ActionsScorer.
@@ -69,7 +69,7 @@ abstract class SPEmbeddingsActionsScorer<
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
     supportStructure: SupportStructureType) {
 
-    val prediction: DenseNDArray = supportStructure.processor.forward(featuresArray = decodingContext.features.array)
+    val prediction: DenseNDArray = supportStructure.processor.forward(features = decodingContext.features.array)
 
     decodingContext.actions.forEach { action -> action.score = prediction[action.outcomeIndex] }
   }

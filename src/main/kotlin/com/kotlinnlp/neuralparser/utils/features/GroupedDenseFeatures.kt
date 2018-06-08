@@ -7,9 +7,9 @@
 
 package com.kotlinnlp.neuralparser.utils.features
 
-import com.kotlinnlp.simplednn.utils.MultiMap
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.syntaxdecoder.modules.featuresextractor.features.Features
+import com.kotlinnlp.utils.MultiMap
 
 /**
  * The features extracted from a FeaturesExtractor, used as input of the ActionsScorer.

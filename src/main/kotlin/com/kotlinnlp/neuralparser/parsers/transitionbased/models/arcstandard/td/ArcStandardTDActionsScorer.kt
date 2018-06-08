@@ -10,7 +10,6 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.td
 import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.actionsscorer.TDEmbeddingsActionsScorer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEmbeddingsContext
-import com.kotlinnlp.simplednn.utils.DictionarySet
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.ArcStandardTransition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitions.Shift
@@ -22,6 +21,7 @@ import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitions.ArcLeft
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitions.ArcRight
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitions.Root
+import com.kotlinnlp.utils.DictionarySet
 
 /**
  * The ArcStandardActionsScorer.

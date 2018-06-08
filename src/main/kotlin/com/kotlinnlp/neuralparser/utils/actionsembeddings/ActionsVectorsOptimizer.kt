@@ -7,9 +7,9 @@
 
 package com.kotlinnlp.neuralparser.utils.actionsembeddings
 
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsOptimizer
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.optimizer.ScheduledUpdater
-import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.utils.scheduling.BatchScheduling
 import com.kotlinnlp.simplednn.utils.scheduling.EpochScheduling
@@ -67,7 +67,7 @@ class ActionsVectorsOptimizer(
    */
   fun accumulate(tId: Int, pId: Int?, dId: Int?, errors: DenseNDArray) {
 
-    val splitErrors: Array<DenseNDArray> = errors.splitV(errors.length / 3)
+    val splitErrors: List<DenseNDArray> = errors.splitV(errors.length / 3)
 
     this.transitionEmbeddingOptimizer.accumulate(embeddingKey = tId, errors = splitErrors[0])
     this.posTagEmbeddingOptimizer.accumulate(embeddingKey = pId, errors = splitErrors[1])
@@ -81,7 +81,7 @@ class ActionsVectorsOptimizer(
    */
   fun accumulateNullEmbeddingsErrors(errors: DenseNDArray) {
 
-    val splitErrors: Array<DenseNDArray> = errors.splitV(errors.length / 3)
+    val splitErrors: List<DenseNDArray> = errors.splitV(errors.length / 3)
 
     this.transitionEmbeddingOptimizer.accumulate(embeddingKey = null, errors = splitErrors[0])
     this.posTagEmbeddingOptimizer.accumulate(embeddingKey = null, errors = splitErrors[1])

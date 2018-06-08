@@ -10,14 +10,14 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.bir
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserModel
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.simplednn.core.arrays.UpdatableDenseArray
+import com.kotlinnlp.simplednn.core.embeddings.Embedding
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
 import com.kotlinnlp.simplednn.core.functionalities.randomgenerators.FixedRangeRandom
 import com.kotlinnlp.simplednn.core.layers.LayerType
-import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.han.HAN
+import com.kotlinnlp.simplednn.deeplearning.attention.han.HAN
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNN
-import com.kotlinnlp.simplednn.deeplearning.embeddings.Embedding
-import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsMap
-import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsMapByDictionary
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
 
@@ -85,7 +85,7 @@ abstract class CharBasedBiRNNParserModel(
     attentionSize = this.hanAttentionSize,
     outputSize = this.charsEncodingSize,
     outputActivation = null,
-    gainFactors = arrayOf(2.0))
+    gainFactors = listOf(2.0))
 
   /**
    * A [DeepBiRNN] network.

@@ -12,7 +12,6 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.featuresextr
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.multiprediction.MPSupportStructure
 import com.kotlinnlp.neuralparser.utils.features.GroupedDenseFeatures
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
-import com.kotlinnlp.simplednn.utils.MultiMap
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.syntaxdecoder.modules.featuresextractor.FeaturesExtractor
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
@@ -22,6 +21,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arceagerspine.ArcEage
 import com.kotlinnlp.syntaxdecoder.utils.DecodingContext
 import com.kotlinnlp.syntaxdecoder.utils.toTransitions
 import com.kotlinnlp.syntaxdecoder.utils.toTransitionsMap
+import com.kotlinnlp.utils.MultiMap
 
 /**
  * The FeaturesExtractor that extracts Embeddings as features for the ArcEagerSpine transition system.
@@ -96,14 +96,14 @@ class ArcEagerSpineEmbeddingsFeaturesExtractor
 
       val transitionsMap: Map<Int, ArcEagerSpineTransition> = decodingContext.actions.toTransitionsMap()
 
-      decodingContext.features.errors.errorsMap.forEach { _, transitionId, errors ->
+      decodingContext.features.errors.errorsMap.forEach { _: Any, transitionId: Int, errors: DenseNDArray ->
 
         val itemsWindow: List<Int?> = this.getTokensWindow(
           stateView = ArcEagerSpineStateView(
             state = decodingContext.extendedState.state,
             transition = transitionsMap.getValue(transitionId)))
 
-        val tokensErrors: Array<DenseNDArray> = errors.splitV(decodingContext.extendedState.context.encodingSize)
+        val tokensErrors: List<DenseNDArray> = errors.splitV(decodingContext.extendedState.context.encodingSize)
 
         this.accumulateItemsErrors(
           items = decodingContext.extendedState.context.items,

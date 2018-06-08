@@ -11,12 +11,12 @@ import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedTrainer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensCharsEncodingContext
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsOptimizer
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adagrad.AdaGradMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
-import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.han.HANEncoder
-import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.han.HierarchySequence
-import com.kotlinnlp.simplednn.deeplearning.embeddings.EmbeddingsOptimizer
+import com.kotlinnlp.simplednn.deeplearning.attention.han.HANEncoder
+import com.kotlinnlp.simplednn.deeplearning.attention.han.HierarchySequence
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
@@ -162,7 +162,7 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
   private fun propagateErrors(context: TokensCharsEncodingContext) {
 
     this.neuralParser.biRNNEncoder.backward(
-      outputErrorsSequence = context.items.map { it.errors?.array ?: this.zerosErrors }.toTypedArray(),
+      outputErrorsSequence = context.items.map { it.errors?.array ?: this.zerosErrors },
       propagateToInput = true)
 
     this.deepBiRNNOptimizer.accumulate(this.neuralParser.biRNNEncoder.getParamsErrors(copy = false))
@@ -178,7 +178,7 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
   private fun accumulateTokenErrors(context: TokensCharsEncodingContext, tokenIndex: Int, errors: DenseNDArray) {
 
     val hanEncoder: HANEncoder<DenseNDArray> = context.usedEncoders[tokenIndex]
-    val splitErrors: Array<DenseNDArray> = errors.splitV(
+    val splitErrors: List<DenseNDArray> = errors.splitV(
       this.neuralParser.model.charsEncodingSize,
       this.neuralParser.model.wordEmbeddings.size)
 

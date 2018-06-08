@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontex
 import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
-import com.kotlinnlp.simplednn.deeplearning.embeddings.Embedding
+import com.kotlinnlp.simplednn.core.embeddings.Embedding
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
@@ -34,7 +34,7 @@ class TokensAmbiguousPOSContext(
   val preTrainedWordEmbeddings: List<Embedding>?,
   unknownItemVector: DenseNDArray,
   encodingSize: Int,
-  val tokensEncodings: Array<DenseNDArray>,
+  val tokensEncodings: List<DenseNDArray>,
   trainingMode: Boolean
 ) : TokensEncodingContext<TokensAmbiguousPOSContext>(
   tokens = tokens,

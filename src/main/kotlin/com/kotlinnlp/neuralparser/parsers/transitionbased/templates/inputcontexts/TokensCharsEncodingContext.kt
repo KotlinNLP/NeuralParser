@@ -9,8 +9,8 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontex
 
 import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuralparser.utils.items.DenseItem
-import com.kotlinnlp.simplednn.deeplearning.attentionnetwork.han.HANEncoder
-import com.kotlinnlp.simplednn.deeplearning.embeddings.Embedding
+import com.kotlinnlp.simplednn.core.embeddings.Embedding
+import com.kotlinnlp.simplednn.deeplearning.attention.han.HANEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
@@ -33,7 +33,7 @@ class TokensCharsEncodingContext(
   val wordEmbeddings: List<Embedding>,
   encodingSize: Int,
   nullItemVector: DenseNDArray,
-  val tokensEncodings: Array<DenseNDArray>,
+  val tokensEncodings: List<DenseNDArray>,
   trainingMode: Boolean = false
 ) :
   TokensEncodingContext<TokensCharsEncodingContext>(
