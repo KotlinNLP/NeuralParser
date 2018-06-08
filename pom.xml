@@ -64,7 +64,6 @@
         <klaxon.version>0.30</klaxon.version>
         <dokka.version>0.9.13</dokka.version>
         <surfire.version>2.19.1</surfire.version>
-        <progressindicator.version>1.0.0</progressindicator.version>
         <conllio.version>0.1.1</conllio.version>
         <simplednn.version>0.9.0</simplednn.version>
         <syntaxdecoder.version>0.1.0</syntaxdecoder.version>
@@ -264,12 +263,6 @@
             <groupId>com.beust</groupId>
             <artifactId>klaxon</artifactId>
             <version>${klaxon.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>progressindicator</artifactId>
-            <version>${progressindicator.version}</version>
         </dependency>
 
         <dependency>

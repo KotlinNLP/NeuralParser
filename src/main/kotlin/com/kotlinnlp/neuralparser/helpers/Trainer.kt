@@ -10,9 +10,9 @@ package com.kotlinnlp.neuralparser.helpers
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.utils.Timer
-import com.kotlinnlp.progressindicator.ProgressIndicatorBar
 import com.kotlinnlp.simplednn.dataset.Shuffler
 import com.kotlinnlp.simplednn.helpers.training.utils.ExamplesIndices
+import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 import java.io.File
 import java.io.FileOutputStream
 
