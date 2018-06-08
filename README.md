@@ -15,7 +15,7 @@ NeuralParser is part of [KotlinNLP](http://kotlinnlp.com/ "KotlinNLP").
 <dependency>
     <groupId>com.kotlinnlp</groupId>
     <artifactId>neuralparser</artifactId>
-    <version>0.2.8</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
