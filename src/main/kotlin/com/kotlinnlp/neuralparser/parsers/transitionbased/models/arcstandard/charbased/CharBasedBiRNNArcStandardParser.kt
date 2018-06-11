@@ -12,9 +12,9 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birn
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.OutputErrorsInit
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.singleprediction.SPSupportStructure
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.singleprediction.SPStructureFactory
-import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
-import com.kotlinnlp.neuralparser.utils.features.DenseFeaturesErrors
-import com.kotlinnlp.neuralparser.utils.items.DenseItem
+import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFeatures
+import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFeaturesErrors
+import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.syntaxdecoder.BeamDecoder

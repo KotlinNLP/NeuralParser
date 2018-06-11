@@ -9,13 +9,13 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.td
 
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ArcStandardCPEmbeddingsFeaturesExtractor
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEmbeddingsContext
-import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
+import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple.BiRNNParser
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.OutputErrorsInit
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.compositeprediction.TDSupportStructure
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.compositeprediction.TDStructureFactory
-import com.kotlinnlp.neuralparser.utils.features.DenseFeaturesErrors
-import com.kotlinnlp.neuralparser.utils.items.DenseItem
+import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFeaturesErrors
+import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer

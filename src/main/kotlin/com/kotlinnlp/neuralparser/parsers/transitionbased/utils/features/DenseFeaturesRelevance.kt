@@ -5,17 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.utils.features
+package com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features
 
-import com.kotlinnlp.simplednn.utils.MultiMap
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.syntaxdecoder.modules.featuresextractor.features.FeaturesRelevance
 
 /**
- * The relevance object associated to the [GroupedDenseFeatures].
+ * The relevance object associated to the [DenseFeatures].
  *
- * @property relevanceMap the grouped dense features relevance representation
+ * @property array the dense features relevance representation
  */
-data class GroupedDenseFeaturesRelevance(
-  val relevanceMap: MultiMap<DenseNDArray>
+data class DenseFeaturesRelevance(
+  val array: DenseNDArray
 ): FeaturesRelevance

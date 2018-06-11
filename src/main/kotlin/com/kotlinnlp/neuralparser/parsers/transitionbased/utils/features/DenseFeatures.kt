@@ -5,18 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.utils.features
+package com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features
 
-import com.kotlinnlp.simplednn.simplemath.ndarray.sparsebinary.SparseBinaryNDArray
+import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.syntaxdecoder.modules.featuresextractor.features.Features
 
 /**
  * The features extracted from a FeaturesExtractor, used as input of the ActionsScorer.
- * The features are represented by a sparse binary array. Their relative errors and relevance are represented by
- * dense array and sparse array respectively .
+ * The features are represented by a dense array. Their relative errors and relevance are also represented by
+ * dense arrays.
  *
  * @property array the dense features representation
  */
-data class SparseBinaryFeatures(
-  val array: SparseBinaryNDArray
-) : Features<DenseFeaturesErrors, SparseFeaturesRelevance>()
+data class DenseFeatures(
+  val array: DenseNDArray
+) : Features<DenseFeaturesErrors, DenseFeaturesRelevance>()

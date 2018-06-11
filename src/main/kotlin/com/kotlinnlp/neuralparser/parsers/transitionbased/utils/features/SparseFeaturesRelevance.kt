@@ -5,16 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.utils.features
+package com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features
 
-import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import com.kotlinnlp.simplednn.simplemath.ndarray.sparse.SparseNDArray
 import com.kotlinnlp.syntaxdecoder.modules.featuresextractor.features.FeaturesRelevance
 
 /**
- * The relevance object associated to the [DenseFeatures].
+ * The relevance object associated to the [SparseBinaryFeatures].
  *
- * @property array the dense features relevance representation
+ * @property array the sparse features relevance representation
  */
-data class DenseFeaturesRelevance(
-  val array: DenseNDArray
-): FeaturesRelevance
+data class SparseFeaturesRelevance(val array: SparseNDArray): FeaturesRelevance

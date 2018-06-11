@@ -12,7 +12,7 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParser
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensAmbiguousPOSContext
-import com.kotlinnlp.neuralparser.utils.items.DenseItem
+import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.embeddings.Embedding
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.concatVectorsV

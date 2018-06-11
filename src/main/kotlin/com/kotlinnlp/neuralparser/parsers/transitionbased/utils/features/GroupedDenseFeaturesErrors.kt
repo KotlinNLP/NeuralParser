@@ -5,20 +5,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.utils.items
+package com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features
 
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.syntaxdecoder.context.items.ItemErrors
+import com.kotlinnlp.syntaxdecoder.modules.featuresextractor.features.FeaturesErrors
+import com.kotlinnlp.utils.MultiMap
 
 /**
- * The errors object associated to a [DenseItem].
+ * The errors object associated to the [GroupedDenseFeatures].
  *
- * @property array the item errors
+ * @property errorsMap the grouped dense features errors representation
  */
-data class DenseItemErrors(val array: DenseNDArray): ItemErrors<DenseItemErrors> {
-
-  /**
-   * @return a copy of this [DenseItemErrors]
-   */
-  override fun copy(): DenseItemErrors = DenseItemErrors(this.array.copy())
-}
+data class GroupedDenseFeaturesErrors(
+  val errorsMap: MultiMap<DenseNDArray>
+): FeaturesErrors
