@@ -7,12 +7,12 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.featuresextractor
 
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.actionsembeddings.ActionsVectorsMap
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.actionsembeddings.ActionsVectorsOptimizer
+import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsMap
+import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEncodingContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.compositeprediction.ATPDJointSupportStructure
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFeatures
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
+import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
+import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
 import com.kotlinnlp.simplednn.core.neuralprocessor.recurrent.RecurrentNeuralProcessor
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer

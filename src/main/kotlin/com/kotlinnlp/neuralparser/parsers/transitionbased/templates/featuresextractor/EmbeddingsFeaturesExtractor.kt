@@ -8,8 +8,8 @@
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.featuresextractor
 
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEncodingContext
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFeatures
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
+import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
+import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.syntaxdecoder.utils.DecodingContext
 import com.kotlinnlp.syntaxdecoder.modules.featuresextractor.*

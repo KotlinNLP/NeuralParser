@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.bir
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedTrainer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensCharsEncodingContext
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
+import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsOptimizer
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adagrad.AdaGradMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod

@@ -10,8 +10,8 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcrelocate.at
 import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.featuresextractor.ATWFeaturesExtractor
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.actionsembeddings.ActionsVectorsMap
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.actionsembeddings.ActionsVectorsOptimizer
+import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsMap
+import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensAmbiguousPOSContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.featuresextractor.EmbeddingsFeaturesExtractor
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters

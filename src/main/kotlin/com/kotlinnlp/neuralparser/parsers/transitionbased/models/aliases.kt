@@ -14,7 +14,7 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.compositeprediction.TDSupportStructure
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.multiprediction.MPSupportStructure
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.singleprediction.SPSupportStructure
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
+import com.kotlinnlp.neuralparser.utils.items.DenseItem
 
 typealias GenericTransitionBasedParser = TransitionBasedParser<*, *, *, *, *, *, *, *>
 

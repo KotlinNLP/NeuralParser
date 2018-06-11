@@ -7,16 +7,16 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.atpdjoint
 
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.actionsembeddings.ActionsVectorsOptimizer
+import com.kotlinnlp.neuralparser.utils.actionsembeddings.ActionsVectorsOptimizer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.tpdjoint.ArcStandardTPDJointActionsScorer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensAmbiguousPOSContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParser
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFeatures
+import com.kotlinnlp.neuralparser.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.OutputErrorsInit
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.compositeprediction.ATPDJointSupportStructure
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.compositeprediction.ATPDJointStructureFactory
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFeaturesErrors
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
+import com.kotlinnlp.neuralparser.utils.features.DenseFeaturesErrors
+import com.kotlinnlp.neuralparser.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
