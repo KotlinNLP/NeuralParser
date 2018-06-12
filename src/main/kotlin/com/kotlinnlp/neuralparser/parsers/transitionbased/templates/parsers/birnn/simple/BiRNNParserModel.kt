@@ -66,10 +66,10 @@ abstract class BiRNNParserModel(
   /**
    * A [DeepBiRNN] network.
    */
-  val deepBiRNN = DeepBiRNN(
+  val deepBiRNN = DeepBiRNN.byReduceConcat(
     inputSize = this.biRNNInputSize,
     hiddenActivation = biRNNHiddenActivation,
     recurrentConnectionType = biRNNConnectionType,
     inputType = LayerType.Input.Dense,
-    numberOfLayers = biRNNLayers)
+    numberOfLevels = biRNNLayers)
 }

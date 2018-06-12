@@ -90,12 +90,12 @@ abstract class CharBasedBiRNNParserModel(
   /**
    * A [DeepBiRNN] network.
    */
-  val deepBiRNN = DeepBiRNN(
+  val deepBiRNN = DeepBiRNN.byReduceConcat(
     inputSize = this.biRNNInputSize,
     hiddenActivation = this.biRNNHiddenActivation,
     recurrentConnectionType = this.biRNNConnectionType,
     inputType = LayerType.Input.Dense,
-    numberOfLayers = 1)
+    numberOfLevels = 1)
 
   /**
    * The embedding used to represent the encoding of a null item of the decoding window.
