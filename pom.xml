@@ -59,7 +59,7 @@
         <kotlin.version>1.2.41</kotlin.version>
         <spek.version>1.1.5</spek.version>
         <xenocom.version>0.0.5</xenocom.version>
-        <klaxon.version>0.30</klaxon.version>
+        <klaxon.version>3.0.5</klaxon.version>
         <dokka.version>0.9.16</dokka.version>
         <surfire.version>2.19.1</surfire.version>
         <conllio.version>0.2.0</conllio.version>
