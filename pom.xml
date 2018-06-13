@@ -63,7 +63,7 @@
         <klaxon.version>0.30</klaxon.version>
         <dokka.version>0.9.16</dokka.version>
         <surfire.version>2.19.1</surfire.version>
-        <conllio.version>0.1.1</conllio.version>
+        <conllio.version>0.2.0</conllio.version>
         <simplednn.version>0.9.1</simplednn.version>
         <syntaxdecoder.version>0.2.0</syntaxdecoder.version>
         <dependencytree.version>0.3.1</dependencytree.version>
