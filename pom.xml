@@ -57,7 +57,6 @@
         <maven-source-plugin.version>3.0.0</maven-source-plugin.version>
         <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
         <kotlin.version>1.2.41</kotlin.version>
-        <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <spek.version>1.1.5</spek.version>
         <xenocom.version>0.0.5</xenocom.version>
         <klaxon.version>0.30</klaxon.version>
