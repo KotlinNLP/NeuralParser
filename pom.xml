@@ -65,7 +65,7 @@
         <surfire.version>2.19.1</surfire.version>
         <conllio.version>0.1.1</conllio.version>
         <simplednn.version>0.9.1</simplednn.version>
-        <syntaxdecoder.version>0.1.0</syntaxdecoder.version>
+        <syntaxdecoder.version>0.2.0</syntaxdecoder.version>
         <dependencytree.version>0.3.0</dependencytree.version>
         <utils.version>2.1.0</utils.version>
     </properties>
