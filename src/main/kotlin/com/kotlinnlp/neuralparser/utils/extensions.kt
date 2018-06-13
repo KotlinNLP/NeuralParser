@@ -10,6 +10,7 @@ package com.kotlinnlp.neuralparser.utils
 import com.kotlinnlp.conllio.CoNLLReader
 import com.kotlinnlp.conllio.Sentence.InvalidTree
 import com.kotlinnlp.neuralparser.language.Sentence
+import java.io.File
 
 /**
  * @index  index gets the nth element
@@ -38,9 +39,11 @@ fun List<Int>.getOrElse(index: Int?, defaultValue: Int): Int =
  */
 fun ArrayList<Sentence>.loadFromTreeBank(filePath: String,
                                          maxSentences: Int? = null,
-                                         skipNonProjective: Boolean = false) =
+                                         skipNonProjective: Boolean = false) {
 
-  CoNLLReader.fromFile(filePath).forEachIndexed { index, sentence ->
+  var index = 0
+
+  CoNLLReader.forEachSentence(File(filePath)) { sentence ->
 
     if (maxSentences == null || index < maxSentences) {
 
@@ -50,4 +53,7 @@ fun ArrayList<Sentence>.loadFromTreeBank(filePath: String,
 
       if (!skip) this.add(Sentence.fromCoNLL(sentence))
     }
+
+    index++
   }
+}
