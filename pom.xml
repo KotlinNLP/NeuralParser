@@ -63,7 +63,7 @@
         <dokka.version>0.9.16</dokka.version>
         <surfire.version>2.19.1</surfire.version>
         <conllio.version>0.2.0</conllio.version>
-        <simplednn.version>0.9.1</simplednn.version>
+        <simplednn.version>0.9.2</simplednn.version>
         <syntaxdecoder.version>0.2.0</syntaxdecoder.version>
         <dependencytree.version>0.3.1</dependencytree.version>
         <utils.version>2.1.0</utils.version>
