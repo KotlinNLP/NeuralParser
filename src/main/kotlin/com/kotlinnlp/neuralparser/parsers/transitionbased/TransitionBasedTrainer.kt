@@ -87,9 +87,8 @@ abstract class TransitionBasedTrainer<
    * Train the Transition System with the given [sentence].
    *
    * @param sentence a sentence
-   * @param goldPOSSentence an optional sentence with gold annotated POS in its dependency tree
    */
-  override fun trainSentence(sentence: Sentence, goldPOSSentence: Sentence?) {
+  override fun trainSentence(sentence: Sentence) {
 
     val context: InputContextType = this.neuralParser.buildContext(sentence, trainingMode = true)
     val goldTree: DependencyTree = checkNotNull(sentence.dependencyTree) {
@@ -135,22 +134,22 @@ abstract class TransitionBasedTrainer<
   /**
    * Update the neural components of the parser.
    */
-  abstract protected fun updateNeuralComponents()
+  protected abstract fun updateNeuralComponents()
 
   /**
    * Callback called before the learning of a sentence.
    */
-  abstract protected fun beforeSentenceLearning(context: InputContextType)
+  protected abstract fun beforeSentenceLearning(context: InputContextType)
 
   /**
    * Callback called after the learning of a sentence.
    */
-  abstract protected fun afterSentenceLearning(context: InputContextType)
+  protected abstract fun afterSentenceLearning(context: InputContextType)
 
   /**
    * Callback called before applying an action.
    */
-  abstract protected fun beforeApplyAction(
+  protected abstract fun beforeApplyAction(
     action: Transition<TransitionType, StateType>.Action,
     context: InputContextType)
 }

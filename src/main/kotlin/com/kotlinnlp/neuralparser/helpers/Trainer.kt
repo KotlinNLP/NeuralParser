@@ -60,21 +60,17 @@ abstract class Trainer(
    * Train the [neuralParser] with the given sentences.
    *
    * @param trainingSentences the sentences used to train the parser
-   * @param goldPOSSentences optional sentences with gold annotated POS in their dependency trees (default = null)
    * @param shuffler a shuffle to shuffle the sentences at each epoch (can be null)
    */
   fun train(trainingSentences: ArrayList<Sentence>,
-            goldPOSSentences: ArrayList<Sentence>? = null,
             shuffler: Shuffler? = Shuffler(enablePseudoRandom = true, seed = 743)) {
-
-    require(goldPOSSentences == null || trainingSentences.size == goldPOSSentences.size)
 
     (0 until this.epochs).forEach { i ->
 
       this.logTrainingStart(epochIndex = i)
 
       this.newEpoch()
-      this.trainEpoch(trainingSentences = trainingSentences, goldPOSSentences = goldPOSSentences, shuffler = shuffler)
+      this.trainEpoch(trainingSentences = trainingSentences, shuffler = shuffler)
 
       this.logTrainingEnd()
 
@@ -93,11 +89,9 @@ abstract class Trainer(
    * Train the Transition System.
    *
    * @param trainingSentences the training sentences
-   * @param goldPOSSentences optional sentences with gold annotated POS in their dependency trees
    * @param shuffler a shuffle to shuffle the sentences at each epoch (can be null)
    */
   private fun trainEpoch(trainingSentences: ArrayList<Sentence>,
-                         goldPOSSentences: ArrayList<Sentence>?,
                          shuffler: Shuffler?) {
 
     val progress = ProgressIndicatorBar(trainingSentences.size)
@@ -110,9 +104,7 @@ abstract class Trainer(
 
       progress.tick()
 
-      this.trainSentence(
-        sentence = trainingSentences[sentenceIndex],
-        goldPOSSentence = goldPOSSentences?.get(sentenceIndex))
+      this.trainSentence(trainingSentences[sentenceIndex])
 
       if (endOfBatch && this.getRelevantErrorsCount() >= this.minRelevantErrorsCountToUpdate) {
         this.update()
@@ -206,9 +198,8 @@ abstract class Trainer(
    * Train the [neuralParser] with the given [sentence].
    *
    * @param sentence a sentence
-   * @param goldPOSSentence an optional sentence with gold annotated POS in its dependency tree
    */
-  protected abstract fun trainSentence(sentence: Sentence, goldPOSSentence: Sentence?)
+  protected abstract fun trainSentence(sentence: Sentence)
 
   /**
    * @return the count of the relevant errors
