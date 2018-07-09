@@ -138,7 +138,7 @@ abstract class MPEmbeddingsActionsScorer<
   /**
    * The [network] group id of this transition.
    */
-  abstract protected val Transition<TransitionType, StateType>.Action.outcomeIndex: Int
+  protected abstract val Transition<TransitionType, StateType>.Action.outcomeIndex: Int
 
   /**
    * The group id of this transition.

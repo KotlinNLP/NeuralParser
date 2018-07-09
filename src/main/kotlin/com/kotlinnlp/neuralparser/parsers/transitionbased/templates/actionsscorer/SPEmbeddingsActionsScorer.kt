@@ -56,7 +56,7 @@ abstract class SPEmbeddingsActionsScorer<
   /**
    * The [network] outcome index of this action.
    */
-  abstract protected val Transition<TransitionType, StateType>.Action.outcomeIndex: Int
+  protected abstract val Transition<TransitionType, StateType>.Action.outcomeIndex: Int
 
   /**
    * Assign scores to the actions contained into the given [decodingContext] using the features contained in it and the

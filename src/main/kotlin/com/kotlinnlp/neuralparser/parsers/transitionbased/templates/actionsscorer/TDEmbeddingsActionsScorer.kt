@@ -58,12 +58,12 @@ abstract class TDEmbeddingsActionsScorer<
   /**
    * The [deprelNetwork] outcome index of this action.
    */
-  abstract protected val Transition<TransitionType, StateType>.Action.outcomeIndex: Int
+  protected abstract val Transition<TransitionType, StateType>.Action.outcomeIndex: Int
 
   /**
    * The [transitionNetwork] outcome index of this transition.
    */
-  abstract protected val Transition<TransitionType, StateType>.outcomeIndex: Int
+  protected abstract val Transition<TransitionType, StateType>.outcomeIndex: Int
 
   /**
    * Assign scores to the actions contained into the given [decodingContext] using the features contained in it and the

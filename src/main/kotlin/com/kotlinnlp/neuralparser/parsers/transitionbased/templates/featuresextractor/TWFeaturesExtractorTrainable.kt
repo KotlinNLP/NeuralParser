@@ -44,7 +44,7 @@ abstract class TWFeaturesExtractorTrainable<
    *
    * @return the tokens window as list of Int
    */
-  abstract protected fun getTokensWindow(stateView: StateViewType): List<Int?>
+  protected abstract fun getTokensWindow(stateView: StateViewType): List<Int?>
 
   /**
    * @param tokenId a token id
@@ -52,7 +52,7 @@ abstract class TWFeaturesExtractorTrainable<
    *
    * @return the token representation as dense array
    */
-  abstract protected fun getTokenEncoding(tokenId: Int?, context: InputContextType): DenseNDArray
+  protected abstract fun getTokenEncoding(tokenId: Int?, context: InputContextType): DenseNDArray
 
   /**
    * Extract features from the given [stateView] and [context].
