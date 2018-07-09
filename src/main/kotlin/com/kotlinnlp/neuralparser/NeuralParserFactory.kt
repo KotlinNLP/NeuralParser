@@ -7,6 +7,8 @@
 
 package com.kotlinnlp.neuralparser
 
+import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
+import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserFactory
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserModel
 
@@ -33,6 +35,8 @@ object NeuralParserFactory {
       model = model,
       beamSize = beamSize,
       maxParallelThreads = maxParallelThreads)
+
+    is LHRModel -> LHRParser(model)
 
     else -> throw RuntimeException("Invalid parser model")
   }
