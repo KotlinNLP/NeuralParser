@@ -5,22 +5,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-import com.kotlinnlp.neuralparser.helpers.Validator
+package transitionbased
+
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arceagerspine.BiRNNArcEagerSpineParser
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arceagerspine.BiRNNArcEagerSpineParserModel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple.BiRNNParserTrainer
+import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.simple.BiRNNArcStandardParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.simple.BiRNNArcStandardParserModel
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
+import com.kotlinnlp.simplednn.core.functionalities.activations.ReLU
+import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
-import com.kotlinnlp.syntaxdecoder.modules.actionserrorssetter.HingeLossActionsErrorsSetter
-import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arceagerspine.ArcEagerSpineOracle
-import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.AverageAccumulator
+import com.kotlinnlp.syntaxdecoder.modules.actionserrorssetter.SoftmaxCrossEntropyActionsErrorsSetter
+import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.ArcStandardOracle
+import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.LogarithmicAccumulator
 
 /**
- * Train a [BiRNNArcEagerSpineParser].
+ * Train a [BiRNNArcStandardParser] with the SoftmaxCrossEntropy loss function.
  *
  * Command line arguments:
  *  1. The number of training epochs
@@ -42,31 +46,36 @@ fun main(args: Array<String>) {
   println("Creating corpus dictionary...")
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
 
-  val parserModel = BiRNNArcEagerSpineParserModel(
-    scoreAccumulatorFactory = AverageAccumulator.Factory,
+  val posEmbeddingSize = 25
+  val wordEmbeddingSize = 50
+
+  val parserModel = BiRNNArcStandardParserModel(
+    scoreAccumulatorFactory = LogarithmicAccumulator.Factory,
     corpusDictionary = corpusDictionary,
-    wordEmbeddingSize = 50,
-    posEmbeddingSize = 25,
+    wordEmbeddingSize = wordEmbeddingSize,
+    posEmbeddingSize = posEmbeddingSize,
     biRNNConnectionType = LayerType.Connection.LSTM,
     biRNNHiddenActivation = Tanh(),
     biRNNLayers = 1,
-    scorerNetworksConfig = ScorerNetworkConfiguration(
-      hiddenSize = 100,
-      hiddenActivation = Tanh(),
-      outputActivation = null))
+    scorerNetworkConfig = ScorerNetworkConfiguration(
+      inputDropout = 0.4,
+      hiddenSize = 200,
+      hiddenActivation = ReLU(),
+      hiddenDropout = 0.4,
+      outputActivation = Softmax()))
 
-  val parser = BiRNNArcEagerSpineParser(
+  val parser = BiRNNArcStandardParser(
     model = parserModel,
     wordDropoutCoefficient = 0.25,
-    posDropoutCoefficient = 0.0)
+    posDropoutCoefficient = 0.15)
 
   val trainer = BiRNNParserTrainer(
     neuralParser = parser,
-    oracleFactory = ArcEagerSpineOracle,
+    actionsErrorsSetter = SoftmaxCrossEntropyActionsErrorsSetter(),
+    oracleFactory = ArcStandardOracle,
     epochs = epochs,
     batchSize = 1,
     minRelevantErrorsCountToUpdate = 50,
-    actionsErrorsSetter = HingeLossActionsErrorsSetter(learningMarginThreshold = 1.0),
     validator = Validator(
       neuralParser = parser,
       goldFilePath = validationSetPath),

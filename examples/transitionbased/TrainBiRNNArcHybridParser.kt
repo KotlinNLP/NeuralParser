@@ -5,24 +5,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-import com.kotlinnlp.neuralparser.helpers.Validator
-import com.kotlinnlp.neuralparser.language.CorpusDictionary
+package transitionbased
+
 import com.kotlinnlp.neuralparser.language.Sentence
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcdistance.BiRNNArcDistanceParser
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcdistance.BiRNNArcDistanceParserModel
+import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple.BiRNNParserTrainer
+import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.archybrid.BiRNNArcHybridParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.archybrid.BiRNNArcHybridParserModel
+import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.functionalities.activations.ReLU
 import com.kotlinnlp.simplednn.core.functionalities.activations.Sigmoid
-import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.syntaxdecoder.modules.actionserrorssetter.HingeLossActionsErrorsSetter
-import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcdistance.ArcDistanceOracle
+import com.kotlinnlp.syntaxdecoder.transitionsystem.models.archybrid.ArcHybridNPOracle
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.AverageAccumulator
 
 /**
- * Train a [BiRNNArcDistanceParser].
+ * Train a [BiRNNArcHybridParser].
  *
  * Command line arguments:
  *  1. The number of training epochs
@@ -44,14 +46,11 @@ fun main(args: Array<String>) {
   println("Creating corpus dictionary...")
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
 
-  val posEmbeddingSize = 25
-  val wordEmbeddingSize = 50
-
-  val parserModel = BiRNNArcDistanceParserModel(
+  val parserModel = BiRNNArcHybridParserModel(
     scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
-    wordEmbeddingSize = wordEmbeddingSize,
-    posEmbeddingSize = posEmbeddingSize,
+    wordEmbeddingSize = 50,
+    posEmbeddingSize = 25,
     biRNNConnectionType = LayerType.Connection.LSTM,
     biRNNHiddenActivation = Tanh(),
     biRNNLayers = 1,
@@ -62,14 +61,14 @@ fun main(args: Array<String>) {
       hiddenDropout = 0.4,
       outputActivation = Sigmoid()))
 
-  val parser = BiRNNArcDistanceParser(
+  val parser = BiRNNArcHybridParser(
     model = parserModel,
     wordDropoutCoefficient = 0.25,
     posDropoutCoefficient = 0.15)
 
   val trainer = BiRNNParserTrainer(
     neuralParser = parser,
-    oracleFactory = ArcDistanceOracle,
+    oracleFactory = ArcHybridNPOracle,
     epochs = epochs,
     batchSize = 1,
     minRelevantErrorsCountToUpdate = 50,

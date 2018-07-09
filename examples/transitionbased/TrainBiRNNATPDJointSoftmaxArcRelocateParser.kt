@@ -5,6 +5,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
+package transitionbased
+
 import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
@@ -15,14 +17,15 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcrelocate.atp
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserTrainer
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
+import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
-import com.kotlinnlp.syntaxdecoder.modules.actionserrorssetter.HingeLossActionsErrorsSetter
+import com.kotlinnlp.syntaxdecoder.modules.actionserrorssetter.SoftmaxCrossEntropyActionsErrorsSetter
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcrelocate.ArcRelocateOracle
-import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.AverageAccumulator
+import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.LogarithmicAccumulator
 
 /**
- * Train a [BiRNNATPDJointArcRelocateParser].
+ * Train a [BiRNNATPDJointArcRelocateParser] with a Softmax activations of the actions scores.
  *
  * Command line arguments:
  *  1. The number of training epochs
@@ -40,7 +43,7 @@ fun main(args: Array<String>) {
 
   println("Loading training sentences...")
   val trainingSentences = ArrayList<Sentence>()
-  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true)
+  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true, maxSentences = 1000)
 
   println("Creating corpus dictionary...")
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
@@ -53,8 +56,8 @@ fun main(args: Array<String>) {
   }
 
   val parserModel = BiRNNATPDJointArcRelocateParserModel(
-    actionsScoresActivation = null,
-    scoreAccumulatorFactory = AverageAccumulator.Factory,
+    actionsScoresActivation = Softmax(),
+    scoreAccumulatorFactory = LogarithmicAccumulator.Factory,
     corpusDictionary = corpusDictionary,
     nounDefaultPOSTag = POSTag("NN"),
     otherDefaultPOSTags = listOf(POSTag("JJ")),
@@ -81,7 +84,7 @@ fun main(args: Array<String>) {
 
   val trainer = BiRNNAmbiguousPOSParserTrainer(
     neuralParser = parser,
-    actionsErrorsSetter = HingeLossActionsErrorsSetter(learningMarginThreshold = 1.0),
+    actionsErrorsSetter = SoftmaxCrossEntropyActionsErrorsSetter(minRelevantError = 1.0e-02),
     oracleFactory = ArcRelocateOracle,
     epochs = epochs,
     batchSize = 1,

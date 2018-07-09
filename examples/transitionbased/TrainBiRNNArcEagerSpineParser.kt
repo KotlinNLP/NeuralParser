@@ -5,31 +5,30 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-import com.kotlinnlp.dependencytree.POSTag
+package transitionbased
+
+import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
-import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.tpd.BiRNNTPDArcStandardParser
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.tpd.BiRNNTPDArcStandardParserModel
-import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserTrainer
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arceagerspine.BiRNNArcEagerSpineParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arceagerspine.BiRNNArcEagerSpineParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple.BiRNNParserTrainer
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
-import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.syntaxdecoder.modules.actionserrorssetter.HingeLossActionsErrorsSetter
-import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.ArcStandardOracle
+import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arceagerspine.ArcEagerSpineOracle
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.AverageAccumulator
 
 /**
- * Train a [BiRNNTPDArcStandardParser].
+ * Train a [BiRNNArcEagerSpineParser].
  *
  * Command line arguments:
  *  1. The number of training epochs
  *  2. The file path of the training set
  *  3. The file path of the validation set
  *  4. The file path of the model
- *  5. The file path of the pre-trained word embeddings (optional)
  */
 fun main(args: Array<String>) {
 
@@ -45,41 +44,31 @@ fun main(args: Array<String>) {
   println("Creating corpus dictionary...")
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
 
-  val preTrainedEmbeddings: EmbeddingsMap<String>? = if (args.size > 4) {
-    println("Loading pre-trained word embeddings...")
-    EmbeddingsMap.load(args[4])
-  } else {
-    null
-  }
-
-  val parserModel = BiRNNTPDArcStandardParserModel(
-    actionsScoresActivation = null,
+  val parserModel = BiRNNArcEagerSpineParserModel(
     scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
-    nounDefaultPOSTag = POSTag("NN"),
-    otherDefaultPOSTags = listOf(POSTag("JJ")),
-    wordEmbeddingSize = 100,
+    wordEmbeddingSize = 50,
     posEmbeddingSize = 25,
-    preTrainedWordEmbeddings = preTrainedEmbeddings,
-    biRNNConnectionType = LayerType.Connection.RAN,
+    biRNNConnectionType = LayerType.Connection.LSTM,
     biRNNHiddenActivation = Tanh(),
-    biRNNLayers = 2,
+    biRNNLayers = 1,
     scorerNetworksConfig = ScorerNetworkConfiguration(
       hiddenSize = 100,
       hiddenActivation = Tanh(),
       outputActivation = null))
 
-  val parser = BiRNNTPDArcStandardParser(
+  val parser = BiRNNArcEagerSpineParser(
     model = parserModel,
-    wordDropoutCoefficient = 0.25)
+    wordDropoutCoefficient = 0.25,
+    posDropoutCoefficient = 0.0)
 
-  val trainer = BiRNNAmbiguousPOSParserTrainer(
+  val trainer = BiRNNParserTrainer(
     neuralParser = parser,
-    actionsErrorsSetter = HingeLossActionsErrorsSetter(learningMarginThreshold = 1.0),
-    oracleFactory = ArcStandardOracle,
+    oracleFactory = ArcEagerSpineOracle,
     epochs = epochs,
     batchSize = 1,
     minRelevantErrorsCountToUpdate = 50,
+    actionsErrorsSetter = HingeLossActionsErrorsSetter(learningMarginThreshold = 1.0),
     validator = Validator(
       neuralParser = parser,
       goldFilePath = validationSetPath),

@@ -5,13 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
+package transitionbased
+
 import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.atpdjoint.BiRNNATPDJointArcStandardParser
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.atpdjoint.BiRNNATPDJointArcStandardParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.tpdjoint.BiRNNTPDJointArcStandardParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.tpdjoint.BiRNNTPDJointArcStandardParserModel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserTrainer
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
@@ -22,7 +24,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.ArcStanda
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.AverageAccumulator
 
 /**
- * Train a [BiRNNATPDJointArcStandardParser].
+ * Train a [BiRNNTPDJointArcStandardParser].
  *
  * Command line arguments:
  *  1. The number of training epochs
@@ -52,7 +54,7 @@ fun main(args: Array<String>) {
     null
   }
 
-  val parserModel = BiRNNATPDJointArcStandardParserModel(
+  val parserModel = BiRNNTPDJointArcStandardParserModel(
     actionsScoresActivation = null,
     scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
@@ -60,7 +62,6 @@ fun main(args: Array<String>) {
     otherDefaultPOSTags = listOf(POSTag("JJ")),
     wordEmbeddingSize = 100,
     posEmbeddingSize = 25,
-    actionsEmbeddingsSize = 25,
     preTrainedWordEmbeddings = preTrainedEmbeddings,
     biRNNConnectionType = LayerType.Connection.RAN,
     biRNNHiddenActivation = Tanh(),
@@ -68,14 +69,9 @@ fun main(args: Array<String>) {
     scorerNetworksConfig = ScorerNetworkConfiguration(
       hiddenSize = 100,
       hiddenActivation = Tanh(),
-      outputActivation = null),
-    appliedActionsNetworkConfig = BiRNNATPDJointArcStandardParserModel.AppliedActionsNetworkConfiguration(
-      outputSize = 100,
-      activation = Tanh(),
-      connectionType = LayerType.Connection.RAN
-    ))
+      outputActivation = null))
 
-  val parser = BiRNNATPDJointArcStandardParser(
+  val parser = BiRNNTPDJointArcStandardParser(
     model = parserModel,
     wordDropoutCoefficient = 0.25)
 

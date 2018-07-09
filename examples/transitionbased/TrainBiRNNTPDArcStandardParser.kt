@@ -5,25 +5,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
+package transitionbased
+
 import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcrelocate.atpdjoint.BiRNNATPDJointArcRelocateParser
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcrelocate.atpdjoint.BiRNNATPDJointArcRelocateParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.tpd.BiRNNTPDArcStandardParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.tpd.BiRNNTPDArcStandardParserModel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserTrainer
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
-import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
-import com.kotlinnlp.syntaxdecoder.modules.actionserrorssetter.SoftmaxCrossEntropyActionsErrorsSetter
-import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcrelocate.ArcRelocateOracle
-import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.LogarithmicAccumulator
+import com.kotlinnlp.syntaxdecoder.modules.actionserrorssetter.HingeLossActionsErrorsSetter
+import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.ArcStandardOracle
+import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.AverageAccumulator
 
 /**
- * Train a [BiRNNATPDJointArcRelocateParser] with a Softmax activations of the actions scores.
+ * Train a [BiRNNTPDArcStandardParser].
  *
  * Command line arguments:
  *  1. The number of training epochs
@@ -41,7 +42,7 @@ fun main(args: Array<String>) {
 
   println("Loading training sentences...")
   val trainingSentences = ArrayList<Sentence>()
-  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true, maxSentences = 1000)
+  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true)
 
   println("Creating corpus dictionary...")
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
@@ -53,15 +54,14 @@ fun main(args: Array<String>) {
     null
   }
 
-  val parserModel = BiRNNATPDJointArcRelocateParserModel(
-    actionsScoresActivation = Softmax(),
-    scoreAccumulatorFactory = LogarithmicAccumulator.Factory,
+  val parserModel = BiRNNTPDArcStandardParserModel(
+    actionsScoresActivation = null,
+    scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
     nounDefaultPOSTag = POSTag("NN"),
     otherDefaultPOSTags = listOf(POSTag("JJ")),
     wordEmbeddingSize = 100,
     posEmbeddingSize = 25,
-    actionsEmbeddingsSize = 25,
     preTrainedWordEmbeddings = preTrainedEmbeddings,
     biRNNConnectionType = LayerType.Connection.RAN,
     biRNNHiddenActivation = Tanh(),
@@ -69,21 +69,16 @@ fun main(args: Array<String>) {
     scorerNetworksConfig = ScorerNetworkConfiguration(
       hiddenSize = 100,
       hiddenActivation = Tanh(),
-      outputActivation = null),
-    appliedActionsNetworkConfig = BiRNNATPDJointArcRelocateParserModel.AppliedActionsNetworkConfiguration(
-      outputSize = 100,
-      activation = Tanh(),
-      connectionType = LayerType.Connection.RAN
-    ))
+      outputActivation = null))
 
-  val parser = BiRNNATPDJointArcRelocateParser(
+  val parser = BiRNNTPDArcStandardParser(
     model = parserModel,
     wordDropoutCoefficient = 0.25)
 
   val trainer = BiRNNAmbiguousPOSParserTrainer(
     neuralParser = parser,
-    actionsErrorsSetter = SoftmaxCrossEntropyActionsErrorsSetter(minRelevantError = 1.0e-02),
-    oracleFactory = ArcRelocateOracle,
+    actionsErrorsSetter = HingeLossActionsErrorsSetter(learningMarginThreshold = 1.0),
+    oracleFactory = ArcStandardOracle,
     epochs = epochs,
     batchSize = 1,
     minRelevantErrorsCountToUpdate = 50,

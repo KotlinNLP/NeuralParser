@@ -5,22 +5,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-import com.kotlinnlp.neuralparser.language.Sentence
-import com.kotlinnlp.neuralparser.language.CorpusDictionary
-import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple.BiRNNParserTrainer
+package transitionbased
+
 import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.language.CorpusDictionary
+import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.td.BiRNNTDArcStandardParser
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.td.BiRNNTDArcStandardParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcdistance.BiRNNArcDistanceParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcdistance.BiRNNArcDistanceParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple.BiRNNParserTrainer
+import com.kotlinnlp.simplednn.core.functionalities.activations.ReLU
+import com.kotlinnlp.simplednn.core.functionalities.activations.Sigmoid
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.syntaxdecoder.modules.actionserrorssetter.HingeLossActionsErrorsSetter
-import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.ArcStandardOracle
+import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcdistance.ArcDistanceOracle
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.AverageAccumulator
 
 /**
- * Train a [BiRNNTDArcStandardParser].
+ * Train a [BiRNNArcDistanceParser].
  *
  * Command line arguments:
  *  1. The number of training epochs
@@ -37,36 +41,41 @@ fun main(args: Array<String>) {
 
   println("Loading training sentences...")
   val trainingSentences = ArrayList<Sentence>()
-  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true)
+  trainingSentences.loadFromTreeBank(trainingSetPath)
 
   println("Creating corpus dictionary...")
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
 
-  val parserModel = BiRNNTDArcStandardParserModel(
+  val posEmbeddingSize = 25
+  val wordEmbeddingSize = 50
+
+  val parserModel = BiRNNArcDistanceParserModel(
     scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
-    wordEmbeddingSize = 100,
-    posEmbeddingSize = 25,
-    biRNNConnectionType = LayerType.Connection.RAN,
+    wordEmbeddingSize = wordEmbeddingSize,
+    posEmbeddingSize = posEmbeddingSize,
+    biRNNConnectionType = LayerType.Connection.LSTM,
     biRNNHiddenActivation = Tanh(),
-    biRNNLayers = 2,
+    biRNNLayers = 1,
     scorerNetworkConfig = ScorerNetworkConfiguration(
+      inputDropout = 0.4,
       hiddenSize = 100,
-      hiddenActivation = Tanh(),
-      outputActivation = null))
+      hiddenActivation = ReLU(),
+      hiddenDropout = 0.4,
+      outputActivation = Sigmoid()))
 
-  val parser = BiRNNTDArcStandardParser(
+  val parser = BiRNNArcDistanceParser(
     model = parserModel,
     wordDropoutCoefficient = 0.25,
-    posDropoutCoefficient = 0.0)
+    posDropoutCoefficient = 0.15)
 
   val trainer = BiRNNParserTrainer(
     neuralParser = parser,
-    actionsErrorsSetter = HingeLossActionsErrorsSetter(learningMarginThreshold = 1.0),
-    oracleFactory = ArcStandardOracle,
+    oracleFactory = ArcDistanceOracle,
     epochs = epochs,
     batchSize = 1,
     minRelevantErrorsCountToUpdate = 50,
+    actionsErrorsSetter = HingeLossActionsErrorsSetter(learningMarginThreshold = 0.1), // 10% of the Sigmoid scale
     validator = Validator(
       neuralParser = parser,
       goldFilePath = validationSetPath),

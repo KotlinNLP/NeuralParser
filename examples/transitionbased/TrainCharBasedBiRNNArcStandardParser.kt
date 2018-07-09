@@ -5,24 +5,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
+package transitionbased
+
 import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
-import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple.BiRNNParserTrainer
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.simple.BiRNNArcStandardParser
-import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.simple.BiRNNArcStandardParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.charbased.CharBasedBiRNNArcStandardParser
+import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.charbased.CharBasedBiRNNArcStandardParserModel
+import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.charbased.CharBasedBiRNNParserTrainer
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.functionalities.activations.ReLU
-import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
+import com.kotlinnlp.simplednn.core.functionalities.activations.Sigmoid
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
-import com.kotlinnlp.syntaxdecoder.modules.actionserrorssetter.SoftmaxCrossEntropyActionsErrorsSetter
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.ArcStandardOracle
-import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.LogarithmicAccumulator
+import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.AverageAccumulator
 
 /**
- * Train a [BiRNNArcStandardParser] with the SoftmaxCrossEntropy loss function.
+ * Train a [CharBasedBiRNNArcStandardParser].
  *
  * Command line arguments:
  *  1. The number of training epochs
@@ -39,41 +40,38 @@ fun main(args: Array<String>) {
 
   println("Loading training sentences...")
   val trainingSentences = ArrayList<Sentence>()
-  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true)
+  trainingSentences.loadFromTreeBank(trainingSetPath)
 
   println("Creating corpus dictionary...")
   val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
 
-  val posEmbeddingSize = 25
-  val wordEmbeddingSize = 50
-
-  val parserModel = BiRNNArcStandardParserModel(
-    scoreAccumulatorFactory = LogarithmicAccumulator.Factory,
+  val parserModel = CharBasedBiRNNArcStandardParserModel(
+    scoreAccumulatorFactory = AverageAccumulator.Factory,
     corpusDictionary = corpusDictionary,
-    wordEmbeddingSize = wordEmbeddingSize,
-    posEmbeddingSize = posEmbeddingSize,
-    biRNNConnectionType = LayerType.Connection.LSTM,
+    charEmbeddingSize = 25,
+    charsEncodingSize = 25,
+    wordEmbeddingSize = 50,
+    hanAttentionSize = 25,
+    hanConnectionType = LayerType.Connection.GRU,
+    hanHiddenActivation = Tanh(),
+    biRNNConnectionType = LayerType.Connection.GRU,
     biRNNHiddenActivation = Tanh(),
-    biRNNLayers = 1,
     scorerNetworkConfig = ScorerNetworkConfiguration(
       inputDropout = 0.4,
-      hiddenSize = 200,
+      hiddenSize = 100,
       hiddenActivation = ReLU(),
       hiddenDropout = 0.4,
-      outputActivation = Softmax()))
+      outputActivation = Sigmoid()))
 
-  val parser = BiRNNArcStandardParser(
-    model = parserModel,
-    wordDropoutCoefficient = 0.25,
-    posDropoutCoefficient = 0.15)
+  val parser = CharBasedBiRNNArcStandardParser(model = parserModel, wordDropoutCoefficient = 0.25)
 
-  val trainer = BiRNNParserTrainer(
+  val trainer = CharBasedBiRNNParserTrainer(
     neuralParser = parser,
-    actionsErrorsSetter = SoftmaxCrossEntropyActionsErrorsSetter(),
     oracleFactory = ArcStandardOracle,
     epochs = epochs,
     batchSize = 1,
     minRelevantErrorsCountToUpdate = 50,
+    learningMarginThreshold = 0.1, // 10% of the Sigmoid scale
     validator = Validator(
       neuralParser = parser,
       goldFilePath = validationSetPath),
