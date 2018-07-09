@@ -81,7 +81,7 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
   /**
    * @return a LSSEncoder
    */
-  fun buildEncoder() = LSSEncoder(
+  private fun buildEncoder() = LSSEncoder(
     tokensEncoder = this.tokensEncoderBuilder.invoke(),
     contextEncoder = this.contextEncoderBuilder.invoke(),
     headsEncoder = this.headsEncoderBuilder.invoke(),
@@ -110,7 +110,7 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
    * @param dependencyTree the dependency tree to annotate with the heads
    * @param scores the attachment scores
    */
-  fun assignHeads(dependencyTree: DependencyTree, scores: ArcScores) {
+  private fun assignHeads(dependencyTree: DependencyTree, scores: ArcScores) {
 
     val (topId: Int, topScore: Double) = scores.findHighestScoringTop()
 
