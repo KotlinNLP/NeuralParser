@@ -68,12 +68,12 @@ abstract class CharBasedBiRNNParser<
   /**
    * A [DeepBiRNNEncoder] to encode the tokens of a sentence.
    */
-  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(this.model.deepBiRNN)
+  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(model.deepBiRNN)
 
   /**
    * A [HANEncodersPool] to encode the chars of a token.
    */
-  private val hanEncodersPool = HANEncodersPool<DenseNDArray>(model = this.model.han)
+  private val hanEncodersPool = HANEncodersPool<DenseNDArray>(model.han)
 
   /**
    * @param sentence a sentence
