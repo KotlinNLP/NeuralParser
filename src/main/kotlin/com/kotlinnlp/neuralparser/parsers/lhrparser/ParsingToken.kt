@@ -16,9 +16,11 @@ import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
  * @param form the form
  * @param position the position of the token in its sentence
  * @param lexicalForms the list of morphological interpretations of the token
+ * @param posTag the best part-of-speech tags associated to the token (can be null) TODO: find a better solution
  */
 data class ParsingToken(
   val id: Int,
   override val form: String,
   override val position: Position,
-  val lexicalForms: List<MorphologyEntry> = emptyList()) : RealToken
+  val lexicalForms: List<MorphologyEntry> = emptyList(),
+  val posTag: String?) : RealToken

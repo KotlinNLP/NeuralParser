@@ -58,7 +58,7 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
   override fun parse(sentence: Sentence): DependencyTree {
 
     val parsingSentence = ParsingSentence(tokens = (sentence.tokens.mapIndexed { index, token ->
-      ParsingToken(index, token.word, position = Position(0, 0, 0))
+      ParsingToken(index, token.word, position = Position(0, 0, 0), posTag = token.pos)
     }))
 
     val lss: LatentSyntacticStructure = this.lssEncoder.encode(parsingSentence)

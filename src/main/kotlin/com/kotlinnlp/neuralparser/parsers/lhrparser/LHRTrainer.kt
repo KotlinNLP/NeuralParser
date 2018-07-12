@@ -197,7 +197,7 @@ class LHRTrainer(
     }
 
     val parsingSentence = ParsingSentence(tokens = (sentence.tokens.mapIndexed { index, token ->
-      ParsingToken(index, token.word, position = Position(0, 0, 0))
+      ParsingToken(index, token.word, position = Position(0, 0, 0), posTag = token.pos)
     }))
 
     this.beforeSentenceLearning()
