@@ -77,30 +77,31 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
 
     val dependencyTree = DependencyTree(lss.size)
 
-    dependencyTree.let {
-      this.assignHeads(it, scores)
-      this.fixCycles(it, scores)
-      this.assignLabels(it, lss)
+    with(dependencyTree) {
+      assignHeads(scores)
+      fixCycles(scores)
+      assignLabels(lss)
     }
 
     return dependencyTree
   }
 
   /**
-   * @param dependencyTree the dependency tree to annotate with the heads
+   * Assign the heads to this dependency tree using the highest scoring arcs from the given [scores].
+   *
    * @param scores the attachment scores
    */
-  fun assignHeads(dependencyTree: DependencyTree, scores: ArcScores) {
+  fun DependencyTree.assignHeads(scores: ArcScores) {
 
     val (topId: Int, topScore: Double) = scores.findHighestScoringTop()
 
-    dependencyTree.setAttachmentScore(dependent = topId, score = topScore)
+    this.setAttachmentScore(dependent = topId, score = topScore)
 
     scores.filterNot { it.key == topId }.forEach { depId, _ ->
 
       val (govId: Int, score: Double) = scores.findHighestScoringHead(dependentId = depId, except = listOf(rootId))!!
 
-      dependencyTree.setArc(
+      this.setArc(
         dependent = depId,
         governor = govId,
         allowCycle = true,
@@ -109,22 +110,20 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
   }
 
   /**
-   * @param dependencyTree the dependency tree to fix
-   * @param scores the attachment scores
+   * Fix possible cycles using the given [scores].
    */
-  private fun fixCycles(dependencyTree: DependencyTree, scores: ArcScores) {
-    CyclesFixer(dependencyTree, scores).fixCycles()
-  }
+  private fun DependencyTree.fixCycles(scores: ArcScores) = CyclesFixer(this, scores).fixCycles()
 
   /**
-   * @param dependencyTree the dependency tree to annotate with pos-tags and deprels
+   * Annotate this dependency tree with the labels.
+   *
    * @param lss the latent syntactic structure
    */
-  private fun assignLabels(dependencyTree: DependencyTree, lss: LatentSyntacticStructure) {
+  private fun DependencyTree.assignLabels(lss: LatentSyntacticStructure) {
 
-    this.deprelLabeler?.let {
-      it.forward(DeprelLabeler.Input(lss, dependencyTree)).forEachIndexed { tokenId, prediction ->
-        dependencyTree.setDeprel(tokenId, it.getDeprel(prediction.deprels.argMaxIndex()))
+    this@LHRParser.deprelLabeler?.let {
+      it.forward(DeprelLabeler.Input(lss, this)).forEachIndexed { tokenId, prediction ->
+        this.setDeprel(tokenId, it.getDeprel(prediction.deprels.argMaxIndex()))
       }
     }
   }
