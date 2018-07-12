@@ -7,20 +7,19 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
-import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
- * The latent syntactic structure encoded by the ContextEncoder and the HeadsEncoder.
+ * The latent syntactic structure encoded by the TokensEncoder, the ContextEncoder and the HeadsEncoder.
  *
- * @property tokens the list of tokens of the sentence
+ * @property sentence the sentence containing the tokens
  * @property tokensEncoding the tokens encoded by the TokensEncoder
  * @property contextVectors the context vectors encoded by the ContextEncoder
  * @property latentHeads the latent heads encoded by the HeadsEncoder
  * @property virtualRoot the vector that represents the root token of a sentence
  */
 data class LatentSyntacticStructure(
-  val tokens: List<Token>,
+  val sentence: ParsingSentence,
   val tokensEncoding: List<DenseNDArray>,
   val contextVectors: List<DenseNDArray>,
   val latentHeads: List<DenseNDArray>,
@@ -30,5 +29,5 @@ data class LatentSyntacticStructure(
   /**
    * The length of the sentence.
    */
-  val size: Int = this.tokens.size
+  val size: Int = this.sentence.tokens.size
 }
