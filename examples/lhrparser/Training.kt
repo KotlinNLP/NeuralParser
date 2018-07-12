@@ -7,36 +7,27 @@
 
 package lhrparser
 
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRTrainer
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.LossCriterionType
-import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
-import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
+import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
-import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
-import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
 import com.kotlinnlp.tokensencoder.TokensEncoderModel
-import com.kotlinnlp.tokensencoder.embeddings.POSEmbeddingsKey
-import com.kotlinnlp.tokensencoder.embeddings.WordEmbeddingsKey
-import com.kotlinnlp.tokensencoder.embeddings.dictionary.EmbeddingsEncoderByDictionaryModel
-import com.kotlinnlp.tokensencoder.embeddings.pretrained.EmbeddingsEncoderByPretrainedModel
-import com.kotlinnlp.tokensencoder.ensamble.affine.AffineTokensEncoderModel
-import com.kotlinnlp.tokensencoder.ensamble.concat.ConcatTokensEncoderModel
-import com.kotlinnlp.tokensencoder.morpho.FeaturesCollector
-import com.kotlinnlp.tokensencoder.morpho.MorphoEncoderModel
-import com.kotlinnlp.utils.DictionarySet
+import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.xenomachina.argparser.mainBody
+import com.kotlinnlp.neuralparser.language.Sentence
+import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
+import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
+import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRTrainer
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.LossCriterionType
+import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
+import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
+import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import lhrparser.utils.TrainingArgs
-import java.io.File
-import java.io.FileInputStream
 
 /**
  * Train the [LHRParser].
@@ -47,21 +38,13 @@ fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = TrainingArgs(args)
 
-  val trainingSentences: ArrayList<Sentence> = loadSentences(
+  val trainingSentences: List<Sentence> = loadSentences(
     type = "training",
     filePath = parsedArgs.trainingSetPath,
     maxSentences = parsedArgs.maxSentences,
     skipNonProjective = parsedArgs.skipNonProjective)
 
-  val goldPOSSentences: ArrayList<Sentence>? = parsedArgs.goldPosSetPath?.let {
-    loadSentences(
-      type = "gold-POS",
-      filePath = it,
-      maxSentences = parsedArgs.maxSentences,
-      skipNonProjective = parsedArgs.skipNonProjective)
-  }
-
-  val corpus: CorpusDictionary = (goldPOSSentences ?: trainingSentences).let {
+  val corpus: CorpusDictionary = trainingSentences.let {
     println("Creating corpus dictionary...")
     CorpusDictionary(it)
   }
@@ -126,9 +109,9 @@ fun buildParser(parsedArgs: TrainingArgs,
   corpusDictionary = corpus,
   tokensEncoderModel = tokensEncoderModel,
   contextBiRNNConfig = BiRNNConfig(
-      connectionType = LayerType.Connection.LSTM,
-      hiddenActivation = Tanh(),
-      numberOfLayers = parsedArgs.numOfContextLayers),
+    connectionType = LayerType.Connection.LSTM,
+    hiddenActivation = Tanh(),
+    numberOfLayers = parsedArgs.numOfContextLayers),
   headsBiRNNConfig = BiRNNConfig(
     connectionType = LayerType.Connection.LSTM,
     hiddenActivation = Tanh()),
@@ -136,10 +119,16 @@ fun buildParser(parsedArgs: TrainingArgs,
   lossCriterionType = LossCriterionType.Softmax,
   predictPosTags = !parsedArgs.noPosPrediction))
 
+fun getEmbeddingKey(sentence: com.kotlinnlp.linguisticdescription.sentence.Sentence<*>, tokenId: Int): String {
+
+  @Suppress("UNCHECKED_CAST")
+  sentence as com.kotlinnlp.linguisticdescription.sentence.Sentence<FormToken>
+
+  return sentence.tokens[tokenId].normalizedForm
+}
+
 /**
  * Build a tokens-encoder model.
- *
- * TODO: rewrite the method using building helpers
  *
  * @param parsedArgs the parsed command line arguments
  * @param corpus the corpus dictionary
@@ -150,78 +139,27 @@ fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
                             sentences: List<Sentence>,
                             corpus: CorpusDictionary): TokensEncoderModel {
 
-  when (parsedArgs.tokensEncodingType) {
+  // TODO: reimplement missing encoders
 
-    TrainingArgs.TokensEncodingType.WORD_AND_POS_EMBEDDINGS ->
+  val embeddingsMap = EmbeddingsMapByDictionary(
+    size = parsedArgs.wordEmbeddingSize,
+    dictionary = corpus.words)
 
-      return AffineTokensEncoderModel(models = listOf(
-
-        EmbeddingsEncoderByDictionaryModel(
-          embeddingsMap = EmbeddingsMapByDictionary(
-            size = parsedArgs.wordEmbeddingSize,
-            dictionary = corpus.words),
-          tokenEmbeddingKey = WordEmbeddingsKey,
-          dropoutCoefficient = parsedArgs.wordDropoutCoefficient
-        ),
-
-        EmbeddingsEncoderByDictionaryModel(
-          embeddingsMap = EmbeddingsMapByDictionary(
-            size = parsedArgs.posEmbeddingSize,
-            dictionary = DictionarySet(corpus.posTags.getElements().map { it.label })),
-          tokenEmbeddingKey = POSEmbeddingsKey,
-          dropoutCoefficient = parsedArgs.posDropoutCoefficient)),
-        activation = null,
-        tokenEncodingSize = 100
-      )
-
-    TrainingArgs.TokensEncodingType.WORD_AND_EXT_AND_POS_EMBEDDINGS ->
-
-      return ConcatTokensEncoderModel(models = listOf(
-
-        EmbeddingsEncoderByDictionaryModel(
-          embeddingsMap = EmbeddingsMapByDictionary(
-            size = parsedArgs.wordEmbeddingSize,
-            dictionary = corpus.words),
-          tokenEmbeddingKey = WordEmbeddingsKey,
-          dropoutCoefficient = parsedArgs.wordDropoutCoefficient
-        ),
-
-        EmbeddingsEncoderByPretrainedModel(
-          embeddingsMap = parsedArgs.embeddingsPath!!.let {
-            println("Loading pre-trained word embeddings from '$it'...")
-            EmbeddingsMap.load(it)
-          },
-          tokenEmbeddingKey = WordEmbeddingsKey
-        ),
-
-        EmbeddingsEncoderByDictionaryModel(
-          embeddingsMap = EmbeddingsMapByDictionary(
-            size = parsedArgs.posEmbeddingSize,
-            dictionary = DictionarySet(corpus.posTags.getElements().map { it.label })),
-          tokenEmbeddingKey = POSEmbeddingsKey,
-          dropoutCoefficient = parsedArgs.posDropoutCoefficient))
-      )
-
-    TrainingArgs.TokensEncodingType.MORPHO_FEATURES -> {
-
-      val morphoDictionary = MorphologyDictionary.load(FileInputStream(File(parsedArgs.morphoDictionaryPath!!)))
-      val lexiconDictionary = LexiconDictionary.load(parsedArgs.lexiconDictionaryPath!!)
-
-      val featuresDictionary = FeaturesCollector(
-        dictionary = morphoDictionary,
-        lexicalDictionary = lexiconDictionary,
-        langCode = parsedArgs.langCode,
-        sentences = sentences).collect()
-
-      return MorphoEncoderModel(
-        langCode = parsedArgs.langCode,
-        dictionary = morphoDictionary,
-        lexiconDictionary = lexiconDictionary,
-        featuresDictionary = featuresDictionary,
-        tokenEncodingSize = parsedArgs.wordEmbeddingSize,
-        activation = null)
-    }
+  val preEmbeddingsMap = parsedArgs.embeddingsPath!!.let {
+    println("Loading pre-trained word embeddings from '$it'...")
+    EMBDLoader().load(filename = it)
   }
+
+  return EnsembleTokensEncoderModel(models = listOf(
+    EmbeddingsEncoderModel(embeddingsMap = preEmbeddingsMap,
+      getEmbeddingKey = ::getEmbeddingKey,
+      dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+    EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
+      getEmbeddingKey = ::getEmbeddingKey,
+      dropoutCoefficient = parsedArgs.wordDropoutCoefficient)),
+    outputMergeConfiguration = AffineMerge(
+      outputSize = 100,
+      activationFunction = Tanh()))
 }
 
 /**
