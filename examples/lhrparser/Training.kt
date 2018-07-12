@@ -23,10 +23,12 @@ import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRTrainer
+import com.kotlinnlp.neuralparser.parsers.lhrparser.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.LossCriterionType
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
+import com.kotlinnlp.utils.DictionarySet
 import lhrparser.utils.TrainingArgs
 
 /**
@@ -119,12 +121,24 @@ fun buildParser(parsedArgs: TrainingArgs,
   lossCriterionType = LossCriterionType.Softmax,
   predictPosTags = !parsedArgs.noPosPrediction))
 
-fun getEmbeddingKey(sentence: com.kotlinnlp.linguisticdescription.sentence.Sentence<*>, tokenId: Int): String {
+/**
+ *
+ */
+fun getWordEmbeddingKey(sentence: com.kotlinnlp.linguisticdescription.sentence.Sentence<*>, tokenId: Int): String {
 
   @Suppress("UNCHECKED_CAST")
   sentence as com.kotlinnlp.linguisticdescription.sentence.Sentence<FormToken>
 
   return sentence.tokens[tokenId].normalizedForm
+}
+
+/**
+ *
+ */
+fun getPosTagEmbeddingKey(sentence: com.kotlinnlp.linguisticdescription.sentence.Sentence<*>, tokenId: Int): String {
+
+  @Suppress("UNCHECKED_CAST")
+  return (sentence.tokens[tokenId] as ParsingToken).posTag!!
 }
 
 /**
@@ -150,13 +164,20 @@ fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
     EMBDLoader().load(filename = it)
   }
 
+  val posEmbeddingsMap = EmbeddingsMapByDictionary(
+    size = parsedArgs.posEmbeddingSize,
+    dictionary = DictionarySet(corpus.posTags.getElements().map { it.label }))
+
   return EnsembleTokensEncoderModel(models = listOf(
     EmbeddingsEncoderModel(embeddingsMap = preEmbeddingsMap,
-      getEmbeddingKey = ::getEmbeddingKey,
+      getEmbeddingKey = ::getWordEmbeddingKey,
       dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
     EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
-      getEmbeddingKey = ::getEmbeddingKey,
-      dropoutCoefficient = parsedArgs.wordDropoutCoefficient)),
+      getEmbeddingKey = ::getWordEmbeddingKey,
+      dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+    EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
+      getEmbeddingKey = ::getPosTagEmbeddingKey,
+      dropoutCoefficient = 0.0)),
     outputMergeConfiguration = AffineMerge(
       outputSize = 100,
       activationFunction = Tanh()))
