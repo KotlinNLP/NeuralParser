@@ -91,7 +91,7 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
    *
    * @param scores the attachment scores
    */
-  fun DependencyTree.assignHeads(scores: ArcScores) {
+  private fun DependencyTree.assignHeads(scores: ArcScores) {
 
     val (topId: Int, topScore: Double) = scores.findHighestScoringTop()
 
