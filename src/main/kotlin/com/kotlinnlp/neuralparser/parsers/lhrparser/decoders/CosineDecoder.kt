@@ -7,11 +7,11 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.decoders
 
+import com.kotlinnlp.neuralparser.parsers.lhrparser.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.HeadsDecoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.ArcScores
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.ArcScores.Companion.rootId
-import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.simplednn.simplemath.cosineSimilarity
 
 /**
@@ -43,13 +43,13 @@ class CosineDecoder : HeadsDecoder {
   override fun decode(lss: LatentSyntacticStructure): ArcScores {
 
     this.lssNorm = LatentSyntacticStructure(
-      tokens = lss.tokens,
+      sentence = lss.sentence,
       tokensEncoding = lss.tokensEncoding,
       contextVectors = lss.contextVectors.map { it.normalize2() },
       latentHeads = lss.latentHeads.map { it.normalize2() },
       virtualRoot = lss.virtualRoot.normalize2())
 
-    lss.tokens.forEach {
+    lss.sentence.tokens.forEach {
 
       this.similarityMatrix[it.id] = mutableMapOf()
 
@@ -65,12 +65,12 @@ class CosineDecoder : HeadsDecoder {
    *
    * @param dependent the the dependent token
    */
-  private fun setHeadsScores(dependent: Token) {
+  private fun setHeadsScores(dependent: ParsingToken) {
 
     val scores: MutableMap<Int, Double> = this.similarityMatrix.getValue(dependent.id)
 
-    this.lssNorm.tokens
-      .filterNot { it.id == dependent.id || it.isPunctuation }
+    this.lssNorm.sentence.tokens
+      .filterNot { it.id == dependent.id } /// || it.isPunctuation }
       .associateTo(scores) { it.id to cosineSimilarity(
         a = this.lssNorm.contextVectors[it.id],
         b = this.lssNorm.latentHeads[dependent.id]) }
@@ -81,7 +81,7 @@ class CosineDecoder : HeadsDecoder {
    *
    * @param dependent the the dependent token
    */
-  private fun setRootScores(dependent: Token) {
+  private fun setRootScores(dependent: ParsingToken) {
 
     this.similarityMatrix.getValue(dependent.id)[rootId] = 0.0 // default root score
 
