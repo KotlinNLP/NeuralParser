@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder
 
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.NeuralModel
+import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
 
@@ -15,8 +15,14 @@ import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
  * Encoder that represents the tokens in their sentential context.
  *
  * @param model the model of this encoder
+ * @property useDropout whether to apply the dropout during the forward
+ * @property id an identification number useful to track a specific encoder
  */
-class ContextEncoder(private val model: ContextEncoderModel) : NeuralModel<
+class ContextEncoder(
+  private val model: ContextEncoderModel,
+  override val useDropout: Boolean,
+  override val id: Int = 0
+) : NeuralProcessor<
   List<DenseNDArray>, // InputType
   List<DenseNDArray>, // OutputType
   List<DenseNDArray>, // ErrorsType
@@ -25,9 +31,17 @@ class ContextEncoder(private val model: ContextEncoderModel) : NeuralModel<
   > {
 
   /**
+   * This encoder propagate the errors to the input.
+   */
+  override val propagateToInput: Boolean = true
+
+  /**
    * The BiRNN Encoder that encodes the tokens into the context vectors.
    */
-  private val encoder = DeepBiRNNEncoder<DenseNDArray>(this.model.biRNN)
+  private val encoder = DeepBiRNNEncoder<DenseNDArray>(
+    network = this.model.biRNN,
+    propagateToInput = true,
+    useDropout = this.useDropout)
 
   /**
    * @param input tokens encodings
@@ -35,22 +49,21 @@ class ContextEncoder(private val model: ContextEncoderModel) : NeuralModel<
    * @return the context vectors of the tokens
    */
   override fun forward(input: List<DenseNDArray>): List<DenseNDArray> =
-    this.encoder.encode(sequence = input, useDropout = true)
+    this.encoder.forward(input)
 
   /**
-   * @param errors the errors of the current encoding
+   * The Backward.
+   *
+   * @param outputErrors the errors of the current encoding
    */
-  override fun backward(errors: List<DenseNDArray>) {
-
-    this.encoder.backward(errors, propagateToInput = true)
-  }
+  override fun backward(outputErrors: List<DenseNDArray>) = this.encoder.backward(outputErrors)
 
   /**
    * @param copy whether to return by value or by reference
    *
    * @return the input errors
    */
-  override fun getInputErrors(copy: Boolean): List<DenseNDArray> = this.encoder.getInputSequenceErrors(copy = copy)
+  override fun getInputErrors(copy: Boolean): List<DenseNDArray> = this.encoder.getInputErrors(copy = copy)
 
   /**
    * @param copy a Boolean indicating whether the returned errors must be a copy or a reference

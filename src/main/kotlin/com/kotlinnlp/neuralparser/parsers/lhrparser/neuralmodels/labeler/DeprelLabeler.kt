@@ -8,19 +8,26 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler
 
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.NeuralModel
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.batchfeedforward.BatchFeedforwardProcessor
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
-import java.lang.Math.abs
 
 /**
+ * The Labeler.
+ *
  * @param model the model of this labeler
+ * @property useDropout whether to apply the dropout during the forward
+ * @property id an identification number useful to track a specific encoder
  */
-class DeprelLabeler(private val model: DeprelLabelerModel) : NeuralModel<
+class DeprelLabeler(
+  private val model: DeprelLabelerModel,
+  override val useDropout: Boolean,
+  override val id: Int = 0
+) : NeuralProcessor<
   DeprelLabeler.Input, // InputType
   List<DeprelLabeler.Prediction>, // OutputType
   List<DenseNDArray>, // ErrorsType
@@ -35,6 +42,11 @@ class DeprelLabeler(private val model: DeprelLabelerModel) : NeuralModel<
    * @param dependencyTree the dependency tree
    */
   class Input(val lss: LatentSyntacticStructure, val dependencyTree: DependencyTree)
+
+  /**
+   * This encoder propagate the errors to the input.
+   */
+  override val propagateToInput: Boolean = true
 
   /**
    * The input errors of this labeler.
@@ -56,7 +68,10 @@ class DeprelLabeler(private val model: DeprelLabelerModel) : NeuralModel<
   /**
    * The processor that classify the deprels.
    */
-  private val processor = BatchFeedforwardProcessor<DenseNDArray>(this.model.networkModel)
+  private val processor = BatchFeedforwardProcessor<DenseNDArray>(
+    neuralNetwork = this.model.networkModel,
+    useDropout = this.useDropout,
+    propagateToInput = true)
 
   /**
    * The dependency tree used for the last predictions done.
@@ -82,11 +97,11 @@ class DeprelLabeler(private val model: DeprelLabelerModel) : NeuralModel<
   /**
    * Propagate the errors through the neural components of the labeler.
    *
-   * @param errors the list of errors
+   * @param outputErrors the list of errors
    */
-  override fun backward(errors: List<DenseNDArray>) {
+  override fun backward(outputErrors: List<DenseNDArray>) {
 
-    this.processor.backward(outputErrors = errors, propagateToInput = true)
+    this.processor.backward(outputErrors)
   }
 
   /**
@@ -137,7 +152,7 @@ class DeprelLabeler(private val model: DeprelLabelerModel) : NeuralModel<
 
     val features = mutableListOf<List<DenseNDArray>>()
 
-    input.lss.tokens.map { it.id }.zip(this.dependencyTree.heads).forEach { (dependentId, headId) ->
+    input.lss.sentence.tokens.map { it.id }.zip(this.dependencyTree.heads).forEach { (dependentId, headId) ->
 
       features.add(listOf(
         input.lss.contextVectors[dependentId],

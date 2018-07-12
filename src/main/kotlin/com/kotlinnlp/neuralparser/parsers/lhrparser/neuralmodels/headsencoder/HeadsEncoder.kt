@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.headsencoder
 
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.NeuralModel
+import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNEncoder
 
@@ -15,8 +15,14 @@ import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNEncoder
  * Encoder that generates the Latent Heads Representation.
  *
  * @param model the model of this encoder
+ * @property useDropout whether to apply the dropout during the forward
+ * @property id an identification number useful to track a specific encoder
  */
-class HeadsEncoder(private val model: HeadsEncoderModel) : NeuralModel<
+class HeadsEncoder(
+  private val model: HeadsEncoderModel,
+  override val useDropout: Boolean,
+  override val id: Int = 0
+) : NeuralProcessor<
   List<DenseNDArray>, // InputType
   List<DenseNDArray>, // OutputType
   List<DenseNDArray>, // ErrorsType
@@ -25,31 +31,36 @@ class HeadsEncoder(private val model: HeadsEncoderModel) : NeuralModel<
   > {
 
   /**
+   * This encoder propagate the errors to the input.
+   */
+  override val propagateToInput: Boolean = true
+
+  /**
    * A BiRNN Encoder that encodes the latent heads.
    */
-  private val encoder = BiRNNEncoder<DenseNDArray>(this.model.biRNN)
+  private val encoder = BiRNNEncoder<DenseNDArray>(
+    network = this.model.biRNN,
+    useDropout = this.useDropout,
+    propagateToInput = true)
 
   /**
    * @param input the vectors that represent each token
    *
    * @return the latent heads representation
    */
-  override fun forward(input: List<DenseNDArray>): List<DenseNDArray> =
-    this.encoder.encode(input, useDropout = true)
+  override fun forward(input: List<DenseNDArray>): List<DenseNDArray> = this.encoder.forward(input)
 
   /**
-   * @param errors the errors of the current encoding
+   * @param outputErrors the errors of the current encoding
    */
-  override fun backward(errors: List<DenseNDArray>) {
-    return this.encoder.backward(errors, propagateToInput = true)
-  }
+  override fun backward(outputErrors: List<DenseNDArray>) = this.encoder.backward(outputErrors)
 
   /**
    * @param copy whether to return by value or by reference
    *
    * @return the input errors
    */
-  override fun getInputErrors(copy: Boolean): List<DenseNDArray> = this.encoder.getInputSequenceErrors(copy = copy)
+  override fun getInputErrors(copy: Boolean): List<DenseNDArray> = this.encoder.getInputErrors(copy = copy)
 
   /**
    * @param copy a Boolean indicating whether the returned errors must be a copy or a reference
