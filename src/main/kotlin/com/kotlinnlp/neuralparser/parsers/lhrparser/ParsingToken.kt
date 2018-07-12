@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
-import com.kotlinnlp.linguisticdescription.morphology.MorphologyEntry
+import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 
@@ -22,5 +22,5 @@ data class ParsingToken(
   val id: Int,
   override val form: String,
   override val position: Position,
-  val lexicalForms: List<MorphologyEntry> = emptyList(),
+  val lexicalForms: List<Morphology> = emptyList(),
   val posTag: String?) : RealToken
