@@ -62,7 +62,7 @@ abstract class Trainer(
    * @param trainingSentences the sentences used to train the parser
    * @param shuffler a shuffle to shuffle the sentences at each epoch (can be null)
    */
-  fun train(trainingSentences: ArrayList<Sentence>,
+  fun train(trainingSentences: List<Sentence>,
             shuffler: Shuffler? = Shuffler(enablePseudoRandom = true, seed = 743)) {
 
     (0 until this.epochs).forEach { i ->
@@ -91,7 +91,7 @@ abstract class Trainer(
    * @param trainingSentences the training sentences
    * @param shuffler a shuffle to shuffle the sentences at each epoch (can be null)
    */
-  private fun trainEpoch(trainingSentences: ArrayList<Sentence>,
+  private fun trainEpoch(trainingSentences: List<Sentence>,
                          shuffler: Shuffler?) {
 
     val progress = ProgressIndicatorBar(trainingSentences.size)
