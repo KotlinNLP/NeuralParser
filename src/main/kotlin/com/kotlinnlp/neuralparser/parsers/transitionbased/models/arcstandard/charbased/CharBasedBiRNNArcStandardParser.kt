@@ -91,6 +91,8 @@ class CharBasedBiRNNArcStandardParser(
    */
   override fun buildSupportStructureFactory() = SPStructureFactory(
     network = this.model.actionsScorerNetwork,
+    useDropout = false, // TODO: enable during training
+    propagateToInput = true,
     outputErrorsInit = OutputErrorsInit.AllZeros)
 
   /**

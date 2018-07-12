@@ -68,12 +68,18 @@ abstract class CharBasedBiRNNParser<
   /**
    * A [DeepBiRNNEncoder] to encode the tokens of a sentence.
    */
-  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(model.deepBiRNN)
+  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(
+    network = model.deepBiRNN,
+    useDropout = false, // TODO: enable during training
+    propagateToInput = true)
 
   /**
    * A [HANEncodersPool] to encode the chars of a token.
    */
-  private val hanEncodersPool = HANEncodersPool<DenseNDArray>(model.han)
+  private val hanEncodersPool = HANEncodersPool<DenseNDArray>(
+    model = model.han,
+    useDropout = false, // TODO: enable during training
+    propagateToInput = true)
 
   /**
    * @param sentence a sentence
@@ -102,9 +108,8 @@ abstract class CharBasedBiRNNParser<
       usedEncoders = usedEncoders,
       charsEmbeddings = charsEmbeddings,
       wordEmbeddings = wordEmbeddings,
-      tokensEncodings = this.biRNNEncoder.encode(sequence = List(
-        size = tokens.size,
-        init = { i -> this.buildTokenEmbedding(charsEncoding = charsEncodings[i], wordEmbedding = wordEmbeddings[i]) }
+      tokensEncodings = this.biRNNEncoder.forward(List(size = tokens.size, init = {
+        i -> this.buildTokenEmbedding(charsEncoding = charsEncodings[i], wordEmbedding = wordEmbeddings[i]) }
       )),
       encodingSize = this.model.deepBiRNN.outputSize,
       nullItemVector = this.model.unknownItemEmbedding.array.values // TODO

@@ -86,7 +86,10 @@ class BiRNNArcEagerSpineParser(
   /**
    * @return the SupportStructureFactory used in this parser
    */
-  override fun buildSupportStructureFactory() = MPStructureFactory(model = this.model.actionsScorerNetworkModel)
+  override fun buildSupportStructureFactory() = MPStructureFactory(
+    model = this.model.actionsScorerNetworkModel,
+    useDropout = false, // TODO: enable during training
+    propagateToInput = true)
 
   /**
    * @return the FeaturesExtractor used in this parser

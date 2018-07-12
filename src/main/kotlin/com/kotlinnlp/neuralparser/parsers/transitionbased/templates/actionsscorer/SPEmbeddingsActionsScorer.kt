@@ -69,7 +69,7 @@ abstract class SPEmbeddingsActionsScorer<
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
     supportStructure: SupportStructureType) {
 
-    val prediction: DenseNDArray = supportStructure.processor.forward(features = decodingContext.features.array)
+    val prediction: DenseNDArray = supportStructure.processor.forward(decodingContext.features.array)
 
     decodingContext.actions.forEach { action -> action.score = prediction[action.outcomeIndex] }
   }
@@ -80,19 +80,16 @@ abstract class SPEmbeddingsActionsScorer<
    *
    * @param decodingContext the decoding context that contains the scored actions
    * @param supportStructure the decoding support structure
-   * @param propagateToInput a Boolean indicating whether errors must be propagated to the input items
    */
   override fun backward(
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
-    supportStructure: SupportStructureType,
-    propagateToInput: Boolean) {
+    supportStructure: SupportStructureType) {
 
     supportStructure.processor.backward(
       outputErrors = this.getOutputErrors(
         actions = decodingContext.actions,
         outcomes = supportStructure.processor.structure.outputLayer.outputArray.values,
-        initType = supportStructure.outputErrorsInit),
-      propagateToInput = propagateToInput)
+        initType = supportStructure.outputErrorsInit))
 
     this.optimizer.accumulate(supportStructure.processor.getParamsErrors(copy = true))
   }

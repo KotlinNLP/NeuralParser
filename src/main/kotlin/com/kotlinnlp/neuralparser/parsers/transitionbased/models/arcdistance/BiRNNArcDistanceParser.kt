@@ -94,7 +94,9 @@ class BiRNNArcDistanceParser(
    */
   override fun buildSupportStructureFactory() = SPStructureFactory(
     network = this.model.actionsScorerNetwork,
-    outputErrorsInit = OutputErrorsInit.AllZeros)
+    outputErrorsInit = OutputErrorsInit.AllZeros,
+    useDropout = false, // TODO: enable during training
+    propagateToInput = true)
 
   /**
    * @return the [FeaturesExtractor] used in this parser

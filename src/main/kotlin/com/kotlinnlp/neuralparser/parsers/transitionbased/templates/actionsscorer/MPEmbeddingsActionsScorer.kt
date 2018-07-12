@@ -80,16 +80,12 @@ abstract class MPEmbeddingsActionsScorer<
    *
    * @param decodingContext the decoding context that contains the scored actions
    * @param supportStructure the decoding support structure
-   * @param propagateToInput a Boolean indicating whether errors must be propagated to the input items
    */
   override fun backward(
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, ItemType, GroupedDenseFeatures>,
-    supportStructure: SupportStructureType,
-    propagateToInput: Boolean) {
+    supportStructure: SupportStructureType) {
 
-    supportStructure.scorer.backward(
-      outputsErrors = this.getErrorsMultimap(decodingContext.actions),
-      propagateToInput = propagateToInput)
+    supportStructure.scorer.backward(outputsErrors = this.getErrorsMultimap(decodingContext.actions))
 
     supportStructure.scorer.getParamsErrors(copy = false).forEach { groupId, _, errors ->
       this.optimizer.accumulate(networkIndex = groupId, errors = errors)

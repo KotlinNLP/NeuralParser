@@ -33,8 +33,17 @@ open class TPDStructureFactory(
    * @return a new single-prediction decoding support structure
    */
   override fun globalStructure() = TPDSupportStructure(
-    transitionProcessor = FeedforwardNeuralProcessor(this.transitionNetwork),
-    posProcessor = FeedforwardNeuralProcessor(this.posNetwork),
-    deprelProcessor = FeedforwardNeuralProcessor(this.deprelNetwork),
+    transitionProcessor = FeedforwardNeuralProcessor(
+      neuralNetwork = this.transitionNetwork,
+      useDropout = false, // TODO: enable during training
+      propagateToInput = true),
+    posProcessor = FeedforwardNeuralProcessor(
+      neuralNetwork = this.posNetwork,
+      useDropout = false, // TODO: enable during training
+      propagateToInput = true),
+    deprelProcessor = FeedforwardNeuralProcessor(
+      neuralNetwork = this.deprelNetwork,
+      useDropout = false, // TODO: enable during training
+      propagateToInput = true),
     outputErrorsInit = this.outputErrorsInit)
 }

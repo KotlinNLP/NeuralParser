@@ -84,31 +84,26 @@ class ArcEagerSpineEmbeddingsFeaturesExtractor
    *
    * @param decodingContext the decoding context that contains extracted features with their errors
    * @param supportStructure the decoding support structure
-   * @param propagateToInput a Boolean indicating whether errors must be propagated to the input items
    */
   override fun backward(
     decodingContext: DecodingContext<ArcEagerSpineState, ArcEagerSpineTransition, TokensEmbeddingsContext, DenseItem,
       GroupedDenseFeatures>,
-    supportStructure: MPSupportStructure,
-    propagateToInput: Boolean) {
+    supportStructure: MPSupportStructure) {
 
-    if (propagateToInput) {
+    val transitionsMap: Map<Int, ArcEagerSpineTransition> = decodingContext.actions.toTransitionsMap()
 
-      val transitionsMap: Map<Int, ArcEagerSpineTransition> = decodingContext.actions.toTransitionsMap()
+    decodingContext.features.errors.errorsMap.forEach { _: Any, transitionId: Int, errors: DenseNDArray ->
 
-      decodingContext.features.errors.errorsMap.forEach { _: Any, transitionId: Int, errors: DenseNDArray ->
+      val itemsWindow: List<Int?> = this.getTokensWindow(
+        stateView = ArcEagerSpineStateView(
+          state = decodingContext.extendedState.state,
+          transition = transitionsMap.getValue(transitionId)))
 
-        val itemsWindow: List<Int?> = this.getTokensWindow(
-          stateView = ArcEagerSpineStateView(
-            state = decodingContext.extendedState.state,
-            transition = transitionsMap.getValue(transitionId)))
+      val tokensErrors: List<DenseNDArray> = errors.splitV(decodingContext.extendedState.context.encodingSize)
 
-        val tokensErrors: List<DenseNDArray> = errors.splitV(decodingContext.extendedState.context.encodingSize)
-
-        this.accumulateItemsErrors(
-          items = decodingContext.extendedState.context.items,
-          itemsErrors = itemsWindow.zip(tokensErrors))
-      }
+      this.accumulateItemsErrors(
+        items = decodingContext.extendedState.context.items,
+        itemsErrors = itemsWindow.zip(tokensErrors))
     }
   }
 

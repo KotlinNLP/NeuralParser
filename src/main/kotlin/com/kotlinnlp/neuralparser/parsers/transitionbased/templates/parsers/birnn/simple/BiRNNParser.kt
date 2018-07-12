@@ -67,12 +67,18 @@ abstract class BiRNNParser<
   /**
    * A [DeepBiRNNEncoder] to encode the tokens of a sentence.
    */
-  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(model.deepBiRNN)
+  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(
+    network = model.deepBiRNN,
+    useDropout = false, // TODO: enable during training
+    propagateToInput = true)
 
   /**
    * A [DeepBiRNNEncoder] to encode the a null token
    */
-  val paddingVectorEncoder = DeepBiRNNEncoder<DenseNDArray>(model.deepBiRNN)
+  val paddingVectorEncoder = DeepBiRNNEncoder<DenseNDArray>(
+    network = model.deepBiRNN,
+    useDropout = false, // TODO: enable during training
+    propagateToInput = true)
 
   /**
    * @param sentence a sentence
@@ -98,7 +104,7 @@ abstract class BiRNNParser<
       this.buildTokenEmbedding(posEmbedding = posEmbeddings[i], wordEmbedding = wordEmbeddings[i])
     }
 
-    val paddingVector: DenseNDArray = this.paddingVectorEncoder.encode(listOf(
+    val paddingVector: DenseNDArray = this.paddingVectorEncoder.forward(listOf(
       this.buildTokenEmbedding(
         posEmbedding = this.model.posEmbeddings.nullEmbedding,
         wordEmbedding = this.model.wordEmbeddings.nullEmbedding))).first()
@@ -108,7 +114,7 @@ abstract class BiRNNParser<
       items = tokens.map { DenseItem(it.id) },
       posEmbeddings = posEmbeddings,
       wordEmbeddings = wordEmbeddings,
-      tokensEncodings = this.biRNNEncoder.encode(sequence = tokensEmbeddings),
+      tokensEncodings = this.biRNNEncoder.forward(tokensEmbeddings),
       encodingSize = this.model.deepBiRNN.outputSize,
       unknownItemVector = paddingVector)
   }

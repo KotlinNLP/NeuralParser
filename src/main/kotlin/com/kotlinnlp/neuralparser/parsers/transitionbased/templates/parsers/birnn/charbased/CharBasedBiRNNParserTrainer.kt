@@ -161,13 +161,9 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
    */
   private fun propagateErrors(context: TokensCharsEncodingContext) {
 
-    this.neuralParser.biRNNEncoder.backward(
-      outputErrorsSequence = context.items.map { it.errors?.array ?: this.zerosErrors },
-      propagateToInput = true)
-
+    this.neuralParser.biRNNEncoder.backward(context.items.map { it.errors?.array ?: this.zerosErrors } )
     this.deepBiRNNOptimizer.accumulate(this.neuralParser.biRNNEncoder.getParamsErrors(copy = false))
-
-    this.neuralParser.biRNNEncoder.getInputSequenceErrors(copy = false).forEachIndexed { i, tokenErrors ->
+    this.neuralParser.biRNNEncoder.getInputErrors(copy = false).forEachIndexed { i, tokenErrors ->
       this.accumulateTokenErrors(context = context, tokenIndex = i, errors = tokenErrors)
     }
   }
@@ -182,11 +178,9 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
       this.neuralParser.model.charsEncodingSize,
       this.neuralParser.model.wordEmbeddings.size)
 
-    hanEncoder.backward(outputErrors = splitErrors[0], propagateToInput = true)
-
+    hanEncoder.backward(splitErrors[0])
     this.attentionNetworkOptimizer.accumulate(hanEncoder.getParamsErrors())
-
-    val charsSequenceErrors: HierarchySequence<*> = hanEncoder.getInputSequenceErrors() as HierarchySequence<*>
+    val charsSequenceErrors: HierarchySequence<*> = hanEncoder.getInputErrors() as HierarchySequence<*>
 
     charsSequenceErrors.forEachIndexed { charIndex, charsErrors ->
       this.charsEmbeddingsOptimizer.accumulate(

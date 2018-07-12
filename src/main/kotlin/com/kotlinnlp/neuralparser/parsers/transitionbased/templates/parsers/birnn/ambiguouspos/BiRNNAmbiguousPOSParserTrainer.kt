@@ -152,26 +152,19 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
    */
   protected fun propagateErrors(context: TokensAmbiguousPOSContext) {
 
-    this.neuralParser.biRNNEncoder.backward(
-      outputErrorsSequence = context.items.map { it.errors?.array ?: this.zerosErrors },
-      propagateToInput = true)
+    this.neuralParser.biRNNEncoder.backward(context.items.map { it.errors?.array ?: this.zerosErrors } )
 
     this.deepBiRNNOptimizer.accumulate(this.neuralParser.biRNNEncoder.getParamsErrors(copy = false))
 
-    this.neuralParser.biRNNEncoder.getInputSequenceErrors(copy = false).forEachIndexed { i, tokenErrors ->
+    this.neuralParser.biRNNEncoder.getInputErrors(copy = false).forEachIndexed { i, tokenErrors ->
       this.accumulateTokenErrors(context = context, tokenIndex = i, errors = tokenErrors)
     }
 
     if (context.nullItemErrors != null) {
 
-      this.neuralParser.paddingVectorEncoder.backward(
-        outputErrorsSequence = listOf(context.nullItemErrors!!),
-        propagateToInput = true)
-
+      this.neuralParser.paddingVectorEncoder.backward(listOf(context.nullItemErrors!!))
       this.deepBiRNNOptimizer.accumulate(this.neuralParser.paddingVectorEncoder.getParamsErrors(copy = false))
-
-      this.accumulateNullTokenErrors(
-        errors = this.neuralParser.paddingVectorEncoder.getInputSequenceErrors(copy = false).first())
+      this.accumulateNullTokenErrors(this.neuralParser.paddingVectorEncoder.getInputErrors(copy = false).first())
     }
   }
 

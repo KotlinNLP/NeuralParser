@@ -91,27 +91,18 @@ abstract class TDEmbeddingsActionsScorer<
    *
    * @param decodingContext the decoding context that contains the scored actions
    * @param supportStructure the decoding support structure
-   * @param propagateToInput a Boolean indicating whether errors must be propagated to the input items
    */
   override fun backward(
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
-    supportStructure: TDSupportStructure,
-    propagateToInput: Boolean) {
+    supportStructure: TDSupportStructure) {
 
     val (deprelErrors, transitionErrors) = this.getOutputErrors(
       actions = decodingContext.actions,
       deprelOutcomes = supportStructure.deprelProcessor.structure.outputLayer.outputArray.values,
       transitionOutcomes = supportStructure.transitionProcessor.structure.outputLayer.outputArray.values)
 
-    supportStructure.deprelProcessor.backward(
-      outputErrors = deprelErrors,
-      propagateToInput = propagateToInput,
-      mePropK = null) /// TODO: set 'mePropK' as parameter
-
-    supportStructure.transitionProcessor.backward(
-      outputErrors = transitionErrors,
-      propagateToInput = propagateToInput,
-      mePropK = null) // TODO: set 'mePropK' as parameter
+    supportStructure.deprelProcessor.backward(deprelErrors)
+    supportStructure.transitionProcessor.backward(transitionErrors)
 
     this.deprelOptimizer.accumulate(supportStructure.deprelProcessor.getParamsErrors(copy = true))
     this.transitionOptimizer.accumulate(supportStructure.transitionProcessor.getParamsErrors(copy = true))

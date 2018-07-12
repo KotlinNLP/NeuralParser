@@ -69,12 +69,18 @@ abstract class BiRNNAmbiguousPOSParser<
   /**
    * A [DeepBiRNNEncoder] to encode the tokens of a sentence.
    */
-  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(model.deepBiRNN)
+  val biRNNEncoder = DeepBiRNNEncoder<DenseNDArray>(
+    network = model.deepBiRNN,
+    useDropout = false, // TODO: enable during training
+    propagateToInput = true)
 
   /**
    * A [DeepBiRNNEncoder] to encode the a null token
    */
-  val paddingVectorEncoder = DeepBiRNNEncoder<DenseNDArray>(model.deepBiRNN)
+  val paddingVectorEncoder = DeepBiRNNEncoder<DenseNDArray>(
+    network = model.deepBiRNN,
+    useDropout = false, // TODO: enable during training
+    propagateToInput = true)
 
   /**
    * @param sentence a sentence
@@ -115,7 +121,7 @@ abstract class BiRNNAmbiguousPOSParser<
         preTrainedWordEmbedding = preTrainedEmbeddings?.get(i))
     }
 
-    val paddingVector: DenseNDArray = this.paddingVectorEncoder.encode(listOf(
+    val paddingVector: DenseNDArray = this.paddingVectorEncoder.forward(listOf(
       this.buildTokenEmbedding(
         posVector = DenseNDArrayFactory.zeros(Shape(this.model.posTagsSize)),
         wordEmbedding = this.model.wordEmbeddings.nullEmbedding,
@@ -127,7 +133,7 @@ abstract class BiRNNAmbiguousPOSParser<
       posTags = posTags,
       wordEmbeddings = wordEmbeddings,
       preTrainedWordEmbeddings = preTrainedEmbeddings,
-      tokensEncodings = this.biRNNEncoder.encode(sequence = tokensEmbeddings),
+      tokensEncodings = this.biRNNEncoder.forward(tokensEmbeddings),
       encodingSize = this.model.deepBiRNN.outputSize,
       unknownItemVector = paddingVector,
       trainingMode = trainingMode)

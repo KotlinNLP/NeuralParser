@@ -69,23 +69,17 @@ abstract class EmbeddingsFeaturesExtractor<
    *
    * @param decodingContext the decoding context that contains extracted features with their errors
    * @param supportStructure the decoding support structure
-   * @param propagateToInput a Boolean indicating whether errors must be propagated to the input items
    */
   override fun backward(
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
-    supportStructure: SupportStructureType,
-    propagateToInput: Boolean
-  ) {
+    supportStructure: SupportStructureType) {
 
-    if (propagateToInput) {
+    val itemsWindow: List<Int?> = this.getTokensWindow(StateView(state = decodingContext.extendedState.state))
 
-      val itemsWindow: List<Int?> = this.getTokensWindow(StateView(state = decodingContext.extendedState.state))
+    val errors: DenseNDArray = decodingContext.features.errors.array
+    val tokensErrors: List<DenseNDArray> = errors.splitV(decodingContext.extendedState.context.encodingSize)
 
-      val errors: DenseNDArray = decodingContext.features.errors.array
-      val tokensErrors: List<DenseNDArray> = errors.splitV(decodingContext.extendedState.context.encodingSize)
-
-      this.accumulateItemsErrors(decodingContext = decodingContext, itemsErrors = itemsWindow.zip(tokensErrors))
-    }
+    this.accumulateItemsErrors(decodingContext = decodingContext, itemsErrors = itemsWindow.zip(tokensErrors))
   }
 
   /**

@@ -37,8 +37,17 @@ open class ATPDJointStructureFactory(
    * @return a new ATPD Joint decoding support structure
    */
   override fun globalStructure() = ATPDJointSupportStructure(
-    transitionProcessor = FeedforwardNeuralProcessor(this.transitionNetwork),
-    posDeprelNetwork = MultiTaskNetwork(this.posDeprelNetworkModel),
-    actionProcessor = RecurrentNeuralProcessor(this.appliedActionsNetwork),
+    transitionProcessor = FeedforwardNeuralProcessor(
+      neuralNetwork = this.transitionNetwork,
+      useDropout = false, // TODO: enable during training
+      propagateToInput = true),
+    posDeprelNetwork = MultiTaskNetwork(
+      model = this.posDeprelNetworkModel,
+      useDropout = false, // TODO: enable during training
+      propagateToInput = true),
+    actionProcessor = RecurrentNeuralProcessor(
+      neuralNetwork = this.appliedActionsNetwork,
+      useDropout = false, // TODO: enable during training
+      propagateToInput = true),
     outputErrorsInit = this.outputErrorsInit)
 }

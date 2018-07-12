@@ -112,12 +112,10 @@ abstract class TPDJointEmbeddingsActionsScorer<
    *
    * @param decodingContext the decoding context that contains the scored actions
    * @param supportStructure the decoding support structure
-   * @param propagateToInput a Boolean indicating whether errors must be propagated to the input items
    */
   override fun backward(
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem, DenseFeatures>,
-    supportStructure: TPDJointSupportStructure,
-    propagateToInput: Boolean) {
+    supportStructure: TPDJointSupportStructure) {
 
     val (transitionErrors, posErrors, deprelErrors) = this.getOutputErrors(
       actions = decodingContext.actions,
@@ -126,16 +124,8 @@ abstract class TPDJointEmbeddingsActionsScorer<
       deprelOutcomes = supportStructure.posDeprelNetwork.outputProcessors[1].structure.outputLayer.outputArray.values
     )
 
-    supportStructure.transitionProcessor.backward(
-      outputErrors = transitionErrors,
-      propagateToInput = propagateToInput,
-      mePropK = null) // TODO: set 'mePropK' as parameter
-
-    supportStructure.posDeprelNetwork.backward(
-      outputErrorsList = listOf(posErrors, deprelErrors),
-      propagateToInput = propagateToInput,
-      inputMePropK = null, // TODO: set 'inputMePropK' as parameter
-      outputMePropK = null) // TODO: set 'outputMePropK' as parameter
+    supportStructure.transitionProcessor.backward(transitionErrors)
+    supportStructure.posDeprelNetwork.backward(listOf(posErrors, deprelErrors))
 
     this.transitionOptimizer.accumulate(supportStructure.transitionProcessor.getParamsErrors(copy = false))
     this.posDeprelOptimizer.accumulate(supportStructure.posDeprelNetwork.getParamsErrors(copy = false))

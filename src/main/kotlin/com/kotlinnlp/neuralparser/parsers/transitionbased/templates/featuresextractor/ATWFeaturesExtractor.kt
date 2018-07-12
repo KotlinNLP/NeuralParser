@@ -135,7 +135,7 @@ abstract class ATWFeaturesExtractor<
 
     return DenseFeatures(array = concatVectorsV(
       supportStructure.actionProcessor.forward(
-        features = lastAppliedActionVector,
+        input = lastAppliedActionVector,
         firstState = appliedActions.isEmpty()),
       this.extractViewFeatures(
         stateView = StateView(state = decodingContext.extendedState.state),
@@ -150,30 +150,24 @@ abstract class ATWFeaturesExtractor<
    *
    * @param decodingContext the decoding context that contains extracted features with their errors
    * @param supportStructure the decoding support structure
-   * @param propagateToInput a Boolean indicating whether errors must be propagated to the input items
    */
   override fun backward(
     decodingContext: DecodingContext<StateType, TransitionType, InputContextType, DenseItem,
       DenseFeatures>,
-    supportStructure: ATPDJointSupportStructure,
-    propagateToInput: Boolean
-  ) {
+    supportStructure: ATPDJointSupportStructure) {
 
-    if (propagateToInput) {
+    val itemsWindow: List<Int?> = this.getTokensWindow(StateView(state = decodingContext.extendedState.state))
 
-      val itemsWindow: List<Int?> = this.getTokensWindow(StateView(state = decodingContext.extendedState.state))
+    val errors: DenseNDArray = decodingContext.features.errors.array
+    val splitErrors: List<DenseNDArray> = errors.splitV(
+      this.actionsEncodingSize,
+      errors.length - this.actionsEncodingSize
+    )
 
-      val errors: DenseNDArray = decodingContext.features.errors.array
-      val splitErrors: List<DenseNDArray> = errors.splitV(
-        this.actionsEncodingSize,
-        errors.length - this.actionsEncodingSize
-      )
+    this.appliedActionsEncodingErrors.add(splitErrors[0])
+    val tokensErrors: List<DenseNDArray> = splitErrors[1].splitV(decodingContext.extendedState.context.encodingSize)
 
-      this.appliedActionsEncodingErrors.add(splitErrors[0])
-      val tokensErrors: List<DenseNDArray> = splitErrors[1].splitV(decodingContext.extendedState.context.encodingSize)
-
-      this.accumulateItemsErrors(decodingContext = decodingContext, itemsErrors = itemsWindow.zip(tokensErrors))
-    }
+    this.accumulateItemsErrors(decodingContext = decodingContext, itemsErrors = itemsWindow.zip(tokensErrors))
   }
 
   /**
@@ -227,13 +221,9 @@ abstract class ATWFeaturesExtractor<
       this.appliedActionsEncodingErrors.add(this.appliedActionZerosErrors)
     }
 
-    this.actionsEncoder.backward(
-      outputErrorsSequence = this.appliedActionsEncodingErrors,
-      propagateToInput = true)
-
+    this.actionsEncoder.backward(this.appliedActionsEncodingErrors)
     this.actionsEncoderOptimizer.accumulate(this.actionsEncoder.getParamsErrors(copy = false))
-
-    this.actionsEncoder.getInputSequenceErrors(copy = false).forEachIndexed { i, errors ->
+    this.actionsEncoder.getInputErrors(copy = false).forEachIndexed { i, errors ->
       this.accumulateActionEmbeddingErrors(errors = errors, actionIndex = i)
     }
 

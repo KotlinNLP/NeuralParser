@@ -34,7 +34,13 @@ open class TPDJointStructureFactory(
    * @return a new TPD Joint decoding support structure
    */
   override fun globalStructure() = TPDJointSimpleSupportStructure(
-    transitionProcessor = FeedforwardNeuralProcessor(this.transitionNetwork),
-    posDeprelNetwork = MultiTaskNetwork(this.posDeprelNetworkModel),
+    transitionProcessor = FeedforwardNeuralProcessor(
+      neuralNetwork = this.transitionNetwork,
+      useDropout = false, // TODO: enable during training
+      propagateToInput = true),
+    posDeprelNetwork = MultiTaskNetwork(
+      model = this.posDeprelNetworkModel,
+      useDropout = false, // TODO: enable during training
+      propagateToInput = true),
     outputErrorsInit = this.outputErrorsInit)
 }

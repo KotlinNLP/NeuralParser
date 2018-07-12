@@ -15,14 +15,21 @@ import com.kotlinnlp.syntaxdecoder.modules.supportstructure.SupportStructureFact
  * The factory of the decoding support structure for multi-prediction models.
  *
  * @param model the multi prediction scorer model used to score actions
+ * @param useDropout whether to apply the dropout during the forward
+ * @param propagateToInput whether to propagate the errors to the input during the backward
  */
-open class MPStructureFactory(private val model: MultiPredictionModel)
-  : SupportStructureFactory<MPSupportStructure> {
+open class MPStructureFactory(
+  private val model: MultiPredictionModel,
+  private val useDropout: Boolean,
+  private val propagateToInput: Boolean
+) : SupportStructureFactory<MPSupportStructure> {
 
   /**
    * Build a new [MPSupportStructure].
    *
    * @return a new multi-prediction decoding support structure
    */
-  override fun globalStructure() = MPSupportStructure(MultiPredictionScorer(this.model))
+  override fun globalStructure() = MPSupportStructure(
+    MultiPredictionScorer(model = this.model, useDropout = this.useDropout, propagateToInput = this.propagateToInput)
+  )
 }

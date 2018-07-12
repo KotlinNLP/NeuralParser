@@ -16,10 +16,14 @@ import com.kotlinnlp.syntaxdecoder.modules.supportstructure.SupportStructureFact
  * The factory of the decoding support structure for single prediction models.
  *
  * @param network the neural network used to score actions
+ * @param useDropout whether to apply the dropout during the forward
+ * @param propagateToInput whether to propagate the errors to the input during the backward
  * @param outputErrorsInit the default initialization of the [network] processor output errors
  */
 class SPStructureFactory(
   val network: NeuralNetwork,
+  private val useDropout: Boolean,
+  private val propagateToInput: Boolean,
   val outputErrorsInit: OutputErrorsInit
 ) : SupportStructureFactory<SPSupportStructure> {
 
@@ -29,6 +33,9 @@ class SPStructureFactory(
    * @return a new single-prediction decoding support structure
    */
   override fun globalStructure() = SPSimpleSupportStructure(
-    processor = FeedforwardNeuralProcessor(this.network),
+    processor = FeedforwardNeuralProcessor(
+      neuralNetwork = this.network,
+      useDropout = this.useDropout,
+      propagateToInput = this.propagateToInput),
     outputErrorsInit = this.outputErrorsInit)
 }
