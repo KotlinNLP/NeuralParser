@@ -17,6 +17,9 @@ import com.kotlinnlp.simplednn.core.embeddings.Embedding
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
+import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
+import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
+import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkModel
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.tokensencoder.TokensEncoderModel
 import com.kotlinnlp.utils.Serializer
@@ -103,6 +106,16 @@ class LHRModel(
       lossCriterionType = this.lossCriterionType)
   else
     null
+
+  /**
+   * The model of the pointer network used for the positional encoding.
+   */
+  val pointerNetworkModel = PointerNetworkModel(
+    inputSize = this.contextVectorsSize,
+    vectorSize = this.contextVectorsSize,
+    mergeConfig = AffineMerge(
+      outputSize = 100,
+      activationFunction = Tanh()))
 
   /**
    * Initialize the root embedding.
