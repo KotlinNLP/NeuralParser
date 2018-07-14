@@ -7,24 +7,25 @@
 
 package lhrparser
 
+import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
-import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
 import com.kotlinnlp.tokensencoder.TokensEncoderModel
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.xenomachina.argparser.mainBody
-import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRTrainer
-import com.kotlinnlp.neuralparser.parsers.lhrparser.ParsingToken
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.LossCriterionType
+import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
@@ -40,7 +41,7 @@ fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = TrainingArgs(args)
 
-  val trainingSentences: List<Sentence> = loadSentences(
+  val trainingSentences: List<CoNLLSentence> = loadSentences(
     type = "training",
     filePath = parsedArgs.trainingSetPath,
     maxSentences = parsedArgs.maxSentences,
@@ -67,33 +68,6 @@ fun main(args: Array<String>) = mainBody {
   trainer.train(trainingSentences = trainingSentences)
 }
 
-/**
- * Load sentences from a CoNLL file.
- *
- * @param type the string that describes the type of sentences
- * @param filePath the file path
- * @param maxSentences the max number of sentences to load
- * @param skipNonProjective whether to skip non-projective sentences
- *
- * @return the list of loaded sentences
- */
-fun loadSentences(type: String, filePath: String, maxSentences: Int?, skipNonProjective: Boolean): ArrayList<Sentence> {
-
-  val sentences = ArrayList<Sentence>()
-
-  println("Loading $type sentences from '%s'%s%s...".format(
-    filePath,
-    maxSentences?.let { " (max $it)" } ?: "",
-    if (skipNonProjective) " skipping non-projective" else ""
-  ))
-
-  sentences.loadFromTreeBank(
-    filePath = filePath,
-    skipNonProjective = skipNonProjective,
-    maxSentences = maxSentences)
-
-  return sentences
-}
 
 /**
  * Build the LHR Parser.
@@ -124,7 +98,7 @@ fun buildParser(parsedArgs: TrainingArgs,
 /**
  *
  */
-fun getWordEmbeddingKey(sentence: com.kotlinnlp.linguisticdescription.sentence.Sentence<*>, tokenId: Int): String {
+fun getWordEmbeddingKey(sentence: Sentence<*>, tokenId: Int): String {
 
   @Suppress("UNCHECKED_CAST")
   sentence as com.kotlinnlp.linguisticdescription.sentence.Sentence<FormToken>
@@ -135,7 +109,7 @@ fun getWordEmbeddingKey(sentence: com.kotlinnlp.linguisticdescription.sentence.S
 /**
  *
  */
-fun getPosTagEmbeddingKey(sentence: com.kotlinnlp.linguisticdescription.sentence.Sentence<*>, tokenId: Int): String {
+fun getPosTagEmbeddingKey(sentence: Sentence<*>, tokenId: Int): String {
 
   @Suppress("UNCHECKED_CAST")
   return (sentence.tokens[tokenId] as ParsingToken).posTag!!
@@ -150,37 +124,64 @@ fun getPosTagEmbeddingKey(sentence: com.kotlinnlp.linguisticdescription.sentence
  * @return a new tokens-encoder model
  */
 fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
-                            sentences: List<Sentence>,
-                            corpus: CorpusDictionary): TokensEncoderModel {
+                            sentences: List<CoNLLSentence>, // TODO: it will be used to initialize the MorphoEncoder
+                            corpus: CorpusDictionary): TokensEncoderModel =
 
-  // TODO: reimplement missing encoders
+  when (parsedArgs.tokensEncodingType) {
 
-  val embeddingsMap = EmbeddingsMapByDictionary(
-    size = parsedArgs.wordEmbeddingSize,
-    dictionary = corpus.words)
+    TrainingArgs.TokensEncodingType.WORD_AND_EXT_AND_POS_EMBEDDINGS -> { // TODO: separate with a dedicated builder
 
-  val preEmbeddingsMap = parsedArgs.embeddingsPath!!.let {
-    println("Loading pre-trained word embeddings from '$it'...")
-    EMBDLoader().load(filename = it)
-  }
+      val embeddingsMap = EmbeddingsMapByDictionary(
+        size = parsedArgs.wordEmbeddingSize,
+        dictionary = corpus.words)
 
-  val posEmbeddingsMap = EmbeddingsMapByDictionary(
-    size = parsedArgs.posEmbeddingSize,
-    dictionary = DictionarySet(corpus.posTags.getElements().map { it.label }))
+      val preEmbeddingsMap = parsedArgs.embeddingsPath!!.let {
+        println("Loading pre-trained word embeddings from '$it'...")
+        EMBDLoader().load(filename = it)
+      }
 
-  return EnsembleTokensEncoderModel(models = listOf(
-    EmbeddingsEncoderModel(embeddingsMap = preEmbeddingsMap,
-      getEmbeddingKey = ::getWordEmbeddingKey,
-      dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
-    EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
-      getEmbeddingKey = ::getWordEmbeddingKey,
-      dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
-    EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
-      getEmbeddingKey = ::getPosTagEmbeddingKey,
-      dropoutCoefficient = 0.0)),
-    outputMergeConfiguration = AffineMerge(
-      outputSize = 100,
-      activationFunction = Tanh()))
+      val posEmbeddingsMap = EmbeddingsMapByDictionary(
+        size = parsedArgs.posEmbeddingSize,
+        dictionary = DictionarySet(corpus.posTags.getElements().map { it.label }))
+
+      EnsembleTokensEncoderModel(models = listOf(
+        EmbeddingsEncoderModel(embeddingsMap = preEmbeddingsMap,
+          getEmbeddingKey = ::getWordEmbeddingKey,
+          dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+        EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
+          getEmbeddingKey = ::getWordEmbeddingKey,
+          dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+        EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
+          getEmbeddingKey = ::getPosTagEmbeddingKey,
+          dropoutCoefficient = parsedArgs.posDropoutCoefficient)),
+        outputMergeConfiguration = AffineMerge(
+          outputSize = 100, // TODO
+          activationFunction = null))
+    }
+
+    TrainingArgs.TokensEncodingType.WORD_AND_POS_EMBEDDINGS -> { // TODO: separate with a dedicated builder
+
+      val embeddingsMap = EmbeddingsMapByDictionary(
+        size = parsedArgs.wordEmbeddingSize,
+        dictionary = corpus.words)
+
+      val posEmbeddingsMap = EmbeddingsMapByDictionary(
+        size = parsedArgs.posEmbeddingSize,
+        dictionary = DictionarySet(corpus.posTags.getElements().map { it.label }))
+
+      EnsembleTokensEncoderModel(models = listOf(
+        EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
+          getEmbeddingKey = ::getWordEmbeddingKey,
+          dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+        EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
+          getEmbeddingKey = ::getPosTagEmbeddingKey,
+          dropoutCoefficient = parsedArgs.posDropoutCoefficient)),
+        outputMergeConfiguration = AffineMerge(
+          outputSize = 100, // TODO
+          activationFunction = null))
+    }
+
+    else -> TODO("reimplement missing encoders")
 }
 
 /**
@@ -195,7 +196,13 @@ fun buildTrainer(parser: LHRParser, parsedArgs: TrainingArgs) = LHRTrainer(
   parser = parser,
   epochs = parsedArgs.epochs,
   batchSize = parsedArgs.batchSize,
-  validator = Validator(neuralParser = parser, goldFilePath = parsedArgs.validationSetPath),
+  validator = Validator(
+    neuralParser = parser,
+    sentences = loadSentences(
+      type = "validation",
+      filePath = parsedArgs.validationSetPath,
+      maxSentences = null,
+      skipNonProjective = false)),
   modelFilename = parsedArgs.modelPath,
   lhrErrorsOptions = LHRTrainer.LHRErrorsOptions(
     skipPunctuationErrors = parsedArgs.skipPunctuationErrors,
