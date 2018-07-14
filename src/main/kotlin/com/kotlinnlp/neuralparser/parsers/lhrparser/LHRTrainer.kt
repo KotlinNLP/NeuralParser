@@ -14,10 +14,9 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.headsencoder.He
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.DeprelLabeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.DeprelLabelerOptimizer
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
-import com.kotlinnlp.neuralparser.language.Sentence
+import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.PositionalEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.PositionalEncoder.Companion.calculateErrors
 import com.kotlinnlp.simplednn.core.functionalities.losses.MSECalculator
@@ -208,23 +207,16 @@ class LHRTrainer(
   }
 
   /**
-   * Train the Transition System with the given [sentence].
+   * Train the Transition System with the given [sentence] and [goldTree].
    *
-   * @param sentence a sentence
+   * @param sentence the sentence
+   * @param goldTree the gold tree of the sentence
    */
-  override fun trainSentence(sentence: Sentence) {
-
-    val goldTree: DependencyTree = checkNotNull(sentence.dependencyTree) {
-      "The gold dependency tree of a sentence cannot be null during the training."
-    }
-
-    val parsingSentence = ParsingSentence(tokens = (sentence.tokens.mapIndexed { index, token ->
-      ParsingToken(index, token.word, position = Position(0, 0, 0), posTag = token.pos)
-    }))
+  override fun trainSentence(sentence: ParsingSentence, goldTree: DependencyTree) {
 
     this.beforeSentenceLearning()
 
-    val lss: LatentSyntacticStructure = this.lssEncoder.encode(parsingSentence)
+    val lss: LatentSyntacticStructure = this.lssEncoder.encode(sentence)
     val latentHeadsErrors = calculateLatentHeadsErrors(lss, goldTree.heads)
 
     val labelerErrors: List<DenseNDArray>? = this.deprelLabeler?.let {

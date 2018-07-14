@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
-import com.kotlinnlp.neuralparser.language.Sentence
+import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.syntaxdecoder.transitionsystem.oracle.OracleFactory
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.modules.bestactionselector.BestActionSelector
@@ -84,16 +84,14 @@ abstract class TransitionBasedTrainer<
   override fun getRelevantErrorsCount(): Int = this.syntaxDecoderTrainer.relevantErrorsCount
 
   /**
-   * Train the Transition System with the given [sentence].
+   * Train the Transition System with the given [sentence] and [goldTree].
    *
    * @param sentence a sentence
+   * @param goldTree the gold dependency tree
    */
-  override fun trainSentence(sentence: Sentence) {
+  override fun trainSentence(sentence: ParsingSentence, goldTree: DependencyTree) {
 
     val context: InputContextType = this.neuralParser.buildContext(sentence, trainingMode = true)
-    val goldTree: DependencyTree = checkNotNull(sentence.dependencyTree) {
-      "The gold dependency tree of a sentence cannot be null during the training."
-    }
 
     this.beforeSentenceLearning(context)
 

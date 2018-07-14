@@ -7,12 +7,12 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
-import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
+import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoderOptimizer
 import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
-import com.kotlinnlp.neuralparser.language.Sentence
+import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.core.functionalities.losses.MSECalculator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
@@ -87,23 +87,20 @@ class LHRTransferLearning(
     model = this.targetParser.model.tokensEncoderModel, updateMethod = this.updateMethod)
 
   /**
-   * Train the [targetParser] with the given [sentence].
+   * Train the Transition System with the given [sentence] and [goldTree].
    * Transfer the knowledge acquired by the context encoder of a reference parser to that of the target parser.
    *
-   * @param sentence a sentence
+   * @param sentence the sentence
+   * @param goldTree the gold tree of the sentence
    */
-  override fun trainSentence(sentence: Sentence) {
-
-    val parsingSentence = ParsingSentence(tokens = (sentence.tokens.mapIndexed { index, token ->
-      ParsingToken(index, token.word, position = Position(0, 0, 0), posTag = token.pos)
-    }))
+  override fun trainSentence(sentence: ParsingSentence, goldTree: DependencyTree) {
 
     this.beforeSentenceLearning()
 
-    val targetTokensEncodings: List<DenseNDArray> = this.targetTokensEncoder.forward(parsingSentence)
+    val targetTokensEncodings: List<DenseNDArray> = this.targetTokensEncoder.forward(sentence)
     val targetContextVectors = this.targetContextEncoder.forward(targetTokensEncodings)
 
-    val refTokensEncodings: List<DenseNDArray> = this.referenceTokensEncoder.forward(parsingSentence)
+    val refTokensEncodings: List<DenseNDArray> = this.referenceTokensEncoder.forward(sentence)
     val refContextVectors = this.referenceContextEncoder.forward(refTokensEncodings)
 
     val errors: List<DenseNDArray> = MSECalculator().calculateErrors(
