@@ -8,9 +8,9 @@
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ambiguouspos
 
 import com.kotlinnlp.dependencytree.POSTag
+import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParser
-import com.kotlinnlp.neuralparser.language.Sentence
-import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensAmbiguousPOSContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.embeddings.Embedding
@@ -88,16 +88,16 @@ abstract class BiRNNAmbiguousPOSParser<
    *
    * @return the input context related to the given [sentence]
    */
-  override fun buildContext(sentence: Sentence, trainingMode: Boolean): TokensAmbiguousPOSContext {
+  override fun buildContext(sentence: ParsingSentence, trainingMode: Boolean): TokensAmbiguousPOSContext {
 
-    val tokens: List<Token> = sentence.tokens
+    val tokens: List<ParsingToken> = sentence.tokens
     val posTags: List<List<POSTag>> = tokens.map {
       when {
 
-        this.model.corpusDictionary.formsToPosTags.containsKey(it.normalizedWord) ->
-          this.model.corpusDictionary.formsToPosTags[it.normalizedWord].toList()
+        this.model.corpusDictionary.formsToPosTags.containsKey(it.normalizedForm) ->
+          this.model.corpusDictionary.formsToPosTags[it.normalizedForm].toList()
 
-        it.normalizedWord.isTitleCase() -> listOf(this.model.nounDefaultPOSTag)
+        it.normalizedForm.isTitleCase() -> listOf(this.model.nounDefaultPOSTag)
 
         else -> this.model.unknownFormDefaultPOSTags
       }
@@ -105,12 +105,12 @@ abstract class BiRNNAmbiguousPOSParser<
 
     val wordEmbeddings: List<Embedding> = tokens.map {
       this.model.wordEmbeddings.get(
-        element = it.normalizedWord,
+        element = it.normalizedForm,
         dropoutCoefficient = if (trainingMode) this.wordDropoutCoefficient else 0.0)
     }
 
     val preTrainedEmbeddings: List<Embedding>? = if (this.model.preTrainedWordEmbeddings != null)
-      tokens.map { this.model.preTrainedWordEmbeddings!!.get(it.normalizedWord) }
+      tokens.map { this.model.preTrainedWordEmbeddings!!.get(it.normalizedForm) }
     else
       null
 

@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts
 
-import com.kotlinnlp.neuralparser.language.Token
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.syntaxdecoder.context.InputContext
@@ -20,7 +20,7 @@ import com.kotlinnlp.syntaxdecoder.context.InputContext
  * @property nullItemVector used to represent the encoding of a null item of the decoding window
  */
 abstract class TokensEncodingContext<SelfType: TokensEncodingContext<SelfType>>(
-  val tokens: List<Token>,
+  val tokens: List<ParsingToken>,
   val encodingSize: Int,
   val nullItemVector: DenseNDArray,
   val trainingMode: Boolean = false

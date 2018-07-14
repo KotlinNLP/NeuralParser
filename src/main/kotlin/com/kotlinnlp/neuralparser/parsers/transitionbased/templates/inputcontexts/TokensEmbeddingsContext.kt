@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts
 
-import com.kotlinnlp.neuralparser.language.Token
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.embeddings.Embedding
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -26,7 +26,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  */
 class TokensEmbeddingsContext(
   override val items: List<DenseItem>,
-  tokens: List<Token>,
+  tokens: List<ParsingToken>,
   val posEmbeddings: List<Embedding>,
   val wordEmbeddings: List<Embedding>,
   unknownItemVector: DenseNDArray,

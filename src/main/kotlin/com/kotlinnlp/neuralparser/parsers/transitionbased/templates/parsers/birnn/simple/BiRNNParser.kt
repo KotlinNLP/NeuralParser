@@ -7,9 +7,9 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple
 
+import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParser
-import com.kotlinnlp.neuralparser.language.Sentence
-import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEmbeddingsContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.embeddings.Embedding
@@ -86,17 +86,17 @@ abstract class BiRNNParser<
    *
    * @return the input context related to the given [sentence]
    */
-  override fun buildContext(sentence: Sentence, trainingMode: Boolean): TokensEmbeddingsContext {
+  override fun buildContext(sentence: ParsingSentence, trainingMode: Boolean): TokensEmbeddingsContext {
 
-    val tokens: List<Token> = sentence.tokens
+    val tokens: List<ParsingToken> = sentence.tokens
 
     val posEmbeddings: List<Embedding> = tokens.map {
-      this.model.posEmbeddings.get(element = it.pos!!,
+      this.model.posEmbeddings.get(element = it.posTag!!,
         dropoutCoefficient = if (trainingMode) this.posDropoutCoefficient else 0.0)
     }
 
     val wordEmbeddings: List<Embedding> = tokens.map {
-      this.model.wordEmbeddings.get(element = it.normalizedWord,
+      this.model.wordEmbeddings.get(element = it.normalizedForm,
         dropoutCoefficient = if (trainingMode) this.wordDropoutCoefficient else 0.0)
     }
 

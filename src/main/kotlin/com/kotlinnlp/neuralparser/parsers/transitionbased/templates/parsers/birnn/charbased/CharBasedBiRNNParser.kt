@@ -7,9 +7,10 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.charbased
 
+import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
+import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParser
-import com.kotlinnlp.neuralparser.language.Sentence
-import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensCharsEncodingContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.embeddings.Embedding
@@ -87,17 +88,17 @@ abstract class CharBasedBiRNNParser<
    *
    * @return the input context related to the given [sentence]
    */
-  override fun buildContext(sentence: Sentence, trainingMode: Boolean): TokensCharsEncodingContext {
+  override fun buildContext(sentence: ParsingSentence, trainingMode: Boolean): TokensCharsEncodingContext {
 
-    val tokens: List<Token> = sentence.tokens
+    val tokens: List<ParsingToken> = sentence.tokens
 
     val wordEmbeddings: List<Embedding> = tokens.map {
       this.model.wordEmbeddings.get(
-        element = it.normalizedWord, dropoutCoefficient = if (trainingMode) this.wordDropoutCoefficient else 0.0)
+        element = it.normalizedForm, dropoutCoefficient = if (trainingMode) this.wordDropoutCoefficient else 0.0)
     }
 
     val charsEmbeddings: List<List<Embedding>> = tokens.map {
-      it.normalizedWord.map { char -> this.model.charsEmbeddings.get(char) }
+      it.normalizedForm.map { char -> this.model.charsEmbeddings.get(char) }
     }
 
     val (usedEncoders, charsEncodings) = this.encodeTokensByChars(tokens = tokens, charsEmbeddings = charsEmbeddings)
@@ -125,7 +126,7 @@ abstract class CharBasedBiRNNParser<
    * @return a pair with the list of used encoders and the parallel list of tokens encodings by chars
    */
   private fun encodeTokensByChars(
-    tokens: List<Token>,
+    tokens: List<FormToken>,
     charsEmbeddings: List<List<Embedding>>
   ): Pair<List<HANEncoder<DenseNDArray>>, List<DenseNDArray>> {
 
