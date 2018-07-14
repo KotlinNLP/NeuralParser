@@ -7,8 +7,11 @@
 
 package com.kotlinnlp.neuralparser.helpers
 
+import com.kotlinnlp.conllio.Sentence as CoNLLSentence
+import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.language.Sentence
+import com.kotlinnlp.neuralparser.helpers.statistics.Statistics
+import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.utils.Timer
 import com.kotlinnlp.simplednn.dataset.Shuffler
 import com.kotlinnlp.simplednn.helpers.training.utils.ExamplesIndices
@@ -62,7 +65,7 @@ abstract class Trainer(
    * @param trainingSentences the sentences used to train the parser
    * @param shuffler a shuffle to shuffle the sentences at each epoch (can be null)
    */
-  fun train(trainingSentences: List<Sentence>,
+  fun train(trainingSentences: List<CoNLLSentence>,
             shuffler: Shuffler? = Shuffler(enablePseudoRandom = true, seed = 743)) {
 
     (0 until this.epochs).forEach { i ->
@@ -91,7 +94,7 @@ abstract class Trainer(
    * @param trainingSentences the training sentences
    * @param shuffler a shuffle to shuffle the sentences at each epoch (can be null)
    */
-  private fun trainEpoch(trainingSentences: List<Sentence>,
+  private fun trainEpoch(trainingSentences: List<CoNLLSentence>,
                          shuffler: Shuffler?) {
 
     val progress = ProgressIndicatorBar(trainingSentences.size)
@@ -104,7 +107,11 @@ abstract class Trainer(
 
       progress.tick()
 
-      this.trainSentence(trainingSentences[sentenceIndex])
+      val sentence: CoNLLSentence = trainingSentences[sentenceIndex]
+
+      require(sentence.hasAnnotatedHeads()) { "The gold dependency tree of a sentence cannot be null during the evaluation." }
+
+      this.trainSentence(sentence = sentence.toParsingSentence(), goldTree = sentence.getDependencyTree())
 
       if (endOfBatch && this.getRelevantErrorsCount() >= this.minRelevantErrorsCountToUpdate) {
         this.update()
@@ -195,11 +202,12 @@ abstract class Trainer(
   protected abstract fun update()
 
   /**
-   * Train the [neuralParser] with the given [sentence].
+   * Train the Transition System with the given [sentence] and [goldTree].
    *
    * @param sentence a sentence
+   * @param goldTree the gold dependency tree
    */
-  protected abstract fun trainSentence(sentence: Sentence)
+  protected abstract fun trainSentence(sentence: ParsingSentence, goldTree: DependencyTree)
 
   /**
    * @return the count of the relevant errors
