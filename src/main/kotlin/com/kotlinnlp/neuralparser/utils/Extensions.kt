@@ -13,6 +13,30 @@ import com.kotlinnlp.conllio.Sentence.InvalidTree
 import java.io.File
 
 /**
+ * Load sentences from a CoNLL file.
+ *
+ * @param type the string that describes the type of sentences
+ * @param filePath the file path
+ * @param maxSentences the max number of sentences to load
+ * @param skipNonProjective whether to skip non-projective sentences
+ *
+ * @return the list of loaded sentences
+ */
+fun loadSentences(type: String,
+                  filePath: String,
+                  maxSentences: Int?,
+                  skipNonProjective: Boolean): List<CoNLLSentence> {
+
+  println("Loading $type sentences from '%s'%s%s...".format(
+    filePath,
+    maxSentences?.let { " (max $it)" } ?: "",
+    if (skipNonProjective) " skipping non-projective" else ""
+  ))
+
+  return filePath.loadFromTreeBank(skipNonProjective = skipNonProjective, maxSentences = maxSentences)
+}
+
+/**
  * Return a list of CoNLL sentences from a tree-bank at this path.
  *
  * @param maxSentences the maximum number of sentences to load (null = unlimited)
