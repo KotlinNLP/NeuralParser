@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.helpers
+package com.kotlinnlp.neuralparser.helpers.statistics
 
 /**
  * Parsing statistics, including ones calculated without considering the punctuation.
