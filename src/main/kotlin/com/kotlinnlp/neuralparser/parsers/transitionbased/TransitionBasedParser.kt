@@ -8,8 +8,9 @@
 package com.kotlinnlp.neuralparser.parsers.transitionbased
 
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.language.Sentence
+import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.syntaxdecoder.BeamDecoder
 import com.kotlinnlp.syntaxdecoder.GreedyDecoder
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
@@ -61,17 +62,19 @@ abstract class TransitionBasedParser<
     = if (beamSize == 1) this.buildGreedyDecoder() else this.buildBeamDecoder(beamSize, maxParallelThreads)
 
   /**
-   * Parse a sentence, giving its dependency tree.
+   * Parse a sentence.
    *
-   * @param sentence a [Sentence]
+   * @param sentence a sentence
    *
-   * @return the dependency tree predicted for the given [sentence]
+   * @return the result of the parsing process
    */
-  override fun parse(sentence: Sentence): DependencyTree {
+  override fun parse(sentence: ParsingSentence): MorphoSyntacticSentence {
 
-    return this.syntaxDecoder.decode(
+    val dependencyTree: DependencyTree = this.syntaxDecoder.decode(
       context = this.buildContext(sentence = sentence, trainingMode = false),
       beforeApplyAction = this::beforeApplyAction)
+
+    return sentence.toMorphoSyntacticSentence(dependencyTree)
   }
 
   /**
@@ -119,7 +122,7 @@ abstract class TransitionBasedParser<
    *
    * @return the [InputContext] related to the given [sentence]
    */
-  abstract fun buildContext(sentence: Sentence, trainingMode: Boolean): InputContextType
+  abstract fun buildContext(sentence: ParsingSentence, trainingMode: Boolean): InputContextType
 
   /**
    * Callback called before applying an action.
