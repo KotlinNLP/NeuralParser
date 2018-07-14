@@ -8,26 +8,25 @@
 package com.kotlinnlp.neuralparser.utils
 
 import com.kotlinnlp.conllio.CoNLLReader
+import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Sentence.InvalidTree
-import com.kotlinnlp.neuralparser.language.Sentence
 import java.io.File
 
 /**
- * Populate an array of sentences from a tree-bank.
+ * Return a list of CoNLL sentences from a tree-bank at this path.
  *
- * @param filePath the file path of the tree-bank in CoNLL format
  * @param maxSentences the maximum number of sentences to load (null = unlimited)
  * @param skipNonProjective whether to skip non-projective sentences
  *
  * @throws InvalidTree if the tree of a sentence is not valid
  */
-fun ArrayList<Sentence>.loadFromTreeBank(filePath: String,
-                                         maxSentences: Int? = null,
-                                         skipNonProjective: Boolean = false) {
+fun String.loadFromTreeBank(maxSentences: Int? = null,
+                            skipNonProjective: Boolean = false): List<CoNLLSentence> {
 
   var index = 0
+  val sentences = ArrayList<CoNLLSentence>()
 
-  CoNLLReader.forEachSentence(File(filePath)) { sentence ->
+  CoNLLReader.forEachSentence(File(this)) { sentence ->
 
     if (maxSentences == null || index < maxSentences) {
 
@@ -35,9 +34,11 @@ fun ArrayList<Sentence>.loadFromTreeBank(filePath: String,
 
       val skip: Boolean = skipNonProjective && sentence.isNonProjective()
 
-      if (!skip) this.add(Sentence.fromCoNLL(sentence))
+      if (!skip) sentences.add(sentence)
     }
 
     index++
   }
+
+  return sentences.toList()
 }
