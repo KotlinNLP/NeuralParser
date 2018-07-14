@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
+import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
