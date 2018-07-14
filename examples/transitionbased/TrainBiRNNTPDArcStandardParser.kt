@@ -7,15 +7,15 @@
 
 package transitionbased
 
+import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.dependencytree.POSTag
-import com.kotlinnlp.neuralparser.language.Sentence
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.tpd.BiRNNTPDArcStandardParser
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.tpd.BiRNNTPDArcStandardParserModel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ambiguouspos.BiRNNAmbiguousPOSParserTrainer
-import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
+import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
@@ -40,12 +40,16 @@ fun main(args: Array<String>) {
   val validationSetPath: String = args[2]
   val modelFilename: String = args[3]
 
-  println("Loading training sentences...")
-  val trainingSentences = ArrayList<Sentence>()
-  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true)
+  val trainingSentences: List<CoNLLSentence> = loadSentences(
+    type = "training",
+    filePath = trainingSetPath,
+    maxSentences = null,
+    skipNonProjective = false)
 
-  println("Creating corpus dictionary...")
-  val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
+  val corpusDictionary: CorpusDictionary = trainingSentences.let {
+    println("Creating corpus dictionary...")
+    CorpusDictionary(it)
+  }
 
   val preTrainedEmbeddings: EmbeddingsMap<String>? = if (args.size > 4) {
     println("Loading pre-trained word embeddings...")
@@ -84,7 +88,11 @@ fun main(args: Array<String>) {
     minRelevantErrorsCountToUpdate = 50,
     validator = Validator(
       neuralParser = parser,
-      goldFilePath = validationSetPath),
+      sentences = loadSentences(
+        type = "validation",
+        filePath = validationSetPath,
+        maxSentences = null,
+        skipNonProjective = false)),
     modelFilename = modelFilename)
 
   println("\n-- START TRAINING ON %d SENTENCES".format(trainingSentences.size))

@@ -7,14 +7,14 @@
 
 package transitionbased
 
-import com.kotlinnlp.neuralparser.language.Sentence
+import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple.BiRNNParserTrainer
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.simple.BiRNNArcStandardParser
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.simple.BiRNNArcStandardParserModel
-import com.kotlinnlp.neuralparser.utils.loadFromTreeBank
+import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.syntaxdecoder.modules.actionserrorssetter.HingeLossActionsErrorsSetter
@@ -37,12 +37,16 @@ fun main(args: Array<String>) {
   val validationSetPath: String = args[2]
   val modelFilename: String = args[3]
 
-  println("Loading training sentences...")
-  val trainingSentences = ArrayList<Sentence>()
-  trainingSentences.loadFromTreeBank(trainingSetPath, skipNonProjective = true)
+  val trainingSentences: List<CoNLLSentence> = loadSentences(
+    type = "training",
+    filePath = trainingSetPath,
+    maxSentences = null,
+    skipNonProjective = false)
 
-  println("Creating corpus dictionary...")
-  val corpusDictionary = CorpusDictionary(sentences = trainingSentences)
+  val corpusDictionary: CorpusDictionary = trainingSentences.let {
+    println("Creating corpus dictionary...")
+    CorpusDictionary(it)
+  }
 
   val parserModel = BiRNNArcStandardParserModel(
     scoreAccumulatorFactory = AverageAccumulator.Factory,
@@ -71,7 +75,11 @@ fun main(args: Array<String>) {
     minRelevantErrorsCountToUpdate = 50,
     validator = Validator(
       neuralParser = parser,
-      goldFilePath = validationSetPath),
+      sentences = loadSentences(
+        type = "validation",
+        filePath = validationSetPath,
+        maxSentences = null,
+        skipNonProjective = false)),
     modelFilename = modelFilename)
 
   println("\n-- START TRAINING ON %d SENTENCES".format(trainingSentences.size))
