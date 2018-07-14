@@ -11,6 +11,7 @@ import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.GenericTransitionBasedParser
 import com.kotlinnlp.neuralparser.utils.Timer
+import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.syntaxdecoder.BeamDecoder
 import java.io.File
 import java.io.FileInputStream
@@ -40,12 +41,16 @@ fun main(args: Array<String>) {
     beamSize = beamSize,
     maxParallelThreads = maxParallelThreads)
 
-  val validator = Validator(neuralParser = parser, goldFilePath = validationSetPath)
+  val validator = Validator(neuralParser = parser, sentences = loadSentences(
+    type = "validation",
+    filePath = validationSetPath,
+    maxSentences = null,
+    skipNonProjective = false))
 
   println("\nBeam size = $beamSize, MaxParallelThreads = $maxParallelThreads\n")
 
   val timer = Timer()
-  val evaluation = validator.evaluate(printCoNLLScriptEvaluation = true)
+  val evaluation = validator.evaluate()
 
   println("\n$evaluation")
   println("\nElapsed time: ${timer.formatElapsedTime()}")
