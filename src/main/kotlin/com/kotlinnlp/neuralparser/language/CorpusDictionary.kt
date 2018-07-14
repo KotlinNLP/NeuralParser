@@ -8,7 +8,8 @@
 package com.kotlinnlp.neuralparser.language
 
 import com.google.common.collect.HashMultimap
-import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.conllio.Sentence as CoNLLSentence
+import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.utils.DictionarySet
@@ -24,19 +25,16 @@ class CorpusDictionary : Serializable {
     /**
      * Use the given [sentences] to populate the dictionary sets (words, posTags, deprelTags).
      *
-     * @param sentences a list of [Sentence]
+     * @param sentences a list of sentences
+     *
+     * @return a new CorpusDictionary
      */
-    operator fun invoke(sentences: List<Sentence>): CorpusDictionary {
+    operator fun invoke(sentences: List<CoNLLSentence>): CorpusDictionary {
 
       val dictionary = CorpusDictionary()
 
       sentences.forEach { sentence ->
-
         sentence.tokens.forEach { token -> dictionary.addInfo(token) }
-
-        if (sentence.dependencyTree != null) {
-          dictionary.addDependencies(sentence.dependencyTree)
-        }
       }
 
       return dictionary
@@ -69,35 +67,40 @@ class CorpusDictionary : Serializable {
   val deprelPosTagCombinations: HashMultimap<Deprel, POSTag> = HashMultimap.create()
 
   /**
-   * Add the dependencies of a given [dependencyTree] into this dictionary.
-   *
-   * @param dependencyTree the dependency tree of a sentence
-   */
-  private fun addDependencies(dependencyTree: DependencyTree) {
-
-    dependencyTree.deprels.zip(dependencyTree.posTags).forEach { (deprel, posTag) ->
-
-      if (deprel != null) {
-        this.deprelTags.add(deprel)
-
-        if (posTag != null) {
-          this.deprelPosTagCombinations.put(deprel, posTag)
-        }
-      }
-    }
-  }
-
-  /**
    * Add info (form and POS) of a given [token] into this dictionary.
    *
    * @param token the token of a sentence
    */
-  private fun addInfo(token: Token) {
+  private fun addInfo(token: CoNLLToken) {
 
-    val posTag = POSTag(token.pos!!)
+    val posTag = POSTag(token.pos)
+    val deprel: Deprel = this.getDeprel(token)
 
-    this.words.add(token.normalizedWord)
+    this.words.add(token.normalizedForm)
     this.posTags.add(posTag)
-    this.formsToPosTags.put(token.normalizedWord, posTag)
+    this.formsToPosTags.put(token.normalizedForm, posTag)
+
+    if (token.head != null) {
+      this.deprelTags.add(deprel)
+      this.deprelPosTagCombinations.put(deprel, posTag)
+    }
+  }
+
+  /**
+   * @param token the token of a sentence
+   *
+   * @return the deprel of the given [token]
+   */
+  private fun getDeprel(token: CoNLLToken): Deprel {
+
+    val head: Int = checkNotNull(token.head)
+
+    return Deprel(
+      label = token.deprel,
+      direction = when {
+        head == 0 -> Deprel.Position.ROOT
+        head > token.id -> Deprel.Position.LEFT
+        else -> Deprel.Position.RIGHT
+      })
   }
 }
