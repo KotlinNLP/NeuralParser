@@ -10,14 +10,15 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser
 import com.kotlinnlp.neuralparser.parsers.lhrparser.decoders.CosineDecoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.ArcScores
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.headsencoder.HeadsEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.DeprelLabeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.ArcScores.Companion.rootId
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.CyclesFixer
 import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.language.Sentence
+import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.tokensencoder.TokensEncoderFactory
 
 /**
@@ -55,16 +56,13 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
    *
    * @return the dependency tree predicted for the given [sentence]
    */
-  override fun parse(sentence: Sentence): DependencyTree {
+  override fun parse(sentence: ParsingSentence): MorphoSyntacticSentence {
 
-    val parsingSentence = ParsingSentence(tokens = (sentence.tokens.mapIndexed { index, token ->
-      ParsingToken(index, token.word, position = Position(0, 0, 0), posTag = token.pos)
-    }))
-
-    val lss: LatentSyntacticStructure = this.lssEncoder.encode(parsingSentence)
+    val lss: LatentSyntacticStructure = this.lssEncoder.encode(sentence)
     val scores: ArcScores = CosineDecoder().decode(lss)
+    val dependencyTree: DependencyTree = this.buildDependencyTree(lss, scores)
 
-    return this.buildDependencyTree(lss, scores)
+    return sentence.toMorphoSyntacticSentence(dependencyTree)
   }
 
   /**
