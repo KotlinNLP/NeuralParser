@@ -21,13 +21,22 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
  *
  * @return a parsing sentence
  */
-fun CoNLLSentence.toParsingSentence() = ParsingSentence(tokens = (this.tokens.map { token ->
-  ParsingToken(
-    id = token.id - 1,
-    form = token.form,
-    position = Position(index = token.id - 1, start = 0, end = 0),
-    posTag = token.pos)
-}))
+fun CoNLLSentence.toParsingSentence(): ParsingSentence {
+
+  var end = -2
+
+  return ParsingSentence(tokens = this.tokens.map {
+
+    val start = end + 2 // each couple of consecutive words is separated by a spacing char
+    end = start + it.form.length - 1
+
+    ParsingToken(
+      id = it.id,
+      form = it.form,
+      position = Position(index = it.id - 1, start = start, end = end),
+      posTag = it.pos)
+  })
+}
 
 /**
  * Return the [DependencyTree] of this sentence.
