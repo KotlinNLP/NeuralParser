@@ -34,7 +34,7 @@ data class ParsingToken(
   /**
    * @param dependencyTree the dependency tree from which to extract the dependency relations
    *
-   * @return a new [MorphoSyntacticSentence]
+   * @return a new syntactic token
    */
   fun toSyntacticToken(dependencyTree: DependencyTree) = Word(
     id = this.id,
