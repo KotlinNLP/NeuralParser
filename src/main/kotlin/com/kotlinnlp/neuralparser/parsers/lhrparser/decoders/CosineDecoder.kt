@@ -11,7 +11,6 @@ import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.HeadsDecoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.ArcScores
-import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.ArcScores.Companion.rootId
 import com.kotlinnlp.simplednn.simplemath.cosineSimilarity
 
 /**
@@ -51,7 +50,7 @@ class CosineDecoder : HeadsDecoder {
 
     lss.sentence.tokens.forEach {
 
-      this.similarityMatrix[it.id] = mutableMapOf()
+      this.similarityMatrix[it.position.index] = mutableMapOf()
 
       this.setHeadsScores(it)
       this.setRootScores(it)
@@ -67,13 +66,15 @@ class CosineDecoder : HeadsDecoder {
    */
   private fun setHeadsScores(dependent: ParsingToken) {
 
-    val scores: MutableMap<Int, Double> = this.similarityMatrix.getValue(dependent.id)
+    val scores: MutableMap<Int, Double> = this.similarityMatrix.getValue(dependent.position.index)
 
     this.lssNorm.sentence.tokens
-      .filterNot { it.id == dependent.id } /// || it.isPunctuation }
-      .associateTo(scores) { it.id to cosineSimilarity(
-        a = this.lssNorm.contextVectors[it.id],
-        b = this.lssNorm.latentHeads[dependent.id]) }
+      .filter { it.id != dependent.id }
+      .associateTo(scores) {
+        it.position.index to cosineSimilarity(
+          a = this.lssNorm.contextVectors[it.position.index],
+          b = this.lssNorm.latentHeads[dependent.position.index])
+      }
   }
 
   /**
@@ -83,12 +84,12 @@ class CosineDecoder : HeadsDecoder {
    */
   private fun setRootScores(dependent: ParsingToken) {
 
-    this.similarityMatrix.getValue(dependent.id)[rootId] = 0.0 // default root score
+    this.similarityMatrix.getValue(dependent.position.index)[ArcScores.rootId] = 0.0 // default root score
 
     if (!dependent.isPunctuation) { // the root shouldn't be a punctuation token
 
-      this.similarityMatrix.getValue(dependent.id)[rootId] = cosineSimilarity(
-        a = this.lssNorm.latentHeads[dependent.id],
+      this.similarityMatrix.getValue(dependent.position.index)[ArcScores.rootId] = cosineSimilarity(
+        a = this.lssNorm.latentHeads[dependent.position.index],
         b = this.lssNorm.virtualRoot)
     }
   }

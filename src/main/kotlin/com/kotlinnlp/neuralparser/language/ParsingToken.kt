@@ -7,7 +7,6 @@
 
 package com.kotlinnlp.neuralparser.language
 
-import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Word
@@ -29,20 +28,15 @@ data class ParsingToken(
   val posTag: String?
 ) : RealToken {
 
-
   /**
-   * @param dependencyTree the dependency tree from which to extract the dependency relations
+   * @param dependencyRelation the dependency relation of this token
    *
    * @return a new syntactic token
    */
-  fun toSyntacticToken(dependencyTree: DependencyTree) = Word(
+  fun toSyntacticToken(dependencyRelation: DependencyRelation) = Word(
     id = this.id,
     form = this.form,
     position = this.position,
-    morphologies = emptyList(), // TODO
-    dependencyRelation = DependencyRelation(
-      governor = dependencyTree.heads[this.id], // TODO: fix issue index/id
-      deprel = dependencyTree.deprels[this.id]?.label ?: "_", // TODO: fix issue index/id
-      attachmentScore = 0.0 // TODO
-    ))
+    morphologies = emptyList(), // TODO: set it
+    dependencyRelation = dependencyRelation)
 }

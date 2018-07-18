@@ -10,6 +10,7 @@ package com.kotlinnlp.neuralparser.language
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
 
 /**
  * @property tokens the tokens
@@ -22,8 +23,15 @@ class ParsingSentence(override val tokens: List<ParsingToken>) : Sentence<Parsin
    * @return a new [MorphoSyntacticSentence]
    */
   fun toMorphoSyntacticSentence(dependencyTree: DependencyTree) = MorphoSyntacticSentence(
-    id = 0,  // TODO
-    confidence = 0.0, // TODO
-    tokens = this.tokens.map { it.toSyntacticToken(dependencyTree) }
+    id = 0,  // TODO: set it
+    confidence = 0.0, // TODO: set it
+    tokens = this.tokens.map {
+      it.toSyntacticToken(
+        dependencyRelation = DependencyRelation(
+          governor = dependencyTree.heads[it.position.index]?.let { index -> this.tokens[index] }?.id,
+          deprel = dependencyTree.deprels[it.position.index]?.label ?: "_",
+          attachmentScore = 0.0) // TODO: set it
+      )
+    }
   )
 }
