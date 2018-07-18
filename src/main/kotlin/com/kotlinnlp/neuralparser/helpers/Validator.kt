@@ -98,9 +98,9 @@ class Validator(
   }
 
   /**
-   * Parse the validation sentences in CoNLL format.
+   * Parse the validation CoNLL sentences.
    *
-   * @return the list of parsed sentences in CoNLL format
+   * @return the list of parsed CoNLL sentences
    */
   private fun parseSentences(): List<CoNLLSentence> {
 
