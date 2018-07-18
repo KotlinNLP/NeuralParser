@@ -40,7 +40,7 @@ data class ParsingToken(
     id = this.id,
     form = this.form,
     position = this.position,
-    lexicalInterpretations = emptyList(), // TODO
+    morphologies = emptyList(), // TODO
     dependencyRelation = DependencyRelation(
       governor = dependencyTree.heads[this.id], // TODO: fix issue index/id
       deprel = dependencyTree.deprels[this.id]?.label ?: "_", // TODO: fix issue index/id
