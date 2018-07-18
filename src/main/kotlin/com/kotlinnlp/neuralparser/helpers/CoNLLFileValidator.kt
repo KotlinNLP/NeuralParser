@@ -22,7 +22,7 @@ import java.io.File
  * @property outputFilePath the file path of the output CoNLL corpus (default = null -> a temporary file is used)
  * @property verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
-class ExternalCoNLLValidator(
+class CoNLLFileValidator(
   neuralParser: NeuralParser<*>,
   private val goldFilePath: String,
   private val outputFilePath: String? = null,
