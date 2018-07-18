@@ -59,21 +59,22 @@ internal fun CoNLLSentence.getDependencyTree(): DependencyTree {
  */
 private fun DependencyTree.addArc(token: CoNLLToken) {
 
-  val id = token.id - 1
-  val head = if (token.head!! == 0) null else token.head!! - 1
+  val head: Int = token.head!!
 
   val deprel = Deprel(
     label = token.deprel,
     direction = when {
-      head == null -> Deprel.Position.ROOT
-      head > id -> Deprel.Position.LEFT
+      head == 0 -> Deprel.Position.ROOT
+      head > token.id -> Deprel.Position.LEFT
       else -> Deprel.Position.RIGHT
     })
 
-  if (head != null) {
-    this.setArc(dependent = id, governor = head, deprel = deprel, posTag = POSTag(label = token.pos))
+  val dependentID = token.id - 1
+
+  if (head > 0) {
+    this.setArc(dependent = dependentID, governor = head - 1, deprel = deprel, posTag = POSTag(label = token.pos))
   } else {
-    this.setDeprel(dependent = id, deprel = deprel)
-    this.setPosTag(dependent = id, posTag = POSTag(label = token.pos))
+    this.setDeprel(dependent = dependentID, deprel = deprel)
+    this.setPosTag(dependent = dependentID, posTag = POSTag(label = token.pos))
   }
 }
