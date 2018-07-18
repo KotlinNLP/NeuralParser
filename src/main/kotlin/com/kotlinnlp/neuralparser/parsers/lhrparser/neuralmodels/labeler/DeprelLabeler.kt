@@ -152,7 +152,7 @@ class DeprelLabeler(
 
     val features = mutableListOf<List<DenseNDArray>>()
 
-    input.lss.sentence.tokens.map { it.id }.zip(this.dependencyTree.heads).forEach { (dependentId, headId) ->
+    (0 until input.lss.sentence.tokens.size).zip(this.dependencyTree.heads).forEach { (dependentId, headId) ->
 
       features.add(listOf(
         input.lss.contextVectors[dependentId],
