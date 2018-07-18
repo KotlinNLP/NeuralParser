@@ -19,6 +19,18 @@ import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 class ParsingSentence(override val tokens: List<ParsingToken>) : Sentence<ParsingToken> {
 
   /**
+   * Check token ids.
+   */
+  init {
+
+    require(this.tokens.first().id == 0) { "Tokens ids must start from 0" }
+
+    require((1 until this.tokens.size).all { i -> this.tokens[i].id == this.tokens[i - 1].id + 1 }) {
+      "Tokens ids must be incremental and sequential"
+    }
+  }
+
+  /**
    * @param dependencyTree the dependency tree from which to extract the dependency relations
    *
    * @return a new [MorphoSyntacticSentence]
