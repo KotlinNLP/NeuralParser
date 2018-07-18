@@ -14,22 +14,19 @@ import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.statistics.MetricsCounter
 import com.kotlinnlp.neuralparser.helpers.statistics.SentenceMetrics
 import com.kotlinnlp.neuralparser.helpers.statistics.Statistics
+import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 
 /**
  * The Validator.
  *
- * @property neuralParser the neural parser
+ * @param neuralParser the neural parser
  * @property sentences the sentences to parse containing the gold annotation
  * @property verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
 class Validator(
   neuralParser: NeuralParser<*>,
-  sentences: List<CoNLLSentence>,
-  verbose: Boolean = true
-) : CoNLLDependencyParser(
-  neuralParser = neuralParser,
-  sentences = sentences,
-  verbose = verbose
+  val sentences: List<CoNLLSentence>,
+  val verbose: Boolean = true
 ) {
 
   companion object {
@@ -62,13 +59,18 @@ class Validator(
   private lateinit var sentenceMetrics: SentenceMetrics
 
   /**
+   * The parser wrapper to parse sentences in CoNLL format.
+   */
+  private val conllParser = CoNLLDependencyParser(neuralParser)
+
+  /**
    * Get statistics about the evaluation of the parsing accuracy on the given [sentences].
    *
    * @return the statistics of the parsing accuracy
    */
   fun evaluate(): Statistics {
 
-    val parsedSentences: List<CoNLLSentence> = this.parse()
+    val parsedSentences: List<CoNLLSentence> = this.parseSentences()
 
     this.initCounters(parsedSentences)
 
@@ -93,6 +95,25 @@ class Validator(
     }
 
     return this.buildStats()
+  }
+
+  /**
+   * Parse the validation sentences in CoNLL format.
+   *
+   * @return the list of parsed sentences in CoNLL format
+   */
+  private fun parseSentences(): List<CoNLLSentence> {
+
+    val progress: ProgressIndicatorBar? = if (this.verbose) ProgressIndicatorBar(this.sentences.size) else null
+
+    if (this.verbose) println("Start parsing of %d sentences:".format(this.sentences.size))
+
+    return this.sentences.map {
+
+      progress?.tick()
+
+      this.conllParser.parse(it)
+    }
   }
 
   /**

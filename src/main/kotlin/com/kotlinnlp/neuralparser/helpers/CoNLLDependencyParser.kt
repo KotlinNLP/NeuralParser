@@ -10,48 +10,35 @@ package com.kotlinnlp.neuralparser.helpers
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.SyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.Token
+import com.kotlinnlp.linguisticdescription.sentence.token.properties.Positionable
 import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 
 /**
- * @property neuralParser the neural parser
- * @property sentences the sentences to parse
- * @property verbose a Boolean indicating if the verbose mode is enabled (default = true)
+ * A helper that wraps a generic [NeuralParser] to let it working on CoNLL sentences.
+ *
+ * @property neuralParser a generic neural parser to use it with input/output sentences in CoNLL format
  */
-abstract class CoNLLDependencyParser(
-  private val neuralParser: NeuralParser<*>,
-  protected val sentences: List<CoNLLSentence>,
-  protected val verbose: Boolean = true
-) {
+class CoNLLDependencyParser(private val neuralParser: NeuralParser<*>) {
 
   /**
-   * Parse the [sentences].
+   * Parse a CoNLL sentence.
    *
-   * @return the resulting parsed sentences in the CoNLL format
+   * @property sentence the sentence to parse, in CoNLL format
+   *
+   * @return the parsed sentence in CoNLL format
    */
-  fun parse(): List<CoNLLSentence> {
+  fun parse(sentence: CoNLLSentence): CoNLLSentence {
 
-    val progress: ProgressIndicatorBar? = if (this.verbose) ProgressIndicatorBar(this.sentences.size) else null
+    val parsedSentence: MorphoSyntacticSentence = this.neuralParser.parse(sentence.toParsingSentence())
 
-    if (this.verbose) println("Start parsing of %d sentences:".format(this.sentences.size))
+    return sentence.copy(tokens = sentence.tokens.map {
 
-    return this.sentences.map { sentence ->
+      val parsedToken: SyntacticToken = parsedSentence.getTokenByID(it.id)
 
-      progress?.tick()
-
-      val parsedSentence: MorphoSyntacticSentence = this.neuralParser.parse(sentence.toParsingSentence())
-
-      CoNLLSentence(
-        sentenceId = sentence.sentenceId,
-        text = sentence.text,
-        tokens = List(size = sentence.tokens.size, init = { i ->
-
-          val parsedToken: SyntacticToken = parsedSentence.tokens[i] // TODO: fix index/id issue
-
-          sentence.tokens[i].copy(
-            head = parsedToken.dependencyRelation.governor?.plus(1) ?: 0, // the root id is 0
-            deprel = parsedToken.dependencyRelation.deprel)
-        }))
-    }
+      it.copy(
+        head = parsedToken.dependencyRelation.governor ?: 0, // the CoNLL root ID is 0
+        deprel = parsedToken.dependencyRelation.deprel)
+    })
   }
 }
