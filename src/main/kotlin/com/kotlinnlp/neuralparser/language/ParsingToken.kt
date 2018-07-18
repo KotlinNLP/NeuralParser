@@ -14,7 +14,7 @@ import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyR
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 
 /**
- * @param id the token id
+ * @param id the token id, an incremental integer starting from 0 within a sentence
  * @param form the form
  * @param morphologies the list of possible morphologies of the token
  * @param posTag the best part-of-speech tags associated to the token (can be null) TODO: find a better solution
