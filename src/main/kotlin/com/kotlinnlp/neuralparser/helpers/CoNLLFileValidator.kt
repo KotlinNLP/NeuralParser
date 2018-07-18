@@ -47,7 +47,7 @@ class CoNLLFileValidator(
   /**
    * The parser wrapper to parse sentences in CoNLL format.
    */
-  private val conllParser = CoNLLDependencyParser(neuralParser = neuralParser)
+  private val conllParser = CoNLLDependencyParser(neuralParser)
 
   /**
    * Print the statistics resulting from the official CoNLL evaluation script.
