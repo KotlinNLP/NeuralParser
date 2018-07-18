@@ -14,27 +14,22 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.utils.loadSentences
+import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 import java.io.File
 
 /**
- * @property neuralParser a neural parser
- * @property goldFilePath the path of the file containing the gold tree-bank, in CoNLL format.
- * @property outputFilePath the file path of the output CoNLL corpus (default = null -> a temporary file is used)
- * @property verbose a Boolean indicating if the verbose mode is enabled (default = true)
+ * Validate a system output CoNLL file comparing it to a gold CoNLL file.
+ *
+ * @param neuralParser a neural parser
+ * @param goldFilePath the path of the file containing the gold tree-bank, in CoNLL format.
+ * @param outputFilePath the file path of the output CoNLL corpus (default = null -> a temporary file is used)
+ * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
 class CoNLLFileValidator(
   neuralParser: NeuralParser<*>,
   private val goldFilePath: String,
   private val outputFilePath: String? = null,
-  verbose: Boolean
-) : CoNLLDependencyParser(
-  neuralParser = neuralParser,
-  sentences = loadSentences(
-    type = "validation",
-    filePath = goldFilePath,
-    maxSentences = null,
-    skipNonProjective = false),
-  verbose = verbose
+  private val verbose: Boolean = true
 ) {
 
   /**
@@ -50,15 +45,43 @@ class CoNLLFileValidator(
   private val conllEvaluator = if (this.goldFilePath.endsWith(".conllu")) CoNLLUEvaluator else CoNLLXEvaluator
 
   /**
+   * The parser wrapper to parse sentences in CoNLL format.
+   */
+  private val conllParser = CoNLLDependencyParser(neuralParser = neuralParser)
+
+  /**
    * Print the statistics resulting from the official CoNLL evaluation script.
    *
    * @return the statistics of the evaluation
    */
   fun evaluate() {
 
-    val parsedSentences: List<CoNLLSentence> = this.parse()
+    val parsedSentences: List<CoNLLSentence> = this.parseSentences(sentences = loadSentences(
+      type = "validation",
+      filePath = goldFilePath,
+      maxSentences = null,
+      skipNonProjective = false))
 
     print("\nCoNLL official script evaluation:\n%s".format(this.evaluateWithCoNLLScript(parsedSentences)))
+  }
+
+  /**
+   * Parse the validation CoNLL sentences.
+   *
+   * @return the list of parsed CoNLL sentences
+   */
+  private fun parseSentences(sentences: List<CoNLLSentence>): List<CoNLLSentence> {
+
+    val progress: ProgressIndicatorBar? = if (this.verbose) ProgressIndicatorBar(sentences.size) else null
+
+    if (this.verbose) println("Start parsing of %d sentences:".format(sentences.size))
+
+    return sentences.map {
+
+      progress?.tick()
+
+      this.conllParser.parse(it)
+    }
   }
 
   /**
