@@ -15,7 +15,7 @@ import com.kotlinnlp.dependencytree.DependencyTree
  * @param dependencyTree the dependency tree
  * @param arcScores the scores of the arcs between pair of elements
  */
-class CyclesFixer(private val dependencyTree: DependencyTree, private val arcScores: ArcScores) {
+internal class CyclesFixer(private val dependencyTree: DependencyTree, private val arcScores: ArcScores) {
 
   /**
    * The set of direct elements of the tree (elements that aren't involved in cycles).
