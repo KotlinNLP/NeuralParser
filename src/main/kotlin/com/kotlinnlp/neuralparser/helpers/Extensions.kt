@@ -10,7 +10,6 @@ package com.kotlinnlp.neuralparser.helpers
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.dependencytree.POSTag
-import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
@@ -21,22 +20,8 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
  *
  * @return a parsing sentence
  */
-fun CoNLLSentence.toParsingSentence(): ParsingSentence {
-
-  var end = -2
-
-  return ParsingSentence(tokens = this.tokens.map {
-
-    val start = end + 2 // each couple of consecutive words is separated by a spacing char
-    end = start + it.form.length - 1
-
-    ParsingToken(
-      id = it.id,
-      form = it.form,
-      position = Position(index = it.id - 1, start = start, end = end),
-      posTag = it.pos)
-  })
-}
+fun CoNLLSentence.toParsingSentence() =
+  ParsingSentence(tokens = this.tokens.map { ParsingToken(id = it.id, form = it.form, posTag = it.pos) })
 
 /**
  * Return the [DependencyTree] of this sentence.

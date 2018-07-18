@@ -50,7 +50,7 @@ class CosineDecoder : HeadsDecoder {
 
     lss.sentence.tokens.forEach {
 
-      this.similarityMatrix[it.position.index] = mutableMapOf()
+      this.similarityMatrix[it.id] = mutableMapOf()
 
       this.setHeadsScores(it)
       this.setRootScores(it)
@@ -66,14 +66,14 @@ class CosineDecoder : HeadsDecoder {
    */
   private fun setHeadsScores(dependent: ParsingToken) {
 
-    val scores: MutableMap<Int, Double> = this.similarityMatrix.getValue(dependent.position.index)
+    val scores: MutableMap<Int, Double> = this.similarityMatrix.getValue(dependent.id)
 
     this.lssNorm.sentence.tokens
       .filter { it.id != dependent.id }
       .associateTo(scores) {
-        it.position.index to cosineSimilarity(
-          a = this.lssNorm.contextVectors[it.position.index],
-          b = this.lssNorm.latentHeads[dependent.position.index])
+        it.id to cosineSimilarity(
+          a = this.lssNorm.contextVectors[it.id],
+          b = this.lssNorm.latentHeads[dependent.id])
       }
   }
 
@@ -84,12 +84,12 @@ class CosineDecoder : HeadsDecoder {
    */
   private fun setRootScores(dependent: ParsingToken) {
 
-    this.similarityMatrix.getValue(dependent.position.index)[ArcScores.rootId] = 0.0 // default root score
+    this.similarityMatrix.getValue(dependent.id)[ArcScores.rootId] = 0.0 // default root score
 
     if (!dependent.isPunctuation) { // the root shouldn't be a punctuation token
 
-      this.similarityMatrix.getValue(dependent.position.index)[ArcScores.rootId] = cosineSimilarity(
-        a = this.lssNorm.latentHeads[dependent.position.index],
+      this.similarityMatrix.getValue(dependent.id)[ArcScores.rootId] = cosineSimilarity(
+        a = this.lssNorm.latentHeads[dependent.id],
         b = this.lssNorm.virtualRoot)
     }
   }

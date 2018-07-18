@@ -11,6 +11,7 @@ import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
+import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 
 /**
  * @property tokens the tokens
@@ -22,16 +23,26 @@ class ParsingSentence(override val tokens: List<ParsingToken>) : Sentence<Parsin
    *
    * @return a new [MorphoSyntacticSentence]
    */
-  fun toMorphoSyntacticSentence(dependencyTree: DependencyTree) = MorphoSyntacticSentence(
-    id = 0,  // TODO: set it
-    confidence = 0.0, // TODO: set it
-    tokens = this.tokens.map {
-      it.toSyntacticToken(
-        dependencyRelation = DependencyRelation(
-          governor = dependencyTree.heads[it.position.index]?.let { index -> this.tokens[index] }?.id,
-          deprel = dependencyTree.deprels[it.position.index]?.label ?: "_",
-          attachmentScore = 0.0) // TODO: set it
-      )
-    }
-  )
+  fun toMorphoSyntacticSentence(dependencyTree: DependencyTree): MorphoSyntacticSentence {
+
+    var end = -2
+
+    return MorphoSyntacticSentence(
+      id = 0,  // TODO: set it
+      confidence = 0.0, // TODO: set it
+      tokens = this.tokens.mapIndexed { i, it ->
+
+        val start = end + 2 // each couple of consecutive tokens is separated by a spacing char
+        end = start + it.form.length - 1
+
+        it.toSyntacticToken(
+          dependencyRelation = DependencyRelation(
+            governor = dependencyTree.heads[it.id],
+            deprel = dependencyTree.deprels[it.id]?.label ?: "_",
+            attachmentScore = 0.0), // TODO: set it
+          position = Position(index = i, start = start, end = end)
+        )
+      }
+    )
+  }
 }
