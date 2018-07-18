@@ -47,7 +47,7 @@ class ParsingSentence(override val tokens: List<ParsingToken>) : Sentence<Parsin
         val start = end + 2 // each couple of consecutive tokens is separated by a spacing char
         end = start + it.form.length - 1
 
-        it.toSyntacticToken(
+        it.toMorphoSyntacticToken(
           dependencyRelation = DependencyRelation(
             governor = dependencyTree.heads[it.id],
             deprel = dependencyTree.deprels[it.id]?.label ?: "_",

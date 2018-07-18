@@ -9,6 +9,7 @@ package com.kotlinnlp.neuralparser.language
 
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Word
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
@@ -30,9 +31,9 @@ data class ParsingToken(
    * @param dependencyRelation the dependency relation of this token
    * @param position the position of the token in the sentence
    *
-   * @return a new syntactic token
+   * @return a new morpho syntactic token
    */
-  fun toSyntacticToken(dependencyRelation: DependencyRelation, position: Position) = Word(
+  fun toMorphoSyntacticToken(dependencyRelation: DependencyRelation, position: Position): MorphoSyntacticToken = Word(
     id = this.id,
     form = this.form,
     position = position,
