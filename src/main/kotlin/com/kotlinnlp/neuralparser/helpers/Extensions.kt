@@ -21,7 +21,7 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
  * @return a parsing sentence
  */
 fun CoNLLSentence.toParsingSentence() =
-  ParsingSentence(tokens = this.tokens.map { ParsingToken(id = it.id, form = it.form, posTag = it.pos) })
+  ParsingSentence(tokens = this.tokens.map { ParsingToken(id = it.id - 1, form = it.form, posTag = it.pos) })
 
 /**
  * Return the [DependencyTree] of this sentence.
