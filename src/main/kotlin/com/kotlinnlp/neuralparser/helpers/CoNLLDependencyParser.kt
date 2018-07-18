@@ -10,8 +10,6 @@ package com.kotlinnlp.neuralparser.helpers
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.SyntacticToken
-import com.kotlinnlp.linguisticdescription.sentence.token.Token
-import com.kotlinnlp.linguisticdescription.sentence.token.properties.Positionable
 import com.kotlinnlp.neuralparser.NeuralParser
 
 /**
@@ -34,10 +32,11 @@ class CoNLLDependencyParser(private val neuralParser: NeuralParser<*>) {
 
     return sentence.copy(tokens = sentence.tokens.map {
 
-      val parsedToken: SyntacticToken = parsedSentence.getTokenByID(it.id)
+      // Note: CoNLL tokens ids start from 1, ParsingTokens ids start from 0.
+      val parsedToken: SyntacticToken = parsedSentence.getTokenByID(it.id - 1)
 
       it.copy(
-        head = parsedToken.dependencyRelation.governor ?: 0, // the CoNLL root ID is 0
+        head = parsedToken.dependencyRelation.governor?.plus(1) ?: 0, // the CoNLL root ID is 0
         deprel = parsedToken.dependencyRelation.deprel)
     })
   }
