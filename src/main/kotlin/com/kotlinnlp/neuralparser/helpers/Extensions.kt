@@ -47,7 +47,7 @@ internal fun CoNLLSentence.getDependencyTree(): DependencyTree {
 
   val dependencyTree = DependencyTree(size = this.tokens.size)
 
-  this.tokens.forEach { token -> dependencyTree.addArc(token) }
+  this.tokens.forEach { dependencyTree.addArc(it) }
 
   return dependencyTree
 }
