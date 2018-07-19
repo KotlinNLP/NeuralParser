@@ -34,20 +34,16 @@ class ParsingSentence(override val tokens: List<ParsingToken>) : Sentence<Parsin
    *
    * @return a new [MorphoSyntacticSentence]
    */
-  fun toMorphoSyntacticSentence(dependencyTree: DependencyTree): MorphoSyntacticSentence {
-
-    return MorphoSyntacticSentence(
-      id = 0,  // TODO: set it
-      confidence = 0.0, // TODO: set it
-      tokens = this.tokens.mapIndexed { i, it ->
-
-        it.toMorphoSyntacticToken(
-          dependencyRelation = DependencyRelation(
-            governor = dependencyTree.heads[it.id],
-            deprel = dependencyTree.deprels[it.id]?.label ?: "_",
-            attachmentScore = 0.0) // TODO: set it
-        )
-      }
-    )
-  }
+  fun toMorphoSyntacticSentence(dependencyTree: DependencyTree) = MorphoSyntacticSentence(
+    id = 0,  // TODO: set it
+    confidence = 0.0, // TODO: set it
+    tokens = this.tokens.map {
+      it.toMorphoSyntacticToken(
+        dependencyRelation = DependencyRelation(
+          governor = dependencyTree.heads[it.id],
+          deprel = dependencyTree.deprels[it.id]?.label ?: "_",
+          attachmentScore = 0.0) // TODO: set it
+      )
+    }
+  )
 }
