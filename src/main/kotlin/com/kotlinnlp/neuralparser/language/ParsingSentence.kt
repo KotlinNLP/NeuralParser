@@ -30,13 +30,18 @@ class ParsingSentence(override val tokens: List<ParsingToken>) : Sentence<Parsin
   }
 
   /**
+   * TODO: set all properties expect for tokens
+   *
    * @param dependencyTree the dependency tree from which to extract the dependency relations
    *
    * @return a new [MorphoSyntacticSentence]
    */
   fun toMorphoSyntacticSentence(dependencyTree: DependencyTree) = MorphoSyntacticSentence(
-    id = 0,  // TODO: set it
-    confidence = 0.0, // TODO: set it
+    id = 0,
+    confidence = 0.0,
+    multiWords = null,
+    dateTimes = null,
+    entities = null,
     tokens = this.tokens.map {
       it.toMorphoSyntacticToken(
         dependencyRelation = DependencyRelation(
