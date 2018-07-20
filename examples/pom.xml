@@ -19,7 +19,7 @@
         <conllio.version>0.2.2</conllio.version>
         <dependencytree.version>0.3.2</dependencytree.version>
         <linguisticdescription.version>0.8.0</linguisticdescription.version>
-        <tokensencoder.version>0.2.1</tokensencoder.version>
+        <tokensencoder.version>0.3.0</tokensencoder.version>
         <utils.version>2.1.0</utils.version>
     </properties>
 
