@@ -16,6 +16,12 @@ import com.kotlinnlp.tokensencoder.embeddings.EmbeddingKeyExtractor
  */
 object PosTagKeyExtractor : EmbeddingKeyExtractor {
 
+  /**
+   * Private val used to serialize the class (needed by Serializable).
+   */
+  @Suppress("unused")
+  private const val serialVersionUID: Long = 1L
+
   override fun getKey(sentence: Sentence<*>, tokenId: Int): String =
     (sentence.tokens[tokenId] as ParsingToken).posTag ?: "_"
 }
