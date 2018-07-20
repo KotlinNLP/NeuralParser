@@ -39,5 +39,7 @@ data class ParsingToken(
     form = this.form,
     position = this.position,
     morphologies = emptyList(), // TODO: set it
-    dependencyRelation = dependencyRelation)
+    dependencyRelation = dependencyRelation,
+    coReferences = null, // TODO: set it
+    semanticRelations = null) // TODO: set it
 }
