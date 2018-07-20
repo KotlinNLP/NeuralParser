@@ -79,8 +79,8 @@ fun main(args: Array<String>) = mainBody {
  * @return a new parser
  */
 private fun buildParser(parsedArgs: TrainingArgs,
-                tokensEncoderModel: TokensEncoderModel,
-                corpus: CorpusDictionary) = LHRParser(model = LHRModel(
+                        tokensEncoderModel: TokensEncoderModel,
+                        corpus: CorpusDictionary) = LHRParser(model = LHRModel(
   langCode = parsedArgs.langCode,
   corpusDictionary = corpus,
   tokensEncoderModel = tokensEncoderModel,
@@ -124,8 +124,8 @@ private fun getPosTagEmbeddingKey(sentence: Sentence<*>, tokenId: Int): String {
  * @return a new tokens-encoder model
  */
 private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
-                            sentences: List<CoNLLSentence>, // TODO: it will be used to initialize the MorphoEncoder
-                            corpus: CorpusDictionary): TokensEncoderModel =
+                                    sentences: List<CoNLLSentence>, // TODO: it will be used to initialize the MorphoEncoder
+                                    corpus: CorpusDictionary): TokensEncoderModel =
 
   when (parsedArgs.tokensEncodingType) {
 
@@ -182,7 +182,7 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
     }
 
     else -> TODO("reimplement missing encoders")
-}
+  }
 
 /**
  * Build a trainer for a given [LHRParser].
