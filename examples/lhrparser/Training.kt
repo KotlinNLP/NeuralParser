@@ -112,7 +112,7 @@ private fun getWordEmbeddingKey(sentence: Sentence<*>, tokenId: Int): String {
 private fun getPosTagEmbeddingKey(sentence: Sentence<*>, tokenId: Int): String {
 
   @Suppress("UNCHECKED_CAST")
-  return (sentence.tokens[tokenId] as ParsingToken).posTag!!
+  return (sentence.tokens[tokenId] as ParsingToken).posTag ?: "_"
 }
 
 /**
@@ -179,6 +179,17 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
         outputMergeConfiguration = AffineMerge(
           outputSize = 100, // TODO
           activationFunction = null))
+    }
+
+    TrainingArgs.TokensEncodingType.WORD_EMBEDDINGS -> { // TODO: separate with a dedicated builder
+
+      val embeddingsMap = EmbeddingsMapByDictionary(
+        size = parsedArgs.wordEmbeddingSize,
+        dictionary = corpus.words)
+
+      EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
+        getEmbeddingKey = ::getWordEmbeddingKey,
+        dropoutCoefficient = parsedArgs.wordDropoutCoefficient)
     }
 
     else -> TODO("reimplement missing encoders")

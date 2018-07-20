@@ -24,7 +24,10 @@ class TrainingArgs(args: Array<String>) {
    * TODO: AMBIGUOUS_POS
    */
   enum class TokensEncodingType {
-    WORD_AND_POS_EMBEDDINGS, WORD_AND_EXT_AND_POS_EMBEDDINGS, MORPHO_FEATURES
+    WORD_EMBEDDINGS,
+    WORD_AND_POS_EMBEDDINGS,
+    WORD_AND_EXT_AND_POS_EMBEDDINGS,
+    MORPHO_FEATURES
   }
 
   /**
@@ -210,6 +213,7 @@ class TrainingArgs(args: Array<String>) {
    * The type of morphology encoding.
    */
   val tokensEncodingType: TokensEncodingType by parser.mapping(
+    "--tokens-word-emb"  to TokensEncodingType.WORD_EMBEDDINGS,
     "--tokens-word-pos-emb" to TokensEncodingType.WORD_AND_POS_EMBEDDINGS,
     "--tokens-word-ext-pos-emb" to TokensEncodingType.WORD_AND_EXT_AND_POS_EMBEDDINGS,
     "--tokens-morpho" to TokensEncodingType.MORPHO_FEATURES,
