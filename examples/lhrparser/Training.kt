@@ -7,9 +7,7 @@
 
 package lhrparser
 
-import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
-import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.neuralparser.helpers.Validator
@@ -23,8 +21,9 @@ import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRTrainer
-import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.LossCriterionType
+import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.PosTagKeyExtractor
+import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.WordKeyExtractor
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
@@ -96,26 +95,6 @@ private fun buildParser(parsedArgs: TrainingArgs,
   predictPosTags = !parsedArgs.noPosPrediction))
 
 /**
- *
- */
-private fun getWordEmbeddingKey(sentence: Sentence<*>, tokenId: Int): String {
-
-  @Suppress("UNCHECKED_CAST")
-  sentence as com.kotlinnlp.linguisticdescription.sentence.Sentence<FormToken>
-
-  return sentence.tokens[tokenId].normalizedForm
-}
-
-/**
- *
- */
-private fun getPosTagEmbeddingKey(sentence: Sentence<*>, tokenId: Int): String {
-
-  @Suppress("UNCHECKED_CAST")
-  return (sentence.tokens[tokenId] as ParsingToken).posTag ?: "_"
-}
-
-/**
  * Build a tokens-encoder model.
  *
  * @param parsedArgs the parsed command line arguments
@@ -146,13 +125,13 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
 
       EnsembleTokensEncoderModel(models = listOf(
         EmbeddingsEncoderModel(embeddingsMap = preEmbeddingsMap,
-          getEmbeddingKey = ::getWordEmbeddingKey,
+          embeddingKeyExtractor = WordKeyExtractor,
           dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
         EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
-          getEmbeddingKey = ::getWordEmbeddingKey,
+          embeddingKeyExtractor = WordKeyExtractor,
           dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
         EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
-          getEmbeddingKey = ::getPosTagEmbeddingKey,
+          embeddingKeyExtractor = PosTagKeyExtractor,
           dropoutCoefficient = parsedArgs.posDropoutCoefficient)),
         outputMergeConfiguration = AffineMerge(
           outputSize = 100, // TODO
@@ -171,10 +150,10 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
 
       EnsembleTokensEncoderModel(models = listOf(
         EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
-          getEmbeddingKey = ::getWordEmbeddingKey,
+          embeddingKeyExtractor = WordKeyExtractor,
           dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
         EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
-          getEmbeddingKey = ::getPosTagEmbeddingKey,
+          embeddingKeyExtractor = PosTagKeyExtractor,
           dropoutCoefficient = parsedArgs.posDropoutCoefficient)),
         outputMergeConfiguration = AffineMerge(
           outputSize = 100, // TODO
@@ -188,7 +167,7 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
         dictionary = corpus.words)
 
       EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
-        getEmbeddingKey = ::getWordEmbeddingKey,
+        embeddingKeyExtractor = WordKeyExtractor,
         dropoutCoefficient = parsedArgs.wordDropoutCoefficient)
     }
 
@@ -212,7 +191,7 @@ private fun buildTrainer(parser: LHRParser, parsedArgs: TrainingArgs) = LHRTrain
     sentences = loadSentences(
       type = "validation",
       filePath = parsedArgs.validationSetPath,
-      maxSentences = null,
+      maxSentences = 100,
       skipNonProjective = false)),
   modelFilename = parsedArgs.modelPath,
   lhrErrorsOptions = LHRTrainer.LHRErrorsOptions(
