@@ -13,7 +13,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.2.41</kotlin.version>
-        <neuralparser.version>0.3.2</neuralparser.version>
+        <neuralparser.version>0.4.0</neuralparser.version>
         <syntaxdecoder.version>0.2.1</syntaxdecoder.version>
         <simplednn.version>0.11.0</simplednn.version>
         <conllio.version>0.2.2</conllio.version>
