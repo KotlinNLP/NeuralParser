@@ -78,7 +78,7 @@ fun main(args: Array<String>) = mainBody {
  *
  * @return a new parser
  */
-fun buildParser(parsedArgs: TrainingArgs,
+private fun buildParser(parsedArgs: TrainingArgs,
                 tokensEncoderModel: TokensEncoderModel,
                 corpus: CorpusDictionary) = LHRParser(model = LHRModel(
   langCode = parsedArgs.langCode,
@@ -98,7 +98,7 @@ fun buildParser(parsedArgs: TrainingArgs,
 /**
  *
  */
-fun getWordEmbeddingKey(sentence: Sentence<*>, tokenId: Int): String {
+private fun getWordEmbeddingKey(sentence: Sentence<*>, tokenId: Int): String {
 
   @Suppress("UNCHECKED_CAST")
   sentence as com.kotlinnlp.linguisticdescription.sentence.Sentence<FormToken>
@@ -109,7 +109,7 @@ fun getWordEmbeddingKey(sentence: Sentence<*>, tokenId: Int): String {
 /**
  *
  */
-fun getPosTagEmbeddingKey(sentence: Sentence<*>, tokenId: Int): String {
+private fun getPosTagEmbeddingKey(sentence: Sentence<*>, tokenId: Int): String {
 
   @Suppress("UNCHECKED_CAST")
   return (sentence.tokens[tokenId] as ParsingToken).posTag!!
@@ -123,7 +123,7 @@ fun getPosTagEmbeddingKey(sentence: Sentence<*>, tokenId: Int): String {
  *
  * @return a new tokens-encoder model
  */
-fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
+private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
                             sentences: List<CoNLLSentence>, // TODO: it will be used to initialize the MorphoEncoder
                             corpus: CorpusDictionary): TokensEncoderModel =
 
@@ -192,7 +192,7 @@ fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
  *
  * @return a trainer for the given [parser]
  */
-fun buildTrainer(parser: LHRParser, parsedArgs: TrainingArgs) = LHRTrainer(
+private fun buildTrainer(parser: LHRParser, parsedArgs: TrainingArgs) = LHRTrainer(
   parser = parser,
   epochs = parsedArgs.epochs,
   batchSize = parsedArgs.batchSize,
