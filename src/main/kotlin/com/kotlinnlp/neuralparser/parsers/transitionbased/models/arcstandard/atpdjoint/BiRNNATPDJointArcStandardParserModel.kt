@@ -26,6 +26,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * The parser model for the ArcStandard parser based on the BiRNN with Action+Transition+POS+Deprel joint scoring.
  *
  * @property actionsScoresActivation the function used to activate the actions scores (can be null)
+ * @property langCode the ISO 639-1 language code within the parser works (default = unknown)
  * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property nounDefaultPOSTag the 'Noun' POS tag used for title case unknown forms
@@ -42,6 +43,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  */
 class BiRNNATPDJointArcStandardParserModel(
   val actionsScoresActivation: ActivationFunction?,
+  langCode: String = "--",
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,
   nounDefaultPOSTag: POSTag,
@@ -56,6 +58,7 @@ class BiRNNATPDJointArcStandardParserModel(
   appliedActionsNetworkConfig: AppliedActionsNetworkConfiguration,
   scorerNetworksConfig: ScorerNetworkConfiguration
 ) : BiRNNAmbiguousPOSParserModel(
+  langCode = langCode,
   scoreAccumulatorFactory = scoreAccumulatorFactory,
   corpusDictionary = corpusDictionary,
   nounDefaultPOSTag = nounDefaultPOSTag,
@@ -124,17 +127,17 @@ class BiRNNATPDJointArcStandardParserModel(
    * The neural network that encodes the last applied actions.
    */
   val appliedActionsNetwork = NeuralNetwork(
-      LayerInterface(
-        size = 3 * this.actionsEmbeddingsSize,
-        type = LayerType.Input.Dense
-      ),
     LayerInterface(
-        size = appliedActionsNetworkConfig.outputSize,
-        activationFunction = appliedActionsNetworkConfig.activation,
-        connectionType = appliedActionsNetworkConfig.connectionType,
-        meProp = appliedActionsNetworkConfig.meProp
-      )
+      size = 3 * this.actionsEmbeddingsSize,
+      type = LayerType.Input.Dense
+    ),
+    LayerInterface(
+      size = appliedActionsNetworkConfig.outputSize,
+      activationFunction = appliedActionsNetworkConfig.activation,
+      connectionType = appliedActionsNetworkConfig.connectionType,
+      meProp = appliedActionsNetworkConfig.meProp
     )
+  )
 
   /**
    * The neural network of the actions scorer that scores the transition.

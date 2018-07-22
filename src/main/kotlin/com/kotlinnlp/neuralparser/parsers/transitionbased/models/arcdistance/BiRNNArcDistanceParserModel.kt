@@ -19,6 +19,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
 /**
  * The parser model for the ArcDistance parser based on the BiRNN.
  *
+ * @property langCode the ISO 639-1 language code within the parser works (default = unknown)
  * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property wordEmbeddingSize the size of each word embedding vector
@@ -30,6 +31,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @param scorerNetworkConfig the configuration of the scorer network
  */
 class BiRNNArcDistanceParserModel(
+  langCode: String = "--",
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,
   wordEmbeddingSize: Int,
@@ -39,6 +41,7 @@ class BiRNNArcDistanceParserModel(
   biRNNLayers: Int,
   scorerNetworkConfig: ScorerNetworkConfiguration
 ) : BiRNNParserModel(
+  langCode = langCode,
   scoreAccumulatorFactory = scoreAccumulatorFactory,
   corpusDictionary = corpusDictionary,
   wordEmbeddingSize = wordEmbeddingSize,

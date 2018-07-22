@@ -17,6 +17,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
 import com.kotlinnlp.utils.DictionarySet
 
 /**
+ * @property langCode the ISO 639-1 language code within the parser works
  * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property wordEmbeddingSize the size of each word embedding vector
@@ -26,6 +27,7 @@ import com.kotlinnlp.utils.DictionarySet
  * @param biRNNLayers number of stacked BiRNNs
  */
 abstract class BiRNNParserModel(
+  langCode: String,
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   val corpusDictionary: CorpusDictionary,
   val wordEmbeddingSize: Int,
@@ -33,7 +35,7 @@ abstract class BiRNNParserModel(
   biRNNConnectionType: LayerType.Connection,
   biRNNHiddenActivation: ActivationFunction?,
   biRNNLayers: Int
-) : TransitionBasedParserModel(scoreAccumulatorFactory) {
+) : TransitionBasedParserModel(langCode = langCode, scoreAccumulatorFactory = scoreAccumulatorFactory) {
 
   companion object {
 

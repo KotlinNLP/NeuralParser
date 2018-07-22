@@ -21,6 +21,7 @@ import com.kotlinnlp.utils.DictionarySet
 /**
  * The model of the [BiRNNAmbiguousPOSParser].
  *
+ * @property langCode the ISO 639-1 language code within the parser works
  * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property nounDefaultPOSTag the 'Noun' POS tag used for title case unknown forms
@@ -33,6 +34,7 @@ import com.kotlinnlp.utils.DictionarySet
  * @param biRNNLayers number of stacked BiRNNs
  */
 abstract class BiRNNAmbiguousPOSParserModel(
+  langCode: String,
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   val corpusDictionary: CorpusDictionary,
   val nounDefaultPOSTag: POSTag,
@@ -43,7 +45,7 @@ abstract class BiRNNAmbiguousPOSParserModel(
   biRNNConnectionType: LayerType.Connection,
   biRNNHiddenActivation: ActivationFunction?,
   biRNNLayers: Int
-) : TransitionBasedParserModel(scoreAccumulatorFactory) {
+) : TransitionBasedParserModel(langCode = langCode, scoreAccumulatorFactory = scoreAccumulatorFactory) {
 
   companion object {
 

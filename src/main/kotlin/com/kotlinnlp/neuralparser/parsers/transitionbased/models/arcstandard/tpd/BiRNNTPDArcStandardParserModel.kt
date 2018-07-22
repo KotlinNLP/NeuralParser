@@ -22,6 +22,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * The parser model for the ArcStandard parser based on the BiRNN with Transition+POS+Deprel scoring.
  *
  * @property actionsScoresActivation the function used to activate the actions scores (can be null)
+ * @property langCode the ISO 639-1 language code within the parser works (default = unknown)
  * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property nounDefaultPOSTag the 'Noun' POS tag used for title case unknown forms
@@ -36,6 +37,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  */
 class BiRNNTPDArcStandardParserModel(
   val actionsScoresActivation: ActivationFunction?,
+  langCode: String = "--",
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,
   nounDefaultPOSTag: POSTag,
@@ -48,6 +50,7 @@ class BiRNNTPDArcStandardParserModel(
   biRNNLayers: Int,
   scorerNetworksConfig: ScorerNetworkConfiguration
 ) : BiRNNAmbiguousPOSParserModel(
+  langCode = langCode,
   scoreAccumulatorFactory = scoreAccumulatorFactory,
   corpusDictionary = corpusDictionary,
   nounDefaultPOSTag = nounDefaultPOSTag,

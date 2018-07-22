@@ -28,7 +28,7 @@ import java.io.InputStream
 /**
  * The model of the [LHRParser].
  *
- * @property langCode the language code
+ * @property langCode the ISO 639-1 language code within the parser works (default = unknown)
  * @property corpusDictionary a corpus dictionary
  * @property tokensEncoderModel the model of the TokensEncoder
  * @property contextBiRNNConfig the configuration of the ContextEncoder BiRNN (if null the ContextEncoder is not used)
@@ -38,7 +38,7 @@ import java.io.InputStream
  * @property predictPosTags whether to predict the POS tags together with the Deprels
  */
 class LHRModel(
-  val langCode: String,
+  langCode: String = "--",
   val corpusDictionary: CorpusDictionary,
   val tokensEncoderModel: TokensEncoderModel,
   val contextBiRNNConfig: BiRNNConfig,
@@ -46,7 +46,7 @@ class LHRModel(
   val useLabeler: Boolean,
   val lossCriterionType: LossCriterionType,
   val predictPosTags: Boolean
-) : NeuralParserModel() {
+) : NeuralParserModel(langCode) {
 
   companion object {
 

@@ -14,8 +14,10 @@ import java.io.Serializable
 
 /**
  * The serializable model of a [NeuralParser].
+ *
+ * @property langCode the ISO 639-1 language code within the parser works
  */
-abstract class NeuralParserModel : Serializable {
+abstract class NeuralParserModel(val langCode: String) : Serializable {
 
   companion object {
 
