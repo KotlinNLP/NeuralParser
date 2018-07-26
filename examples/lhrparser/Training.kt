@@ -233,13 +233,17 @@ private class MorphoTokenClass(override val morphologies: List<Morphology>) : Mo
  */
 private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAnalyzer): MorphoSentence {
 
-  val position = Position(index = index, start = 0, end = this.text.lastIndex)
+  val baseTokens = this.tokens.toTokens()
+  val position = Position(
+    index = index,
+    start = baseTokens.first().position.start,
+    end = baseTokens.last().position.end)
 
   @Suppress("UNCHECKED_CAST")
   val analysis = analyzer.analyze(
-    sentence = Sentence(position = position, tokens = this.tokens.toTokens()) as RealSentence<RealToken>)
+    sentence = Sentence(position = position, tokens = baseTokens) as RealSentence<RealToken>)
 
-  return MorphoSentence(position = position, tokens = analysis.tokens.map { MorphoTokenClass(morphologies = it!!) })
+  return MorphoSentence(position = position, tokens = analysis.tokens.map { MorphoTokenClass(it ?: emptyList()) })
 }
 
 /**
