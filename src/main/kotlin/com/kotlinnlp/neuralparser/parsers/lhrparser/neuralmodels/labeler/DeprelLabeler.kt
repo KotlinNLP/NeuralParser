@@ -10,6 +10,9 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.ScoredDeprel
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.ScoredDeprelList
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.sortByScore
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.batchfeedforward.BatchFeedforwardProcessor
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
@@ -72,11 +75,22 @@ class DeprelLabeler(
   private lateinit var dependencyTree: DependencyTree
 
   /**
-   * Predict the deprel and the POS tag for each token.
+   * Predict the possible deprels for each token.
    *
    * @param input the input
    *
-   * @return a list of predictions, one for each token
+   * @return a list of deprels for each token sorted by descending order
+   */
+  fun predict(input: Input): List<ScoredDeprelList> = this.forward(input).map { out ->
+    (0 until out.length).map { i -> ScoredDeprel(this.getDeprel(i), score = out[i]) }.sortByScore()
+  }
+
+  /**
+   * Return the network outcomes for each token.
+   *
+   * @param input the input
+   *
+   * @return the network outcomes for each token
    */
   override fun forward(input: Input): List<DenseNDArray> {
 
