@@ -8,6 +8,11 @@
 package lhrparser
 
 import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
+import com.kotlinnlp.linguisticdescription.morphology.Morphology
+import com.kotlinnlp.linguisticdescription.sentence.RealSentence
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoToken
+import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
+import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
@@ -15,6 +20,8 @@ import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
+import com.kotlinnlp.neuralparser.language.Sentence
+import com.kotlinnlp.neuralparser.language.toTokens
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
@@ -73,7 +80,6 @@ fun main(args: Array<String>) = mainBody {
 
   trainer.train(trainingSentences = trainingSentences)
 }
-
 
 /**
  * Build the LHR Parser.
@@ -180,7 +186,7 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
 
     TrainingArgs.TokensEncodingType.MORPHO_FEATURES -> {
 
-      val morphoAnalyzer: MorphologicalAnalyzer = parsedArgs.morphoDictionaryPath.let {
+      val analyzer: MorphologicalAnalyzer = parsedArgs.morphoDictionaryPath.let {
 
         println("Loading serialized dictionary from '$it'...")
 
@@ -193,16 +199,8 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
 
       val featuresDictionary = FeaturesCollector(
         lexicalDictionary = lexiconDictionary,
-        sentences = sentences.map {
-
-          /*
-          TODO: under development
-
-          val analysis = morphoAnalyzer.analyze(sentence = it as RealSentence<RealToken>)
-          analysis.tokens
-          */
-
-        }).collect()
+        sentences = sentences.mapIndexed { i, it -> it.toMorphoSentence(index = i, analyzer = analyzer)}
+      ).collect()
 
       MorphoEncoderModel(
         lexiconDictionary = lexiconDictionary,
@@ -211,6 +209,38 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
         activation = null)
     }
   }
+
+/**
+ * A sentence of [MorphoToken]s.
+ */
+private class MorphoSentence(
+  override val position: Position,
+  override val tokens: List<MorphoToken>
+) : RealSentence<MorphoToken>
+
+/**
+ * A concrete [MorphoToken] class.
+ */
+private class MorphoTokenClass(override val morphologies: List<Morphology>) : MorphoToken
+
+/**
+ * Build a [MorphoSentence] from this [CoNLLSentence].
+ *
+ * @param index the position index of this sentence
+ * @param analyzer a morphological analyzer
+ *
+ * @return a new morpho sentence
+ */
+private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAnalyzer): MorphoSentence {
+
+  val position = Position(index = index, start = 0, end = this.text.lastIndex)
+
+  @Suppress("UNCHECKED_CAST")
+  val analysis = analyzer.analyze(
+    sentence = Sentence(position = position, tokens = this.tokens.toTokens()) as RealSentence<RealToken>)
+
+  return MorphoSentence(position = position, tokens = analysis.tokens.map { MorphoTokenClass(morphologies = it!!) })
+}
 
 /**
  * Build a trainer for a given [LHRParser].
