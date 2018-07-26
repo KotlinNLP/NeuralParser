@@ -7,6 +7,9 @@
 
 package lhrparser
 
+import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
+import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
+import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
@@ -28,8 +31,12 @@ import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
+import com.kotlinnlp.tokensencoder.morpho.FeaturesCollector
+import com.kotlinnlp.tokensencoder.morpho.MorphoEncoderModel
 import com.kotlinnlp.utils.DictionarySet
 import lhrparser.utils.TrainingArgs
+import java.io.File
+import java.io.FileInputStream
 
 /**
  * Train the [LHRParser].
@@ -171,7 +178,38 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
         dropoutCoefficient = parsedArgs.wordDropoutCoefficient)
     }
 
-    else -> TODO("reimplement missing encoders")
+    TrainingArgs.TokensEncodingType.MORPHO_FEATURES -> {
+
+      val morphoAnalyzer: MorphologicalAnalyzer = parsedArgs.morphoDictionaryPath.let {
+
+        println("Loading serialized dictionary from '$it'...")
+
+        MorphologicalAnalyzer(
+          langCode = parsedArgs.langCode,
+          dictionary = MorphologyDictionary.load(FileInputStream(File(it))))
+      }
+
+      val lexiconDictionary = LexiconDictionary.load(parsedArgs.lexiconDictionaryPath!!)
+
+      val featuresDictionary = FeaturesCollector(
+        lexicalDictionary = lexiconDictionary,
+        sentences = sentences.map {
+
+          /*
+          TODO: under development
+
+          val analysis = morphoAnalyzer.analyze(sentence = it as RealSentence<RealToken>)
+          analysis.tokens
+          */
+
+        }).collect()
+
+      MorphoEncoderModel(
+        lexiconDictionary = lexiconDictionary,
+        featuresDictionary = featuresDictionary,
+        tokenEncodingSize = parsedArgs.wordEmbeddingSize,
+        activation = null)
+    }
   }
 
 /**
