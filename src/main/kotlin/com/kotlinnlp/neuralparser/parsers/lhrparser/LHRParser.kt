@@ -117,12 +117,9 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
    *
    * @param lss the latent syntactic structure
    */
-  private fun DependencyTree.assignLabels(lss: LatentSyntacticStructure) {
-
-    this@LHRParser.deprelLabeler?.let {
-      it.forward(DeprelLabeler.Input(lss, this)).forEachIndexed { tokenId, prediction ->
-        this.setDeprel(tokenId, it.getDeprel(prediction.deprels.argMaxIndex()))
-      }
+  private fun DependencyTree.assignLabels(lss: LatentSyntacticStructure) = this@LHRParser.deprelLabeler?.let { labeler ->
+    labeler.predict(DeprelLabeler.Input(lss, this)).forEachIndexed { tokenId, prediction ->
+      this.setDeprel(tokenId, prediction.first().value)
     }
   }
 }
