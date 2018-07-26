@@ -220,7 +220,7 @@ class LHRTrainer(
     val latentHeadsErrors = calculateLatentHeadsErrors(lss, goldTree.heads)
 
     val labelerErrors: List<DenseNDArray>? = this.deprelLabeler?.let {
-      val labelerPrediction: List<DeprelLabeler.Prediction> = it.forward(DeprelLabeler.Input(lss, goldTree))
+      val labelerPrediction: List<DenseNDArray> = it.forward(DeprelLabeler.Input(lss, goldTree))
       this.parser.model.labelerModel?.calculateLoss(labelerPrediction, goldTree.deprels)
     }
 
