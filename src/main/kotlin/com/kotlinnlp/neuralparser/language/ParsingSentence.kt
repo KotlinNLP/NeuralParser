@@ -82,7 +82,6 @@ class ParsingSentence(
   fun toMorphoSyntacticSentence(dependencyTree: DependencyTree) = MorphoSyntacticSentence(
     id = 0,
     confidence = 0.0,
-    multiWords = null,
     dateTimes = null,
     entities = null,
     tokens = this.tokens.map {
