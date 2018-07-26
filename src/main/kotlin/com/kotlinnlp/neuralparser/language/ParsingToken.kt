@@ -9,6 +9,7 @@ package com.kotlinnlp.neuralparser.language
 
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoToken
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Word
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
@@ -25,9 +26,9 @@ data class ParsingToken(
   val id: Int,
   override val form: String,
   override val position: Position,
-  val morphologies: List<Morphology>,
+  override val morphologies: List<Morphology>,
   val posTag: String?
-) : RealToken {
+) : MorphoToken, RealToken {
 
   /**
    * @param dependencyRelation the dependency relation of this token
