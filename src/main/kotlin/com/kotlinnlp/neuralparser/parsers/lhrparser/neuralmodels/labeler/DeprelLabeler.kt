@@ -29,7 +29,7 @@ class DeprelLabeler(
   override val id: Int = 0
 ) : NeuralProcessor<
   DeprelLabeler.Input, // InputType
-  List<DeprelLabeler.Prediction>, // OutputType
+  List<DenseNDArray>, // OutputType
   List<DenseNDArray>, // ErrorsType
   DeprelLabeler.InputErrors, // InputErrorsType
   DeprelLabelerParams // ParamsType
@@ -59,13 +59,6 @@ class DeprelLabeler(
     val contextErrors: List<DenseNDArray>)
 
   /**
-   * The outcome of a single prediction of the labeler.
-   *
-   * @property deprels the deprels prediction
-   */
-  data class Prediction(val deprels: DenseNDArray)
-
-  /**
    * The processor that classify the deprels.
    */
   private val processor = BatchFeedforwardProcessor<DenseNDArray>(
@@ -85,13 +78,11 @@ class DeprelLabeler(
    *
    * @return a list of predictions, one for each token
    */
-  override fun forward(input: Input): List<Prediction> {
+  override fun forward(input: Input): List<DenseNDArray> {
 
     this.dependencyTree = input.dependencyTree
 
-    val outputList: List<DenseNDArray> = this.processor.forward(ArrayList(this.extractFeatures(input)))
-
-    return outputList.map { Prediction(deprels = it) }
+    return this.processor.forward(ArrayList(this.extractFeatures(input)))
   }
 
   /**
