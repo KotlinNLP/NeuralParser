@@ -59,12 +59,12 @@ class DeprelLabelerModel(
    * Return the errors of a given labeler predictions, respect to a gold dependency tree.
    * Errors are calculated comparing the last predictions done with the given gold deprels.
    *
-   * @param predictions the labeler predictions
-   * @param goldDeprels the list of gold deprels
+   * @param predictions the current network predictions
+   * @param goldDeprels the list of gold deprels for each token
    *
    * @return a list of predictions errors
    */
-  fun calculateLoss(predictions: List<DeprelLabeler.Prediction>, goldDeprels: Array<Deprel?>): List<DenseNDArray> {
+  fun calculateLoss(predictions: List<DenseNDArray>, goldDeprels: Array<Deprel?>): List<DenseNDArray> {
 
     val errorsList = mutableListOf<DenseNDArray>()
 
@@ -74,7 +74,7 @@ class DeprelLabelerModel(
       val goldDeprelIndex: Int = this.deprels.getId(goldDeprel)!!
 
       errorsList.add(LossCriterion(this.lossCriterionType).getPredictionErrors(
-        prediction = prediction.deprels, goldIndex = goldDeprelIndex))
+        prediction = prediction, goldIndex = goldDeprelIndex))
     }
 
     return errorsList
