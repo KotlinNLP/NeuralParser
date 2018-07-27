@@ -29,7 +29,7 @@ data class ParsingToken(
   override val form: String,
   override val position: Position,
   override val morphologies: List<Morphology>,
-  val posTag: String?
+  val posTag: String? = null
 ) : MorphoToken, RealToken {
 
   /**
