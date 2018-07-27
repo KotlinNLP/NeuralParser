@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.neuralparser.helpers.SentencePreprocessor
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoderOptimizer
 import com.kotlinnlp.neuralparser.helpers.Trainer
@@ -39,6 +40,7 @@ class LHRTransferLearning(
   validator: Validator?,
   modelFilename: String,
   private val updateMethod: UpdateMethod<*> = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
+  sentencePreprocessor: SentencePreprocessor,
   verbose: Boolean = true
 ) : Trainer(
   neuralParser = targetParser,
@@ -47,6 +49,7 @@ class LHRTransferLearning(
   validator = validator,
   modelFilename = modelFilename,
   minRelevantErrorsCountToUpdate = 1,
+  sentencePreprocessor = sentencePreprocessor,
   verbose = verbose
 ) {
 

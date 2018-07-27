@@ -37,6 +37,7 @@ abstract class Trainer(
   private val validator: Validator?,
   private val modelFilename: String,
   private val minRelevantErrorsCountToUpdate: Int = 1,
+  private val sentencePreprocessor: SentencePreprocessor?,
   private val verbose: Boolean = true
 ) {
 

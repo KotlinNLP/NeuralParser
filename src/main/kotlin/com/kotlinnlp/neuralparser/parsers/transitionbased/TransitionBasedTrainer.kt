@@ -65,6 +65,7 @@ abstract class TransitionBasedTrainer<
   validator = validator,
   modelFilename = modelFilename,
   minRelevantErrorsCountToUpdate = minRelevantErrorsCountToUpdate,
+  sentencePreprocessor = null,
   verbose = verbose
 ) {
 

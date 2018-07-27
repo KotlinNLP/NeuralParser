@@ -26,6 +26,7 @@ import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 class Validator(
   neuralParser: NeuralParser<*>,
   val sentences: List<CoNLLSentence>,
+  private val sentencePreprocessor: SentencePreprocessor?,
   val verbose: Boolean = true
 ) {
 
