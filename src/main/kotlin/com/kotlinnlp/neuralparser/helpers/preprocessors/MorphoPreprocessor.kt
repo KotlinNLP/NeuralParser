@@ -32,24 +32,17 @@ class MorphoPreprocessor(private val morphologicalAnalyzer: MorphologicalAnalyze
    */
   override fun process(sentence: BaseSentence): ParsingSentence {
 
-      @Suppress("UNCHECKED_CAST")
-      val morphoAnalysis: MorphologicalAnalysis? = this.morphologicalAnalyzer.analyze(
-        BaseSentence(
-          tokens = sentence.tokens,
-          position = Position(
-            index = 0,
-            start = sentence.tokens.first().position.start,
-            end = sentence.tokens.last().position.end)
-        ) as RealSentence<RealToken>)
+    @Suppress("UNCHECKED_CAST")
+    val morphoAnalysis: MorphologicalAnalysis? = this.morphologicalAnalyzer.analyze(sentence as RealSentence<RealToken>)
 
-      return ParsingSentence(tokens = sentence.tokens.map {
-        ParsingToken(
-          id = it.id,
-          form = it.form,
-          position = it.position,
-          morphologies = morphoAnalysis?.tokens?.get(it.id) ?: emptyList(),
-          posTag = it.posTag
-        )
-      })
+    return ParsingSentence(tokens = sentence.tokens.map {
+      ParsingToken(
+        id = it.id,
+        form = it.form,
+        position = it.position,
+        morphologies = morphoAnalysis?.tokens?.get(it.id) ?: emptyList(),
+        posTag = it.posTag
+      )
+    })
   }
 }
