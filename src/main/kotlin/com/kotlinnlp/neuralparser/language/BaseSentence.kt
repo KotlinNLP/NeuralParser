@@ -9,38 +9,36 @@ package com.kotlinnlp.neuralparser.language
 
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.linguisticdescription.sentence.RealSentence
+import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 
 /**
- * Data class containing the properties of a sentence.
+ * A base real sentence.
  *
  * @property tokens the list of tokens that compose the sentence
  * @property position the position of this sentence in the original text
  */
-data class Sentence(
-  override val tokens: List<Token>,
+data class BaseSentence(
+  override val tokens: List<RealToken>,
   override val position: Position
-) : RealSentence<Token> {
+) : RealSentence<RealToken> {
 
   companion object {
 
     /**
-     * Convert a CoNLL sentence to a [Sentence].
+     * Convert a CoNLL sentence to a [BaseSentence].
      *
      * @param sentence a CoNLL sentence
      *
      * @return a real sentence of real tokens
      */
-    fun fromCoNLL(sentence: CoNLLSentence): Sentence {
+    fun fromCoNLL(sentence: CoNLLSentence): BaseSentence {
 
-      val baseTokens = sentence.tokens.toTokens()
+      val baseTokens = sentence.tokens.toBaseTokens()
 
-      return Sentence(
+      return BaseSentence(
         tokens = baseTokens,
-        position = Position(
-          index = 0,
-          start = baseTokens.first().position.start,
-          end = baseTokens.last().position.end))
+        position = Position(index = 0, start = baseTokens.first().position.start, end = baseTokens.last().position.end))
     }
   }
 }

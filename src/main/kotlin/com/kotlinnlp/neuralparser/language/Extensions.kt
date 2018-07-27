@@ -11,9 +11,9 @@ import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.conllio.Token as CoNLLToken
 
 /**
- * @return a list of [com.kotlinnlp.neuralparser.language.Token]
+ * @return a list of base real tokens
  */
-fun List<CoNLLToken>.toTokens(): List<Token> {
+fun List<CoNLLToken>.toBaseTokens(): List<BaseToken> {
 
   var end = -2
 
@@ -22,7 +22,7 @@ fun List<CoNLLToken>.toTokens(): List<Token> {
     val start = end + 2 // each couple of consecutive tokens is separated by a spacing char
     end = start + it.form.length - 1
 
-    Token(
+    BaseToken(
       id = it.id - 1,
       form = it.form,
       position = Position(index = i, start = start, end = end),

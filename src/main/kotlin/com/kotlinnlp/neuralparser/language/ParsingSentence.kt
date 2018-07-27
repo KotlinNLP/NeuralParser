@@ -11,9 +11,7 @@ import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
-import com.kotlinnlp.linguisticdescription.sentence.RealSentence
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
-import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalysis
@@ -36,19 +34,17 @@ class ParsingSentence(
      */
     fun fromCoNLL(sentence: CoNLLSentence, morphologicalAnalyzer: MorphologicalAnalyzer? = null): ParsingSentence {
 
-      val baseTokens = sentence.tokens.toTokens()
+      val baseTokens = sentence.tokens.toBaseTokens()
 
-      @Suppress("UNCHECKED_CAST")
       val morphoAnalysis: MorphologicalAnalysis? = morphologicalAnalyzer?.analyze(
-        Sentence(
+        BaseSentence(
           tokens = baseTokens,
           position = Position(
             index = 0,
             start = baseTokens.first().position.start,
-            end = baseTokens.last().position.end)) as RealSentence<RealToken>)
+            end = baseTokens.last().position.end)))
 
       return ParsingSentence(tokens = baseTokens.map {
-
         ParsingToken(
           id = it.id,
           form = it.form,

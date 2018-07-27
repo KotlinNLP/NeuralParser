@@ -8,7 +8,7 @@
 package com.kotlinnlp.neuralparser.helpers
 
 import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.language.Sentence
+import com.kotlinnlp.neuralparser.language.BaseSentence
 
 /**
  *
@@ -16,9 +16,9 @@ import com.kotlinnlp.neuralparser.language.Sentence
 interface SentencePreprocessor {
 
   /**
-   * Transform a [com.kotlinnlp.neuralparser.language.Sentence] into a [ParsingSentence].
+   * Convert a [BaseSentence] to a [ParsingSentence].
    *
    * @return a [ParsingSentence]
    */
-  fun Sentence.toParsingSentence(): ParsingSentence
+  fun BaseSentence.toParsingSentence(): ParsingSentence
 }

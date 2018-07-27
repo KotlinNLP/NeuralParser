@@ -11,7 +11,6 @@ import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.sentence.RealSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoToken
-import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
@@ -20,8 +19,8 @@ import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
-import com.kotlinnlp.neuralparser.language.Sentence
-import com.kotlinnlp.neuralparser.language.toTokens
+import com.kotlinnlp.neuralparser.language.BaseSentence
+import com.kotlinnlp.neuralparser.language.toBaseTokens
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
@@ -233,15 +232,13 @@ private class MorphoTokenClass(override val morphologies: List<Morphology>) : Mo
  */
 private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAnalyzer): MorphoSentence {
 
-  val baseTokens = this.tokens.toTokens()
+  val baseTokens = this.tokens.toBaseTokens()
   val position = Position(
     index = index,
     start = baseTokens.first().position.start,
     end = baseTokens.last().position.end)
 
-  @Suppress("UNCHECKED_CAST")
-  val analysis = analyzer.analyze(
-    sentence = Sentence(position = position, tokens = baseTokens) as RealSentence<RealToken>)
+  val analysis = analyzer.analyze(BaseSentence(position = position, tokens = baseTokens))
 
   return MorphoSentence(position = position, tokens = analysis.tokens.map { MorphoTokenClass(it ?: emptyList()) })
 }
