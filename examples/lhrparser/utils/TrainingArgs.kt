@@ -41,7 +41,7 @@ class TrainingArgs(args: Array<String>) {
   val langCode: String by parser.storing(
     "-l",
     "--language",
-    help="the language code"
+    help="the language ISO 639-1 code"
   )
 
   /**
