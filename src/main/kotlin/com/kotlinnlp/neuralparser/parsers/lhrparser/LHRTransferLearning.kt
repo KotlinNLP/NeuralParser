@@ -13,6 +13,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoderOptimizer
 import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.core.functionalities.losses.MSECalculator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
@@ -31,7 +32,7 @@ import com.kotlinnlp.tokensencoder.TokensEncoderOptimizerFactory
  * @param epochs the number of training epochs
  * @param validator the validation helper (if it is null no validation is done after each epoch)
  * @param modelFilename the name of the file in which to save the best trained model
- * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis) (can be null)
+ * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
 class LHRTransferLearning(
@@ -41,7 +42,7 @@ class LHRTransferLearning(
   validator: Validator?,
   modelFilename: String,
   private val updateMethod: UpdateMethod<*> = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
-  sentencePreprocessor: SentencePreprocessor? = null,
+  sentencePreprocessor: SentencePreprocessor = BasePreprocessor(),
   verbose: Boolean = true
 ) : Trainer(
   neuralParser = targetParser,

@@ -10,8 +10,10 @@ package com.kotlinnlp.neuralparser.helpers
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.NeuralParser
+import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.statistics.Statistics
+import com.kotlinnlp.neuralparser.language.BaseSentence
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.utils.Timer
 import com.kotlinnlp.simplednn.dataset.Shuffler
@@ -29,7 +31,7 @@ import java.io.FileOutputStream
  * @param validator the validation helper (if it is null no validation is done after each epoch)
  * @param modelFilename the name of the file in which to save the best trained model
  * @param minRelevantErrorsCountToUpdate the min count of relevant errors needed to update the neural parser (default 1)
- * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis) (can be null)
+ * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
 abstract class Trainer(
@@ -39,7 +41,7 @@ abstract class Trainer(
   private val validator: Validator?,
   private val modelFilename: String,
   private val minRelevantErrorsCountToUpdate: Int = 1,
-  private val sentencePreprocessor: SentencePreprocessor? = null,
+  private val sentencePreprocessor: SentencePreprocessor = BasePreprocessor(),
   private val verbose: Boolean = true
 ) {
 
@@ -114,7 +116,9 @@ abstract class Trainer(
 
       require(sentence.hasAnnotatedHeads()) { "The gold dependency tree of a sentence cannot be null during the evaluation." }
 
-      this.trainSentence(sentence = ParsingSentence.fromCoNLL(sentence), goldTree = sentence.getDependencyTree())
+      this.trainSentence(
+        sentence = this.sentencePreprocessor.process(BaseSentence.fromCoNLL(sentence)),
+        goldTree = sentence.getDependencyTree())
 
       if (endOfBatch && this.getRelevantErrorsCount() >= this.minRelevantErrorsCountToUpdate) {
         this.update()

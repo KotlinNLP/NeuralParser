@@ -10,6 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.syntaxdecoder.transitionsystem.oracle.OracleFactory
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
@@ -65,7 +66,7 @@ abstract class TransitionBasedTrainer<
   validator = validator,
   modelFilename = modelFilename,
   minRelevantErrorsCountToUpdate = minRelevantErrorsCountToUpdate,
-  sentencePreprocessor = null,
+  sentencePreprocessor = BasePreprocessor(),
   verbose = verbose
 ) {
 
