@@ -25,8 +25,7 @@ fun List<CoNLLToken>.toBaseTokens(): List<BaseToken> {
     BaseToken(
       id = it.id - 1,
       form = it.form,
-      position = Position(index = i, start = start, end = end),
-      posTag = it.pos // TODO: find a better solution
+      position = Position(index = i, start = start, end = end)
     )
   }
 }

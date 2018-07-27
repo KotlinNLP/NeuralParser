@@ -25,7 +25,7 @@ class BasePreprocessor : SentencePreprocessor {
    */
   override fun process(sentence: BaseSentence) = ParsingSentence(
     tokens = sentence.tokens.map {
-      ParsingToken(id = it.id, form = it.form, position = it.position, morphologies = emptyList(), posTag = it.posTag)
+      ParsingToken(id = it.id, form = it.form, position = it.position, morphologies = emptyList())
     }
   )
 }

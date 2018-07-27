@@ -9,7 +9,6 @@ package com.kotlinnlp.neuralparser.helpers.preprocessors
 
 import com.kotlinnlp.linguisticdescription.sentence.RealSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
-import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalysis
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.neuralparser.language.BaseSentence
@@ -40,8 +39,7 @@ class MorphoPreprocessor(private val morphologicalAnalyzer: MorphologicalAnalyze
         id = it.id,
         form = it.form,
         position = it.position,
-        morphologies = morphoAnalysis?.tokens?.get(it.id) ?: emptyList(),
-        posTag = it.posTag
+        morphologies = morphoAnalysis?.tokens?.get(it.id) ?: emptyList()
       )
     })
   }

@@ -16,11 +16,9 @@ import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
  * @property id the token id, an incremental integer starting from 0 within a sentence
  * @property form the form of the token
  * @property position the position of the token in the original text
- * @property posTag the best part-of-speech tags associated to the token (can be null) TODO: find a better solution
  */
 data class BaseToken(
   val id: Int,
   override val form: String,
-  override val position: Position,
-  val posTag: String? = null
+  override val position: Position
 ) : RealToken
