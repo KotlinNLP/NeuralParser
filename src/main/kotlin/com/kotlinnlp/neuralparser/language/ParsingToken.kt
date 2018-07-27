@@ -16,6 +16,8 @@ import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyR
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 
 /**
+ * The token of the [ParsingSentence].
+ *
  * @param id the token id, an incremental integer starting from 0 within a sentence
  * @param form the form
  * @param position the position of the token in the text

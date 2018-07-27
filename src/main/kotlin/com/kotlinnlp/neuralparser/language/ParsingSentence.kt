@@ -15,11 +15,11 @@ import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
 
 /**
- * @property tokens the tokens
+ * The sentence used as input of the [com.kotlinnlp.neuralparser.NeuralParser].
+ *
+ * @property tokens the list of tokens of the sentence
  */
-class ParsingSentence(
-  override val tokens: List<ParsingToken>
-) : Sentence<ParsingToken> {
+class ParsingSentence(override val tokens: List<ParsingToken>) : Sentence<ParsingToken> {
 
   /**
    * Check token ids.
