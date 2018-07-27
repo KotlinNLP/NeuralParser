@@ -11,14 +11,20 @@ import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.SyntacticToken
 import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
+import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
+import com.kotlinnlp.neuralparser.language.BaseSentence
 
 /**
  * A helper that wraps a generic [NeuralParser] to let it working on CoNLL sentences.
  *
  * @property neuralParser a generic neural parser to use it with input/output sentences in CoNLL format
+ * @property sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
  */
-class CoNLLDependencyParser(private val neuralParser: NeuralParser<*>) {
+class CoNLLDependencyParser(
+  private val neuralParser: NeuralParser<*>,
+  private val sentencePreprocessor: SentencePreprocessor = BasePreprocessor()
+) {
 
   /**
    * Parse a CoNLL sentence.
@@ -29,7 +35,8 @@ class CoNLLDependencyParser(private val neuralParser: NeuralParser<*>) {
    */
   fun parse(sentence: CoNLLSentence): CoNLLSentence {
 
-    val parsedSentence: MorphoSyntacticSentence = this.neuralParser.parse(ParsingSentence.fromCoNLL(sentence))
+    val parsedSentence: MorphoSyntacticSentence = this.neuralParser.parse(
+      this.sentencePreprocessor.process(BaseSentence.fromCoNLL(sentence)))
 
     return sentence.copy(tokens = sentence.tokens.map {
 

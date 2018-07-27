@@ -65,7 +65,9 @@ class Validator(
   /**
    * The parser wrapper to parse sentences in CoNLL format.
    */
-  private val conllParser = CoNLLDependencyParser(neuralParser)
+  private val conllParser = CoNLLDependencyParser(
+    neuralParser = neuralParser,
+    sentencePreprocessor = this.sentencePreprocessor)
 
   /**
    * Get statistics about the evaluation of the parsing accuracy on the given [sentences].
