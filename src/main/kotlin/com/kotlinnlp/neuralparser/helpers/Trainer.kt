@@ -28,6 +28,7 @@ import java.io.FileOutputStream
  * @param validator the validation helper (if it is null no validation is done after each epoch)
  * @param modelFilename the name of the file in which to save the best trained model
  * @param minRelevantErrorsCountToUpdate the min count of relevant errors needed to update the neural parser (default 1)
+ * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis) (can be null)
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
 abstract class Trainer(
@@ -37,7 +38,7 @@ abstract class Trainer(
   private val validator: Validator?,
   private val modelFilename: String,
   private val minRelevantErrorsCountToUpdate: Int = 1,
-  private val sentencePreprocessor: SentencePreprocessor?,
+  private val sentencePreprocessor: SentencePreprocessor? = null,
   private val verbose: Boolean = true
 ) {
 

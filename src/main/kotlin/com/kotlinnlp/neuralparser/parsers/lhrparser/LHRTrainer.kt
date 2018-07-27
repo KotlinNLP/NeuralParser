@@ -44,6 +44,7 @@ import com.kotlinnlp.tokensencoder.*
  * @param modelFilename the name of the file in which to save the best trained model
  * @param updateMethod the update method shared to all the parameters of the parser (Learning Rate, ADAM, AdaGrad, ...)
  * @param lhrErrorsOptions the settings for calculating the latent heads errors
+ * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis) (can be null)
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
 class LHRTrainer(
@@ -54,7 +55,7 @@ class LHRTrainer(
   modelFilename: String,
   private val updateMethod: UpdateMethod<*> = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
   private val lhrErrorsOptions: LHRErrorsOptions,
-  sentencePreprocessor: SentencePreprocessor,
+  sentencePreprocessor: SentencePreprocessor? = null,
   verbose: Boolean = true
 ) : Trainer(
   neuralParser = parser,
