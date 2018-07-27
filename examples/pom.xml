@@ -19,6 +19,7 @@
         <conllio.version>0.2.3</conllio.version>
         <dependencytree.version>0.3.2</dependencytree.version>
         <linguisticdescription.version>0.8.1</linguisticdescription.version>
+        <morphologicalanalyzer.version>0.2.0</morphologicalanalyzer.version>
         <tokensencoder.version>0.3.0</tokensencoder.version>
         <utils.version>2.1.0</utils.version>
     </properties>
@@ -109,6 +110,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>linguisticdescription</artifactId>
             <version>${linguisticdescription.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>morphologicalanalyzer</artifactId>
+            <version>${morphologicalanalyzer.version}</version>
         </dependency>
 
         <dependency>
