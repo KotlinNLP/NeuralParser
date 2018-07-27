@@ -11,6 +11,7 @@ import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.NeuralParser
+import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.statistics.MetricsCounter
 import com.kotlinnlp.neuralparser.helpers.statistics.SentenceMetrics
 import com.kotlinnlp.neuralparser.helpers.statistics.Statistics

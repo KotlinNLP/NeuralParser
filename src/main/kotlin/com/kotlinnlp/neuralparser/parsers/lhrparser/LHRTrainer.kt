@@ -14,7 +14,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.headsencoder.He
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.DeprelLabeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.DeprelLabelerOptimizer
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.neuralparser.helpers.SentencePreprocessor
+import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.language.ParsingSentence
