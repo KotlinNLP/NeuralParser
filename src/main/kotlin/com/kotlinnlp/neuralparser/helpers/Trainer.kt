@@ -82,13 +82,10 @@ abstract class Trainer(
 
       this.logTrainingEnd()
 
-      if (this.validator != null) {
-
-        this.logValidationStart()
-
-        this.validateAndSaveModel()
-
-        this.logValidationEnd()
+      this.validator?.apply {
+        logValidationStart()
+        validateAndSaveModel()
+        logValidationEnd()
       }
     }
   }
