@@ -25,10 +25,11 @@ data class Sentence(
   companion object {
 
     /**
-     * Transform a CoNLL sentence into a [Sentence].
+     * Convert a CoNLL sentence to a [Sentence].
      *
      * @param sentence a CoNLL sentence
-     * @return a basic sentence
+     *
+     * @return a real sentence of real tokens
      */
     fun fromCoNLL(sentence: CoNLLSentence): Sentence {
 
