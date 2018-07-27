@@ -19,6 +19,9 @@ import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
+import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
+import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.language.BaseSentence
 import com.kotlinnlp.neuralparser.language.toBaseTokens
@@ -253,20 +256,35 @@ private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAn
  *
  * @return a trainer for the given [parser]
  */
-private fun buildTrainer(parser: LHRParser, parsedArgs: TrainingArgs) = LHRTrainer(
-  parser = parser,
-  epochs = parsedArgs.epochs,
-  batchSize = parsedArgs.batchSize,
-  validator = Validator(
-    neuralParser = parser,
-    sentences = loadSentences(
-      type = "validation",
-      filePath = parsedArgs.validationSetPath,
-      maxSentences = null,
-      skipNonProjective = false)),
-  modelFilename = parsedArgs.modelPath,
-  lhrErrorsOptions = LHRTrainer.LHRErrorsOptions(
-    skipPunctuationErrors = parsedArgs.skipPunctuationErrors,
-    usePositionalEncodingErrors = false),
-  updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
-  verbose = !parsedArgs.quiet)
+private fun buildTrainer(parser: LHRParser, parsedArgs: TrainingArgs): LHRTrainer {
+
+  val preprocessor: SentencePreprocessor = parsedArgs.morphoDictionaryPath?.let {
+
+    println("Loading serialized dictionary from '$it'...")
+
+    MorphoPreprocessor(MorphologicalAnalyzer(
+      langCode = parsedArgs.langCode,
+      dictionary = MorphologyDictionary.load(FileInputStream(File(it)))))
+
+  } ?: BasePreprocessor()
+
+  return LHRTrainer(
+    parser = parser,
+    epochs = parsedArgs.epochs,
+    batchSize = parsedArgs.batchSize,
+    validator = Validator(
+      neuralParser = parser,
+      sentences = loadSentences(
+        type = "validation",
+        filePath = parsedArgs.validationSetPath,
+        maxSentences = null,
+        skipNonProjective = false),
+      sentencePreprocessor = preprocessor),
+    modelFilename = parsedArgs.modelPath,
+    lhrErrorsOptions = LHRTrainer.LHRErrorsOptions(
+      skipPunctuationErrors = parsedArgs.skipPunctuationErrors,
+      usePositionalEncodingErrors = false),
+    updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
+    sentencePreprocessor = preprocessor,
+    verbose = !parsedArgs.quiet)
+}
