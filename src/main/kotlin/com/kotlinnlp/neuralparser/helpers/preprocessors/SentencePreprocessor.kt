@@ -11,14 +11,16 @@ import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.BaseSentence
 
 /**
- *
+ * Pre-process a sentence before the parsing starts.
  */
 interface SentencePreprocessor {
 
   /**
    * Convert a [BaseSentence] to a [ParsingSentence].
    *
-   * @return a [ParsingSentence]
+   * @param sentence a base sentence
+   *
+   * @return a sentence ready to be parsed
    */
-  fun BaseSentence.toParsingSentence(): ParsingSentence
+  fun process(sentence: BaseSentence): ParsingSentence
 }
