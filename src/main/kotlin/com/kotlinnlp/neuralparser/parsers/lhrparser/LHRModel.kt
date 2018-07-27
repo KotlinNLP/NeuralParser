@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
+import com.kotlinnlp.linguisticdescription.Language
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoderModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.headsencoder.HeadsEncoderModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.DeprelLabelerModel
@@ -28,7 +29,7 @@ import java.io.InputStream
 /**
  * The model of the [LHRParser].
  *
- * @property langCode the ISO 639-1 language code within the parser works (default = unknown)
+ * @property language the language within the parser works (default = unknown)
  * @property corpusDictionary a corpus dictionary
  * @property tokensEncoderModel the model of the TokensEncoder
  * @property contextBiRNNConfig the configuration of the ContextEncoder BiRNN (if null the ContextEncoder is not used)
@@ -38,7 +39,7 @@ import java.io.InputStream
  * @property predictPosTags whether to predict the POS tags together with the Deprels
  */
 class LHRModel(
-  langCode: String = "--",
+  language: Language = Language.Unknown,
   val corpusDictionary: CorpusDictionary,
   val tokensEncoderModel: TokensEncoderModel,
   val contextBiRNNConfig: BiRNNConfig,
@@ -46,7 +47,7 @@ class LHRModel(
   val useLabeler: Boolean,
   val lossCriterionType: LossCriterionType,
   val predictPosTags: Boolean
-) : NeuralParserModel(langCode) {
+) : NeuralParserModel(language) {
 
   companion object {
 

@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser
 
+import com.kotlinnlp.linguisticdescription.Language
 import com.kotlinnlp.utils.Serializer
 import java.io.InputStream
 import java.io.OutputStream
@@ -15,9 +16,9 @@ import java.io.Serializable
 /**
  * The serializable model of a [NeuralParser].
  *
- * @property langCode the ISO 639-1 language code within the parser works
+ * @property language the language within the parser works
  */
-abstract class NeuralParserModel(val langCode: String) : Serializable {
+abstract class NeuralParserModel(val language: Language) : Serializable {
 
   companion object {
 

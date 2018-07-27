@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.charbased
 
+import com.kotlinnlp.linguisticdescription.Language
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserModel
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.simplednn.core.arrays.UpdatableDenseArray
@@ -22,7 +23,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.ScoreAccumulator
 
 /**
- * @property langCode the ISO 639-1 language code within the parser works
+ * @property language the language within the parser works
  * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property charEmbeddingSize the size of each char embedding vector
@@ -35,7 +36,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @property biRNNHiddenActivation the hidden activation function of the BiRNN used to encode tokens
  */
 abstract class CharBasedBiRNNParserModel(
-  langCode: String,
+  language: Language,
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   val corpusDictionary: CorpusDictionary,
   val charEmbeddingSize: Int,
@@ -46,7 +47,7 @@ abstract class CharBasedBiRNNParserModel(
   val hanHiddenActivation: ActivationFunction,
   val biRNNConnectionType: LayerType.Connection,
   val biRNNHiddenActivation: ActivationFunction
-) : TransitionBasedParserModel(langCode = langCode, scoreAccumulatorFactory = scoreAccumulatorFactory) {
+) : TransitionBasedParserModel(language = language, scoreAccumulatorFactory = scoreAccumulatorFactory) {
 
   companion object {
 

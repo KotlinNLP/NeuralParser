@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.transitionbased.models.arceagerspine
 
 import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.linguisticdescription.Language
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple.BiRNNParserModel
@@ -19,7 +20,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
 /**
  * The parser model for the ArcEagerSpine parser based on the BiRNN.
  *
- * @property langCode the ISO 639-1 language code within the parser works (default = unknown)
+ * @property language the language within the parser works (default = unknown)
  * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property wordEmbeddingSize the size of each word embedding vector
@@ -30,7 +31,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @param scorerNetworksConfig the configuration of the scorer networks
  */
 class BiRNNArcEagerSpineParserModel(
-  langCode: String = "--",
+  language: Language = Language.Unknown,
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,
   wordEmbeddingSize: Int,
@@ -40,7 +41,7 @@ class BiRNNArcEagerSpineParserModel(
   biRNNLayers: Int,
   scorerNetworksConfig: ScorerNetworkConfiguration
 ) : BiRNNParserModel(
-  langCode = langCode,
+  language = language,
   scoreAccumulatorFactory = scoreAccumulatorFactory,
   corpusDictionary = corpusDictionary,
   wordEmbeddingSize = wordEmbeddingSize,

@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.simple
 
+import com.kotlinnlp.linguisticdescription.Language
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ActionsScorerNetworkBuilder
@@ -19,7 +20,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
 /**
  * The parser model for the ArcStandard parser based on the BiRNN.
  *
- * @property langCode the ISO 639-1 language code within the parser works (default = unknown)
+ * @property language the language within the parser works (default = unknown)
  * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property wordEmbeddingSize the size of each word embedding vector
@@ -30,7 +31,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * @param scorerNetworkConfig the configuration of the scorer network
  */
 class BiRNNArcStandardParserModel(
-  langCode: String = "--",
+  language: Language = Language.Unknown,
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,
   wordEmbeddingSize: Int,
@@ -40,7 +41,7 @@ class BiRNNArcStandardParserModel(
   biRNNLayers: Int,
   scorerNetworkConfig: ScorerNetworkConfiguration
 ) : BiRNNParserModel(
-  langCode = langCode,
+  language = language,
   scoreAccumulatorFactory = scoreAccumulatorFactory,
   corpusDictionary = corpusDictionary,
   wordEmbeddingSize = wordEmbeddingSize,

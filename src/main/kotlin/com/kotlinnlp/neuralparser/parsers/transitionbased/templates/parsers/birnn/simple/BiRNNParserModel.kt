@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.simple
 
+import com.kotlinnlp.linguisticdescription.Language
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserModel
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
@@ -17,7 +18,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
 import com.kotlinnlp.utils.DictionarySet
 
 /**
- * @property langCode the ISO 639-1 language code within the parser works
+ * @property language the language within the parser works
  * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property wordEmbeddingSize the size of each word embedding vector
@@ -27,7 +28,7 @@ import com.kotlinnlp.utils.DictionarySet
  * @param biRNNLayers number of stacked BiRNNs
  */
 abstract class BiRNNParserModel(
-  langCode: String,
+  language: Language,
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   val corpusDictionary: CorpusDictionary,
   val wordEmbeddingSize: Int,
@@ -35,7 +36,7 @@ abstract class BiRNNParserModel(
   biRNNConnectionType: LayerType.Connection,
   biRNNHiddenActivation: ActivationFunction?,
   biRNNLayers: Int
-) : TransitionBasedParserModel(langCode = langCode, scoreAccumulatorFactory = scoreAccumulatorFactory) {
+) : TransitionBasedParserModel(language = language, scoreAccumulatorFactory = scoreAccumulatorFactory) {
 
   companion object {
 

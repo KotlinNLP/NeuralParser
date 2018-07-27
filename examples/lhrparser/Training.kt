@@ -7,6 +7,8 @@
 
 package lhrparser
 
+import com.kotlinnlp.linguisticdescription.Language
+import com.kotlinnlp.linguisticdescription.getLanguageByIso
 import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.sentence.RealSentence
@@ -96,7 +98,8 @@ fun main(args: Array<String>) = mainBody {
 private fun buildParser(parsedArgs: TrainingArgs,
                         tokensEncoderModel: TokensEncoderModel,
                         corpus: CorpusDictionary) = LHRParser(model = LHRModel(
-  langCode = parsedArgs.langCode,
+  language = getLanguageByIso(parsedArgs.langCode)
+    ?: throw RuntimeException("Invalid language code: ${parsedArgs.langCode}"),
   corpusDictionary = corpus,
   tokensEncoderModel = tokensEncoderModel,
   contextBiRNNConfig = BiRNNConfig(
@@ -193,9 +196,10 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
 
         println("Loading serialized dictionary from '$it'...")
 
-        MorphologicalAnalyzer(
-          langCode = parsedArgs.langCode,
-          dictionary = MorphologyDictionary.load(FileInputStream(File(it))))
+        val language: Language = getLanguageByIso(parsedArgs.langCode)
+          ?: throw RuntimeException("Invalid language code: ${parsedArgs.langCode}")
+
+        MorphologicalAnalyzer(language = language, dictionary = MorphologyDictionary.load(FileInputStream(File(it))))
       }
 
       val lexiconDictionary = LexiconDictionary.load(parsedArgs.lexiconDictionaryPath!!)
@@ -260,11 +264,13 @@ private fun buildTrainer(parser: LHRParser, parsedArgs: TrainingArgs): LHRTraine
 
   val preprocessor: SentencePreprocessor = parsedArgs.morphoDictionaryPath?.let {
 
+    val language: Language =
+      getLanguageByIso(parsedArgs.langCode) ?: throw RuntimeException("Invalid language code: ${parsedArgs.langCode}")
+
     println("Loading serialized dictionary from '$it'...")
 
-    MorphoPreprocessor(MorphologicalAnalyzer(
-      langCode = parsedArgs.langCode,
-      dictionary = MorphologyDictionary.load(FileInputStream(File(it)))))
+    MorphoPreprocessor(
+      MorphologicalAnalyzer(language = language, dictionary = MorphologyDictionary.load(FileInputStream(File(it)))))
 
   } ?: BasePreprocessor()
 

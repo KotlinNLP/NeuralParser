@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased
 
+import com.kotlinnlp.linguisticdescription.Language
 import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
 import com.kotlinnlp.simplednn.core.layers.LayerType
@@ -18,13 +19,13 @@ import java.io.InputStream
 /**
  * The serializable model of a [TransitionBasedParser].
  *
- * @property langCode the ISO 639-1 language code within the parser works
+ * @property language the language within the parser works
  * @property scoreAccumulatorFactory a factory of score accumulators
  */
 abstract class TransitionBasedParserModel(
-  langCode: String,
+  language: Language,
   val scoreAccumulatorFactory: ScoreAccumulator.Factory
-) : NeuralParserModel(langCode) {
+) : NeuralParserModel(language) {
 
   companion object {
 

@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcrelocate.atpdjoint
 
 import com.kotlinnlp.dependencytree.POSTag
+import com.kotlinnlp.linguisticdescription.Language
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.actionsembeddings.ActionsVectorsMap
@@ -26,7 +27,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  * The parser model for the ArcRelocate parser based on the BiRNN with Action+Transition+POS+Deprel joint scoring.
  *
  * @property actionsScoresActivation the function used to activate the actions scores (can be null)
- * @property langCode the ISO 639-1 language code within the parser works (default = unknown)
+ * @property language the language within the parser works (default = unknown)
  * @property scoreAccumulatorFactory a factory of score accumulators
  * @property corpusDictionary a corpus dictionary
  * @property nounDefaultPOSTag the 'Noun' POS tag used for title case unknown forms
@@ -43,7 +44,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.scoreaccumulator.Score
  */
 class BiRNNATPDJointArcRelocateParserModel(
   val actionsScoresActivation: ActivationFunction?,
-  langCode: String = "--",
+  language: Language = Language.Unknown,
   scoreAccumulatorFactory: ScoreAccumulator.Factory,
   corpusDictionary: CorpusDictionary,
   nounDefaultPOSTag: POSTag,
@@ -58,7 +59,7 @@ class BiRNNATPDJointArcRelocateParserModel(
   appliedActionsNetworkConfig: AppliedActionsNetworkConfiguration,
   scorerNetworksConfig: ScorerNetworkConfiguration
 ) : BiRNNAmbiguousPOSParserModel(
-  langCode = langCode,
+  language = language,
   scoreAccumulatorFactory = scoreAccumulatorFactory,
   corpusDictionary = corpusDictionary,
   nounDefaultPOSTag = nounDefaultPOSTag,
