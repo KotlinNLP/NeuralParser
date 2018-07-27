@@ -8,7 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.tpdjoint
 
 import com.kotlinnlp.dependencytree.POSTag
-import com.kotlinnlp.linguisticdescription.Language
+import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ActionsScorerNetworkBuilder

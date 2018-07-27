@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser
 
-import com.kotlinnlp.linguisticdescription.Language
+import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.utils.Serializer
 import java.io.InputStream
 import java.io.OutputStream

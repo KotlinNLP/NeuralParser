@@ -7,7 +7,7 @@
 
 package lhrparser
 
-import com.kotlinnlp.linguisticdescription.getLanguageByIso
+import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.sentence.RealSentence
