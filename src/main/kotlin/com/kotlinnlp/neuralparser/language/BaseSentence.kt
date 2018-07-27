@@ -9,7 +9,6 @@ package com.kotlinnlp.neuralparser.language
 
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.linguisticdescription.sentence.RealSentence
-import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 
 /**
@@ -19,9 +18,9 @@ import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
  * @property position the position of this sentence in the original text
  */
 data class BaseSentence(
-  override val tokens: List<RealToken>,
+  override val tokens: List<BaseToken>,
   override val position: Position
-) : RealSentence<RealToken> {
+) : RealSentence<BaseToken> {
 
   companion object {
 

@@ -11,6 +11,7 @@ import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.sentence.RealSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoToken
+import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
@@ -238,7 +239,8 @@ private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAn
     start = baseTokens.first().position.start,
     end = baseTokens.last().position.end)
 
-  val analysis = analyzer.analyze(BaseSentence(position = position, tokens = baseTokens))
+  @Suppress("UNCHECKED_CAST")
+  val analysis = analyzer.analyze(BaseSentence(position = position, tokens = baseTokens) as RealSentence<RealToken>)
 
   return MorphoSentence(position = position, tokens = analysis.tokens.map { MorphoTokenClass(it ?: emptyList()) })
 }
