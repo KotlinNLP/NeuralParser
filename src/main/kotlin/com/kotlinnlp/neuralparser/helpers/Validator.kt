@@ -11,6 +11,7 @@ import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.NeuralParser
+import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.statistics.MetricsCounter
 import com.kotlinnlp.neuralparser.helpers.statistics.SentenceMetrics
@@ -22,13 +23,13 @@ import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
  *
  * @param neuralParser the neural parser
  * @property sentences the sentences to parse containing the gold annotation
- * @property sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis) (can be null)
+ * @property sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
  * @property verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
 class Validator(
   neuralParser: NeuralParser<*>,
   val sentences: List<CoNLLSentence>,
-  private val sentencePreprocessor: SentencePreprocessor? = null,
+  private val sentencePreprocessor: SentencePreprocessor = BasePreprocessor(),
   val verbose: Boolean = true
 ) {
 
