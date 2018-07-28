@@ -12,14 +12,22 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
+import com.kotlinnlp.morphologicalanalyzer.multiwords.MultiWords
 
 /**
  * The sentence used as input of the [com.kotlinnlp.neuralparser.NeuralParser].
  *
  * @property tokens the list of tokens of the sentence
+ * @property multiWords the list of multi-words expressions recognized in the sentence (can be empty)
+ * @property dateTimes the list of date-times expressions recognized in the sentence (can be empty)
  */
-class ParsingSentence(override val tokens: List<ParsingToken>) : Sentence<ParsingToken> {
+class ParsingSentence(
+  override val tokens: List<ParsingToken>,
+  val multiWords: List<MultiWords> = emptyList(),
+  val dateTimes: List<DateTime> = emptyList()
+) : Sentence<ParsingToken> {
 
   /**
    * Check token ids.
