@@ -14,6 +14,8 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.headsencoder.He
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.DeprelLabeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.DeprelLabelerOptimizer
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.linguisticdescription.sentence.token.Token
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
@@ -48,8 +50,8 @@ import com.kotlinnlp.tokensencoder.*
  * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
-class LHRTrainer(
-  private val parser: LHRParser,
+class LHRTrainer<TokenType: Token, SentenceType: Sentence<TokenType>>(
+  private val parser: LHRParser<TokenType, SentenceType>,
   private val batchSize: Int,
   private val epochs: Int,
   validator: Validator?,
@@ -80,7 +82,7 @@ class LHRTrainer(
    * The Encoder of the Latent Syntactic Structure.
    */
   private val lssEncoder = LSSEncoder(
-    tokensEncoder = TokensEncoderFactory(this.parser.model.tokensEncoderModel, useDropout = true),
+    tokensEncoderWrapper = this.parser.model.tokensEncoderConverterModel.buildWrapper(useDropout = true),
     contextEncoder = ContextEncoder(this.parser.model.contextEncoderModel, useDropout = true),
     headsEncoder = HeadsEncoder(this.parser.model.headsEncoderModel, useDropout = true),
     virtualRoot = this.parser.model.rootEmbedding.array.values)
@@ -130,7 +132,7 @@ class LHRTrainer(
    * The optimizer of the tokens encoder.
    */
   private val tokensEncoderOptimizer = TokensEncoderOptimizerFactory(
-    model = this.parser.model.tokensEncoderModel, updateMethod = this.updateMethod)
+    model = this.parser.model.tokensEncoderConverterModel.model, updateMethod = this.updateMethod)
 
   /**
    * The epoch counter.
@@ -289,7 +291,7 @@ class LHRTrainer(
     } )
 
     val tokensErrors = List(size = latentHeadsErrors.size, init = {
-      DenseNDArrayFactory.zeros(Shape(this.parser.model.tokensEncoderModel.tokenEncodingSize))
+      DenseNDArrayFactory.zeros(Shape(this.parser.model.tokensEncoderConverterModel.model.tokenEncodingSize))
     } )
 
     val headsEncoderInputErrors = this.lssEncoder.headsEncoder.propagateErrors(latentHeadsErrors, this.headsEncoderOptimizer)
@@ -307,7 +309,7 @@ class LHRTrainer(
 
     tokensErrors.assignSum(contextEncoderInputErrors)
 
-    this.lssEncoder.tokensEncoder.propagateErrors(tokensErrors, this.tokensEncoderOptimizer)
+    this.lssEncoder.tokensEncoderWrapper.propagateErrors(tokensErrors, this.tokensEncoderOptimizer)
   }
 
   /**
