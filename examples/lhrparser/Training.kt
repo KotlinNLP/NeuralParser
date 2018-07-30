@@ -10,7 +10,10 @@ package lhrparser
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
 import com.kotlinnlp.linguisticdescription.sentence.RealSentence
+import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
+import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoToken
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
@@ -228,6 +231,29 @@ private class MorphoSentence(
 private class MorphoTokenClass(override val morphologies: List<Morphology>) : MorphoToken
 
 /**
+ * A concrete [MorphoSentence] class.
+ */
+private class MorphoSentenceClass(
+  override val dateTimes: List<DateTime>?,
+  override val multiWords: List<MultiWords>?,
+  override val tokens: List<MorphoToken>
+) : MorphoSentence {
+
+  /**
+   * @return a string representation of this sentence
+   */
+  override fun toString(): String = """
+    %-11s : %s
+    %-11s : %s
+    %-11s : %s
+  """.trimIndent().format(
+    "date-times", this.dateTimes?.joinToString(separator = ", ") ?: "None",
+    "multi-words", this.multiWords?.joinToString(separator = ", ") ?: "None",
+    "tokens", "\n\n" + this.tokens.joinToString(separator = "\n\n") { it.toString() }
+  )
+}
+
+/**
  * Build a [MorphoSentence] from this [CoNLLSentence].
  *
  * @param index the position index of this sentence
@@ -235,7 +261,7 @@ private class MorphoTokenClass(override val morphologies: List<Morphology>) : Mo
  *
  * @return a new morpho sentence
  */
-private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAnalyzer): MorphoSentence {
+private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAnalyzer): MorphoSentenceClass {
 
   val baseTokens = this.tokens.toBaseTokens()
   val position = Position(
@@ -246,7 +272,11 @@ private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAn
   @Suppress("UNCHECKED_CAST")
   val analysis = analyzer.analyze(BaseSentence(position = position, tokens = baseTokens) as RealSentence<RealToken>)
 
-  return MorphoSentence(position = position, tokens = analysis.tokens.map { MorphoTokenClass(it ?: emptyList()) })
+  return MorphoSentenceClass(
+    tokens = analysis.tokens.map { MorphoTokenClass(it ?: emptyList()) },
+    dateTimes = analysis.dateTimes,
+    multiWords = analysis.multiWords
+  )
 }
 
 /**
