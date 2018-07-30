@@ -261,21 +261,7 @@ private class MorphoSentenceClass(
   override val dateTimes: List<DateTime>?,
   override val multiWords: List<MultiWords>?,
   override val tokens: List<MorphoToken>
-) : MorphoSentence<MorphoToken> {
-
-  /**
-   * @return a string representation of this sentence
-   */
-  override fun toString(): String = """
-    %-11s : %s
-    %-11s : %s
-    %-11s : %s
-  """.trimIndent().format(
-    "date-times", this.dateTimes?.joinToString(separator = ", ") ?: "None",
-    "multi-words", this.multiWords?.joinToString(separator = ", ") ?: "None",
-    "tokens", "\n\n" + this.tokens.joinToString(separator = "\n\n") { it.toString() }
-  )
-}
+) : MorphoSentence<MorphoToken>
 
 /**
  * Build a [MorphoSentence] from this [CoNLLSentence].
