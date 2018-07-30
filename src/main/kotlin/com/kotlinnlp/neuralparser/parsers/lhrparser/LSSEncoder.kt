@@ -7,22 +7,25 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
+import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.linguisticdescription.sentence.token.Token
 import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.headsencoder.HeadsEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.tokensencoder.TokensEncoder
+import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapper
 
 /**
  * The main encoder that builds the latent syntactic structure.
  *
- * @property tokensEncoder the encoder that created the tokens encodings
- * @property contextEncoder the encoder that put the tokens encoded by the [tokensEncoder] in their sentential context
+ * @property tokensEncoderWrapper the tokens encoder wrapped with a sentence converter from the [ParsingSentence]
+ * @property contextEncoder the encoder of tokens encodings sentential context
  * @property headsEncoder the encoder that generated the latent heads representation
  * @property virtualRoot the vector that represents the root token of a sentence
  */
-class LSSEncoder(
-  val tokensEncoder: TokensEncoder,
+class LSSEncoder<TokenType: Token, SentenceType: Sentence<TokenType>>(
+  val tokensEncoderWrapper: TokensEncoderWrapper<ParsingToken, ParsingSentence, TokenType, SentenceType>,
   val contextEncoder: ContextEncoder,
   val headsEncoder: HeadsEncoder,
   val virtualRoot: DenseNDArray
@@ -35,7 +38,7 @@ class LSSEncoder(
    */
   fun encode(sentence: ParsingSentence): LatentSyntacticStructure {
 
-    val tokensEncodings: List<DenseNDArray> = this.tokensEncoder.forward(sentence)
+    val tokensEncodings: List<DenseNDArray> = this.tokensEncoderWrapper.forward(sentence)
     val contextVectors: List<DenseNDArray> = this.contextEncoder.forward(tokensEncodings)
     val latentHeads: List<DenseNDArray> = this.headsEncoder.forward(contextVectors)
 

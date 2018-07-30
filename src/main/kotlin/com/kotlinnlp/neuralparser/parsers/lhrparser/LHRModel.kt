@@ -8,6 +8,8 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
 import com.kotlinnlp.linguisticdescription.language.Language
+import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.linguisticdescription.sentence.token.Token
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoderModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.headsencoder.HeadsEncoderModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.DeprelLabelerModel
@@ -18,11 +20,13 @@ import com.kotlinnlp.simplednn.core.embeddings.Embedding
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
+import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkModel
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
-import com.kotlinnlp.tokensencoder.TokensEncoderModel
+import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderConverterModel
 import com.kotlinnlp.utils.Serializer
 import java.io.InputStream
 
@@ -31,17 +35,17 @@ import java.io.InputStream
  *
  * @property language the language within the parser works (default = unknown)
  * @property corpusDictionary a corpus dictionary
- * @property tokensEncoderModel the model of the TokensEncoder
+ * @property tokensEncoderConverterModel the model of the TokensEncoder combined with its sentence converter
  * @property contextBiRNNConfig the configuration of the ContextEncoder BiRNN (if null the ContextEncoder is not used)
  * @property headsBiRNNConfig the configuration of the HeadsEncoder BiRNN
  * @property useLabeler whether to use the labeler
  * @property lossCriterionType the training mode of the labeler
  * @property predictPosTags whether to predict the POS tags together with the Deprels
  */
-class LHRModel(
+class LHRModel<TokenType: Token, SentenceType: Sentence<TokenType>>(
   language: Language = Language.Unknown,
   val corpusDictionary: CorpusDictionary,
-  val tokensEncoderModel: TokensEncoderModel,
+  val tokensEncoderConverterModel: TokensEncoderConverterModel<ParsingToken, ParsingSentence, TokenType, SentenceType>,
   val contextBiRNNConfig: BiRNNConfig,
   val headsBiRNNConfig: BiRNNConfig,
   val useLabeler: Boolean,
@@ -64,14 +68,16 @@ class LHRModel(
      *
      * @return the [LHRModel] read from [inputStream] and decoded
      */
-    fun load(inputStream: InputStream): LHRModel = Serializer.deserialize(inputStream)
+    fun <TokenType: Token, SentenceType: Sentence<TokenType>>load(
+      inputStream: InputStream
+    ): LHRModel<TokenType, SentenceType> = Serializer.deserialize(inputStream)
   }
 
   /**
    * The model of the ContextEncoder.
    */
   val contextEncoderModel = ContextEncoderModel(
-    tokenEncodingSize = this.tokensEncoderModel.tokenEncodingSize,
+    tokenEncodingSize = this.tokensEncoderConverterModel.model.tokenEncodingSize,
     connectionType = this.contextBiRNNConfig.connectionType,
     hiddenActivation = this.contextBiRNNConfig.hiddenActivation,
     numberOfLayers = this.contextBiRNNConfig.numberOfLayers,
@@ -135,7 +141,7 @@ class LHRModel(
     %-33s : %s
     %-33s : %s
   """.trimIndent().format(
-    this.tokensEncoderModel::class.simpleName, this.tokensEncoderModel,
+    this.tokensEncoderConverterModel.model::class.simpleName, this.tokensEncoderConverterModel.model,
     "Context Encoder", this.contextBiRNNConfig,
     "Heads Encoder", this.headsBiRNNConfig,
     "Labeler training mode", this.lossCriterionType,

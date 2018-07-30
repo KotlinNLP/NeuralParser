@@ -8,6 +8,8 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.linguisticdescription.sentence.token.Token
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoderOptimizer
@@ -15,14 +17,15 @@ import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.simplednn.core.functionalities.losses.MSECalculator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.utils.scheduling.ExampleScheduling
 import com.kotlinnlp.tokensencoder.TokensEncoder
-import com.kotlinnlp.tokensencoder.TokensEncoderFactory
 import com.kotlinnlp.tokensencoder.TokensEncoderOptimizerFactory
+import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapper
 
 /**
  * The transfer learning training helper.
@@ -35,9 +38,9 @@ import com.kotlinnlp.tokensencoder.TokensEncoderOptimizerFactory
  * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
-class LHRTransferLearning(
-  private val referenceParser: LHRParser,
-  private val targetParser: LHRParser,
+class LHRTransferLearning<TokenType: Token, SentenceType: Sentence<TokenType>>(
+  private val referenceParser: LHRParser<TokenType, SentenceType>,
+  private val targetParser: LHRParser<TokenType, SentenceType>,
   private val epochs: Int,
   validator: Validator?,
   modelFilename: String,
@@ -58,20 +61,21 @@ class LHRTransferLearning(
   /**
    * The [TokensEncoder] of the reference parser.
    */
-  private val referenceTokensEncoder: TokensEncoder = TokensEncoderFactory(
-    this.referenceParser.model.tokensEncoderModel, useDropout = false)
+  private val referenceTokensEncoder: TokensEncoderWrapper<ParsingToken, ParsingSentence, TokenType, SentenceType> =
+    this.referenceParser.model.tokensEncoderConverterModel.buildWrapper(useDropout = false)
 
   /**
    * The [ContextEncoder] of the reference parser.
    */
   private val referenceContextEncoder = ContextEncoder(
-    this.referenceParser.model.contextEncoderModel, useDropout = false)
+    model = this.referenceParser.model.contextEncoderModel,
+    useDropout = false)
 
   /**
    * The [TokensEncoder] of the target parser.
    */
-  private val targetTokensEncoder: TokensEncoder = TokensEncoderFactory(
-    this.targetParser.model.tokensEncoderModel, useDropout = true)
+  private val targetTokensEncoder: TokensEncoderWrapper<ParsingToken, ParsingSentence, TokenType, SentenceType> =
+    this.targetParser.model.tokensEncoderConverterModel.buildWrapper(useDropout = true)
 
   /**
    * The [ContextEncoder] of the target parser.
@@ -89,7 +93,7 @@ class LHRTransferLearning(
    * The optimizer of the tokens encoder.
    */
   private val targetTokensEncoderOptimizer = TokensEncoderOptimizerFactory(
-    model = this.targetParser.model.tokensEncoderModel, updateMethod = this.updateMethod)
+    model = this.targetParser.model.tokensEncoderConverterModel.model, updateMethod = this.updateMethod)
 
   /**
    * Train the Transition System with the given [sentence] and [goldTree].
@@ -112,7 +116,7 @@ class LHRTransferLearning(
       outputSequence = targetContextVectors,
       outputGoldSequence = refContextVectors)
 
-    this.targetTokensEncoder.propagateErrors(targetContextEncoder.propagateErrors(errors))
+    this.targetTokensEncoder.propagateErrors(this.targetContextEncoder.propagateErrors(errors))
   }
 
   /**
@@ -126,7 +130,9 @@ class LHRTransferLearning(
   private fun ContextEncoder.propagateErrors(outputErrors: List<DenseNDArray>): List<DenseNDArray> {
 
     this.backward(outputErrors)
+
     this@LHRTransferLearning.targetContextEncoderOptimizer.accumulate(this.getParamsErrors(copy = false))
+
     return this.getInputErrors(copy = false)
   }
 
@@ -136,9 +142,10 @@ class LHRTransferLearning(
    *
    * @param outputErrors the output errors
    */
-  private fun TokensEncoder.propagateErrors(outputErrors: List<DenseNDArray>) {
+  private fun TokensEncoderWrapper<*, *, *, *>.propagateErrors(outputErrors: List<DenseNDArray>) {
 
     this.backward(outputErrors)
+
     this@LHRTransferLearning.targetTokensEncoderOptimizer.accumulate(this.getParamsErrors(copy = false))
   }
 
