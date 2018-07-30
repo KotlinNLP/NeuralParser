@@ -14,7 +14,7 @@ import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
-import com.kotlinnlp.morphologicalanalyzer.multiwords.MultiWords
+import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
 
 /**
  * The sentence used as input of the [com.kotlinnlp.neuralparser.NeuralParser].
