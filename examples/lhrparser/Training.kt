@@ -222,7 +222,7 @@ private fun buildTokensEncoderWrapperModel(
 
     TrainingArgs.TokensEncodingType.MORPHO_FEATURES -> {
 
-      val analyzer: MorphologicalAnalyzer = parsedArgs.morphoDictionaryPath.let {
+      val analyzer: MorphologicalAnalyzer = parsedArgs.morphoDictionaryPath!!.let {
 
         println("Loading serialized dictionary from '$it'...")
 
