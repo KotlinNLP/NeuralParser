@@ -24,7 +24,7 @@ import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkModel
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
-import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderConverterModel
+import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 import com.kotlinnlp.utils.Serializer
 import java.io.InputStream
 
@@ -33,7 +33,7 @@ import java.io.InputStream
  *
  * @property language the language within the parser works (default = unknown)
  * @property corpusDictionary a corpus dictionary
- * @property tokensEncoderConverterModel the model of the TokensEncoder combined with its sentence converter
+ * @property tokensEncoderWrapperModel the model of the TokensEncoder combined with its sentence converter
  * @property contextBiRNNConfig the configuration of the ContextEncoder BiRNN (if null the ContextEncoder is not used)
  * @property headsBiRNNConfig the configuration of the HeadsEncoder BiRNN
  * @property useLabeler whether to use the labeler
@@ -43,7 +43,7 @@ import java.io.InputStream
 class LHRModel(
   language: Language = Language.Unknown,
   val corpusDictionary: CorpusDictionary,
-  val tokensEncoderConverterModel: TokensEncoderConverterModel<ParsingToken, ParsingSentence, *, *>,
+  val tokensEncoderWrapperModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>,
   val contextBiRNNConfig: BiRNNConfig,
   val headsBiRNNConfig: BiRNNConfig,
   val useLabeler: Boolean,
@@ -73,7 +73,7 @@ class LHRModel(
    * The model of the ContextEncoder.
    */
   val contextEncoderModel = ContextEncoderModel(
-    tokenEncodingSize = this.tokensEncoderConverterModel.model.tokenEncodingSize,
+    tokenEncodingSize = this.tokensEncoderWrapperModel.model.tokenEncodingSize,
     connectionType = this.contextBiRNNConfig.connectionType,
     hiddenActivation = this.contextBiRNNConfig.hiddenActivation,
     numberOfLayers = this.contextBiRNNConfig.numberOfLayers,
@@ -137,7 +137,7 @@ class LHRModel(
     %-33s : %s
     %-33s : %s
   """.trimIndent().format(
-    this.tokensEncoderConverterModel.model::class.simpleName, this.tokensEncoderConverterModel.model,
+    this.tokensEncoderWrapperModel.model::class.simpleName, this.tokensEncoderWrapperModel.model,
     "Context Encoder", this.contextBiRNNConfig,
     "Heads Encoder", this.headsBiRNNConfig,
     "Labeler training mode", this.lossCriterionType,

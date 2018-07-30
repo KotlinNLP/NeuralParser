@@ -47,7 +47,7 @@ import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.morpho.FeaturesCollector
 import com.kotlinnlp.tokensencoder.morpho.MorphoEncoderModel
-import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderConverterModel
+import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 import com.kotlinnlp.utils.DictionarySet
 import lhrparser.utils.TrainingArgs
 import java.io.File
@@ -75,7 +75,7 @@ fun main(args: Array<String>) = mainBody {
 
   val parser: LHRParser = buildParser(
     parsedArgs = parsedArgs,
-    tokensEncoderConverterModel = buildTokensEncoderConverterModel(parsedArgs, trainingSentences, corpus),
+    tokensEncoderWrapperModel = buildTokensEncoderWrapperModel(parsedArgs, trainingSentences, corpus),
     corpus = corpus)
 
   val trainer = buildTrainer(parser = parser, parsedArgs = parsedArgs)
@@ -93,19 +93,19 @@ fun main(args: Array<String>) = mainBody {
  * Build the LHR Parser.
  *
  * @param parsedArgs the parsed command line arguments
- * @param tokensEncoderConverterModel the tokens-encoder-converter model
+ * @param tokensEncoderWrapperModel the tokens-encoder wrapper model
  * @param corpus the corpus dictionary
  *
  * @return a new parser
  */
 private fun buildParser(
   parsedArgs: TrainingArgs,
-  tokensEncoderConverterModel: TokensEncoderConverterModel<ParsingToken, ParsingSentence, *, *>,
+  tokensEncoderWrapperModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>,
   corpus: CorpusDictionary
 ): LHRParser = LHRParser(model = LHRModel(
   language = getLanguageByIso(parsedArgs.langCode),
   corpusDictionary = corpus,
-  tokensEncoderConverterModel = tokensEncoderConverterModel,
+  tokensEncoderWrapperModel = tokensEncoderWrapperModel,
   contextBiRNNConfig = BiRNNConfig(
     connectionType = LayerType.Connection.LSTM,
     hiddenActivation = Tanh(),
@@ -118,18 +118,18 @@ private fun buildParser(
   predictPosTags = !parsedArgs.noPosPrediction))
 
 /**
- * Build a tokens-encoder-converter model.
+ * Build a tokens-encoder wrapper model.
  *
  * @param parsedArgs the parsed command line arguments
  * @param corpus the corpus dictionary
  *
- * @return a new tokens-encoder model
+ * @return a new tokens-encoder wrapper model
  */
-private fun buildTokensEncoderConverterModel(
+private fun buildTokensEncoderWrapperModel(
   parsedArgs: TrainingArgs,
   sentences: List<CoNLLSentence>, // TODO: it will be used to initialize the MorphoEncoder
   corpus: CorpusDictionary
-): TokensEncoderConverterModel<ParsingToken, ParsingSentence, *, *> =
+): TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *> =
 
   when (parsedArgs.tokensEncodingType) {
 
@@ -148,22 +148,22 @@ private fun buildTokensEncoderConverterModel(
         size = parsedArgs.posEmbeddingSize,
         dictionary = DictionarySet(corpus.posTags.getElements().map { it.label }))
 
-      TokensEncoderConverterModel(
+      TokensEncoderWrapperModel(
         model = EnsembleTokensEncoderModel(
           models = listOf(
-            TokensEncoderConverterModel(
+            TokensEncoderWrapperModel(
               model = EmbeddingsEncoderModel(
                 embeddingsMap = preEmbeddingsMap,
                 embeddingKeyExtractor = WordKeyExtractor,
                 dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
               converter = BaseConverter()),
-            TokensEncoderConverterModel(
+            TokensEncoderWrapperModel(
               model = EmbeddingsEncoderModel(
                 embeddingsMap = embeddingsMap,
                 embeddingKeyExtractor = WordKeyExtractor,
                 dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
               converter = BaseConverter()),
-            TokensEncoderConverterModel(
+            TokensEncoderWrapperModel(
               model = EmbeddingsEncoderModel(
                 embeddingsMap = posEmbeddingsMap,
                 embeddingKeyExtractor = PosTagKeyExtractor,
@@ -186,15 +186,15 @@ private fun buildTokensEncoderConverterModel(
         size = parsedArgs.posEmbeddingSize,
         dictionary = DictionarySet(corpus.posTags.getElements().map { it.label }))
 
-      TokensEncoderConverterModel(
+      TokensEncoderWrapperModel(
         model = EnsembleTokensEncoderModel(
           models = listOf(
-            TokensEncoderConverterModel(
+            TokensEncoderWrapperModel(
               model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
                 embeddingKeyExtractor = WordKeyExtractor,
                 dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
               converter = BaseConverter()),
-            TokensEncoderConverterModel(
+            TokensEncoderWrapperModel(
               model = EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
                 embeddingKeyExtractor = PosTagKeyExtractor,
                 dropoutCoefficient = parsedArgs.posDropoutCoefficient),
@@ -212,7 +212,7 @@ private fun buildTokensEncoderConverterModel(
         size = parsedArgs.wordEmbeddingSize,
         dictionary = corpus.words)
 
-      TokensEncoderConverterModel(
+      TokensEncoderWrapperModel(
         model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
           embeddingKeyExtractor = WordKeyExtractor,
           dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
@@ -238,7 +238,7 @@ private fun buildTokensEncoderConverterModel(
         sentences = sentences.mapIndexed { i, it -> it.toMorphoSentence(index = i, analyzer = analyzer)}
       ).collect()
 
-      TokensEncoderConverterModel(
+      TokensEncoderWrapperModel(
         model = MorphoEncoderModel(
           lexiconDictionary = lexiconDictionary,
           featuresDictionary = featuresDictionary,

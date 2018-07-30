@@ -34,7 +34,7 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
    * The Encoder of the Latent Syntactic Structure.
    */
   private val lssEncoder = LSSEncoder(
-    tokensEncoderWrapper = this.model.tokensEncoderConverterModel.buildWrapper(useDropout = false),
+    tokensEncoderWrapper = this.model.tokensEncoderWrapperModel.buildWrapper(useDropout = false),
     contextEncoder = ContextEncoder(this.model.contextEncoderModel, useDropout = false),
     headsEncoder = HeadsEncoder(this.model.headsEncoderModel, useDropout = false),
     virtualRoot = this.model.rootEmbedding.array.values)

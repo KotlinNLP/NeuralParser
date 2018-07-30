@@ -60,7 +60,7 @@ class LHRTransferLearning(
    * The [TokensEncoder] of the reference parser.
    */
   private val referenceTokensEncoder: TokensEncoderWrapper<ParsingToken, ParsingSentence, *, *> =
-    this.referenceParser.model.tokensEncoderConverterModel.buildWrapper(useDropout = false)
+    this.referenceParser.model.tokensEncoderWrapperModel.buildWrapper(useDropout = false)
 
   /**
    * The [ContextEncoder] of the reference parser.
@@ -73,7 +73,7 @@ class LHRTransferLearning(
    * The [TokensEncoder] of the target parser.
    */
   private val targetTokensEncoder: TokensEncoderWrapper<ParsingToken, ParsingSentence, *, *> =
-    this.targetParser.model.tokensEncoderConverterModel.buildWrapper(useDropout = true)
+    this.targetParser.model.tokensEncoderWrapperModel.buildWrapper(useDropout = true)
 
   /**
    * The [ContextEncoder] of the target parser.
@@ -91,7 +91,7 @@ class LHRTransferLearning(
    * The optimizer of the tokens encoder.
    */
   private val targetTokensEncoderOptimizer = TokensEncoderOptimizerFactory(
-    model = this.targetParser.model.tokensEncoderConverterModel.model, updateMethod = this.updateMethod)
+    model = this.targetParser.model.tokensEncoderWrapperModel.model, updateMethod = this.updateMethod)
 
   /**
    * Train the Transition System with the given [sentence] and [goldTree].

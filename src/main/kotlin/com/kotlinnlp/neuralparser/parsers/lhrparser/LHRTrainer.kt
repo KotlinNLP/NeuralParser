@@ -80,7 +80,7 @@ class LHRTrainer(
    * The Encoder of the Latent Syntactic Structure.
    */
   private val lssEncoder = LSSEncoder(
-    tokensEncoderWrapper = this.parser.model.tokensEncoderConverterModel.buildWrapper(useDropout = true),
+    tokensEncoderWrapper = this.parser.model.tokensEncoderWrapperModel.buildWrapper(useDropout = true),
     contextEncoder = ContextEncoder(this.parser.model.contextEncoderModel, useDropout = true),
     headsEncoder = HeadsEncoder(this.parser.model.headsEncoderModel, useDropout = true),
     virtualRoot = this.parser.model.rootEmbedding.array.values)
@@ -130,7 +130,7 @@ class LHRTrainer(
    * The optimizer of the tokens encoder.
    */
   private val tokensEncoderOptimizer = TokensEncoderOptimizerFactory(
-    model = this.parser.model.tokensEncoderConverterModel.model, updateMethod = this.updateMethod)
+    model = this.parser.model.tokensEncoderWrapperModel.model, updateMethod = this.updateMethod)
 
   /**
    * The epoch counter.
@@ -289,7 +289,7 @@ class LHRTrainer(
     } )
 
     val tokensErrors = List(size = latentHeadsErrors.size, init = {
-      DenseNDArrayFactory.zeros(Shape(this.parser.model.tokensEncoderConverterModel.model.tokenEncodingSize))
+      DenseNDArrayFactory.zeros(Shape(this.parser.model.tokensEncoderWrapperModel.model.tokenEncodingSize))
     } )
 
     val headsEncoderInputErrors = this.lssEncoder.headsEncoder.propagateErrors(latentHeadsErrors, this.headsEncoderOptimizer)
