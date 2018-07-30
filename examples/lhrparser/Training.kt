@@ -26,19 +26,19 @@ import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
-import com.kotlinnlp.neuralparser.language.CorpusDictionary
-import com.kotlinnlp.neuralparser.language.BaseSentence
-import com.kotlinnlp.neuralparser.language.toBaseTokens
+import com.kotlinnlp.neuralparser.language.*
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
-import com.kotlinnlp.tokensencoder.TokensEncoderModel
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRTrainer
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.LossCriterionType
+import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.BaseConverter
+import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.MirrorConverter
+import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.MorphoConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.PosTagKeyExtractor
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.WordKeyExtractor
 import com.kotlinnlp.neuralparser.utils.loadSentences
@@ -47,6 +47,7 @@ import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.morpho.FeaturesCollector
 import com.kotlinnlp.tokensencoder.morpho.MorphoEncoderModel
+import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderConverterModel
 import com.kotlinnlp.utils.DictionarySet
 import lhrparser.utils.TrainingArgs
 import java.io.File
@@ -72,9 +73,9 @@ fun main(args: Array<String>) = mainBody {
     CorpusDictionary(it)
   }
 
-  val parser = buildParser(
+  val parser: LHRParser = buildParser(
     parsedArgs = parsedArgs,
-    tokensEncoderModel = buildTokensEncoderModel(parsedArgs, trainingSentences, corpus),
+    tokensEncoderConverterModel = buildTokensEncoderConverterModel(parsedArgs, trainingSentences, corpus),
     corpus = corpus)
 
   val trainer = buildTrainer(parser = parser, parsedArgs = parsedArgs)
@@ -92,17 +93,19 @@ fun main(args: Array<String>) = mainBody {
  * Build the LHR Parser.
  *
  * @param parsedArgs the parsed command line arguments
- * @param tokensEncoderModel the tokens-encoder model
+ * @param tokensEncoderConverterModel the tokens-encoder-converter model
  * @param corpus the corpus dictionary
  *
  * @return a new parser
  */
-private fun buildParser(parsedArgs: TrainingArgs,
-                        tokensEncoderModel: TokensEncoderModel,
-                        corpus: CorpusDictionary) = LHRParser(model = LHRModel(
+private fun buildParser(
+  parsedArgs: TrainingArgs,
+  tokensEncoderConverterModel: TokensEncoderConverterModel<ParsingToken, ParsingSentence, *, *>,
+  corpus: CorpusDictionary
+): LHRParser = LHRParser(model = LHRModel(
   language = getLanguageByIso(parsedArgs.langCode),
   corpusDictionary = corpus,
-  tokensEncoderModel = tokensEncoderModel,
+  tokensEncoderConverterModel = tokensEncoderConverterModel,
   contextBiRNNConfig = BiRNNConfig(
     connectionType = LayerType.Connection.LSTM,
     hiddenActivation = Tanh(),
@@ -115,16 +118,18 @@ private fun buildParser(parsedArgs: TrainingArgs,
   predictPosTags = !parsedArgs.noPosPrediction))
 
 /**
- * Build a tokens-encoder model.
+ * Build a tokens-encoder-converter model.
  *
  * @param parsedArgs the parsed command line arguments
  * @param corpus the corpus dictionary
  *
  * @return a new tokens-encoder model
  */
-private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
-                                    sentences: List<CoNLLSentence>, // TODO: it will be used to initialize the MorphoEncoder
-                                    corpus: CorpusDictionary): TokensEncoderModel =
+private fun buildTokensEncoderConverterModel(
+  parsedArgs: TrainingArgs,
+  sentences: List<CoNLLSentence>, // TODO: it will be used to initialize the MorphoEncoder
+  corpus: CorpusDictionary
+): TokensEncoderConverterModel<ParsingToken, ParsingSentence, *, *> =
 
   when (parsedArgs.tokensEncodingType) {
 
@@ -143,19 +148,32 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
         size = parsedArgs.posEmbeddingSize,
         dictionary = DictionarySet(corpus.posTags.getElements().map { it.label }))
 
-      EnsembleTokensEncoderModel(models = listOf(
-        EmbeddingsEncoderModel(embeddingsMap = preEmbeddingsMap,
-          embeddingKeyExtractor = WordKeyExtractor,
-          dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
-        EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
-          embeddingKeyExtractor = WordKeyExtractor,
-          dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
-        EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
-          embeddingKeyExtractor = PosTagKeyExtractor,
-          dropoutCoefficient = parsedArgs.posDropoutCoefficient)),
-        outputMergeConfiguration = AffineMerge(
-          outputSize = 100, // TODO
-          activationFunction = null))
+      TokensEncoderConverterModel(
+        model = EnsembleTokensEncoderModel(
+          models = listOf(
+            TokensEncoderConverterModel(
+              model = EmbeddingsEncoderModel(
+                embeddingsMap = preEmbeddingsMap,
+                embeddingKeyExtractor = WordKeyExtractor,
+                dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+              converter = BaseConverter()),
+            TokensEncoderConverterModel(
+              model = EmbeddingsEncoderModel(
+                embeddingsMap = embeddingsMap,
+                embeddingKeyExtractor = WordKeyExtractor,
+                dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+              converter = BaseConverter()),
+            TokensEncoderConverterModel(
+              model = EmbeddingsEncoderModel(
+                embeddingsMap = posEmbeddingsMap,
+                embeddingKeyExtractor = PosTagKeyExtractor,
+                dropoutCoefficient = parsedArgs.posDropoutCoefficient),
+              converter = BaseConverter())),
+          outputMergeConfiguration = AffineMerge(
+            outputSize = 100, // TODO
+            activationFunction = null)),
+        converter = MirrorConverter()
+      )
     }
 
     TrainingArgs.TokensEncodingType.WORD_AND_POS_EMBEDDINGS -> { // TODO: separate with a dedicated builder
@@ -168,16 +186,24 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
         size = parsedArgs.posEmbeddingSize,
         dictionary = DictionarySet(corpus.posTags.getElements().map { it.label }))
 
-      EnsembleTokensEncoderModel(models = listOf(
-        EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
-          embeddingKeyExtractor = WordKeyExtractor,
-          dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
-        EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
-          embeddingKeyExtractor = PosTagKeyExtractor,
-          dropoutCoefficient = parsedArgs.posDropoutCoefficient)),
-        outputMergeConfiguration = AffineMerge(
-          outputSize = 100, // TODO
-          activationFunction = null))
+      TokensEncoderConverterModel(
+        model = EnsembleTokensEncoderModel(
+          models = listOf(
+            TokensEncoderConverterModel(
+              model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
+                embeddingKeyExtractor = WordKeyExtractor,
+                dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+              converter = BaseConverter()),
+            TokensEncoderConverterModel(
+              model = EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
+                embeddingKeyExtractor = PosTagKeyExtractor,
+                dropoutCoefficient = parsedArgs.posDropoutCoefficient),
+              converter = BaseConverter())),
+          outputMergeConfiguration = AffineMerge(
+            outputSize = 100, // TODO
+            activationFunction = null)),
+        converter = MirrorConverter()
+      )
     }
 
     TrainingArgs.TokensEncodingType.WORD_EMBEDDINGS -> { // TODO: separate with a dedicated builder
@@ -186,9 +212,12 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
         size = parsedArgs.wordEmbeddingSize,
         dictionary = corpus.words)
 
-      EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
-        embeddingKeyExtractor = WordKeyExtractor,
-        dropoutCoefficient = parsedArgs.wordDropoutCoefficient)
+      TokensEncoderConverterModel(
+        model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
+          embeddingKeyExtractor = WordKeyExtractor,
+          dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+        converter = BaseConverter()
+      )
     }
 
     TrainingArgs.TokensEncodingType.MORPHO_FEATURES -> {
@@ -209,21 +238,16 @@ private fun buildTokensEncoderModel(parsedArgs: TrainingArgs,
         sentences = sentences.mapIndexed { i, it -> it.toMorphoSentence(index = i, analyzer = analyzer)}
       ).collect()
 
-      MorphoEncoderModel(
-        lexiconDictionary = lexiconDictionary,
-        featuresDictionary = featuresDictionary,
-        tokenEncodingSize = parsedArgs.wordEmbeddingSize,
-        activation = null)
+      TokensEncoderConverterModel(
+        model = MorphoEncoderModel(
+          lexiconDictionary = lexiconDictionary,
+          featuresDictionary = featuresDictionary,
+          tokenEncodingSize = parsedArgs.wordEmbeddingSize,
+          activation = null),
+        converter = MorphoConverter()
+      )
     }
   }
-
-/**
- * A sentence of [MorphoToken]s.
- */
-private class MorphoSentence(
-  override val position: Position,
-  override val tokens: List<MorphoToken>
-) : RealSentence<MorphoToken>
 
 /**
  * A concrete [MorphoToken] class.
@@ -237,7 +261,7 @@ private class MorphoSentenceClass(
   override val dateTimes: List<DateTime>?,
   override val multiWords: List<MultiWords>?,
   override val tokens: List<MorphoToken>
-) : MorphoSentence {
+) : MorphoSentence<MorphoToken> {
 
   /**
    * @return a string representation of this sentence
