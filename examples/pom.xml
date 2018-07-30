@@ -18,8 +18,8 @@
         <simplednn.version>0.11.0</simplednn.version>
         <conllio.version>0.2.3</conllio.version>
         <dependencytree.version>0.3.2</dependencytree.version>
-        <linguisticdescription.version>0.8.1</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.2.0</morphologicalanalyzer.version>
+        <linguisticdescription.version>0.9.0</linguisticdescription.version>
+        <morphologicalanalyzer.version>0.3.0</morphologicalanalyzer.version>
         <tokensencoder.version>0.3.0</tokensencoder.version>
         <utils.version>2.1.0</utils.version>
     </properties>
