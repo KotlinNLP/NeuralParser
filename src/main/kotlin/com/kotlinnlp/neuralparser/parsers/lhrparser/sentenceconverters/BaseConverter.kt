@@ -18,6 +18,15 @@ import com.kotlinnlp.tokensencoder.wrapper.SentenceConverter
  */
 class BaseConverter : SentenceConverter<ParsingToken, ParsingSentence, Token, Sentence<Token>> {
 
+  companion object {
+
+    /**
+     * Private val used to serialize the class (needed by Serializable).
+     */
+    @Suppress("unused")
+    private const val serialVersionUID: Long = 1L
+  }
+
   /**
    * Convert a given [ParsingSentence] to a generic [Sentence] simply casting it.
    *

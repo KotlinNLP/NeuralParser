@@ -18,6 +18,15 @@ import com.kotlinnlp.tokensencoder.wrapper.SentenceConverter
  */
 class MorphoConverter : SentenceConverter<ParsingToken, ParsingSentence, MorphoToken, MorphoSentence<MorphoToken>> {
 
+  companion object {
+
+    /**
+     * Private val used to serialize the class (needed by Serializable).
+     */
+    @Suppress("unused")
+    private const val serialVersionUID: Long = 1L
+  }
+
   /**
    * Convert a given [ParsingSentence] to a [MorphoSentence] simply casting it.
    *
