@@ -37,7 +37,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRTrainer
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.LossCriterionType
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.BaseConverter
-import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.MirrorConverter
+import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.MorphoConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.PosTagKeyExtractor
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.WordKeyExtractor
