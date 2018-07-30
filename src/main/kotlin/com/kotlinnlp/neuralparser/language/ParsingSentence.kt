@@ -12,7 +12,6 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
-import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
 import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
@@ -28,7 +27,7 @@ class ParsingSentence(
   override val tokens: List<ParsingToken>,
   override val multiWords: List<MultiWords> = emptyList(),
   override val dateTimes: List<DateTime> = emptyList()
-) : Sentence<ParsingToken>, MorphoSentence<ParsingToken> {
+) : MorphoSentence<ParsingToken> {
 
   /**
    * Check token ids.
