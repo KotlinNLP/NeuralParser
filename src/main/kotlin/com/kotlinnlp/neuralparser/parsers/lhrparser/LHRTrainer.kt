@@ -14,8 +14,6 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.headsencoder.He
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.DeprelLabeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.DeprelLabelerOptimizer
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.sentence.Sentence
-import com.kotlinnlp.linguisticdescription.sentence.token.Token
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
@@ -50,8 +48,8 @@ import com.kotlinnlp.tokensencoder.*
  * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
-class LHRTrainer<TokenType: Token, SentenceType: Sentence<TokenType>>(
-  private val parser: LHRParser<TokenType, SentenceType>,
+class LHRTrainer(
+  private val parser: LHRParser,
   private val batchSize: Int,
   private val epochs: Int,
   validator: Validator?,

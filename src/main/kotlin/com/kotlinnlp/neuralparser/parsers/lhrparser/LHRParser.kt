@@ -12,7 +12,6 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.ArcScores
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
-import com.kotlinnlp.linguisticdescription.sentence.token.Token
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.headsencoder.HeadsEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.DeprelLabeler
@@ -29,9 +28,7 @@ import com.kotlinnlp.neuralparser.language.ParsingSentence
  *
  * @property model the parser model
  */
-class LHRParser<TokenType: Token, SentenceType: Sentence<TokenType>>(
-  override val model: LHRModel<TokenType, SentenceType>
-) : NeuralParser<LHRModel<TokenType, SentenceType>> {
+class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
 
   /**
    * The Encoder of the Latent Syntactic Structure.

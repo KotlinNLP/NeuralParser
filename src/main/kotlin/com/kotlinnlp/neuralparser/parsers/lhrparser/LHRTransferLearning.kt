@@ -8,8 +8,6 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.sentence.Sentence
-import com.kotlinnlp.linguisticdescription.sentence.token.Token
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoderOptimizer
@@ -38,9 +36,9 @@ import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapper
  * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
-class LHRTransferLearning<TokenType: Token, SentenceType: Sentence<TokenType>>(
-  private val referenceParser: LHRParser<TokenType, SentenceType>,
-  private val targetParser: LHRParser<TokenType, SentenceType>,
+class LHRTransferLearning(
+  private val referenceParser: LHRParser,
+  private val targetParser: LHRParser,
   private val epochs: Int,
   validator: Validator?,
   modelFilename: String,
@@ -61,7 +59,7 @@ class LHRTransferLearning<TokenType: Token, SentenceType: Sentence<TokenType>>(
   /**
    * The [TokensEncoder] of the reference parser.
    */
-  private val referenceTokensEncoder: TokensEncoderWrapper<ParsingToken, ParsingSentence, TokenType, SentenceType> =
+  private val referenceTokensEncoder: TokensEncoderWrapper<ParsingToken, ParsingSentence, *, *> =
     this.referenceParser.model.tokensEncoderConverterModel.buildWrapper(useDropout = false)
 
   /**
@@ -74,7 +72,7 @@ class LHRTransferLearning<TokenType: Token, SentenceType: Sentence<TokenType>>(
   /**
    * The [TokensEncoder] of the target parser.
    */
-  private val targetTokensEncoder: TokensEncoderWrapper<ParsingToken, ParsingSentence, TokenType, SentenceType> =
+  private val targetTokensEncoder: TokensEncoderWrapper<ParsingToken, ParsingSentence, *, *> =
     this.targetParser.model.tokensEncoderConverterModel.buildWrapper(useDropout = true)
 
   /**

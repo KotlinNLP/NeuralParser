@@ -7,8 +7,6 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
-import com.kotlinnlp.linguisticdescription.sentence.Sentence
-import com.kotlinnlp.linguisticdescription.sentence.token.Token
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoder
@@ -24,8 +22,8 @@ import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapper
  * @property headsEncoder the encoder that generated the latent heads representation
  * @property virtualRoot the vector that represents the root token of a sentence
  */
-class LSSEncoder<TokenType: Token, SentenceType: Sentence<TokenType>>(
-  val tokensEncoderWrapper: TokensEncoderWrapper<ParsingToken, ParsingSentence, TokenType, SentenceType>,
+class LSSEncoder(
+  val tokensEncoderWrapper: TokensEncoderWrapper<ParsingToken, ParsingSentence, *, *>,
   val contextEncoder: ContextEncoder,
   val headsEncoder: HeadsEncoder,
   val virtualRoot: DenseNDArray

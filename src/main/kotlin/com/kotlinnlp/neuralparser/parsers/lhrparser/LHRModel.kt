@@ -8,8 +8,6 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
 import com.kotlinnlp.linguisticdescription.language.Language
-import com.kotlinnlp.linguisticdescription.sentence.Sentence
-import com.kotlinnlp.linguisticdescription.sentence.token.Token
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder.ContextEncoderModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.headsencoder.HeadsEncoderModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.DeprelLabelerModel
@@ -42,10 +40,10 @@ import java.io.InputStream
  * @property lossCriterionType the training mode of the labeler
  * @property predictPosTags whether to predict the POS tags together with the Deprels
  */
-class LHRModel<TokenType: Token, SentenceType: Sentence<TokenType>>(
+class LHRModel(
   language: Language = Language.Unknown,
   val corpusDictionary: CorpusDictionary,
-  val tokensEncoderConverterModel: TokensEncoderConverterModel<ParsingToken, ParsingSentence, TokenType, SentenceType>,
+  val tokensEncoderConverterModel: TokensEncoderConverterModel<ParsingToken, ParsingSentence, *, *>,
   val contextBiRNNConfig: BiRNNConfig,
   val headsBiRNNConfig: BiRNNConfig,
   val useLabeler: Boolean,
@@ -68,9 +66,7 @@ class LHRModel<TokenType: Token, SentenceType: Sentence<TokenType>>(
      *
      * @return the [LHRModel] read from [inputStream] and decoded
      */
-    fun <TokenType: Token, SentenceType: Sentence<TokenType>>load(
-      inputStream: InputStream
-    ): LHRModel<TokenType, SentenceType> = Serializer.deserialize(inputStream)
+    fun load(inputStream: InputStream): LHRModel = Serializer.deserialize(inputStream)
   }
 
   /**
