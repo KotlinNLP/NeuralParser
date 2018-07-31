@@ -37,7 +37,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
   override fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int): Deprel =
     deprels.firstOrNull {
 
-      val posTags: List<String> = it.value.extractPosTags()
+      val posTags: List<String> = it.value.label.extractPosTags()
 
       sentence.tokens[tokenIndex].morphologies.any { it.list.map { it.type.baseAnnotation } == posTags }
 
@@ -47,13 +47,13 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    * Get the morphologies that are compatible with the deprel of a token.
    *
    * @param morphologies the list of possible morphologies of the token
-   * @param deprel the scored deprel of the token
+   * @param deprelLabel the deprel label of the token
    *
    * @return the morphologies compatible with the given deprel
    */
-  override fun getValidMorphologies(morphologies: List<Morphology>, deprel: ScoredDeprel): List<Morphology> {
+  override fun getValidMorphologies(morphologies: List<Morphology>, deprelLabel: String): List<Morphology> {
 
-    val posTags: List<String> = deprel.value.extractPosTags()
+    val posTags: List<String> = deprelLabel.extractPosTags()
 
     return morphologies.filter { it.list.map { it.type.baseAnnotation } == posTags }
   }
@@ -61,5 +61,5 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
   /**
    * @return the list of POS tags annotated in the label of this deprel
    */
-  private fun Deprel.extractPosTags(): List<String> = this.label.split(" ").map { it.split("~").first() }
+  private fun String.extractPosTags(): List<String> = this.split(" ").map { it.split("~").first() }
 }

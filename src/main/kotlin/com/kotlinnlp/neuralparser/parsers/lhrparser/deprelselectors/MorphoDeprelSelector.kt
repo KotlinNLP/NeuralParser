@@ -32,9 +32,9 @@ interface MorphoDeprelSelector {
    * Get the morphologies that are compatible with the deprel of a token.
    *
    * @param morphologies the list of possible morphologies of the token
-   * @param deprel the scored deprel of the token
+   * @param deprelLabel the deprel label of the token
    *
    * @return the morphologies compatible with the given deprel
    */
-  fun getValidMorphologies(morphologies: List<Morphology>, deprel: ScoredDeprel): List<Morphology>
+  fun getValidMorphologies(morphologies: List<Morphology>, deprelLabel: String): List<Morphology>
 }

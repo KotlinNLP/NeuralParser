@@ -33,10 +33,10 @@ class NoFilterSelector : MorphoDeprelSelector {
    * Return all the morphologies as valid.
    *
    * @param morphologies the list of possible morphologies of the token
-   * @param deprel the scored deprel of the token
+   * @param deprelLabel the deprel label of the token
    *
    * @return all the given morphologies
    */
-  override fun getValidMorphologies(morphologies: List<Morphology>, deprel: ScoredDeprel): List<Morphology> =
+  override fun getValidMorphologies(morphologies: List<Morphology>, deprelLabel: String): List<Morphology> =
     morphologies
 }
