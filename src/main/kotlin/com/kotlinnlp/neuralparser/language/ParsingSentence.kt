@@ -15,6 +15,8 @@ import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
 import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.NoFilterSelector
 
 /**
  * The sentence used as input of the [com.kotlinnlp.neuralparser.NeuralParser].
@@ -42,24 +44,28 @@ class ParsingSentence(
   }
 
   /**
-   * TODO: set all properties expect for tokens
+   * TODO: set all properties except for tokens
    *
    * @param dependencyTree the dependency tree from which to extract the dependency relations
+   * @param morphoDeprelSelector the morphology and deprel selector
    *
    * @return a new [MorphoSyntacticSentence]
    */
-  fun toMorphoSyntacticSentence(dependencyTree: DependencyTree) = MorphoSyntacticSentence(
-    id = 0,
-    confidence = 0.0,
-    dateTimes = null,
-    entities = null,
-    tokens = this.tokens.map {
-      it.toMorphoSyntacticToken(
-        dependencyRelation = DependencyRelation(
-          governor = dependencyTree.heads[it.id],
-          deprel = dependencyTree.deprels[it.id]?.label ?: "_",
-          attachmentScore = 0.0) // TODO: set it
-      )
-    }
-  )
+  fun toMorphoSyntacticSentence(dependencyTree: DependencyTree,
+                                morphoDeprelSelector: MorphoDeprelSelector = NoFilterSelector()) =
+    MorphoSyntacticSentence(
+      id = 0,
+      confidence = 0.0,
+      dateTimes = null,
+      entities = null,
+      tokens = this.tokens.map {
+        it.toMorphoSyntacticToken(
+          dependencyRelation = DependencyRelation(
+            governor = dependencyTree.heads[it.id],
+            deprel = dependencyTree.deprels[it.id]?.label ?: "_",
+            attachmentScore = 0.0), // TODO: set it
+          morphoDeprelSelector = morphoDeprelSelector
+        )
+      }
+    )
 }

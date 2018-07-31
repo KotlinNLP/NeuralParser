@@ -8,12 +8,14 @@
 package com.kotlinnlp.neuralparser.language
 
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
+import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoToken
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Word
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
 
 /**
  * The token of the [ParsingSentence].
@@ -34,15 +36,22 @@ data class ParsingToken(
 
   /**
    * @param dependencyRelation the dependency relation of this token
+   * @param morphoDeprelSelector the morphology and deprel selector
    *
    * @return a new morpho syntactic token
    */
-  fun toMorphoSyntacticToken(dependencyRelation: DependencyRelation): MorphoSyntacticToken = Word(
-    id = this.id,
-    form = this.form,
-    position = this.position,
-    morphologies = emptyList(), // TODO: set it
-    dependencyRelation = dependencyRelation,
-    coReferences = null, // TODO: set it
-    semanticRelations = null) // TODO: set it
+  fun toMorphoSyntacticToken(dependencyRelation: DependencyRelation,
+                             morphoDeprelSelector: MorphoDeprelSelector): MorphoSyntacticToken =
+    Word(
+      id = this.id,
+      form = this.form,
+      position = this.position,
+      morphologies = morphoDeprelSelector.getValidMorphologies(
+        morphologies = this.morphologies,
+        deprelLabel = dependencyRelation.deprel
+      ).map { ScoredMorphology(type = it.type, list = it.list, score = 0.0) }, // TODO: set the score?
+      dependencyRelation = dependencyRelation,
+      coReferences = null, // TODO: set it
+      semanticRelations = null // TODO: set it
+    )
 }
