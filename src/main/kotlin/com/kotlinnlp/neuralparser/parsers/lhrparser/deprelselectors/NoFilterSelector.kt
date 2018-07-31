@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors
 
 import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.ScoredDeprel
 
@@ -27,4 +28,15 @@ class NoFilterSelector : MorphoDeprelSelector {
    */
   override fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int): Deprel =
     deprels.first().value
+
+  /**
+   * Return all the morphologies as valid.
+   *
+   * @param morphologies the list of possible morphologies of the token
+   * @param deprel the scored deprel of the token
+   *
+   * @return all the given morphologies
+   */
+  override fun getValidMorphologies(morphologies: List<Morphology>, deprel: ScoredDeprel): List<Morphology> =
+    morphologies
 }
