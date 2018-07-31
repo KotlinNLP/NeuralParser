@@ -62,7 +62,9 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
     val scores: ArcScores = CosineDecoder().decode(lss)
     val dependencyTree: DependencyTree = this.buildDependencyTree(lss, scores)
 
-    return sentence.toMorphoSyntacticSentence(dependencyTree)
+    return sentence.toMorphoSyntacticSentence(
+      dependencyTree = dependencyTree,
+      morphoDeprelSelector = this.model.deprelSelector)
   }
 
   /**
