@@ -19,6 +19,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.ArcScores.Companion.ro
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.CyclesFixer
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.DeprelSelector
 
 /**
  * The Latent Head Representation (LHR) Parser.
@@ -116,9 +117,16 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
    *
    * @param lss the latent syntactic structure
    */
-  private fun DependencyTree.assignLabels(lss: LatentSyntacticStructure) = this@LHRParser.deprelLabeler?.let { labeler ->
-    labeler.predict(DeprelLabeler.Input(lss, this)).forEachIndexed { tokenId, prediction ->
-      this.setDeprel(tokenId, prediction.first().value)
+  private fun DependencyTree.assignLabels(lss: LatentSyntacticStructure) {
+
+    val selector: DeprelSelector = this@LHRParser.model.deprelSelector
+
+    this@LHRParser.deprelLabeler?.let { labeler ->
+      labeler.predict(DeprelLabeler.Input(lss, this)).forEachIndexed { tokenIndex, prediction ->
+        this.setDeprel(
+          dependent = tokenIndex,
+          deprel = selector.getBestDeprel(deprels = prediction, sentence = lss.sentence, tokenIndex = tokenIndex))
+      }
     }
   }
 }
