@@ -20,8 +20,8 @@ import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.DeprelSelector
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.FirstDeprelSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.NoFilterSelector
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkModel
@@ -52,7 +52,7 @@ class LHRModel(
   val useLabeler: Boolean,
   val lossCriterionType: LossCriterionType,
   val predictPosTags: Boolean,
-  val deprelSelector: DeprelSelector = FirstDeprelSelector()
+  val deprelSelector: MorphoDeprelSelector = NoFilterSelector()
 ) : NeuralParserModel(language) {
 
   companion object {
