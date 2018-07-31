@@ -11,11 +11,12 @@ import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.ScoredDeprel
+import java.io.Serializable
 
 /**
  * The selector of the valid morphologies and the best deprel of a prediction.
  */
-interface MorphoDeprelSelector {
+interface MorphoDeprelSelector : Serializable {
 
   /**
    * Get the best deprel of a prediction.

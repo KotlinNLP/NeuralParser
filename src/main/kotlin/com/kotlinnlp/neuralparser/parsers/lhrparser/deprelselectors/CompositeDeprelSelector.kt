@@ -20,6 +20,12 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
   companion object {
 
     /**
+     * Private val used to serialize the class (needed by Serializable).
+     */
+    @Suppress("unused")
+    private const val serialVersionUID: Long = 1L
+
+    /**
      * The unknown deprel, returned when no deprel can be selected.
      */
     val UNKNOWN_DEPREL = Deprel(label = "UNKNOWN", direction = Deprel.Position.NULL)
