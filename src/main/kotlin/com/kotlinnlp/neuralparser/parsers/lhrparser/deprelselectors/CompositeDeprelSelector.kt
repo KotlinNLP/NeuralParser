@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors
 
 import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.ScoredDeprel
 
@@ -34,5 +35,31 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    * @return the best deprel
    */
   override fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int): Deprel =
-    TODO("not implemented")
+    deprels.firstOrNull {
+
+      val posTags: List<String> = it.value.extractPosTags()
+
+      sentence.tokens[tokenIndex].morphologies.any { it.list.map { it.type.baseAnnotation } == posTags }
+
+    }?.value ?: UNKNOWN_DEPREL
+
+  /**
+   * Get the morphologies that are compatible with the deprel of a token.
+   *
+   * @param morphologies the list of possible morphologies of the token
+   * @param deprel the scored deprel of the token
+   *
+   * @return the morphologies compatible with the given deprel
+   */
+  override fun getValidMorphologies(morphologies: List<Morphology>, deprel: ScoredDeprel): List<Morphology> {
+
+    val posTags: List<String> = deprel.value.extractPosTags()
+
+    return morphologies.filter { it.list.map { it.type.baseAnnotation } == posTags }
+  }
+
+  /**
+   * @return the list of POS tags annotated in the label of this deprel
+   */
+  private fun Deprel.extractPosTags(): List<String> = this.label.split(" ").map { it.split("~").first() }
 }
