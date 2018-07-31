@@ -14,7 +14,15 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.S
 /**
  * The deprel selector to use with the "composite" deprel format.
  */
-class CompositeDeprelSelector : DeprelSelector {
+class CompositeDeprelSelector : MorphoDeprelSelector {
+
+  companion object {
+
+    /**
+     * The unknown deprel, returned when no deprel can be selected.
+     */
+    val UNKNOWN_DEPREL = Deprel(label = "UNKNOWN", direction = Deprel.Position.NULL)
+  }
 
   /**
    * Get the best deprel of a prediction.

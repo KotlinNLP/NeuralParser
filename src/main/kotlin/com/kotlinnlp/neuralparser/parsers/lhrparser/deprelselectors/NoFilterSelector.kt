@@ -12,9 +12,9 @@ import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.ScoredDeprel
 
 /**
- * The selector of the best deprel of a prediction.
+ * The selector that does not filter.
  */
-interface DeprelSelector {
+class NoFilterSelector : MorphoDeprelSelector {
 
   /**
    * Get the best deprel of a prediction.
@@ -23,7 +23,8 @@ interface DeprelSelector {
    * @param sentence the input sentence
    * @param tokenIndex the index of the token to which the deprel must be assigned
    *
-   * @return the best deprel
+   * @return the first deprel of the prediction
    */
-  fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int): Deprel
+  override fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int): Deprel =
+    deprels.first().value
 }
