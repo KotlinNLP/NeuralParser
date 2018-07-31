@@ -64,7 +64,7 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
 
     return sentence.toMorphoSyntacticSentence(
       dependencyTree = dependencyTree,
-      morphoDeprelSelector = this.model.deprelSelector)
+      morphoDeprelSelector = this.model.morphoDeprelSelector)
   }
 
   /**
@@ -121,7 +121,7 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
    */
   private fun DependencyTree.assignLabels(lss: LatentSyntacticStructure) {
 
-    val selector: MorphoDeprelSelector = this@LHRParser.model.deprelSelector
+    val selector: MorphoDeprelSelector = this@LHRParser.model.morphoDeprelSelector
 
     this@LHRParser.deprelLabeler?.let { labeler ->
       labeler.predict(DeprelLabeler.Input(lss, this)).forEachIndexed { tokenIndex, prediction ->
