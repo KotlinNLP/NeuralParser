@@ -45,7 +45,9 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
 
       val posTags: List<String> = it.value.label.extractPosTags()
 
-      sentence.tokens[tokenIndex].morphologies.any { it.list.map { it.type.baseAnnotation } == posTags }
+      sentence.tokens[tokenIndex].morphologies.any { it.list.map { it.type.baseAnnotation } == posTags } ||
+        sentence.tokenMultiWordsMorphologiesByIndex(tokenIndex).any { it.list.map { it.type.baseAnnotation } == posTags }
+
 
     }?.value ?: UNKNOWN_DEPREL
 
@@ -68,4 +70,26 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    * @return the list of POS tags annotated in the label of this deprel
    */
   private fun String.extractPosTags(): List<String> = this.split(" ").map { it.split("~").first() }
+
+  /**
+   * Return the morphologies associated to the multi-words that involve the given [tokenIndex].
+   *
+   * @param tokenIndex
+   *
+   * @return a list of morphologies
+   */
+  private fun ParsingSentence.tokenMultiWordsMorphologiesByIndex(tokenIndex: Int): List<Morphology> {
+
+    val tokenMultiWordsMorphologies = mutableListOf<Morphology>()
+
+    this.multiWords.forEach {
+      (it.startToken..it.endToken).forEach { index ->
+        if (tokenIndex == index) {
+          it.morphologies.forEach { tokenMultiWordsMorphologies.add(it) }
+        }
+      }
+    }
+
+    return tokenMultiWordsMorphologies
+  }
 }
