@@ -56,7 +56,7 @@ class ParsingSentence(
     MorphoSyntacticSentence(
       id = 0,
       confidence = 0.0,
-      dateTimes = this.dateTimes,
+      dateTimes = if (this.dateTimes.isNotEmpty()) this.dateTimes else null,
       entities = null,
       tokens = this.tokens.map {
         it.toMorphoSyntacticToken(
