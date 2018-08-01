@@ -41,6 +41,15 @@ class CommandLineArguments(args: Array<String>) {
   )
 
   /**
+   * The file path of the serialized morphology dictionary.
+   */
+  val morphoDictionaryPath: String? by parser.storing(
+    "-d",
+    "--dictionary",
+    help="the file path of the serialized morphology dictionary"
+  ).default { null }
+
+  /**
    * The beam size.
    */
   val beamSize: Int by parser.storing(
