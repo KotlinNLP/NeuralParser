@@ -31,6 +31,14 @@ class CommandLineArguments(args: Array<String>) {
   }
 
   /**
+   * The type of morpho-deprel selector.
+   */
+  enum class MorphoDeprelSelectorType {
+    NO_FILTER,
+    COMPOSITE
+  }
+
+  /**
    * The parser of the string arguments.
    */
   private val parser = ArgParser(args)
@@ -219,6 +227,15 @@ class CommandLineArguments(args: Array<String>) {
     "--tokens-morpho" to TokensEncodingType.MORPHO_FEATURES,
     help = "the type of morphology encoding (default --tokens-word-pos-emb)"
   ).default { TokensEncodingType.WORD_AND_POS_EMBEDDINGS }
+
+  /**
+   * The type of morpho-deprel selector.
+   */
+  val morphoDeprelSelectorType: MorphoDeprelSelectorType by parser.mapping(
+    "--no-filter-morpho-deprel" to MorphoDeprelSelectorType.NO_FILTER,
+    "--composite-morpho-deprel" to MorphoDeprelSelectorType.COMPOSITE,
+    help = "the type of morpho-deprel selector (default --no-filter-morpho-deprel)"
+  ).default { MorphoDeprelSelectorType.NO_FILTER}
 
   /**
    * Whether to do not show details about the training.

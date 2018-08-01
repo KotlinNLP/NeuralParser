@@ -34,6 +34,8 @@ import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRTrainer
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.CompositeDeprelSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.NoFilterSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.LossCriterionType
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.BaseConverter
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
@@ -113,7 +115,11 @@ private fun buildParser(
     hiddenActivation = Tanh()),
   useLabeler = !parsedArgs.noLabeler,
   lossCriterionType = LossCriterionType.Softmax,
-  predictPosTags = !parsedArgs.noPosPrediction))
+  predictPosTags = !parsedArgs.noPosPrediction,
+  morphoDeprelSelector = when (parsedArgs.morphoDeprelSelectorType) {
+    CommandLineArguments.MorphoDeprelSelectorType.NO_FILTER -> NoFilterSelector()
+    CommandLineArguments.MorphoDeprelSelectorType.COMPOSITE -> CompositeDeprelSelector()
+  }))
 
 /**
  * Build a tokens-encoder wrapper model.
