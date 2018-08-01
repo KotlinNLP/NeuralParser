@@ -127,7 +127,11 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
       labeler.predict(DeprelLabeler.Input(lss, this)).forEachIndexed { tokenIndex, prediction ->
         this.setDeprel(
           dependent = tokenIndex,
-          deprel = selector.getBestDeprel(deprels = prediction, sentence = lss.sentence, tokenIndex = tokenIndex))
+          deprel = selector.getBestDeprel(
+            deprels = prediction,
+            sentence = lss.sentence,
+            tokenIndex = tokenIndex,
+            headIndex = this.heads[tokenIndex]))
       }
     }
   }

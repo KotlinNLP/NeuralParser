@@ -47,6 +47,7 @@ data class ParsingToken(
       form = this.form,
       position = this.position,
       morphologies = morphoDeprelSelector.getValidMorphologies(
+        token = this,
         morphologies = this.morphologies,
         deprelLabel = dependencyRelation.deprel
       ).map { ScoredMorphology(type = it.type, list = it.list, score = 0.0) }, // TODO: set the score?
