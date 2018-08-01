@@ -10,6 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors
 import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.ScoredDeprel
 
 /**
@@ -32,6 +33,7 @@ class NoFilterSelector : MorphoDeprelSelector {
    * @param deprels the list of scored deprels
    * @param sentence the input sentence
    * @param tokenIndex the index of the token to which the deprel must be assigned
+   * @param headIndex the index of the token head (can be null)
    *
    * @return the first deprel of the prediction
    */
@@ -41,11 +43,13 @@ class NoFilterSelector : MorphoDeprelSelector {
   /**
    * Return all the morphologies as valid.
    *
+   * @param token a parsing token
    * @param morphologies the list of possible morphologies of the token
    * @param deprelLabel the deprel label of the token
    *
    * @return all the given morphologies
    */
-  override fun getValidMorphologies(morphologies: List<Morphology>, deprelLabel: String): List<Morphology> =
-    morphologies
+  override fun getValidMorphologies(token: ParsingToken,
+                                    morphologies: List<Morphology>,
+                                    deprelLabel: String): List<Morphology> = morphologies
 }
