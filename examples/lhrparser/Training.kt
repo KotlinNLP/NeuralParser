@@ -49,7 +49,6 @@ import com.kotlinnlp.tokensencoder.morpho.FeaturesCollector
 import com.kotlinnlp.tokensencoder.morpho.MorphoEncoderModel
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 import com.kotlinnlp.utils.DictionarySet
-import lhrparser.utils.TrainingArgs
 import java.io.File
 import java.io.FileInputStream
 
@@ -60,7 +59,7 @@ import java.io.FileInputStream
  */
 fun main(args: Array<String>) = mainBody {
 
-  val parsedArgs = TrainingArgs(args)
+  val parsedArgs = CommandLineArguments(args)
 
   val trainingSentences: List<CoNLLSentence> = loadSentences(
     type = "training",
@@ -99,7 +98,7 @@ fun main(args: Array<String>) = mainBody {
  * @return a new parser
  */
 private fun buildParser(
-  parsedArgs: TrainingArgs,
+  parsedArgs: CommandLineArguments,
   tokensEncoderWrapperModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>,
   corpus: CorpusDictionary
 ): LHRParser = LHRParser(model = LHRModel(
@@ -126,14 +125,14 @@ private fun buildParser(
  * @return a new tokens-encoder wrapper model
  */
 private fun buildTokensEncoderWrapperModel(
-  parsedArgs: TrainingArgs,
+  parsedArgs: CommandLineArguments,
   sentences: List<CoNLLSentence>, // TODO: it will be used to initialize the MorphoEncoder
   corpus: CorpusDictionary
 ): TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *> =
 
   when (parsedArgs.tokensEncodingType) {
 
-    TrainingArgs.TokensEncodingType.WORD_AND_EXT_AND_POS_EMBEDDINGS -> { // TODO: separate with a dedicated builder
+    CommandLineArguments.TokensEncodingType.WORD_AND_EXT_AND_POS_EMBEDDINGS -> { // TODO: separate with a dedicated builder
 
       val embeddingsMap = EmbeddingsMapByDictionary(
         size = parsedArgs.wordEmbeddingSize,
@@ -176,7 +175,7 @@ private fun buildTokensEncoderWrapperModel(
       )
     }
 
-    TrainingArgs.TokensEncodingType.WORD_AND_POS_EMBEDDINGS -> { // TODO: separate with a dedicated builder
+    CommandLineArguments.TokensEncodingType.WORD_AND_POS_EMBEDDINGS -> { // TODO: separate with a dedicated builder
 
       val embeddingsMap = EmbeddingsMapByDictionary(
         size = parsedArgs.wordEmbeddingSize,
@@ -206,7 +205,7 @@ private fun buildTokensEncoderWrapperModel(
       )
     }
 
-    TrainingArgs.TokensEncodingType.WORD_EMBEDDINGS -> { // TODO: separate with a dedicated builder
+    CommandLineArguments.TokensEncodingType.WORD_EMBEDDINGS -> { // TODO: separate with a dedicated builder
 
       val embeddingsMap = EmbeddingsMapByDictionary(
         size = parsedArgs.wordEmbeddingSize,
@@ -220,7 +219,7 @@ private fun buildTokensEncoderWrapperModel(
       )
     }
 
-    TrainingArgs.TokensEncodingType.MORPHO_FEATURES -> {
+    CommandLineArguments.TokensEncodingType.MORPHO_FEATURES -> {
 
       val analyzer: MorphologicalAnalyzer = parsedArgs.morphoDictionaryPath!!.let {
 
@@ -297,7 +296,7 @@ private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAn
  *
  * @return a trainer for the given [parser]
  */
-private fun buildTrainer(parser: LHRParser, parsedArgs: TrainingArgs): LHRTrainer {
+private fun buildTrainer(parser: LHRParser, parsedArgs: CommandLineArguments): LHRTrainer {
 
   val preprocessor: SentencePreprocessor = parsedArgs.morphoDictionaryPath?.let {
 

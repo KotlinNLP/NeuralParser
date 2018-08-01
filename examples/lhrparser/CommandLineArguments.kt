@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * -----------------------------------------------------------------------------*/
 
-package lhrparser.utils
+package lhrparser
 
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.InvalidArgumentException
@@ -16,7 +16,7 @@ import com.xenomachina.argparser.default
  *
  * @param args the array of command line arguments
  */
-class TrainingArgs(args: Array<String>) {
+class CommandLineArguments(args: Array<String>) {
 
   /**
    * The type of tokens encoding.
