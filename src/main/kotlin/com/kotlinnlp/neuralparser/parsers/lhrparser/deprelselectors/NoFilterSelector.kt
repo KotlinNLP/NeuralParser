@@ -37,8 +37,10 @@ class NoFilterSelector : MorphoDeprelSelector {
    *
    * @return the first deprel of the prediction
    */
-  override fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int): Deprel =
-    deprels.first().value
+  override fun getBestDeprel(deprels: List<ScoredDeprel>,
+                             sentence: ParsingSentence,
+                             tokenIndex: Int,
+                             headIndex: Int?): Deprel = deprels.first().value
 
   /**
    * Return all the morphologies as valid.

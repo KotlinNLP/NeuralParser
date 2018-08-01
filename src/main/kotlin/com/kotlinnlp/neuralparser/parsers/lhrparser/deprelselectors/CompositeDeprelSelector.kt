@@ -38,10 +38,14 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    * @param deprels the list of scored deprels
    * @param sentence the input sentence
    * @param tokenIndex the index of the token to which the deprel must be assigned
+   * @param headIndex the index of the token head (can be null)
    *
    * @return the best deprel
    */
-  override fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int): Deprel {
+  override fun getBestDeprel(deprels: List<ScoredDeprel>,
+                             sentence: ParsingSentence,
+                             tokenIndex: Int,
+                             headIndex: Int?): Deprel {
 
     val possibleMorphologies: List<Morphology> =
       sentence.tokens[tokenIndex].morphologies + sentence.getTokenMultiWordsMorphologies(tokenIndex)

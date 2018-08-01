@@ -25,10 +25,11 @@ interface MorphoDeprelSelector : Serializable {
    * @param deprels the list of scored deprels
    * @param sentence the input sentence
    * @param tokenIndex the index of the token to which the deprel must be assigned
+   * @param headIndex the index of the token head (can be null)
    *
    * @return the best deprel
    */
-  fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int): Deprel
+  fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int, headIndex: Int?): Deprel
 
   /**
    * Get the morphologies that are compatible with the deprel of a given token.
