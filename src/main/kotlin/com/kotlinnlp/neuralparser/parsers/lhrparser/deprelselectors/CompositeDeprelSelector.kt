@@ -27,8 +27,9 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
 
     /**
      * The unknown deprel, returned when no deprel can be selected.
+     * TODO: replace with better heuristic
      */
-    val UNKNOWN_DEPREL = Deprel(label = "UNKNOWN", direction = Deprel.Position.NULL)
+    val UNKNOWN_DEPREL = Deprel(label = "NOUN~UNKNOWN", direction = Deprel.Position.NULL)
   }
 
   /**
