@@ -43,8 +43,8 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    */
   override fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int): Deprel {
 
-    val possibleMorphologies: List<Morphology> = sentence.tokens[tokenIndex].morphologies +
-      sentence.tokenMultiWordsMorphologiesByIndex(tokenIndex)
+    val possibleMorphologies: List<Morphology> =
+      sentence.tokens[tokenIndex].morphologies + sentence.getTokenMultiWordsMorphologies(tokenIndex)
 
     return deprels.firstOrNull {
 
@@ -76,24 +76,14 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
   private fun String.extractPosTags(): List<String> = this.split(" ").map { it.split("~").first() }
 
   /**
-   * Return the morphologies associated to the multi-words that involve the given [tokenIndex].
+   * Return the morphologies associated to the multi-words that involve a given token.
    *
-   * @param tokenIndex
+   * @param tokenIndex the index of the token
    *
    * @return a list of morphologies
    */
-  private fun ParsingSentence.tokenMultiWordsMorphologiesByIndex(tokenIndex: Int): List<Morphology> {
-
-    val tokenMultiWordsMorphologies = mutableListOf<Morphology>()
-
-    this.multiWords.forEach {
-      (it.startToken..it.endToken).forEach { index ->
-        if (tokenIndex == index) {
-          it.morphologies.forEach { tokenMultiWordsMorphologies.add(it) }
-        }
-      }
-    }
-
-    return tokenMultiWordsMorphologies
-  }
+  private fun ParsingSentence.getTokenMultiWordsMorphologies(tokenIndex: Int): List<Morphology> =
+    this.multiWords
+      .filter { tokenIndex in it.startToken..it.endToken }
+      .flatMap { it.morphologies }
 }
