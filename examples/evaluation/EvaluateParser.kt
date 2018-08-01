@@ -7,6 +7,7 @@
 
 package evaluation
 
+import buildSentencePreproessor
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.NeuralParserFactory
 import com.kotlinnlp.neuralparser.NeuralParserModel
@@ -43,7 +44,10 @@ fun main(args: Array<String>) = mainBody {
       type = "validation",
       filePath = parsedArgs.validationSetPath,
       maxSentences = null,
-      skipNonProjective = false))
+      skipNonProjective = false),
+    sentencePreprocessor = buildSentencePreproessor(
+      morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
+      language = parser.model.language))
 
   println("\nBeam size = ${parsedArgs.beamSize}, MaxParallelThreads = ${parsedArgs.threads}\n")
 
