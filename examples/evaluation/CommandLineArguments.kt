@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * -----------------------------------------------------------------------------*/
 
-package lhrparser.utils
+package evaluation
 
 import com.xenomachina.argparser.ArgParser
 
@@ -14,7 +14,7 @@ import com.xenomachina.argparser.ArgParser
  *
  * @param args the array of command line arguments
  */
-class EvaluationArgs(args: Array<String>) {
+class CommandLineArguments(args: Array<String>) {
 
   /**
    * The parser of the string arguments.
