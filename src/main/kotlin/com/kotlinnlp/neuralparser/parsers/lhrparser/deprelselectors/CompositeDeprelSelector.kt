@@ -41,16 +41,19 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    *
    * @return the best deprel
    */
-  override fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int): Deprel =
-    deprels.firstOrNull {
+  override fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int): Deprel {
+
+    val possibleMorpholgies: List<Morphology> = sentence.tokens[tokenIndex].morphologies +
+      sentence.tokenMultiWordsMorphologiesByIndex(tokenIndex)
+
+    return deprels.firstOrNull {
 
       val posTags: List<String> = it.value.label.extractPosTags()
 
-      sentence.tokens[tokenIndex].morphologies.any { it.list.map { it.type.baseAnnotation } == posTags } ||
-        sentence.tokenMultiWordsMorphologiesByIndex(tokenIndex).any { it.list.map { it.type.baseAnnotation } == posTags }
-
+      possibleMorpholgies.any { it.list.map { it.type.baseAnnotation } == posTags }
 
     }?.value ?: UNKNOWN_DEPREL
+  }
 
   /**
    * Get the morphologies that are compatible with the deprel of a token.
