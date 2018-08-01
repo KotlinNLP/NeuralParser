@@ -7,6 +7,7 @@
 
 package lhrparser
 
+import buildSentencePreproessor
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
@@ -23,8 +24,6 @@ import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.neuralparser.helpers.Validator
-import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
-import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.*
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
@@ -298,16 +297,9 @@ private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAn
  */
 private fun buildTrainer(parser: LHRParser, parsedArgs: CommandLineArguments): LHRTrainer {
 
-  val preprocessor: SentencePreprocessor = parsedArgs.morphoDictionaryPath?.let {
-
-    println("Loading serialized dictionary from '$it'...")
-
-    MorphoPreprocessor(
-      MorphologicalAnalyzer(
-        language = getLanguageByIso(parsedArgs.langCode),
-        dictionary = MorphologyDictionary.load(FileInputStream(File(it)))))
-
-  } ?: BasePreprocessor()
+  val preprocessor: SentencePreprocessor = buildSentencePreproessor(
+    morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
+    language = getLanguageByIso(parsedArgs.langCode))
 
   return LHRTrainer(
     parser = parser,
