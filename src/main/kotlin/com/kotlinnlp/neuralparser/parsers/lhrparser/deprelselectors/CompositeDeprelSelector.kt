@@ -43,14 +43,14 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    */
   override fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int): Deprel {
 
-    val possibleMorpholgies: List<Morphology> = sentence.tokens[tokenIndex].morphologies +
+    val possibleMorphologies: List<Morphology> = sentence.tokens[tokenIndex].morphologies +
       sentence.tokenMultiWordsMorphologiesByIndex(tokenIndex)
 
     return deprels.firstOrNull {
 
       val posTags: List<String> = it.value.label.extractPosTags()
 
-      possibleMorpholgies.any { it.list.map { it.type.baseAnnotation } == posTags }
+      possibleMorphologies.any { it.list.map { it.type.baseAnnotation } == posTags }
 
     }?.value ?: UNKNOWN_DEPREL
   }
