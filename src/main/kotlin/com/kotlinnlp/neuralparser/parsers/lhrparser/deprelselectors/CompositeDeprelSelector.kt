@@ -9,7 +9,12 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors
 
 import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
+import com.kotlinnlp.linguisticdescription.morphology.MorphologyFactory
+import com.kotlinnlp.linguisticdescription.morphology.MorphologyType
+import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
+import com.kotlinnlp.linguisticdescription.morphology.morphologies.ContentWord
 import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.ScoredDeprel
 
 /**
@@ -26,10 +31,35 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
     private const val serialVersionUID: Long = 1L
 
     /**
-     * The unknown deprel, returned when no deprel can be selected.
-     * TODO: replace with better heuristic
+     * The label of the unknown deprel.
      */
-    val UNKNOWN_DEPREL = Deprel(label = "NOUN~UNKNOWN", direction = Deprel.Position.NULL)
+    private const val UNKNOWN_LABEL = "NOUN-UNKNOWN"
+
+    /**
+     * Morphology types associated by base annotation.
+     */
+    private val morphologiesByBaseAnnotation: Map<String, MorphologyType> =
+      MorphologyType.values().filter { it.annotation == it.baseAnnotation }.associateBy { it.baseAnnotation }
+
+    /**
+     * @param posTag a POS tag
+     *
+     * @return the base morphology type associated to the given POS tag
+     */
+    private fun getMorphologyType(posTag: String): MorphologyType =
+      morphologiesByBaseAnnotation.getValue(posTag.replace("PHRASE", "PHRASE-AFF"))
+
+    /**
+     * Get the position of a deprel.
+     *
+     * @param tokenIndex the index of the token to which the deprel must be assigned
+     * @param headIndex the index of the token head (can be null)
+     *
+     * @return the deprel position related to the given dependency relation
+     */
+    private fun getDeprelPosition(tokenIndex: Int, headIndex: Int?): Deprel.Position =
+      headIndex?.let { if (tokenIndex < headIndex) Deprel.Position.LEFT else Deprel.Position.RIGHT }
+        ?: Deprel.Position.ROOT
   }
 
   /**
@@ -50,13 +80,19 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
     val possibleMorphologies: List<Morphology> =
       sentence.tokens[tokenIndex].morphologies + sentence.getTokenMultiWordsMorphologies(tokenIndex)
 
-    return deprels.firstOrNull {
+    val correctPosition: Deprel.Position = getDeprelPosition(tokenIndex = tokenIndex, headIndex = headIndex)
+    val possibleDeprels: List<ScoredDeprel> = deprels.filter { it.value.direction == correctPosition }
 
-      val posTags: List<String> = it.value.label.extractPosTags()
-
-      possibleMorphologies.any { it.list.map { it.type.baseAnnotation } == posTags }
-
-    }?.value ?: UNKNOWN_DEPREL
+    return if (possibleMorphologies.isNotEmpty())
+      possibleDeprels
+        .firstOrNull { it.value.isValid(possibleMorphologies) }?.value
+        ?:
+        possibleMorphologies.first().buildDeprelFromMorphology(tokenIndex = tokenIndex, headIndex = headIndex)
+    else
+      possibleDeprels
+        .firstOrNull { it.value.isSingleContentWord() }?.value
+        ?:
+        Deprel(label = UNKNOWN_LABEL, direction = getDeprelPosition(tokenIndex = tokenIndex, headIndex = headIndex))
   }
 
   /**
@@ -73,14 +109,21 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
                                     deprelLabel: String): List<Morphology> {
 
     val posTags: List<String> = deprelLabel.extractPosTags()
+    val possibleMorphologies: List<Morphology> = morphologies.filter {
+      it.list.map { it.type.baseAnnotation } == posTags
+    }
 
-    return morphologies.filter { it.list.map { it.type.baseAnnotation } == posTags }
+    return if (possibleMorphologies.isNotEmpty())
+      possibleMorphologies
+    else
+    // In this case the deprel label always defines a single morphology.
+      listOf(Morphology(
+        morphologies = listOf(MorphologyFactory(
+          lemma = token.form,
+          type = getMorphologyType(posTags.first()),
+          allowIncompleteProperties = true))
+      ))
   }
-
-  /**
-   * @return the list of POS tags annotated in the label of this deprel
-   */
-  private fun String.extractPosTags(): List<String> = this.split(" ").map { it.split("~").first() }
 
   /**
    * Return the morphologies associated to the multi-words that involve a given token.
@@ -93,4 +136,69 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
     this.multiWords
       .filter { tokenIndex in it.startToken..it.endToken }
       .flatMap { it.morphologies }
+
+  /**
+   * @param possibleMorphologies the list of possible morphologies of the token to which this deprel is assigned
+   *
+   * @return whether this deprel is valid respect to the given morphologies
+   */
+  private fun Deprel.isValid(possibleMorphologies: List<Morphology>): Boolean {
+
+    val posTags: List<String> = this.label.extractPosTags()
+
+    return possibleMorphologies.any { it.list.map { it.type.baseAnnotation } == posTags }
+  }
+
+  /**
+   * Build a deprel that includes this morphology.
+   *
+   * @param tokenIndex the index of the token to which the deprel must be assigned
+   * @param headIndex the index of the token head (can be null)
+   *
+   * @return a new deprel that includes this morphology
+   */
+  private fun Morphology.buildDeprelFromMorphology(tokenIndex: Int, headIndex: Int?) = Deprel(
+    label = this.buildDeprelLabel(topToken = headIndex == null),
+    direction = getDeprelPosition(tokenIndex = tokenIndex, headIndex = headIndex)
+  )
+
+  /**
+   * Build a label for a unknown deprel using the POS tags of this morphology.
+   *
+   * @param topToken whether the token to which this deprel is associated is the top of the sentence
+   *
+   * @return a [Deprel] label
+   */
+  private fun Morphology.buildDeprelLabel(topToken: Boolean): String =
+    this.list
+      .mapIndexed { i, it -> it.type.baseAnnotation + "~" + if (i == 0 && topToken) "TOP" else "UNKNOWN" }
+      .joinToString("+")
+
+  /**
+   * @return whether this deprel defines a content word with a single morphology
+   */
+  private fun Deprel.isSingleContentWord(): Boolean {
+
+    val posTags: List<String> = this.label.extractPosTags()
+
+    if (posTags.size == 1) {
+
+      val posTag: String = posTags.first()
+
+      if (posTag != "NUM") { // The NUM is not a content word and cannot be built with the MorphologyFactory.
+
+        val morphology: SingleMorphology =
+          MorphologyFactory(lemma = "", type = getMorphologyType(posTag), allowIncompleteProperties = true)
+
+        if (morphology is ContentWord) return true
+      }
+    }
+
+    return false
+  }
+
+  /**
+   * @return the list of POS tags annotated in the label of this deprel
+   */
+  private fun String.extractPosTags(): List<String> = this.split("+").map { it.split("~").first() }
 }
