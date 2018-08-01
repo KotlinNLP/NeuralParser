@@ -15,41 +15,37 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.models.GenericTransiti
 import com.kotlinnlp.neuralparser.utils.Timer
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.syntaxdecoder.BeamDecoder
+import com.xenomachina.argparser.mainBody
 import java.io.File
 import java.io.FileInputStream
 
 /**
  * Evaluate the model of a generic [NeuralParser].
  *
- * Command line arguments:
- *  1. The path of the model file
- *  2. The path of the validation set file
- *  3. The size of the beam (optional)
- *  4. The max number of parallel threads (optional)
+ * Launch with the '-h' option for help about the command line arguments.
  */
-fun main(args: Array<String>) {
+fun main(args: Array<String>) = mainBody {
 
-  val modelPath: String = args[0]
-  val validationSetPath: String = args[1]
-  val beamSize: Int = if (args.size > 2) args[2].toInt() else 1
-  val maxParallelThreads: Int = if (args.size > 3) args[3].toInt() else 1
+  val parsedArgs = CommandLineArguments(args)
 
-  require(beamSize > 0 && maxParallelThreads > 0)
+  require(parsedArgs.beamSize > 0 && parsedArgs.threads > 0)
 
-  println("Loading model from '$modelPath'.")
+  println("Loading model from '${parsedArgs.modelPath}'.")
 
   val parser: NeuralParser<*> = NeuralParserFactory(
-    model = NeuralParserModel.load(FileInputStream(File(modelPath))),
-    beamSize = beamSize,
-    maxParallelThreads = maxParallelThreads)
+    model = NeuralParserModel.load(FileInputStream(File(parsedArgs.modelPath))),
+    beamSize = parsedArgs.beamSize,
+    maxParallelThreads = parsedArgs.threads)
 
-  val validator = Validator(neuralParser = parser, sentences = loadSentences(
-    type = "validation",
-    filePath = validationSetPath,
-    maxSentences = null,
-    skipNonProjective = false))
+  val validator = Validator(
+    neuralParser = parser,
+    sentences = loadSentences(
+      type = "validation",
+      filePath = parsedArgs.validationSetPath,
+      maxSentences = null,
+      skipNonProjective = false))
 
-  println("\nBeam size = $beamSize, MaxParallelThreads = $maxParallelThreads\n")
+  println("\nBeam size = ${parsedArgs.beamSize}, MaxParallelThreads = ${parsedArgs.threads}\n")
 
   val timer = Timer()
   val evaluation = validator.evaluate()
@@ -57,7 +53,7 @@ fun main(args: Array<String>) {
   println("\n$evaluation")
   println("\nElapsed time: ${timer.formatElapsedTime()}")
 
-  if (parser is GenericTransitionBasedParser && beamSize > 1) {
+  if (parser is GenericTransitionBasedParser && parsedArgs.beamSize > 1) {
     (parser.syntaxDecoder as BeamDecoder).close()
   }
 }
