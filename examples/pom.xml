@@ -13,6 +13,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.2.41</kotlin.version>
+        <klaxon.version>3.0.5</klaxon.version>
         <neuralparser.version>0.4.0</neuralparser.version>
         <syntaxdecoder.version>0.2.2</syntaxdecoder.version>
         <simplednn.version>0.11.0</simplednn.version>
@@ -74,6 +75,12 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
             <version>${kotlin.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>klaxon</artifactId>
+            <version>${klaxon.version}</version>
         </dependency>
 
         <dependency>
