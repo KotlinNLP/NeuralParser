@@ -91,7 +91,7 @@ abstract class Trainer(
   }
 
   /**
-   * Train the Transition System.
+   * Train the parser for an epoch.
    *
    * @param trainingSentences the training sentences
    * @param shuffler a shuffle to shuffle the sentences at each epoch (can be null)
@@ -206,7 +206,7 @@ abstract class Trainer(
   protected abstract fun update()
 
   /**
-   * Train the Transition System with the given [sentence] and [goldTree].
+   * Train the parser with the given [sentence] and [goldTree].
    *
    * @param sentence a sentence
    * @param goldTree the gold dependency tree
