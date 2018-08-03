@@ -19,7 +19,7 @@ import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNEncoder
  * @property id an identification number useful to track a specific encoder
  */
 class HeadsEncoder(
-  private val model: HeadsEncoderModel,
+  val model: HeadsEncoderModel,
   override val useDropout: Boolean,
   override val id: Int = 0
 ) : NeuralProcessor<
