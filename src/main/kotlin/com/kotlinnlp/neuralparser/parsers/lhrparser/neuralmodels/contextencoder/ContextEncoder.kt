@@ -19,7 +19,7 @@ import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
  * @property id an identification number useful to track a specific encoder
  */
 class ContextEncoder(
-  private val model: ContextEncoderModel,
+  val model: ContextEncoderModel,
   override val useDropout: Boolean,
   override val id: Int = 0
 ) : NeuralProcessor<
