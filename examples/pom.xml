@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.2.41</kotlin.version>
         <klaxon.version>3.0.5</klaxon.version>
-        <neuralparser.version>0.4.0</neuralparser.version>
+        <neuralparser.version>0.4.1</neuralparser.version>
         <syntaxdecoder.version>0.2.3</syntaxdecoder.version>
         <simplednn.version>0.11.0</simplednn.version>
         <conllio.version>0.2.4</conllio.version>
