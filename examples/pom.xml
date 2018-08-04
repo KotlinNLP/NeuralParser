@@ -15,13 +15,13 @@
         <kotlin.version>1.2.41</kotlin.version>
         <klaxon.version>3.0.5</klaxon.version>
         <neuralparser.version>0.4.0</neuralparser.version>
-        <syntaxdecoder.version>0.2.2</syntaxdecoder.version>
+        <syntaxdecoder.version>0.2.3</syntaxdecoder.version>
         <simplednn.version>0.11.0</simplednn.version>
-        <conllio.version>0.2.3</conllio.version>
+        <conllio.version>0.2.4</conllio.version>
         <dependencytree.version>0.3.2</dependencytree.version>
-        <linguisticdescription.version>0.9.0</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.3.0</morphologicalanalyzer.version>
-        <tokensencoder.version>0.3.0</tokensencoder.version>
+        <linguisticdescription.version>0.9.1</linguisticdescription.version>
+        <morphologicalanalyzer.version>0.3.1</morphologicalanalyzer.version>
+        <tokensencoder.version>0.3.1</tokensencoder.version>
         <utils.version>2.1.0</utils.version>
     </properties>
 
