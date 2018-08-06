@@ -38,7 +38,7 @@ class ParsingSentence(
 
     require(this.tokens.first().id == 0) { "Tokens ids must start from 0" }
 
-    require((1 until this.tokens.size).all { i -> this.tokens[i].id == this.tokens[i - 1].id + 1 }) {
+    require(this.tokens.zipWithNext().all { it.first.id == it.second.id + 1 }) {
       "Tokens ids must be incremental and sequential"
     }
   }
