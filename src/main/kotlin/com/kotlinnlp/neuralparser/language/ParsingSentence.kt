@@ -44,6 +44,22 @@ class ParsingSentence(
   }
 
   /**
+   * A map that associates each token id to each index within the [tokens] list.
+   */
+  private val tokensIdsToIndices: Map<Int, Int> = this.tokens.withIndex().associate { (i, it) -> it.id to i }
+
+  /**
+   * Get the index of a given token within the [tokens] list.
+   *
+   * @param id the id of a token
+   *
+   * @throws NoSuchElementException if the given id does not refers to any token of this sentence
+   *
+   * @return the index of the token within the [tokens] list
+   */
+  fun getTokenIndex(id: Int): Int = this.tokensIdsToIndices.getValue(id)
+
+  /**
    * TODO: set all properties except for tokens
    *
    * @param dependencyTree the dependency tree from which to extract the dependency relations
