@@ -31,4 +31,25 @@ data class LatentSyntacticStructure(
    * The length of the sentence.
    */
   val size: Int = this.sentence.tokens.size
+
+  /**
+   * @param id the id of a token of the [sentence]
+   *
+   * @return the encoding of the given token
+   */
+  fun getEncodingById(id: Int): DenseNDArray = this.tokensEncoding[this.sentence.getTokenIndex(id)]
+
+  /**
+   * @param id the id of a token of the [sentence]
+   *
+   * @return the context vector of the given token
+   */
+  fun getContextVectorById(id: Int): DenseNDArray = this.contextVectors[this.sentence.getTokenIndex(id)]
+
+  /**
+   * @param id the id of a token of the [sentence]
+   *
+   * @return the latent head of the given token
+   */
+  fun getLatentHeadById(id: Int): DenseNDArray = this.latentHeads[this.sentence.getTokenIndex(id)]
 }
