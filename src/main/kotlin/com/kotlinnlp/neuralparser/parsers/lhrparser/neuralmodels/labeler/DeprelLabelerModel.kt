@@ -7,18 +7,16 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler
 
+import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.LossCriterion
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.labeler.utils.LossCriterionType
 import com.kotlinnlp.dependencytree.Deprel
-import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerInterface
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
-import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 import com.kotlinnlp.utils.DictionarySet
 import java.io.Serializable
 
@@ -60,17 +58,18 @@ class DeprelLabelerModel(
    * Errors are calculated comparing the last predictions done with the given gold deprels.
    *
    * @param predictions the current network predictions
-   * @param goldDeprels the list of gold deprels for each token
+   * @param goldTree the gold tree of the sentence
    *
    * @return a list of predictions errors
    */
-  fun calculateLoss(predictions: List<DenseNDArray>, goldDeprels: Array<Deprel?>): List<DenseNDArray> {
+  fun calculateLoss(predictions: List<DenseNDArray>, goldTree: DependencyTree): List<DenseNDArray> {
 
     val errorsList = mutableListOf<DenseNDArray>()
 
-    predictions.forEachIndexed { tokenId, prediction ->
+    predictions.forEachIndexed { tokenIndex, prediction ->
 
-      val goldDeprel: Deprel = goldDeprels[tokenId]!!
+      val tokenId: Int = goldTree.elements[tokenIndex]
+      val goldDeprel: Deprel = goldTree.getDeprel(tokenId)!!
       val goldDeprelIndex: Int = this.deprels.getId(goldDeprel)!!
 
       errorsList.add(LossCriterion(this.lossCriterionType).getPredictionErrors(

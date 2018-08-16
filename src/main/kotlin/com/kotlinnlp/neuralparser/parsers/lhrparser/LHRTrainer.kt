@@ -222,11 +222,11 @@ class LHRTrainer(
     this.beforeSentenceLearning()
 
     val lss: LatentSyntacticStructure = this.lssEncoder.encode(sentence)
-    val latentHeadsErrors = calculateLatentHeadsErrors(lss, goldTree.heads)
+    val latentHeadsErrors = calculateLatentHeadsErrors(lss, goldTree)
 
     val labelerErrors: List<DenseNDArray>? = this.deprelLabeler?.let {
       val labelerPrediction: List<DenseNDArray> = it.forward(DeprelLabeler.Input(lss, goldTree))
-      this.parser.model.labelerModel?.calculateLoss(labelerPrediction, goldTree.deprels)
+      this.parser.model.labelerModel?.calculateLoss(labelerPrediction, goldTree)
     }
 
     val positionalEncoderErrors: PointerNetworkProcessor.InputErrors? = this.positionalEncoder?.let {
@@ -245,32 +245,35 @@ class LHRTrainer(
    * Calculate the errors of the latent heads
    *
    * @param lss the latent syntactic structure
-   * @param goldHeads the gold heads ids
+   * @param goldTree the gold tree of the sentence
    *
    * @return the errors of the latent heads
    */
-  private fun calculateLatentHeadsErrors(lss: LatentSyntacticStructure, goldHeads: Array<Int?>): List<DenseNDArray> =
+  private fun calculateLatentHeadsErrors(lss: LatentSyntacticStructure, goldTree: DependencyTree): List<DenseNDArray> =
     MSECalculator().calculateErrors(
       outputSequence = lss.latentHeads,
-      outputGoldSequence = this.getExpectedLatentHeads(lss, goldHeads))
+      outputGoldSequence = this.getExpectedLatentHeads(lss, goldTree))
 
   /**
    * Return a list containing the expected latent heads, one for each token of the sentence.
    *
    * @param lss the latent syntactic structure
-   * @param goldHeads the gold heads ids
+   * @param goldTree the gold tree of the sentence
    *
    * @return the expected latent heads
    */
-  private fun getExpectedLatentHeads(lss: LatentSyntacticStructure, goldHeads: Array<Int?>): List<DenseNDArray> {
-    return lss.sentence.tokens.zip(goldHeads).map { (token, goldHeadId) ->
+  private fun getExpectedLatentHeads(lss: LatentSyntacticStructure, goldTree: DependencyTree): List<DenseNDArray> =
+
+    lss.sentence.tokens.map { token ->
+
+      val goldHeadId: Int? = goldTree.getHead(token.id)
+
       when {
         goldHeadId == null -> lss.virtualRoot
-        this.lhrErrorsOptions.skipPunctuationErrors && token.isComma -> lss.latentHeads[token.id] // no errors
-        else -> lss.contextVectors[goldHeadId]
+        this.lhrErrorsOptions.skipPunctuationErrors && token.isComma -> lss.getLatentHeadById(token.id) // no errors
+        else -> lss.getContextVectorById(goldHeadId)
       }
     }
-  }
 
   /**
    * Propagate the errors through the encoders.

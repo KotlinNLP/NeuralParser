@@ -81,8 +81,8 @@ class DeprelLabeler(
    *
    * @return a list of deprels for each token sorted by descending order
    */
-  fun predict(input: Input): List<ScoredDeprelList> = this.forward(input).map { out ->
-    (0 until out.length).map { i -> ScoredDeprel(this.getDeprel(i), score = out[i]) }.sortByScore()
+  fun predict(input: Input): List<ScoredDeprelList> = this.forward(input).map { prediction ->
+    (0 until prediction.length).map { i -> ScoredDeprel(this.getDeprel(i), score = prediction[i]) }.sortByScore()
   }
 
   /**
@@ -122,12 +122,13 @@ class DeprelLabeler(
 
     val rootErrors: DenseNDArray = DenseNDArrayFactory.zeros(Shape(this.model.contextEncodingSize))
 
-    inputErrors.forEachIndexed { tokenId, (depErrors, govErrors) ->
+    inputErrors.forEachIndexed { tokenIndex, (depErrors, govErrors) ->
 
-      val depVector: DenseNDArray = contextErrors[tokenId]
-      val govVector: DenseNDArray = this.dependencyTree.heads[tokenId].let {
-        if (it == null) rootErrors else contextErrors[it]
-      }
+      val tokenId: Int = this.dependencyTree.elements[tokenIndex]
+      val depVector: DenseNDArray = contextErrors[tokenIndex]
+      val govVector: DenseNDArray = this.dependencyTree.getHead(tokenId)?.let {
+        contextErrors[this.dependencyTree.getPosition(it)]
+      } ?: rootErrors
 
       depVector.assignSum(depErrors)
       govVector.assignSum(govErrors)
@@ -157,11 +158,11 @@ class DeprelLabeler(
 
     val features = mutableListOf<List<DenseNDArray>>()
 
-    (0 until input.lss.sentence.tokens.size).zip(this.dependencyTree.heads).forEach { (dependentId, headId) ->
+    input.lss.sentence.tokens.forEach { token ->
 
       features.add(listOf(
-        input.lss.contextVectors[dependentId],
-        headId?.let { input.lss.contextVectors[it] } ?: input.lss.virtualRoot
+        input.lss.getContextVectorById(token.id),
+        this.dependencyTree.getHead(token.id)?.let { input.lss.getContextVectorById(it) } ?: input.lss.virtualRoot
       ))
     }
 

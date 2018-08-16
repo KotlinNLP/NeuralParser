@@ -72,8 +72,8 @@ class CosineDecoder : HeadsDecoder {
       .filter { it.id != dependent.id }
       .associateTo(scores) {
         it.id to cosineSimilarity(
-          a = this.lssNorm.contextVectors[it.id],
-          b = this.lssNorm.latentHeads[dependent.id])
+          a = this.lssNorm.getContextVectorById(it.id),
+          b = this.lssNorm.getLatentHeadById(dependent.id))
       }
   }
 
@@ -89,7 +89,7 @@ class CosineDecoder : HeadsDecoder {
     if (!dependent.isPunctuation) { // the root shouldn't be a punctuation token
 
       this.similarityMatrix.getValue(dependent.id)[ArcScores.rootId] = cosineSimilarity(
-        a = this.lssNorm.latentHeads[dependent.id],
+        a = this.lssNorm.getLatentHeadById(dependent.id),
         b = this.lssNorm.virtualRoot)
     }
   }

@@ -10,6 +10,7 @@ package com.kotlinnlp.neuralparser.helpers
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
@@ -89,13 +90,7 @@ class Validator(
 
       this.sentenceMetrics = SentenceMetrics()
 
-      (0 until parsedSentence.tokens.size).forEach { i ->
-        this.addTokenMetrics(
-          token = goldSentence.tokens[i],
-          tokenIndex = i,
-          parsedTree = parsedTree,
-          goldTree = goldTree)
-      }
+      goldSentence.tokens.forEach { this.addTokenMetrics(token = it, parsedTree = parsedTree, goldTree = goldTree) }
 
       this.updateCorrectSentences()
     }
@@ -141,21 +136,22 @@ class Validator(
    * Add the statistic metrics of a given [token].
    *
    * @param token a token of a sentence
-   * @param tokenIndex the index of the given [token]
    * @param parsedTree the dependency tree of the parsed sentence
    * @param goldTree the gold dependency tree of the parsed sentence
    */
-  private fun addTokenMetrics(token: CoNLLToken, tokenIndex: Int, parsedTree: DependencyTree, goldTree: DependencyTree) {
+  private fun addTokenMetrics(token: CoNLLToken, parsedTree: DependencyTree, goldTree: DependencyTree) {
 
     val isNotPunct: Boolean = !punctuationRegex.matches(token.form)
+    val parsedDeprel: Deprel? = parsedTree.getDeprel(token.id)
+    val goldDeprel: Deprel? = goldTree.getDeprel(token.id)
 
     if (isNotPunct) this.counterNoPunct.totalTokens++
 
-    if (parsedTree.heads[tokenIndex] == goldTree.heads[tokenIndex]) {
+    if (parsedTree.getHead(token.id) == goldTree.getHead(token.id)) {
 
       this.addCorrectAttachment(isNotPunct)
 
-      if (parsedTree.deprels[tokenIndex] == goldTree.deprels[tokenIndex])
+      if (parsedDeprel == goldDeprel)
         this.addCorrectLabeledAttachment(isNotPunct)
       else
         this.addUncorrectLabeledAttachment(isNotPunct)
@@ -165,10 +161,8 @@ class Validator(
       this.addUncorrectLabeledAttachment(isNotPunct)
     }
 
-    if (parsedTree.posTags[tokenIndex] == goldTree.posTags[tokenIndex]) this.addCorrectPOSTag(isNotPunct)
-
-    if (parsedTree.deprels[tokenIndex]?.softEquals(goldTree.deprels[tokenIndex]) ?:
-      (parsedTree.deprels[tokenIndex] == goldTree.deprels[tokenIndex])) this.addCorrectDeprel(isNotPunct)
+    if (parsedTree.getPosTag(token.id) == goldTree.getPosTag(token.id)) this.addCorrectPOSTag(isNotPunct)
+    if (parsedDeprel?.softEquals(goldDeprel) ?: (parsedDeprel == goldDeprel)) this.addCorrectDeprel(isNotPunct)
   }
 
   /**

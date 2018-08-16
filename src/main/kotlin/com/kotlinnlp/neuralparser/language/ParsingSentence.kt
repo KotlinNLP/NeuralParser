@@ -62,8 +62,8 @@ class ParsingSentence(
       tokens = this.tokens.map {
         it.toMorphoSyntacticToken(
           dependencyRelation = DependencyRelation(
-            governor = dependencyTree.heads[it.id],
-            deprel = dependencyTree.deprels[it.id]?.label ?: "_",
+            governor = dependencyTree.getHead(it.id),
+            deprel = dependencyTree.getDeprel(it.id)?.label ?: "_",
             attachmentScore = 0.0), // TODO: set it
           morphoDeprelSelector = morphoDeprelSelector
         )

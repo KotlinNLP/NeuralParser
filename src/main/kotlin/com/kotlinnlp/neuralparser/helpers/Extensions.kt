@@ -44,12 +44,12 @@ private fun DependencyTree.addArc(token: CoNLLToken) {
       else -> Deprel.Position.RIGHT
     })
 
-  val dependentID = token.id - 1
+  val posTag = POSTag(label = token.pos)
 
   if (head > 0) {
-    this.setArc(dependent = dependentID, governor = head - 1, deprel = deprel, posTag = POSTag(label = token.pos))
+    this.setArc(dependent = token.id, governor = head, deprel = deprel, posTag = posTag)
   } else {
-    this.setDeprel(dependent = dependentID, deprel = deprel)
-    this.setPosTag(dependent = dependentID, posTag = POSTag(label = token.pos))
+    this.setDeprel(dependent = token.id, deprel = deprel)
+    this.setPosTag(dependent = token.id, posTag = posTag)
   }
 }
