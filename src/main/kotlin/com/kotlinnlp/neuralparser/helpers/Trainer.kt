@@ -115,7 +115,7 @@ abstract class Trainer(
 
       this.trainSentence(
         sentence = this.sentencePreprocessor.process(BaseSentence.fromCoNLL(sentence)),
-        goldTree = sentence.getDependencyTree())
+        goldTree = sentence.buildDependencyTree())
 
       if (endOfBatch && this.getRelevantErrorsCount() >= this.minRelevantErrorsCountToUpdate) {
         this.update()

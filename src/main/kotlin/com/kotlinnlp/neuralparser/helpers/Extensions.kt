@@ -14,11 +14,11 @@ import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 
 /**
- * Return the [DependencyTree] of this sentence.
+ * Build the [DependencyTree] of this sentence.
  *
- * @return the dependency tree
+ * @return a new dependency tree of this sentence
  */
-internal fun CoNLLSentence.getDependencyTree(): DependencyTree {
+internal fun CoNLLSentence.buildDependencyTree(): DependencyTree {
 
   val dependencyTree = DependencyTree(size = this.tokens.size)
 

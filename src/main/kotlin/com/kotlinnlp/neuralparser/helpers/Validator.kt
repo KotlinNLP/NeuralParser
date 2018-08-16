@@ -82,8 +82,8 @@ class Validator(
 
     this.sentences.zip(parsedSentences).forEach { (goldSentence, parsedSentence) ->
 
-      val goldTree: DependencyTree = goldSentence.getDependencyTree()
-      val parsedTree: DependencyTree = parsedSentence.getDependencyTree()
+      val goldTree: DependencyTree = goldSentence.buildDependencyTree()
+      val parsedTree: DependencyTree = parsedSentence.buildDependencyTree()
 
       require(parsedTree.size == goldTree.size) { "The dependency tree and its gold haven't the same size" }
 
