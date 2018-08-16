@@ -17,19 +17,19 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprel
 /**
  * The token of the [ParsingSentence].
  *
- * @property id the token id, an incremental integer starting from 0 within a sentence
+ * @property id the id of the token, unique within its sentence
  * @property form the form
  * @property morphologies the list of possible morphologies of the token
  * @property posTag the best part-of-speech tags associated to the token (can be null)
  * @param position the position of the token in the text (null if it is a trace)
  */
 data class ParsingToken(
-  val id: Int,
+  override val id: Int,
   override val form: String,
   override val morphologies: List<Morphology>,
   val posTag: String? = null, // TODO: find a better solution
   private val position: Position?
-) : MorphoToken, FormToken {
+) : MorphoToken, FormToken, TokenIdentificable {
 
   /**
    * @param dependencyRelation the dependency relation of this token

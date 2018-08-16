@@ -12,6 +12,7 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
 import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
 import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
@@ -29,7 +30,7 @@ class ParsingSentence(
   override val tokens: List<ParsingToken>,
   override val multiWords: List<MultiWords> = emptyList(),
   override val dateTimes: List<DateTime> = emptyList()
-) : MorphoSentence<ParsingToken> {
+) : MorphoSentence<ParsingToken>, SentenceIdentificable<ParsingToken>() {
 
   /**
    * Check token ids.
@@ -42,22 +43,6 @@ class ParsingSentence(
       "Tokens ids must be incremental and sequential"
     }
   }
-
-  /**
-   * A map that associates each token id to each index within the [tokens] list.
-   */
-  private val tokensIdsToIndices: Map<Int, Int> = this.tokens.withIndex().associate { (i, it) -> it.id to i }
-
-  /**
-   * Get the index of a given token within the [tokens] list.
-   *
-   * @param id the id of a token
-   *
-   * @throws NoSuchElementException if the given id does not refers to any token of this sentence
-   *
-   * @return the index of the token within the [tokens] list
-   */
-  fun getTokenIndex(id: Int): Int = this.tokensIdsToIndices.getValue(id)
 
   /**
    * TODO: set all properties except for tokens
