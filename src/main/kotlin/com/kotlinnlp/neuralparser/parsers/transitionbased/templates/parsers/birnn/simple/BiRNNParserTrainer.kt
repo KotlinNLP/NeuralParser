@@ -9,6 +9,7 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.bir
 
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEmbeddingsContext
 import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedTrainer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsOptimizer
@@ -38,7 +39,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
  * @param modelFilename the name of the file in which to save the best trained model
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
-open class BiRNNParserTrainer<StateType : State<StateType>,
+class BiRNNParserTrainer<StateType : State<StateType>,
   TransitionType : Transition<TransitionType, StateType>,
   FeaturesErrorsType: FeaturesErrors,
   FeaturesType : Features<FeaturesErrorsType, *>,
@@ -54,6 +55,7 @@ open class BiRNNParserTrainer<StateType : State<StateType>,
   minRelevantErrorsCountToUpdate: Int = 1,
   validator: Validator?,
   modelFilename: String,
+  sentencePreprocessor: SentencePreprocessor,
   verbose: Boolean = true
 ) :
   TransitionBasedTrainer<
@@ -75,6 +77,7 @@ open class BiRNNParserTrainer<StateType : State<StateType>,
     minRelevantErrorsCountToUpdate = minRelevantErrorsCountToUpdate,
     validator = validator,
     modelFilename = modelFilename,
+    sentencePreprocessor = sentencePreprocessor,
     verbose = verbose
   ) {
 

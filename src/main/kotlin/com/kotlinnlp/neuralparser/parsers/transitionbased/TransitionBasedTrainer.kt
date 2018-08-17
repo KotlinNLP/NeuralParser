@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
-import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
+import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.syntaxdecoder.transitionsystem.oracle.OracleFactory
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
@@ -36,6 +36,7 @@ import com.kotlinnlp.syntaxdecoder.modules.supportstructure.DecodingSupportStruc
  * @param validator the validation helper (if it is null no validation is done after each epoch)
  * @param modelFilename the name of the file in which to save the best trained model
  * @param minRelevantErrorsCountToUpdate the min count of relevant errors needed to update the neural parser (default 1)
+ * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
 abstract class TransitionBasedTrainer<
@@ -48,17 +49,18 @@ abstract class TransitionBasedTrainer<
   out SupportStructureType : DecodingSupportStructure,
   ModelType: TransitionBasedParserModel>
 (
-  private val neuralParser: TransitionBasedParser<StateType, TransitionType, InputContextType, ItemType, FeaturesErrorsType,
-    FeaturesType, SupportStructureType, ModelType>,
+  private val neuralParser: TransitionBasedParser<StateType, TransitionType, InputContextType, ItemType,
+    FeaturesErrorsType, FeaturesType, SupportStructureType, ModelType>,
   actionsErrorsSetter: ActionsErrorsSetter<StateType, TransitionType, ItemType, InputContextType>,
   oracleFactory: OracleFactory<StateType, TransitionType>,
   bestActionSelector: BestActionSelector<StateType, TransitionType, ItemType, InputContextType>,
-  private val batchSize: Int,
-  private val epochs: Int,
-  private val validator: Validator?,
-  private val modelFilename: String,
-  private val minRelevantErrorsCountToUpdate: Int = 1,
-  private val verbose: Boolean = true
+  batchSize: Int,
+  epochs: Int,
+  validator: Validator?,
+  modelFilename: String,
+  minRelevantErrorsCountToUpdate: Int = 1,
+  sentencePreprocessor: SentencePreprocessor,
+  verbose: Boolean = true
 ) : Trainer(
   neuralParser = neuralParser,
   batchSize = batchSize,
@@ -66,7 +68,7 @@ abstract class TransitionBasedTrainer<
   validator = validator,
   modelFilename = modelFilename,
   minRelevantErrorsCountToUpdate = minRelevantErrorsCountToUpdate,
-  sentencePreprocessor = BasePreprocessor(),
+  sentencePreprocessor = sentencePreprocessor,
   verbose = verbose
 ) {
 

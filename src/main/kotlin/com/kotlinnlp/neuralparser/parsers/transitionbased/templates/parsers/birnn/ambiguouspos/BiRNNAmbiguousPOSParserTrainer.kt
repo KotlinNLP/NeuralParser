@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.ambiguouspos
 
 import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedTrainer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensAmbiguousPOSContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
@@ -38,7 +39,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
  * @param modelFilename the name of the file in which to save the best trained model
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
-open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
+class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
   TransitionType : Transition<TransitionType, StateType>,
   FeaturesErrorsType: FeaturesErrors,
   FeaturesType : Features<FeaturesErrorsType, *>,
@@ -54,6 +55,7 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
   minRelevantErrorsCountToUpdate: Int = 1,
   validator: Validator?,
   modelFilename: String,
+  sentencePreprocessor: SentencePreprocessor,
   verbose: Boolean = true
 ) :
   TransitionBasedTrainer<
@@ -75,6 +77,7 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
     minRelevantErrorsCountToUpdate = minRelevantErrorsCountToUpdate,
     validator = validator,
     modelFilename = modelFilename,
+    sentencePreprocessor = sentencePreprocessor,
     verbose = verbose
   ) {
 
@@ -150,7 +153,7 @@ open class BiRNNAmbiguousPOSParserTrainer<StateType : State<StateType>,
   /**
    *
    */
-  protected fun propagateErrors(context: TokensAmbiguousPOSContext) {
+  private fun propagateErrors(context: TokensAmbiguousPOSContext) {
 
     this.neuralParser.biRNNEncoder.backward(context.items.map { it.errors?.array ?: this.zerosErrors } )
 

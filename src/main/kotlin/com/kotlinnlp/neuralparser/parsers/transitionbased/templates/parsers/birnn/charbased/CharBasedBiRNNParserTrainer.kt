@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.parsers.birnn.charbased
 
 import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedTrainer
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensCharsEncodingContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
@@ -58,6 +59,7 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
   learningMarginThreshold: Double,
   validator: Validator?,
   modelFilename: String,
+  sentencePreprocessor: SentencePreprocessor,
   verbose: Boolean = true
 ) :
   TransitionBasedTrainer<
@@ -79,6 +81,7 @@ class CharBasedBiRNNParserTrainer<StateType : State<StateType>,
     minRelevantErrorsCountToUpdate = minRelevantErrorsCountToUpdate,
     validator = validator,
     modelFilename = modelFilename,
+    sentencePreprocessor = sentencePreprocessor,
     verbose = verbose
   ) {
 
