@@ -12,7 +12,6 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.statistics.MetricsCounter
 import com.kotlinnlp.neuralparser.helpers.statistics.SentenceMetrics
@@ -30,7 +29,7 @@ import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 class Validator(
   neuralParser: NeuralParser<*>,
   val sentences: List<CoNLLSentence>,
-  sentencePreprocessor: SentencePreprocessor = BasePreprocessor(),
+  sentencePreprocessor: SentencePreprocessor,
   val verbose: Boolean = true
 ) {
 
