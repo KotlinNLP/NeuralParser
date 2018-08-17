@@ -49,10 +49,10 @@ class TokensEmbeddingsContext(
     = if (itemId != null) this.tokensEncodings[itemId] else this.nullItemVector
 
   /**
-   * @return the items id to initialize a [State]
+   * @return the item ids used to initialize a [State]
    */
-  override fun getInitialStateItemsId() = if (!this.skipPunctuation)
-    super.getInitialStateItemsId()
+  override fun getInitialStateItemIds() = if (!this.skipPunctuation)
+    super.getInitialStateItemIds()
   else
     this.tokens
     .filter { !it.isPunctuation }
