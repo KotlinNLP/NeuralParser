@@ -33,18 +33,6 @@ class ParsingSentence(
 ) : MorphoSentence<ParsingToken>, SentenceIdentificable<ParsingToken>() {
 
   /**
-   * Check token ids.
-   */
-  init {
-
-    require(this.tokens.first().id == 0) { "Tokens ids must start from 0" }
-
-    require(this.tokens.zipWithNext().all { it.second.id == it.first.id + 1 }) {
-      "Tokens ids must be incremental and sequential"
-    }
-  }
-
-  /**
    * TODO: set all properties except for tokens
    *
    * @param dependencyTree the dependency tree from which to extract the dependency relations
