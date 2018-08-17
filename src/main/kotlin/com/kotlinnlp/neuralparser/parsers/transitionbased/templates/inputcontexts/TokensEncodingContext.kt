@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts
 
-import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.syntaxdecoder.context.InputContext
@@ -15,13 +15,13 @@ import com.kotlinnlp.syntaxdecoder.context.InputContext
 /**
  * The tokens context with an encoding representation for each token.
  *
- * @property tokens a list of tokens
+ * @property sentence a parsing sentence, with the tokens list that is parallel to [items]
  * @property encodingSize the size of the each encoding
  * @property nullItemVector used to represent the encoding of a null item of the decoding window
  * @property trainingMode whether the parser is being trained
  */
 abstract class TokensEncodingContext<SelfType: TokensEncodingContext<SelfType>>(
-  val tokens: List<ParsingToken>,
+  val sentence: ParsingSentence,
   val encodingSize: Int,
   val nullItemVector: DenseNDArray,
   val trainingMode: Boolean = false
@@ -30,7 +30,7 @@ abstract class TokensEncodingContext<SelfType: TokensEncodingContext<SelfType>>(
   /**
    * The length of the sentence.
    */
-  override val length: Int = this.tokens.size
+  override val length: Int = this.sentence.tokens.size
 
   /**
    * The errors associated to the [nullItemVector].

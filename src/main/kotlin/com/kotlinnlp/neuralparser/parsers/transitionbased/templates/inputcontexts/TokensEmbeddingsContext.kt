@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts
 
-import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.embeddings.Embedding
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -16,7 +16,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * The tokens context with an encoding representation for each token, built using embeddings vectors of word and POS.
  *
  * @property items a list of items
- * @property tokens a list of tokens, parallel to [items]
+ * @property sentence a parsing sentence, with the tokens list that is parallel to [items]
  * @property posEmbeddings a list of pos embeddings, one per token
  * @property wordEmbeddings a list of word embeddings, one per token
  * @property nullItemVector used to represent the encoding of a null item of the decoding window
@@ -27,7 +27,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  */
 class TokensEmbeddingsContext(
   override val items: List<DenseItem>,
-  tokens: List<ParsingToken>,
+  sentence: ParsingSentence,
   val posEmbeddings: List<Embedding>,
   val wordEmbeddings: List<Embedding>,
   unknownItemVector: DenseNDArray,
@@ -36,7 +36,7 @@ class TokensEmbeddingsContext(
   private val skipPunctuation: Boolean = false,
   trainingMode: Boolean = false
 ) : TokensEncodingContext<TokensEmbeddingsContext>(
-  tokens = tokens,
+  sentence = sentence,
   encodingSize = encodingSize,
   nullItemVector = unknownItemVector,
   trainingMode = trainingMode) {
@@ -55,7 +55,7 @@ class TokensEmbeddingsContext(
   override fun getInitialStateItemIds() = if (!this.skipPunctuation)
     super.getInitialStateItemIds()
   else
-    this.tokens
+    this.sentence.tokens
     .filter { !it.isPunctuation }
     .map { it.id }
 
@@ -64,7 +64,7 @@ class TokensEmbeddingsContext(
    */
   override fun copy() = TokensEmbeddingsContext(
     items = this.items,
-    tokens = this.tokens,
+    sentence = this.sentence,
     posEmbeddings = this.posEmbeddings,
     wordEmbeddings = this.wordEmbeddings,
     unknownItemVector = this.nullItemVector,

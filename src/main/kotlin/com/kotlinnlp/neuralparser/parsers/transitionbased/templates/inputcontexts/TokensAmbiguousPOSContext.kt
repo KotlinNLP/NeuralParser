@@ -8,7 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts
 
 import com.kotlinnlp.dependencytree.POSTag
-import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.embeddings.Embedding
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -18,7 +18,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * a binary vector of the ambiguous POS tags.
  *
  * @property items a list of items
- * @property tokens a list of tokens, parallel to [items]
+ * @property sentence a parsing sentence, with the tokens list that is parallel to [items]
  * @property posTags a list of ambiguous POS tags, one list per token
  * @property wordEmbeddings a list of word embeddings, one per token
  * @property preTrainedWordEmbeddings a list of pre-trained word embeddings, one per token (can be null=
@@ -29,7 +29,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  */
 class TokensAmbiguousPOSContext(
   override val items: List<DenseItem>,
-  tokens: List<ParsingToken>,
+  sentence: ParsingSentence,
   val posTags: List<List<POSTag>>,
   val wordEmbeddings: List<Embedding>,
   val preTrainedWordEmbeddings: List<Embedding>?,
@@ -38,7 +38,7 @@ class TokensAmbiguousPOSContext(
   val tokensEncodings: List<DenseNDArray>,
   trainingMode: Boolean
 ) : TokensEncodingContext<TokensAmbiguousPOSContext>(
-  tokens = tokens,
+  sentence = sentence,
   encodingSize = encodingSize,
   nullItemVector = unknownItemVector,
   trainingMode = trainingMode) {
@@ -49,14 +49,14 @@ class TokensAmbiguousPOSContext(
    * @return get the encoding vector of the item with the given id
    */
   override fun getTokenEncoding(itemId: Int?): DenseNDArray
-    = if (itemId != null) this.tokensEncodings[itemId] else this.nullItemVector
+    = if (itemId != null) this.tokensEncodings[this.sentence.getTokenIndex(itemId)] else this.nullItemVector
 
   /**
    * @return a copy of this [TokensAmbiguousPOSContext]
    */
   override fun copy() = TokensAmbiguousPOSContext(
     items = this.items,
-    tokens = this.tokens,
+    sentence = this.sentence,
     posTags = this.posTags,
     wordEmbeddings = this.wordEmbeddings,
     preTrainedWordEmbeddings = this.preTrainedWordEmbeddings,
@@ -64,4 +64,8 @@ class TokensAmbiguousPOSContext(
     encodingSize = this.encodingSize,
     tokensEncodings = this.tokensEncodings,
     trainingMode = this.trainingMode)
+
+  /**
+   *
+   */
 }

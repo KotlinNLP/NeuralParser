@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts
 
-import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.embeddings.Embedding
 import com.kotlinnlp.simplednn.deeplearning.attention.han.HANEncoder
@@ -17,7 +17,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * The tokens context with an encoding representations for each token, built with chars and word embeddings.
  *
  * @property items a list of items
- * @property tokens a list of tokens, parallel to [items]
+ * @property sentence a parsing sentence, with the tokens list that is parallel to [items]
  * @property usedEncoders a list of HAN encoders used to encode tokens chars, one per token
  * @property charsEmbeddings a list of chars embeddings lists, one per token
  * @property wordEmbeddings a list of word embeddings, one per token
@@ -28,7 +28,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  */
 class TokensCharsEncodingContext(
   override val items: List<DenseItem>,
-  tokens: List<ParsingToken>,
+  sentence: ParsingSentence,
   val usedEncoders: List<HANEncoder<DenseNDArray>>,
   val charsEmbeddings: List<List<Embedding>>,
   val wordEmbeddings: List<Embedding>,
@@ -36,13 +36,12 @@ class TokensCharsEncodingContext(
   nullItemVector: DenseNDArray,
   val tokensEncodings: List<DenseNDArray>,
   trainingMode: Boolean = false
-) :
-  TokensEncodingContext<TokensCharsEncodingContext>(
-    tokens = tokens,
-    encodingSize = encodingSize,
-    nullItemVector = nullItemVector,
-    trainingMode = trainingMode
-  ) {
+) : TokensEncodingContext<TokensCharsEncodingContext>(
+  sentence = sentence,
+  encodingSize = encodingSize,
+  nullItemVector = nullItemVector,
+  trainingMode = trainingMode
+) {
 
   /**
    * @param itemId the id of an item (can be null)
@@ -57,7 +56,7 @@ class TokensCharsEncodingContext(
    */
   override fun copy() = TokensCharsEncodingContext(
     items = this.items,
-    tokens = this.tokens,
+    sentence = this.sentence,
     usedEncoders = this.usedEncoders,
     charsEmbeddings = this.charsEmbeddings,
     wordEmbeddings = this.wordEmbeddings,
