@@ -23,7 +23,7 @@ fun List<CoNLLToken>.toBaseTokens(): List<BaseToken> {
     end = start + it.form.length - 1
 
     BaseToken(
-      id = it.id - 1,
+      id = it.id,
       form = it.form,
       position = Position(index = i, start = start, end = end)
     )
