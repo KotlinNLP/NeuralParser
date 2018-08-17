@@ -28,7 +28,7 @@ class TokensEmbeddingsContext(
   sentence: ParsingSentence,
   val posEmbeddings: List<Embedding>,
   val wordEmbeddings: List<Embedding>,
-  unknownItemVector: DenseNDArray,
+  nullItemVector: DenseNDArray,
   encodingSize: Int,
   tokensEncodings: List<DenseNDArray>,
   private val skipPunctuation: Boolean = false,
@@ -37,7 +37,7 @@ class TokensEmbeddingsContext(
   sentence = sentence,
   encodingSize = encodingSize,
   tokensEncodings = tokensEncodings,
-  nullItemVector = unknownItemVector,
+  nullItemVector = nullItemVector,
   trainingMode = trainingMode
 ) {
 
@@ -58,7 +58,7 @@ class TokensEmbeddingsContext(
     sentence = this.sentence,
     posEmbeddings = this.posEmbeddings,
     wordEmbeddings = this.wordEmbeddings,
-    unknownItemVector = this.nullItemVector,
+    nullItemVector = this.nullItemVector,
     encodingSize = this.encodingSize,
     tokensEncodings = this.tokensEncodings,
     trainingMode = this.trainingMode)

@@ -115,7 +115,7 @@ abstract class BiRNNParser<
       wordEmbeddings = wordEmbeddings,
       tokensEncodings = this.biRNNEncoder.forward(tokensEmbeddings),
       encodingSize = this.model.deepBiRNN.outputSize,
-      unknownItemVector = paddingVector)
+      nullItemVector = paddingVector)
   }
 
   /**

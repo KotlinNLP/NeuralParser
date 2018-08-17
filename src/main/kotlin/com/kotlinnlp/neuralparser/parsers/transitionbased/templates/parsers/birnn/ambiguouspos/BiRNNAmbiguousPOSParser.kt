@@ -134,7 +134,7 @@ abstract class BiRNNAmbiguousPOSParser<
       preTrainedWordEmbeddings = preTrainedEmbeddings,
       tokensEncodings = this.biRNNEncoder.forward(tokensEmbeddings),
       encodingSize = this.model.deepBiRNN.outputSize,
-      unknownItemVector = paddingVector,
+      nullItemVector = paddingVector,
       trainingMode = trainingMode)
   }
 

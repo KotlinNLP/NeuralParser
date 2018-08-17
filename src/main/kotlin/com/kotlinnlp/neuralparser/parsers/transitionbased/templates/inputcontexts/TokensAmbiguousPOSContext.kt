@@ -30,7 +30,7 @@ class TokensAmbiguousPOSContext(
   val posTags: List<List<POSTag>>,
   val wordEmbeddings: List<Embedding>,
   val preTrainedWordEmbeddings: List<Embedding>?,
-  unknownItemVector: DenseNDArray,
+  nullItemVector: DenseNDArray,
   encodingSize: Int,
   tokensEncodings: List<DenseNDArray>,
   trainingMode: Boolean
@@ -38,7 +38,7 @@ class TokensAmbiguousPOSContext(
   sentence = sentence,
   encodingSize = encodingSize,
   tokensEncodings = tokensEncodings,
-  nullItemVector = unknownItemVector,
+  nullItemVector = nullItemVector,
   trainingMode = trainingMode
 ) {
 
@@ -50,7 +50,7 @@ class TokensAmbiguousPOSContext(
     posTags = this.posTags,
     wordEmbeddings = this.wordEmbeddings,
     preTrainedWordEmbeddings = this.preTrainedWordEmbeddings,
-    unknownItemVector = this.nullItemVector,
+    nullItemVector = this.nullItemVector,
     encodingSize = this.encodingSize,
     tokensEncodings = this.tokensEncodings,
     trainingMode = this.trainingMode)
