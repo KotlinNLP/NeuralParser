@@ -109,11 +109,11 @@ class Validator(
 
     if (this.verbose) println("Start parsing of %d sentences:".format(this.sentences.size))
 
-    return this.sentences.map {
+    return this.sentences.mapIndexed { i, sentence ->
 
       progress?.tick()
 
-      this.conllParser.parse(it)
+      this.conllParser.parse(sentence, index = i)
     }
   }
 

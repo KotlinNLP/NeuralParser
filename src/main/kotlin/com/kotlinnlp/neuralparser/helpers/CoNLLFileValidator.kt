@@ -76,11 +76,11 @@ class CoNLLFileValidator(
 
     if (this.verbose) println("Start parsing of %d sentences:".format(sentences.size))
 
-    return sentences.map {
+    return sentences.mapIndexed { i, sentence ->
 
       progress?.tick()
 
-      this.conllParser.parse(it)
+      this.conllParser.parse(sentence, index = i)
     }
   }
 

@@ -114,7 +114,7 @@ abstract class Trainer(
       require(sentence.hasAnnotatedHeads()) { "The gold dependency tree of a sentence cannot be null during the evaluation." }
 
       this.trainSentence(
-        sentence = this.sentencePreprocessor.process(BaseSentence.fromCoNLL(sentence)),
+        sentence = this.sentencePreprocessor.process(BaseSentence.fromCoNLL(sentence, index = sentenceIndex)),
         goldTree = sentence.buildDependencyTree())
 
       if (endOfBatch && this.getRelevantErrorsCount() >= this.minRelevantErrorsCountToUpdate) {

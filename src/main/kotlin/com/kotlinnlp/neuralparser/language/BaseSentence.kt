@@ -28,16 +28,20 @@ data class BaseSentence(
      * Convert a CoNLL sentence to a [BaseSentence].
      *
      * @param sentence a CoNLL sentence
+     * @param index the index of the sentence within a list of sentences
      *
      * @return a real sentence of real tokens
      */
-    fun fromCoNLL(sentence: CoNLLSentence): BaseSentence {
+    fun fromCoNLL(sentence: CoNLLSentence, index: Int): BaseSentence {
 
       val baseTokens = sentence.tokens.toBaseTokens()
 
       return BaseSentence(
         tokens = baseTokens,
-        position = Position(index = 0, start = baseTokens.first().position.start, end = baseTokens.last().position.end))
+        position = Position(
+          index = index,
+          start = baseTokens.first().position.start,
+          end = baseTokens.last().position.end))
     }
   }
 }

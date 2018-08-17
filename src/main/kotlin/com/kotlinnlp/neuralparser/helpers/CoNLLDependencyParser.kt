@@ -29,14 +29,15 @@ class CoNLLDependencyParser(
   /**
    * Parse a CoNLL sentence.
    *
-   * @property sentence the sentence to parse, in CoNLL format
+   * @param sentence the sentence to parse, in CoNLL format
+   * @param index the index of the sentence within the list of sentences of the input dataset
    *
    * @return the parsed sentence in CoNLL format
    */
-  fun parse(sentence: CoNLLSentence): CoNLLSentence {
+  fun parse(sentence: CoNLLSentence, index: Int): CoNLLSentence {
 
     val parsedSentence: MorphoSyntacticSentence = this.neuralParser.parse(
-      this.sentencePreprocessor.process(BaseSentence.fromCoNLL(sentence)))
+      this.sentencePreprocessor.process(BaseSentence.fromCoNLL(sentence, index = index)))
 
     return sentence.copy(tokens = sentence.tokens.map {
 
