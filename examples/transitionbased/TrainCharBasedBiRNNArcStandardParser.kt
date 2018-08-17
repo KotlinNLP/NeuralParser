@@ -10,6 +10,8 @@ package transitionbased
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
+import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.charbased.CharBasedBiRNNArcStandardParser
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.charbased.CharBasedBiRNNArcStandardParserModel
@@ -69,6 +71,8 @@ fun main(args: Array<String>) {
 
   val parser = CharBasedBiRNNArcStandardParser(model = parserModel, wordDropoutCoefficient = 0.25)
 
+  val preprocessor: SentencePreprocessor = BasePreprocessor() // TODO: set with a command line argument
+
   val trainer = CharBasedBiRNNParserTrainer(
     neuralParser = parser,
     oracleFactory = ArcStandardOracle,
@@ -82,8 +86,10 @@ fun main(args: Array<String>) {
         type = "validation",
         filePath = validationSetPath,
         maxSentences = null,
-        skipNonProjective = false)),
-    modelFilename = modelFilename)
+        skipNonProjective = false),
+      sentencePreprocessor = preprocessor),
+    modelFilename = modelFilename,
+    sentencePreprocessor = preprocessor)
 
   println("\n-- START TRAINING ON %d SENTENCES".format(trainingSentences.size))
 

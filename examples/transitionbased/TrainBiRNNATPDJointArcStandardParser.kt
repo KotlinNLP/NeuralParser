@@ -11,6 +11,8 @@ import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
+import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.ScorerNetworkConfiguration
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.atpdjoint.BiRNNATPDJointArcStandardParser
 import com.kotlinnlp.neuralparser.parsers.transitionbased.models.arcstandard.atpdjoint.BiRNNATPDJointArcStandardParserModel
@@ -85,6 +87,8 @@ fun main(args: Array<String>) {
     model = parserModel,
     wordDropoutCoefficient = 0.25)
 
+  val preprocessor: SentencePreprocessor = BasePreprocessor() // TODO: set with a command line argument
+
   val trainer = BiRNNAmbiguousPOSParserTrainer(
     neuralParser = parser,
     actionsErrorsSetter = HingeLossActionsErrorsSetter(learningMarginThreshold = 1.0),
@@ -98,8 +102,10 @@ fun main(args: Array<String>) {
         type = "validation",
         filePath = validationSetPath,
         maxSentences = null,
-        skipNonProjective = false)),
-    modelFilename = modelFilename)
+        skipNonProjective = false),
+      sentencePreprocessor = preprocessor),
+    modelFilename = modelFilename,
+    sentencePreprocessor = preprocessor)
 
   println("\n-- START TRAINING ON %d SENTENCES".format(trainingSentences.size))
 
