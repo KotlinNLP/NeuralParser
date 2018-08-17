@@ -41,11 +41,10 @@ class CoNLLDependencyParser(
 
     return sentence.copy(tokens = sentence.tokens.map {
 
-      // Note: CoNLL tokens ids start from 1, ParsingTokens ids start from 0.
-      val parsedToken: SyntacticToken = parsedSentence.getTokenById(it.id - 1)
+      val parsedToken: SyntacticToken = parsedSentence.getTokenById(it.id)
 
       it.copy(
-        head = parsedToken.dependencyRelation.governor?.plus(1) ?: 0, // the CoNLL root ID is 0
+        head = parsedToken.dependencyRelation.governor ?: 0, // the CoNLL root ID is 0
         deprel = parsedToken.dependencyRelation.deprel)
     })
   }
