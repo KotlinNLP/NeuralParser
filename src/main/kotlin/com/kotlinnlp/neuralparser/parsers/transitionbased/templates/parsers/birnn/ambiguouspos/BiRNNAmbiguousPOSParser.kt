@@ -114,7 +114,7 @@ abstract class BiRNNAmbiguousPOSParser<
     else
       null
 
-    val tokensEmbeddings: List<DenseNDArray> = (0 until tokens.size).map { i ->
+    val tokensEmbeddings: List<DenseNDArray> = tokens.indices.map { i ->
       this.buildTokenEmbedding(
         posVector = this.buildAmbiguousPOSVector(posTags[i]),
         wordEmbedding = wordEmbeddings[i],

@@ -100,7 +100,7 @@ abstract class BiRNNParser<
         dropoutCoefficient = if (trainingMode) this.wordDropoutCoefficient else 0.0)
     }
 
-    val tokensEmbeddings: List<DenseNDArray> = (0 until tokens.size).map { i ->
+    val tokensEmbeddings: List<DenseNDArray> = tokens.indices.map { i ->
       this.buildTokenEmbedding(posEmbedding = posEmbeddings[i], wordEmbedding = wordEmbeddings[i])
     }
 
