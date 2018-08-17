@@ -261,7 +261,7 @@ abstract class ATWFeaturesExtractor<
     itemsErrors: List<Pair<Int?, DenseNDArray>>) {
 
     itemsErrors.forEach {
-      decodingContext.extendedState.context.accumulateItemErrors(itemIndex = it.first, errors = it.second)
+      decodingContext.extendedState.context.accumulateItemErrors(itemId = it.first, errors = it.second)
     }
   }
 }

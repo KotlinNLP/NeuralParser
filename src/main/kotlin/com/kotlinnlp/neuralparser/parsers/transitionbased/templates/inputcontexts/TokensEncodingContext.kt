@@ -55,17 +55,18 @@ abstract class TokensEncodingContext<SelfType: TokensEncodingContext<SelfType>>(
   }
 
   /**
-   * Accumulate the given [errors] into the related items at the given [itemIndex].
+   * Accumulate the given [errors] into the related items at the given [itemId].
    *
-   * @param itemIndex the index of the item affected by the errors
+   * @param itemId the id of the item affected by the errors
    * @param errors the errors array to accumulate
    */
-  fun accumulateItemErrors(itemIndex: Int?, errors: DenseNDArray) =
-    if (itemIndex != null) {
-      this.items[itemIndex].accumulateErrors(errors)
-    } else {
+  fun accumulateItemErrors(itemId: Int?, errors: DenseNDArray) {
+
+    if (itemId != null)
+      this.items[this.sentence.getTokenIndex(itemId)].accumulateErrors(errors)
+    else
       this.accumulateNullItemErrors(errors)
-    }
+  }
 
   /**
    * @param itemId the id of an item
@@ -80,10 +81,9 @@ abstract class TokensEncodingContext<SelfType: TokensEncodingContext<SelfType>>(
    */
   private fun accumulateNullItemErrors(errors: DenseNDArray) {
 
-    if (this.nullItemErrors != null) {
+    if (this.nullItemErrors != null)
       this.nullItemErrors!!.assignSum(errors)
-    } else {
+    else
       this.nullItemErrors = errors.copy()
-    }
   }
 }
