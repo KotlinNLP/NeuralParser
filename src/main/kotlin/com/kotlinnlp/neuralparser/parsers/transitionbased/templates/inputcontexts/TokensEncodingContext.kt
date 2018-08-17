@@ -18,6 +18,7 @@ import com.kotlinnlp.syntaxdecoder.context.InputContext
  * @property tokens a list of tokens
  * @property encodingSize the size of the each encoding
  * @property nullItemVector used to represent the encoding of a null item of the decoding window
+ * @property trainingMode whether the parser is being trained
  */
 abstract class TokensEncodingContext<SelfType: TokensEncodingContext<SelfType>>(
   val tokens: List<ParsingToken>,

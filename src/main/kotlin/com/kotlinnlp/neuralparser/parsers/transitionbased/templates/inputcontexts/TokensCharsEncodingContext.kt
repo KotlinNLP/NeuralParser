@@ -24,6 +24,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * @property encodingSize the size of the each encoding
  * @property nullItemVector used to represent the encoding of a null item of the decoding window
  * @property tokensEncodings a list of encoding representations of the tokens
+ * @property trainingMode whether the parser is being trained
  */
 class TokensCharsEncodingContext(
   override val items: List<DenseItem>,

@@ -23,6 +23,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * @property encodingSize the size of the each encoding
  * @property tokensEncodings the size of the encodings
  * @property skipPunctuation whether to initialize a [State] without punctuation items
+ * @property trainingMode whether the parser is being trained
  */
 class TokensEmbeddingsContext(
   override val items: List<DenseItem>,

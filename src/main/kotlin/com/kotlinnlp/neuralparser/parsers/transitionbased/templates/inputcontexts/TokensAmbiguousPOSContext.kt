@@ -25,6 +25,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * @property nullItemVector used to represent the encoding of a null item of the decoding window
  * @property encodingSize the size of the each encoding
  * @property tokensEncodings the size of the encodings
+ * @property trainingMode whether the parser is being trained
  */
 class TokensAmbiguousPOSContext(
   override val items: List<DenseItem>,

@@ -22,6 +22,7 @@ import com.kotlinnlp.syntaxdecoder.context.InputContext
  * @property wordEmbeddings a list of word embeddings, one per token
  * @property tokensDependentEncodings a list of encoding representations of the tokens, as dependents
  * @property tokensGovernorEncodings a list of encoding representations of the tokens, as governors
+ * @property trainingMode whether the parser is being trained
  */
 class TokensBiEmbeddingsContext(
   override val items: List<MultiDenseItem>,
