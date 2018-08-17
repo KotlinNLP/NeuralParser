@@ -94,7 +94,8 @@ abstract class CharBasedBiRNNParser<
 
     val wordEmbeddings: List<Embedding> = tokens.map {
       this.model.wordEmbeddings.get(
-        element = it.normalizedForm, dropoutCoefficient = if (trainingMode) this.wordDropoutCoefficient else 0.0)
+        element = it.normalizedForm,
+        dropoutCoefficient = if (trainingMode) this.wordDropoutCoefficient else 0.0)
     }
 
     val charsEmbeddings: List<List<Embedding>> = tokens.map {

@@ -91,12 +91,14 @@ abstract class BiRNNParser<
     val tokens: List<ParsingToken> = sentence.tokens
 
     val posEmbeddings: List<Embedding> = tokens.map {
-      this.model.posEmbeddings.get(element = it.posTag!!,
+      this.model.posEmbeddings.get(
+        element = it.posTag!!,
         dropoutCoefficient = if (trainingMode) this.posDropoutCoefficient else 0.0)
     }
 
     val wordEmbeddings: List<Embedding> = tokens.map {
-      this.model.wordEmbeddings.get(element = it.normalizedForm,
+      this.model.wordEmbeddings.get(
+        element = it.normalizedForm,
         dropoutCoefficient = if (trainingMode) this.wordDropoutCoefficient else 0.0)
     }
 
