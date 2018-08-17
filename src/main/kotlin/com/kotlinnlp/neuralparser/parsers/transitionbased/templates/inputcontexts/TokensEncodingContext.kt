@@ -28,6 +28,11 @@ abstract class TokensEncodingContext<SelfType: TokensEncodingContext<SelfType>>(
 ) : InputContext<SelfType, DenseItem> {
 
   /**
+   * A list of dense items, parallel to the sentence tokens and with the same ids.
+   */
+  override val items: List<DenseItem> = this.sentence.tokens.map { DenseItem(it.id) }
+
+  /**
    * The length of the sentence.
    */
   override val length: Int = this.sentence.tokens.size

@@ -8,7 +8,6 @@
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts
 
 import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.embeddings.Embedding
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
@@ -26,7 +25,6 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * @property trainingMode whether the parser is being trained
  */
 class TokensEmbeddingsContext(
-  override val items: List<DenseItem>,
   sentence: ParsingSentence,
   val posEmbeddings: List<Embedding>,
   val wordEmbeddings: List<Embedding>,
@@ -63,7 +61,6 @@ class TokensEmbeddingsContext(
    * @return a copy of this [TokensEmbeddingsContext]
    */
   override fun copy() = TokensEmbeddingsContext(
-    items = this.items,
     sentence = this.sentence,
     posEmbeddings = this.posEmbeddings,
     wordEmbeddings = this.wordEmbeddings,

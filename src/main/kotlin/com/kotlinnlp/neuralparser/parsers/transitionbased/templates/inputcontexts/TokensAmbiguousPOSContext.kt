@@ -9,7 +9,6 @@ package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontex
 
 import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.embeddings.Embedding
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
@@ -17,7 +16,6 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * The tokens context with an encoding representation for each token, built using an embedding vector of the word and
  * a binary vector of the ambiguous POS tags.
  *
- * @property items a list of items
  * @property sentence a parsing sentence, with the tokens list that is parallel to [items]
  * @property posTags a list of ambiguous POS tags, one list per token
  * @property wordEmbeddings a list of word embeddings, one per token
@@ -28,7 +26,6 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * @property trainingMode whether the parser is being trained
  */
 class TokensAmbiguousPOSContext(
-  override val items: List<DenseItem>,
   sentence: ParsingSentence,
   val posTags: List<List<POSTag>>,
   val wordEmbeddings: List<Embedding>,
@@ -55,7 +52,6 @@ class TokensAmbiguousPOSContext(
    * @return a copy of this [TokensAmbiguousPOSContext]
    */
   override fun copy() = TokensAmbiguousPOSContext(
-    items = this.items,
     sentence = this.sentence,
     posTags = this.posTags,
     wordEmbeddings = this.wordEmbeddings,
