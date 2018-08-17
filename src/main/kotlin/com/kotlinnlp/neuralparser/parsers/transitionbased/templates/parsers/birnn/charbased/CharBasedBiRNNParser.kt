@@ -104,8 +104,7 @@ abstract class CharBasedBiRNNParser<
     val (usedEncoders, charsEncodings) = this.encodeTokensByChars(tokens = tokens, charsEmbeddings = charsEmbeddings)
 
     return TokensCharsEncodingContext(
-      tokens = tokens,
-      items = tokens.map { DenseItem(it.id) },
+      sentence = sentence,
       usedEncoders = usedEncoders,
       charsEmbeddings = charsEmbeddings,
       wordEmbeddings = wordEmbeddings,

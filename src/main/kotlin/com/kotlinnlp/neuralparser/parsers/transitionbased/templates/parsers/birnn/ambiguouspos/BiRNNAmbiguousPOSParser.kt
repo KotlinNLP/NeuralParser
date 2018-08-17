@@ -128,8 +128,7 @@ abstract class BiRNNAmbiguousPOSParser<
         preTrainedWordEmbedding = this.model.preTrainedWordEmbeddings?.nullEmbedding))).first()
 
     return TokensAmbiguousPOSContext(
-      tokens = tokens,
-      items = tokens.map { DenseItem(it.id) },
+      sentence = sentence,
       posTags = posTags,
       wordEmbeddings = wordEmbeddings,
       preTrainedWordEmbeddings = preTrainedEmbeddings,

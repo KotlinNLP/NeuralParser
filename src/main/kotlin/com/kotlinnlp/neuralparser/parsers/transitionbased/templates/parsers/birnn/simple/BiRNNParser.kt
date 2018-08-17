@@ -110,8 +110,7 @@ abstract class BiRNNParser<
         wordEmbedding = this.model.wordEmbeddings.nullEmbedding))).first()
 
     return TokensEmbeddingsContext(
-      tokens = tokens,
-      items = tokens.map { DenseItem(it.id) },
+      sentence = sentence,
       posEmbeddings = posEmbeddings,
       wordEmbeddings = wordEmbeddings,
       tokensEncodings = this.biRNNEncoder.forward(tokensEmbeddings),
