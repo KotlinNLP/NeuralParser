@@ -20,7 +20,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * @property wordEmbeddings a list of word embeddings, one per token
  * @property nullItemVector used to represent the encoding of a null item of the decoding window
  * @property encodingSize the size of the each encoding
- * @property tokensEncodings the size of the encodings
+ * @property tokensEncodings the list of tokens encodings
  * @property skipPunctuation whether to initialize a [State] without punctuation items
  * @property trainingMode whether the parser is being trained
  */
@@ -30,22 +30,16 @@ class TokensEmbeddingsContext(
   val wordEmbeddings: List<Embedding>,
   unknownItemVector: DenseNDArray,
   encodingSize: Int,
-  val tokensEncodings: List<DenseNDArray>,
+  tokensEncodings: List<DenseNDArray>,
   private val skipPunctuation: Boolean = false,
   trainingMode: Boolean = false
 ) : TokensEncodingContext<TokensEmbeddingsContext>(
   sentence = sentence,
   encodingSize = encodingSize,
+  tokensEncodings = tokensEncodings,
   nullItemVector = unknownItemVector,
-  trainingMode = trainingMode) {
-
-  /**
-   * @param itemId the id of an item
-   *
-   * @return get the encoding vector of the item with the given id
-   */
-  override fun getTokenEncoding(itemId: Int?): DenseNDArray
-    = if (itemId != null) this.tokensEncodings[itemId] else this.nullItemVector
+  trainingMode = trainingMode
+) {
 
   /**
    * @return the item ids used to initialize a [State]

@@ -17,12 +17,14 @@ import com.kotlinnlp.syntaxdecoder.context.InputContext
  *
  * @property sentence a parsing sentence, with the tokens list that is parallel to [items]
  * @property encodingSize the size of the each encoding
+ * @property tokensEncodings the list of tokens encodings
  * @property nullItemVector used to represent the encoding of a null item of the decoding window
  * @property trainingMode whether the parser is being trained
  */
 abstract class TokensEncodingContext<SelfType: TokensEncodingContext<SelfType>>(
   val sentence: ParsingSentence,
   val encodingSize: Int,
+  val tokensEncodings: List<DenseNDArray>,
   val nullItemVector: DenseNDArray,
   val trainingMode: Boolean = false
 ) : InputContext<SelfType, DenseItem> {
@@ -70,7 +72,8 @@ abstract class TokensEncodingContext<SelfType: TokensEncodingContext<SelfType>>(
    *
    * @return get the encoding vector of the item with the given id
    */
-  abstract fun getTokenEncoding(itemId: Int?): DenseNDArray
+  fun getTokenEncoding(itemId: Int?): DenseNDArray =
+    itemId?.let { this.tokensEncodings[this.sentence.getTokenIndex(it)] } ?: this.nullItemVector
 
   /**
    * @param errors the errors of the [nullItemVector] to accumulate

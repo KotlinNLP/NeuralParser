@@ -22,7 +22,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * @property preTrainedWordEmbeddings a list of pre-trained word embeddings, one per token (can be null=
  * @property nullItemVector used to represent the encoding of a null item of the decoding window
  * @property encodingSize the size of the each encoding
- * @property tokensEncodings the size of the encodings
+ * @property tokensEncodings the list of tokens encodings
  * @property trainingMode whether the parser is being trained
  */
 class TokensAmbiguousPOSContext(
@@ -32,21 +32,15 @@ class TokensAmbiguousPOSContext(
   val preTrainedWordEmbeddings: List<Embedding>?,
   unknownItemVector: DenseNDArray,
   encodingSize: Int,
-  val tokensEncodings: List<DenseNDArray>,
+  tokensEncodings: List<DenseNDArray>,
   trainingMode: Boolean
 ) : TokensEncodingContext<TokensAmbiguousPOSContext>(
   sentence = sentence,
   encodingSize = encodingSize,
+  tokensEncodings = tokensEncodings,
   nullItemVector = unknownItemVector,
-  trainingMode = trainingMode) {
-
-  /**
-   * @param itemId the id of an item
-   *
-   * @return get the encoding vector of the item with the given id
-   */
-  override fun getTokenEncoding(itemId: Int?): DenseNDArray
-    = if (itemId != null) this.tokensEncodings[this.sentence.getTokenIndex(itemId)] else this.nullItemVector
+  trainingMode = trainingMode
+) {
 
   /**
    * @return a copy of this [TokensAmbiguousPOSContext]
@@ -60,8 +54,4 @@ class TokensAmbiguousPOSContext(
     encodingSize = this.encodingSize,
     tokensEncodings = this.tokensEncodings,
     trainingMode = this.trainingMode)
-
-  /**
-   *
-   */
 }

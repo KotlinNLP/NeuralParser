@@ -22,7 +22,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * @property wordEmbeddings a list of word embeddings, one per token
  * @property encodingSize the size of the each encoding
  * @property nullItemVector used to represent the encoding of a null item of the decoding window
- * @property tokensEncodings a list of encoding representations of the tokens
+ * @property tokensEncodings the list of tokens encodings
  * @property trainingMode whether the parser is being trained
  */
 class TokensCharsEncodingContext(
@@ -32,22 +32,15 @@ class TokensCharsEncodingContext(
   val wordEmbeddings: List<Embedding>,
   encodingSize: Int,
   nullItemVector: DenseNDArray,
-  val tokensEncodings: List<DenseNDArray>,
+  tokensEncodings: List<DenseNDArray>,
   trainingMode: Boolean = false
 ) : TokensEncodingContext<TokensCharsEncodingContext>(
   sentence = sentence,
   encodingSize = encodingSize,
+  tokensEncodings = tokensEncodings,
   nullItemVector = nullItemVector,
   trainingMode = trainingMode
 ) {
-
-  /**
-   * @param itemId the id of an item (can be null)
-   *
-   * @return get the encoding vector of the item with the given id or the [nullItemVector] if [itemId] is null
-   */
-  override fun getTokenEncoding(itemId: Int?): DenseNDArray
-    = if (itemId != null) this.tokensEncodings[itemId] else this.nullItemVector
 
   /**
    * @return a copy of this [TokensCharsEncodingContext]
