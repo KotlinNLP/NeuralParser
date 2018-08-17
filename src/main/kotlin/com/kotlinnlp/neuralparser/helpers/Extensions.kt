@@ -20,7 +20,7 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
  */
 internal fun CoNLLSentence.buildDependencyTree(): DependencyTree {
 
-  val dependencyTree = DependencyTree(size = this.tokens.size)
+  val dependencyTree = DependencyTree(elements = this.tokens.map { it.id })
 
   this.tokens.forEach { dependencyTree.addArc(it) }
 
