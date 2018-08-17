@@ -37,11 +37,6 @@ class ArcEagerSpineEmbeddingsFeaturesExtractor
     MPSupportStructure>() {
 
   /**
-   * The group id of this transition.
-   */
-  private val Transition<ArcEagerSpineTransition, ArcEagerSpineState>.groupId: Int get() = Utils.getGroupId(this)
-
-  /**
    * Extract features using the given [decodingContext] amd [supportStructure].
    *
    * @param decodingContext the decoding context
@@ -59,7 +54,7 @@ class ArcEagerSpineEmbeddingsFeaturesExtractor
     decodingContext.actions
       .filter { it.isAllowed }
       .toTransitions()
-      .groupBy { it.groupId }
+      .groupBy { getGroupId(it) }
       .forEach { groupId, transitions ->
 
         featuresMap[groupId] = mutableMapOf()

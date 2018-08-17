@@ -61,7 +61,7 @@ open class ArcEagerSpineActionsScorer<
   /**
    * The [network] group id of this transition.
    */
-  override val Transition<ArcEagerSpineTransition, ArcEagerSpineState>.groupId: Int get() = Utils.getGroupId(this)
+  override val Transition<ArcEagerSpineTransition, ArcEagerSpineState>.groupId: Int get() = getGroupId(this)
 
   /**
    * @return a map of deprels to their related outcome indices

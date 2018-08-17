@@ -16,20 +16,15 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arceagerspine.transit
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arceagerspine.transitions.Shift
 
 /**
+ * @param transition an ArcEagerSpine transition
  *
+ * @return the group id of the given transition
  */
-object Utils {
-
-  /**
-   * @return the group id of this transition used by BiRNNArcEagerSpineActionsScorer and the
-   * ArcEagerSpineEmbeddingsFeaturesExtractor
-   */
-  fun getGroupId(transition: Transition<ArcEagerSpineTransition, ArcEagerSpineState>): Int =
-    when (transition) {
-      is Shift -> 0
-      is Root -> 1
-      is ArcLeft -> 2
-      is ArcRight -> 3
-      else -> throw RuntimeException("invalid transition ${this}")
-    }
-}
+internal fun getGroupId(transition: Transition<ArcEagerSpineTransition, ArcEagerSpineState>): Int =
+  when (transition) {
+    is Shift -> 0
+    is Root -> 1
+    is ArcLeft -> 2
+    is ArcRight -> 3
+    else -> throw RuntimeException("Invalid transition: $transition")
+  }
