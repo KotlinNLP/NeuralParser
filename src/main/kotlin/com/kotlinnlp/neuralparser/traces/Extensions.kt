@@ -1,0 +1,126 @@
+/* Copyright 2017-present The KotlinNLP Authors. All Rights Reserved.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * ------------------------------------------------------------------*/
+
+package com.kotlinnlp.neuralparser.traces
+
+import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
+import com.kotlinnlp.dependencytree.configuration.RootConfiguration
+import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
+import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Verb
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.MutableMorphoSyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.Trace
+import com.kotlinnlp.linguisticdescription.syntax.SyntaxType
+
+/**
+ *
+ */
+fun MorphoSyntacticSentence.getGovernor(token: MorphoSyntacticToken): MutableMorphoSyntacticToken? =
+  token.dependencyRelation.governor?.let { this.getTokenById(it) }
+
+/**
+ *
+ */
+fun MorphoSyntacticSentence.missingRequiredSubject(token: MorphoSyntacticToken): Boolean =
+  this.getSubj(token) == null && !token.isImpersonal && token.isActive
+
+/**
+ * TODO: find a better solution to match the deprel
+ */
+fun MorphoSyntacticSentence.getIObj(token: MorphoSyntacticToken): MutableMorphoSyntacticToken? =
+  this.getDependents(token.id).firstOrNull { it.dependencyRelation.deprel.contains(SyntaxType.IndirectObject.baseAnnotation) }
+
+/**
+ * TODO: find a better solution to match the deprel
+ */
+fun MorphoSyntacticSentence.getObj(token: MorphoSyntacticToken): MutableMorphoSyntacticToken? =
+  this.getDependents(token.id).firstOrNull { it.dependencyRelation.deprel.contains(SyntaxType.Object.baseAnnotation) }
+
+/**
+ * TODO: find a better solution to match the deprel
+ */
+fun MorphoSyntacticSentence.getSubj(token: MorphoSyntacticToken): MutableMorphoSyntacticToken? =
+  this.getDependents(token.id).firstOrNull { it.dependencyRelation.deprel.contains(SyntaxType.Subject.baseAnnotation) }
+
+/**
+ *
+ */
+fun MorphoSyntacticSentence.getTraceSubj(token: MorphoSyntacticToken): MutableMorphoSyntacticToken? =
+  this.getSubj(token)?.takeUnless { it !is Trace }
+
+/**
+ *
+ */
+val MorphoSyntacticToken.isImpersonal: Boolean get() = false  // TODO()
+
+/**
+ *
+ */
+val MorphoSyntacticToken.isActive: Boolean get() = true // TODO()
+
+/**
+ *
+ */
+val MorphoSyntacticToken.isVerbNotAux: Boolean get() = this.isVerb && !this.isAux
+
+/**
+ *
+ */
+val MorphoSyntacticToken.isVerb: Boolean get() = this.mainMorphology is Verb
+
+/**
+ *
+ */
+val MorphoSyntacticToken.isVerbInfinite: Boolean get() = TODO()
+
+/**
+ * TODO: find a better solution to match the deprel
+ */
+val MorphoSyntacticToken.isAux: Boolean get() =
+  this.dependencyRelation.deprel.contains(SyntaxType.AuxTense.annotation)
+
+/**
+ * TODO: find a better solution to match the deprel
+ */
+val MorphoSyntacticToken.isNeg: Boolean get() =
+  this.dependencyRelation.deprel.contains(SyntaxType.RModNeg.annotation)
+
+/**
+ * TODO: find a better solution to match the deprel
+ */
+val MorphoSyntacticToken.isCoord2Nd: Boolean get() =
+  this.dependencyRelation.deprel.contains(SyntaxType.Coord2Nd.annotation)
+
+
+/**
+ * TODO: find a better way to get the main token morphology
+ */
+val MorphoSyntacticToken.mainMorphology: SingleMorphology get() = this.morphologies.first().list.first()
+
+/**
+ *
+ */
+fun MorphoSyntacticSentence.toDependencyTree() = DependencyTree(
+  elements = this.tokens.map { it.id },
+  dependencies = this.tokens.map {
+    if (it.dependencyRelation.governor == null)
+      RootConfiguration(
+        id = it.id,
+        deprel = Deprel(
+          label = it.dependencyRelation.deprel,
+          direction = Deprel.Position.NULL))
+    else
+      ArcConfiguration(
+        dependent = it.id,
+        governor = it.dependencyRelation.governor!!,
+        deprel = Deprel(
+          label = it.dependencyRelation.deprel,
+          direction = Deprel.Position.NULL))
+  })

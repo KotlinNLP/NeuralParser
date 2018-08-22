@@ -19,6 +19,8 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.CyclesFixer
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
+import com.kotlinnlp.neuralparser.traces.CoordCorefHelper
+import com.kotlinnlp.neuralparser.traces.RuleBasedTracesHandler
 
 /**
  * The Latent Head Representation (LHR) Parser.
@@ -59,9 +61,14 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
 
     val lss: LatentSyntacticStructure = this.lssEncoder.encode(sentence)
 
-    return sentence.toMorphoSyntacticSentence(
+    val parsedSentence = sentence.toMorphoSyntacticSentence(
       dependencyTree = this.buildDependencyTree(lss),
       morphoDeprelSelector = this.model.morphoDeprelSelector)
+
+    // TODO: move the trace handler into the model?
+    RuleBasedTracesHandler(listOf(CoordCorefHelper())).addTraces(parsedSentence)
+
+    return parsedSentence
   }
 
   /**
