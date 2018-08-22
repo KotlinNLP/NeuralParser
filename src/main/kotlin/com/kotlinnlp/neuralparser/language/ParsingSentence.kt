@@ -48,7 +48,7 @@ class ParsingSentence(
       dateTimes = if (this.dateTimes.isNotEmpty()) this.dateTimes else null,
       entities = null,
       tokens = this.tokens.map {
-        it.toMorphoSyntacticToken(
+        it.toMutableMorphoSyntacticToken(
           dependencyRelation = DependencyRelation(
             governor = dependencyTree.getHead(it.id),
             deprel = dependencyTree.getDeprel(it.id)?.label ?: "_",
