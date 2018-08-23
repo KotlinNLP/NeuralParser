@@ -75,7 +75,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
   override fun getBestDeprel(deprels: List<ScoredDeprel>,
                              sentence: ParsingSentence,
                              tokenIndex: Int,
-                             headIndex: Int?): Deprel {
+                             headIndex: Int?): Pair<Int, Deprel> {
 
     val possibleMorphologies: List<Morphology> =
       sentence.tokens[tokenIndex].morphologies + sentence.getTokenMultiWordsMorphologies(tokenIndex)
@@ -83,16 +83,20 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
     val correctPosition: Deprel.Position = getDeprelPosition(tokenIndex = tokenIndex, headIndex = headIndex)
     val possibleDeprels: List<ScoredDeprel> = deprels.filter { it.value.direction == correctPosition }
 
-    return if (possibleMorphologies.isNotEmpty())
-      possibleDeprels
-        .firstOrNull { it.value.isValid(possibleMorphologies) }?.value
-        ?:
-        possibleMorphologies.first().buildDeprelFromMorphology(tokenIndex = tokenIndex, headIndex = headIndex)
+    val deprelIndex: Int = if (possibleMorphologies.isNotEmpty())
+      possibleDeprels.indexOfFirst { it.value.isValid(possibleMorphologies) }
     else
-      possibleDeprels
-        .firstOrNull { it.value.isSingleContentWord() }?.value
-        ?:
+      possibleDeprels.indexOfFirst { it.value.isSingleContentWord() }
+
+    val deprel: Deprel = when {
+      deprelIndex >= 0 -> possibleDeprels[deprelIndex].value
+      possibleMorphologies.isNotEmpty() ->
+        possibleMorphologies.first().buildDeprelFromMorphology(tokenIndex = tokenIndex, headIndex = headIndex)
+      else ->
         Deprel(label = UNKNOWN_LABEL, direction = getDeprelPosition(tokenIndex = tokenIndex, headIndex = headIndex))
+    }
+
+    return Pair(deprelIndex, deprel)
   }
 
   /**

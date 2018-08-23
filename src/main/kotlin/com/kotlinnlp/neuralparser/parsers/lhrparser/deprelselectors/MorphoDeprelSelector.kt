@@ -29,7 +29,10 @@ interface MorphoDeprelSelector : Serializable {
    *
    * @return the best deprel
    */
-  fun getBestDeprel(deprels: List<ScoredDeprel>, sentence: ParsingSentence, tokenIndex: Int, headIndex: Int?): Deprel
+  fun getBestDeprel(deprels: List<ScoredDeprel>,
+                    sentence: ParsingSentence,
+                    tokenIndex: Int,
+                    headIndex: Int?): Pair<Int, Deprel>
 
   /**
    * Get the morphologies that are compatible with the deprel of a given token.

@@ -40,7 +40,7 @@ class NoFilterSelector : MorphoDeprelSelector {
   override fun getBestDeprel(deprels: List<ScoredDeprel>,
                              sentence: ParsingSentence,
                              tokenIndex: Int,
-                             headIndex: Int?): Deprel = deprels.first().value
+                             headIndex: Int?): Pair<Int, Deprel> = Pair(0, deprels.first().value)
 
   /**
    * Return all the morphologies as valid.
