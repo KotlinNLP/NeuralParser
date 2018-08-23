@@ -135,7 +135,7 @@ class LHRTrainer(
   /**
    * The epoch counter.
    */
-  var epochCount: Int = 0
+  private var epochCount: Int = 0
 
   /**
    * Group the optimizers all together.
