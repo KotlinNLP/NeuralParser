@@ -205,13 +205,6 @@ class LHRTrainer(
   }
 
   /**
-   * Method to call after learning a sentence.
-   */
-  private fun afterSentenceLearning() {
-    // TODO("Delete it?")
-  }
-
-  /**
    * Train the Transition System with the given [sentence] and [goldTree].
    *
    * @param sentence the sentence
@@ -237,8 +230,6 @@ class LHRTrainer(
       latentHeadsErrors = latentHeadsErrors,
       labelerErrors = labelerErrors,
       positionalEncoderErrors = positionalEncoderErrors)
-
-    this.afterSentenceLearning()
   }
 
   /**
