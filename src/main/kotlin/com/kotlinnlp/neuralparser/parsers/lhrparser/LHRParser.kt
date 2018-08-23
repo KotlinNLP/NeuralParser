@@ -83,7 +83,7 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
     val dependencyTree = DependencyTree(lss.sentence.tokens.map { it.id })
     val scores: ArcScores = CosineDecoder().decode(lss)
 
-    with(dependencyTree) {
+    dependencyTree.apply {
       assignHeads(scores)
       fixCycles(scores)
       assignLabels(lss)
