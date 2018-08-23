@@ -21,6 +21,12 @@ import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
 import com.kotlinnlp.neuralparser.traces.CoordCorefHelper
 import com.kotlinnlp.neuralparser.traces.RuleBasedTracesHandler
+import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
+import com.kotlinnlp.simplednn.simplemath.concatVectorsV
+import com.kotlinnlp.simplednn.simplemath.cosineSimilarity
+import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
+import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 
 /**
  * The Latent Head Representation (LHR) Parser.
@@ -47,6 +53,14 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
   private val deprelLabeler: DeprelLabeler? = this.model.labelerModel?.let {
     DeprelLabeler(it, useDropout = false)
   }
+
+  /**
+   * The auto-encoder used to score a dependency of a token.
+   */
+  internal val dependencyAutoEncoder = FeedforwardNeuralProcessor<DenseNDArray>(
+    neuralNetwork = this.model.dependencyAutoEncoder,
+    useDropout = false,
+    propagateToInput = false)
 
   /**
    * Parse a sentence, returning its dependency tree.
@@ -131,18 +145,46 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
 
     this@LHRParser.deprelLabeler?.let { labeler ->
 
-      labeler.predict(DeprelLabeler.Input(lss, this)).forEachIndexed { tokenIndex, prediction ->
+      val scores: List<Double> = labeler.predict(DeprelLabeler.Input(lss, this)).mapIndexed { tokenIndex, prediction ->
 
         val tokenId: Int = this.elements[tokenIndex]
+        val (deprelIndex, deprel) = selector.getBestDeprel(
+          deprels = prediction,
+          sentence = lss.sentence,
+          tokenIndex = tokenIndex,
+          headIndex = this.getHead(tokenId)?.let { this.getPosition(it) })
 
-        this.setDeprel(
-          dependent = tokenId,
-          deprel = selector.getBestDeprel(
-            deprels = prediction,
-            sentence = lss.sentence,
-            tokenIndex = tokenIndex,
-            headIndex = this.getHead(tokenId)?.let { this.getPosition(it) }))
+        this.setDeprel(dependent = tokenId, deprel = deprel)
+
+        this@LHRParser.calcDependencyScore(lss = lss, tokenId = tokenId, bestDeprelIndex = deprelIndex)
       }
+
+      this.score = scores.average()
     }
+  }
+
+  /**
+   * Calculate the score of the tree dependency of a given token.
+   *
+   * @param lss the latent syntactic structure of a sentence
+   * @param tokenId the id of a token of the sentence
+   * @param bestDeprelIndex the index of the best deprel predicted for the given token
+   *
+   * @return the dependency score of the given token
+   */
+  private fun calcDependencyScore(lss: LatentSyntacticStructure, tokenId: Int, bestDeprelIndex: Int): Double {
+
+    val numOfDeprels: Int = this.model.corpusDictionary.deprelTags.size
+
+    val features: DenseNDArray = concatVectorsV(
+      lss.getContextVectorById(tokenId),
+      lss.getLatentHeadById(tokenId),
+      if (bestDeprelIndex >= 0)
+        DenseNDArrayFactory.oneHotEncoder(length = numOfDeprels, oneAt = bestDeprelIndex)
+      else
+        DenseNDArrayFactory.zeros(Shape(numOfDeprels))
+    )
+
+    return cosineSimilarity(this.dependencyAutoEncoder.forward(features).normalize2(), features.normalize2())
   }
 }
