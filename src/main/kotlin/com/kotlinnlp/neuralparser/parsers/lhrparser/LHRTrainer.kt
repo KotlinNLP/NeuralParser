@@ -14,6 +14,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.H
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.DeprelLabeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.DeprelLabelerOptimizer
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
@@ -27,6 +28,7 @@ import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMetho
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkProcessor
 import com.kotlinnlp.simplednn.simplemath.assignSum
+import com.kotlinnlp.simplednn.simplemath.concatVectorsV
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
@@ -133,6 +135,13 @@ class LHRTrainer(
     model = this.parser.model.tokensEncoderWrapperModel.model, updateMethod = this.updateMethod)
 
   /**
+   * The optimizer of the dependency auto-encoder.
+   */
+  private val dependencyAutoEncoderOptimizer = ParamsOptimizer(
+    params = this.parser.model.dependencyAutoEncoder.model,
+    updateMethod = this.updateMethod)
+
+  /**
    * The epoch counter.
    */
   private var epochCount: Int = 0
@@ -145,7 +154,8 @@ class LHRTrainer(
     this.contextEncoderOptimizer,
     this.deprelLabelerOptimizer,
     this.tokensEncoderOptimizer,
-    this.pointerNetworkOptimizer)
+    this.pointerNetworkOptimizer,
+    this.dependencyAutoEncoderOptimizer)
 
   /**
    * @return a string representation of the configuration of this Trainer
@@ -218,8 +228,9 @@ class LHRTrainer(
     val latentHeadsErrors = calculateLatentHeadsErrors(lss, goldTree)
 
     val labelerErrors: List<DenseNDArray>? = this.deprelLabeler?.let {
-      val labelerPrediction: List<DenseNDArray> = it.forward(DeprelLabeler.Input(lss, goldTree))
-      this.parser.model.labelerModel?.calculateLoss(labelerPrediction, goldTree)
+      val labelerPredictions: List<DenseNDArray> = it.forward(DeprelLabeler.Input(lss, goldTree))
+      this.trainDependencyAutoEncoder(labelerPredictions = labelerPredictions, lss = lss, goldTree = goldTree)
+      this.parser.model.labelerModel?.calculateLoss(labelerPredictions, goldTree)
     }
 
     val positionalEncoderErrors: PointerNetworkProcessor.InputErrors? = this.positionalEncoder?.let {
@@ -230,6 +241,36 @@ class LHRTrainer(
       latentHeadsErrors = latentHeadsErrors,
       labelerErrors = labelerErrors,
       positionalEncoderErrors = positionalEncoderErrors)
+  }
+
+  /**
+   * Train the dependency auto-encoder of the parser.
+   *
+   * @param labelerPredictions the list of labels predictions, one per token of the current sentence
+   * @param lss the latent syntactic structure of the sentence
+   * @param goldTree the gold dependency tree
+   */
+  private fun trainDependencyAutoEncoder(labelerPredictions: List<DenseNDArray>,
+                                         lss: LatentSyntacticStructure,
+                                         goldTree: DependencyTree) {
+
+    labelerPredictions.forEachIndexed { tokenIndex, prediction ->
+
+      val tokenId: Int = goldTree.elements[tokenIndex]
+      val goldDeprel: Deprel = goldTree.getDeprel(tokenId)!!
+      val goldDeprelIndex: Int = this.parser.model.corpusDictionary.deprelTags.getId(goldDeprel)!!
+
+      val features: DenseNDArray = concatVectorsV(
+        lss.getContextVectorById(tokenId),
+        lss.getLatentHeadById(tokenId),
+        DenseNDArrayFactory.oneHotEncoder(length = prediction.length, oneAt = goldDeprelIndex)
+      )
+
+      val output: DenseNDArray = this.parser.dependencyAutoEncoder.forward(features)
+
+      this.parser.dependencyAutoEncoder.backward(output.sub(features))
+      this.dependencyAutoEncoderOptimizer.accumulate(this.parser.dependencyAutoEncoder.getParamsErrors(copy = false))
+    }
   }
 
   /**
