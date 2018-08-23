@@ -5,11 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * -----------------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.headsencoder
-
-import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNParameters
+package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils
 
 /**
- * @property biRNNParameters the params of the BiRNN of the [HeadsEncoder]
+ * The available loss criterion.
+ *
+ * @property Softmax calculate the errors with cross-entropy softmax
+ * @property HingeLoss calculate the errors with the hinge loss method
  */
-class HeadsEncoderParams(val biRNNParameters: BiRNNParameters)
+enum class LossCriterionType { Softmax, HingeLoss }

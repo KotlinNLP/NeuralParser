@@ -5,21 +5,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * -----------------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder
+package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder
 
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
+import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNEncoder
 
 /**
- * Encoder that represents the tokens in their sentential context.
+ * Encoder that generates the Latent Heads Representation.
  *
  * @param model the model of this encoder
  * @property useDropout whether to apply the dropout during the forward
  * @property id an identification number useful to track a specific encoder
  */
-class ContextEncoder(
-  val model: ContextEncoderModel,
+class HeadsEncoder(
+  val model: HeadsEncoderModel,
   override val useDropout: Boolean,
   override val id: Int = 0
 ) : NeuralProcessor<
@@ -27,7 +27,7 @@ class ContextEncoder(
   List<DenseNDArray>, // OutputType
   List<DenseNDArray>, // ErrorsType
   List<DenseNDArray>, // InputErrorsType
-  ContextEncoderParams // ParamsType
+  HeadsEncoderParams // ParamsType
   > {
 
   /**
@@ -36,24 +36,21 @@ class ContextEncoder(
   override val propagateToInput: Boolean = true
 
   /**
-   * The BiRNN Encoder that encodes the tokens into the context vectors.
+   * A BiRNN Encoder that encodes the latent heads.
    */
-  private val encoder = DeepBiRNNEncoder<DenseNDArray>(
+  private val encoder = BiRNNEncoder<DenseNDArray>(
     network = this.model.biRNN,
-    propagateToInput = true,
-    useDropout = this.useDropout)
+    useDropout = this.useDropout,
+    propagateToInput = true)
 
   /**
-   * @param input tokens encodings
+   * @param input the vectors that represent each token
    *
-   * @return the context vectors of the tokens
+   * @return the latent heads representation
    */
-  override fun forward(input: List<DenseNDArray>): List<DenseNDArray> =
-    this.encoder.forward(input)
+  override fun forward(input: List<DenseNDArray>): List<DenseNDArray> = this.encoder.forward(input)
 
   /**
-   * The Backward.
-   *
    * @param outputErrors the errors of the current encoding
    */
   override fun backward(outputErrors: List<DenseNDArray>) = this.encoder.backward(outputErrors)
@@ -68,7 +65,9 @@ class ContextEncoder(
   /**
    * @param copy a Boolean indicating whether the returned errors must be a copy or a reference
    *
-   * @return the errors of the [ContextEncoder] parameters
+   * @return the errors of the [HeadsEncoder] parameters
    */
-  override fun getParamsErrors(copy: Boolean) = ContextEncoderParams(this.encoder.getParamsErrors(copy = copy))
+  override fun getParamsErrors(copy: Boolean) = HeadsEncoderParams(
+    biRNNParameters = this.encoder.getParamsErrors(copy = copy)
+  )
 }

@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * -----------------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodels.contextencoder
+package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder
 
-import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNParameters
+import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNParameters
 
 /**
- * @property biRNNParameters the params of the [ContextEncoder]
+ * @property biRNNParameters the params of the BiRNN of the [HeadsEncoder]
  */
-class ContextEncoderParams(val biRNNParameters: DeepBiRNNParameters)
+class HeadsEncoderParams(val biRNNParameters: BiRNNParameters)
