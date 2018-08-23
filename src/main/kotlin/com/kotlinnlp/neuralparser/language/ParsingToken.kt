@@ -38,7 +38,7 @@ data class ParsingToken(
    * @return a new morpho syntactic token
    */
   fun toMutableMorphoSyntacticToken(dependencyRelation: DependencyRelation,
-                             morphoDeprelSelector: MorphoDeprelSelector): MutableMorphoSyntacticToken {
+                                    morphoDeprelSelector: MorphoDeprelSelector): MutableMorphoSyntacticToken {
 
     val morphologies: List<ScoredMorphology> = morphoDeprelSelector.getValidMorphologies(
       token = this,
