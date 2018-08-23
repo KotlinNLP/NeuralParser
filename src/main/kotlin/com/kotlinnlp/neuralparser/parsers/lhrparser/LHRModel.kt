@@ -24,6 +24,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.NoFilterSelector
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
+import com.kotlinnlp.simplednn.core.neuralnetwork.preset.FeedforwardNeuralNetwork
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkModel
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
@@ -123,6 +124,18 @@ class LHRModel(
     mergeConfig = AffineMerge(
       outputSize = 100,
       activationFunction = Tanh()))
+
+  /**
+   * The model of the auto-encoder used to score the dependency of a token.
+   */
+  val dependencyAutoEncoder = (2 * this.contextVectorsSize + this.corpusDictionary.deprelTags.size).let { inputSize ->
+    FeedforwardNeuralNetwork(
+      inputSize = inputSize,
+      hiddenSize = 200,
+      hiddenActivation = Tanh(),
+      outputSize = inputSize,
+      outputActivation = null)
+  }
 
   /**
    * Initialize the root embedding.
