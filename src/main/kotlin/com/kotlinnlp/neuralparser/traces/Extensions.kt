@@ -13,6 +13,7 @@ import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.dependencytree.configuration.RootConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
 import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Verb
+import com.kotlinnlp.linguisticdescription.morphology.properties.Mood
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.linguisticdescription.sentence.token.MutableMorphoSyntacticToken
@@ -81,6 +82,30 @@ val MorphoSyntacticToken.isVerb: Boolean get() = this.mainMorphology is Verb
 val MorphoSyntacticToken.isVerbInfinite: Boolean get() = TODO()
 
 /**
+ * TODO: find a better and safe solution
+ */
+val MorphoSyntacticToken.isVerbGerundive: Boolean get() = this.mainMorphology.let {
+  it as Verb
+  it.mood == Mood.Gerund
+}
+
+/**
+ * TODO: find a better and safe solution
+ */
+val MorphoSyntacticToken.isVerbParticiple: Boolean get() = this.mainMorphology.let {
+  it as Verb
+  it.mood == Mood.Participle
+}
+
+/**
+ * TODO: find a better and safe solution
+ */
+val MorphoSyntacticToken.isVerbExplicit: Boolean get() = this.mainMorphology.let {
+  it as Verb
+  it.mood in listOf(Mood.Indicative, Mood.Subjunctive, Mood.Conditional)
+}
+
+/**
  * TODO: find a better solution to match the deprel
  */
 val MorphoSyntacticToken.isAux: Boolean get() =
@@ -98,6 +123,11 @@ val MorphoSyntacticToken.isNeg: Boolean get() =
 val MorphoSyntacticToken.isCoord2Nd: Boolean get() =
   this.dependencyRelation.deprel.contains(SyntaxType.Coord2Nd.annotation)
 
+/**
+ * TODO: find a better solution to match the deprel
+ */
+val MorphoSyntacticToken.isRMod: Boolean get() =
+  this.dependencyRelation.deprel.contains(SyntaxType.RMod.annotation)
 
 /**
  * TODO: find a better way to get the main token morphology
