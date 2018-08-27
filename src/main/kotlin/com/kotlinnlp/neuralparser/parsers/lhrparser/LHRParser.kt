@@ -20,6 +20,8 @@ import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
 import com.kotlinnlp.neuralparser.traces.CoordCorefHelper
+import com.kotlinnlp.neuralparser.traces.ExplicitCorefHelper
+import com.kotlinnlp.neuralparser.traces.ImplicitCorefHelper
 import com.kotlinnlp.neuralparser.traces.RuleBasedTracesHandler
 
 /**
@@ -66,7 +68,11 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
       morphoDeprelSelector = this.model.morphoDeprelSelector)
 
     // TODO: move the trace handler into the model?
-    RuleBasedTracesHandler(listOf(CoordCorefHelper())).addTraces(parsedSentence)
+    RuleBasedTracesHandler(listOf(
+      CoordCorefHelper(),
+      ImplicitCorefHelper(),
+      ExplicitCorefHelper())
+    ).addTraces(parsedSentence)
 
     return parsedSentence
   }
