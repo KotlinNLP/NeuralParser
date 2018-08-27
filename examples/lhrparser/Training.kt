@@ -282,9 +282,10 @@ private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAn
     index = index,
     start = baseTokens.first().position.start,
     end = baseTokens.last().position.end)
-
   @Suppress("UNCHECKED_CAST")
-  val analysis = analyzer.analyze(BaseSentence(position = position, tokens = baseTokens) as RealSentence<RealToken>)
+  val sentence = BaseSentence(id = index, position = position, tokens = baseTokens) as RealSentence<RealToken>
+
+  val analysis = analyzer.analyze(sentence)
 
   return MorphoSentenceClass(
     tokens = analysis.tokens.map { MorphoTokenClass(it ?: emptyList()) },

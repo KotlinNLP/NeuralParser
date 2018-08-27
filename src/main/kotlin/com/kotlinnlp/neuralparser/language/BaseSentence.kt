@@ -14,10 +14,12 @@ import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 /**
  * A base real sentence.
  *
+ * @property id the id of the sentence, unique within a list of sentences
  * @property tokens the list of tokens that compose the sentence
  * @property position the position of this sentence in the original text
  */
 data class BaseSentence(
+  val id: Int,
   override val tokens: List<BaseToken>,
   override val position: Position
 ) : RealSentence<BaseToken> {
@@ -37,6 +39,7 @@ data class BaseSentence(
       val baseTokens = sentence.tokens.toBaseTokens()
 
       return BaseSentence(
+        id = index, // the index is unique within a list of sentences
         tokens = baseTokens,
         position = Position(
           index = index,
