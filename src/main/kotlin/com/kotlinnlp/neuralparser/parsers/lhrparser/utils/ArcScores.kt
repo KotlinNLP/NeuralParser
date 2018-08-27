@@ -46,12 +46,12 @@ class ArcScores(
   fun findHighestScoringHead(dependentId: Int, except: List<Int> = emptyList()): Pair<Int, Double>? =
     this.scores
       .getValue(dependentId)
-      .filterNot { it.key in except  }
+      .filterNot { it.key in except }
       .maxBy { it.value }
       ?.toPair()
 
   /**
-   * @return the highest scoring element that point to the root
+   * @return the highest scoring element that points to the root
    */
   fun findHighestScoringTop(): Pair<Int, Double> {
 

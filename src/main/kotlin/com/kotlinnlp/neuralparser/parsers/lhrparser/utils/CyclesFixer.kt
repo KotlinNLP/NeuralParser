@@ -13,7 +13,7 @@ import com.kotlinnlp.dependencytree.DependencyTree
  * Naive strategy to fix possible cycles in a [dependencyTree].
  *
  * @param dependencyTree the dependency tree
- * @param arcScores the scores of the arcs between pair of elements
+ * @param arcScores the scores of the arcs between pair of tree elements
  */
 internal class CyclesFixer(private val dependencyTree: DependencyTree, private val arcScores: ArcScores) {
 
