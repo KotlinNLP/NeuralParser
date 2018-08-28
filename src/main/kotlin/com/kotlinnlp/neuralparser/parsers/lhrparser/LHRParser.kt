@@ -145,11 +145,12 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
 
         this.setDeprel(
           dependent = tokenId,
-          deprel = selector.getBestDeprel(
+          deprel = selector.getValidDeprels(
             deprels = prediction,
             sentence = lss.sentence,
             tokenIndex = tokenIndex,
-            headIndex = this.getHead(tokenId)?.let { this.getPosition(it) }))
+            headIndex = this.getHead(tokenId)?.let { this.getPosition(it) }
+          ).first().value)
       }
     }
   }
