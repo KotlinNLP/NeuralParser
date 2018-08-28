@@ -43,7 +43,6 @@ class CosineDecoder : HeadsDecoder {
 
     this.lssNorm = LatentSyntacticStructure(
       sentence = lss.sentence,
-      tokensEncoding = lss.tokensEncoding,
       contextVectors = lss.contextVectors.map { it.normalize2() },
       latentHeads = lss.latentHeads.map { it.normalize2() },
       virtualRoot = lss.virtualRoot.normalize2())

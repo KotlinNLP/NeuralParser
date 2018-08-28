@@ -42,7 +42,6 @@ class LSSEncoder(
 
     return LatentSyntacticStructure(
       sentence = sentence,
-      tokensEncoding = tokensEncodings,
       contextVectors = contextVectors,
       latentHeads = latentHeads,
       virtualRoot = this.virtualRoot)
