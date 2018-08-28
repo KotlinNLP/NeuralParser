@@ -62,36 +62,36 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
   }
 
   /**
-   * Get the best deprel of a prediction.
+   * Get the list of deprels that are valid for a given attachment.
    *
    * @param deprels the list of scored deprels
    * @param sentence the input sentence
    * @param tokenIndex the index of the token to which the deprel must be assigned
    * @param headIndex the index of the token head (can be null)
    *
-   * @return the best deprel
+   * @return the valid deprels for the given attachment
    */
-  override fun getBestDeprel(deprels: List<ScoredDeprel>,
-                             sentence: ParsingSentence,
-                             tokenIndex: Int,
-                             headIndex: Int?): Deprel {
+  override fun getValidDeprels(deprels: List<ScoredDeprel>,
+                               sentence: ParsingSentence,
+                               tokenIndex: Int,
+                               headIndex: Int?): List<ScoredDeprel> {
 
     val possibleMorphologies: List<Morphology> =
       sentence.tokens[tokenIndex].morphologies + sentence.getTokenMultiWordsMorphologies(tokenIndex)
 
     val correctPosition: Deprel.Position = getDeprelPosition(tokenIndex = tokenIndex, headIndex = headIndex)
     val possibleDeprels: List<ScoredDeprel> = deprels.filter { it.value.direction == correctPosition }
+    val worstScore: Double = deprels.last().score
 
     return if (possibleMorphologies.isNotEmpty())
-      possibleDeprels
-        .firstOrNull { it.value.isValid(possibleMorphologies) }?.value
-        ?:
-        possibleMorphologies.first().buildDeprelFromMorphology(tokenIndex = tokenIndex, headIndex = headIndex)
+      possibleDeprels.filter { it.value.isValid(possibleMorphologies) }.notEmptyOr {
+        listOf(
+          possibleMorphologies.first().buildDeprel(tokenIndex = tokenIndex, headIndex = headIndex, score = worstScore))
+      }
     else
-      possibleDeprels
-        .firstOrNull { it.value.isSingleContentWord() }?.value
-        ?:
-        Deprel(label = UNKNOWN_LABEL, direction = getDeprelPosition(tokenIndex = tokenIndex, headIndex = headIndex))
+      possibleDeprels.filter { it.value.isSingleContentWord() }.notEmptyOr {
+        listOf(ScoredDeprel(value = Deprel(label = UNKNOWN_LABEL, direction = correctPosition), score = worstScore))
+      }
   }
 
   /**
@@ -149,16 +149,19 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
   }
 
   /**
-   * Build a deprel that includes this morphology.
+   * Build the deprel represented by this morphology annotation.
    *
    * @param tokenIndex the index of the token to which the deprel must be assigned
    * @param headIndex the index of the token head (can be null)
+   * @param score the score to assign to the new deprel
    *
-   * @return a new deprel that includes this morphology
+   * @return a new deprel represented in this morphology annotation
    */
-  private fun Morphology.buildDeprelFromMorphology(tokenIndex: Int, headIndex: Int?) = Deprel(
-    label = this.buildDeprelLabel(topToken = headIndex == null),
-    direction = getDeprelPosition(tokenIndex = tokenIndex, headIndex = headIndex)
+  private fun Morphology.buildDeprel(tokenIndex: Int, headIndex: Int?, score: Double) = ScoredDeprel(
+    value = Deprel(
+      label = this.buildDeprelLabel(topToken = headIndex == null),
+      direction = getDeprelPosition(tokenIndex = tokenIndex, headIndex = headIndex)),
+    score = score
   )
 
   /**
@@ -195,6 +198,13 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
 
     return false
   }
+
+  /**
+   * @param callback a callback that returns a list
+   *
+   * @return this list if it is not empty, otherwise the value returned by the callback
+   */
+  private fun <T> List<T>.notEmptyOr(callback: () -> List<T>): List<T> = if (this.isNotEmpty()) this else callback()
 
   /**
    * @return the list of POS tags annotated in the label of this deprel
