@@ -123,6 +123,8 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
 
   /**
    * Fix possible cycles using the given [scores].
+   *
+   * @param scores the attachment scores
    */
   private fun DependencyTree.fixCycles(scores: ArcScores) = CyclesFixer(this, scores).fixCycles()
 
