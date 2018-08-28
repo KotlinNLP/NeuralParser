@@ -29,7 +29,7 @@ class NoFilterSelector : MorphoDeprelSelector {
   /**
    * Get the list of deprels that are valid for a given attachment.
    *
-   * @param deprels the list of scored deprels
+   * @param deprels the list of deprels, sorted by descending score
    * @param sentence the input sentence
    * @param tokenIndex the index of the token to which the deprel must be assigned
    * @param headIndex the index of the token head (can be null)
