@@ -154,20 +154,13 @@ class DeprelLabeler(
   /**
    * @param lss the latent syntactic structure of the input sentence
    *
-   * @return a list of features
+   * @return the list of features that encode the sentence tokens
    */
-  private fun extractFeatures(lss: LatentSyntacticStructure): List<List<DenseNDArray>> {
-
-    val features = mutableListOf<List<DenseNDArray>>()
-
-    lss.sentence.tokens.forEach { token ->
-
-      features.add(listOf(
+  private fun extractFeatures(lss: LatentSyntacticStructure): List<List<DenseNDArray>> =
+    lss.sentence.tokens.map { token ->
+      listOf(
         lss.getContextVectorById(token.id),
         this.dependencyTree.getHead(token.id)?.let { lss.getContextVectorById(it) } ?: lss.virtualRoot
-      ))
+      )
     }
-
-    return features
-  }
 }
