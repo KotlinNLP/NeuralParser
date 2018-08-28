@@ -96,7 +96,7 @@ class DeprelLabeler(
 
     this.dependencyTree = input.dependencyTree
 
-    return this.processor.forward(ArrayList(this.extractFeatures(input)))
+    return this.processor.forward(ArrayList(this.extractFeatures(input.lss)))
   }
 
   /**
@@ -147,22 +147,24 @@ class DeprelLabeler(
   /**
    * @param index a prediction index
    *
-   * @return the [Deprel] corrisponding to the given [index]
+   * @return the [Deprel] with the given [index]
    */
-  fun getDeprel(index: Int) = this.model.deprels.getElement(index)!!
+  private fun getDeprel(index: Int) = this.model.deprels.getElement(index)!!
 
   /**
+   * @param lss the latent syntactic structure of the input sentence
+   *
    * @return a list of features
    */
-  private fun extractFeatures(input: Input): List<List<DenseNDArray>> {
+  private fun extractFeatures(lss: LatentSyntacticStructure): List<List<DenseNDArray>> {
 
     val features = mutableListOf<List<DenseNDArray>>()
 
-    input.lss.sentence.tokens.forEach { token ->
+    lss.sentence.tokens.forEach { token ->
 
       features.add(listOf(
-        input.lss.getContextVectorById(token.id),
-        this.dependencyTree.getHead(token.id)?.let { input.lss.getContextVectorById(it) } ?: input.lss.virtualRoot
+        lss.getContextVectorById(token.id),
+        this.dependencyTree.getHead(token.id)?.let { lss.getContextVectorById(it) } ?: lss.virtualRoot
       ))
     }
 
