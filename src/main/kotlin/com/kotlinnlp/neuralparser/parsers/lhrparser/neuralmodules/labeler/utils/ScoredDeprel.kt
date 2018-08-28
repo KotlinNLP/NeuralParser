@@ -15,24 +15,4 @@ import com.kotlinnlp.dependencytree.Deprel
  * @property value the deprel
  * @property score the score
  */
-data class ScoredDeprel(val value: Deprel, val score: Double) {
-
-  companion object {
-
-    /**
-     * A ScoredDeprel [Comparator] by score.
-     */
-    val deprelComparator = compareByDescending<ScoredDeprel> { it.score }
-  }
-}
-
-/**
- * List of ScoredDeprel,
- */
-typealias ScoredDeprelList = List<ScoredDeprel>
-
-/**
- * @return a sorted the list of prediction by descending score
- */
-fun ScoredDeprelList.sortByScore() = this.sortedWith(ScoredDeprel.deprelComparator)
-
+data class ScoredDeprel(val value: Deprel, val score: Double)
