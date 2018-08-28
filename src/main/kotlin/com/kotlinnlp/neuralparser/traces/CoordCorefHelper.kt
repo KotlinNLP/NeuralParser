@@ -7,7 +7,6 @@
 
 package com.kotlinnlp.neuralparser.traces
 
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Verb
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.CoReference
 
@@ -26,8 +25,7 @@ class CoordCorefHelper : CorefHelper {
       sentence.getTraceSubj(token)?.let { subj ->
         sentence.getGovernor(token)?.let { governor ->
 
-          if (governor.isVerb &&
-            (token.mainMorphology as Verb).agree(governor.mainMorphology as Verb)) { // TODO: fix condition
+          if (governor.isVerb && token.mainMorphology.agree(governor.mainMorphology)) {
 
             sentence.getSubj(governor)?.let {
               subj.addCoReference(CoReference(

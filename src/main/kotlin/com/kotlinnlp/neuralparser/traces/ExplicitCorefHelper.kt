@@ -7,9 +7,6 @@
 
 package com.kotlinnlp.neuralparser.traces
 
-import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Verb
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Noun
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.CoReference
@@ -58,17 +55,11 @@ class ExplicitCorefHelper : CorefHelper {
 
 
     val govSubjAgree: Boolean = govSubj?.let {
-      SingleMorphology.agree(
-        first = it.mainMorphology as Noun, // TODO: fix cast
-        second = verb.mainMorphology as Verb,
-        weakMatch = true)
+      verb.mainMorphology.agree(it.mainMorphology, weakMatch = true)
     } == true
 
     val govObjAgree: Boolean = govObj?.let {
-      SingleMorphology.agree(
-        first = it.mainMorphology as Noun, // TODO: fix cast
-        second = verb.mainMorphology as Verb,
-        weakMatch = true)
+      verb.mainMorphology.agree(it.mainMorphology, weakMatch = true)
     } == true
 
     return if (govSubjAgree && govObjAgree) {
