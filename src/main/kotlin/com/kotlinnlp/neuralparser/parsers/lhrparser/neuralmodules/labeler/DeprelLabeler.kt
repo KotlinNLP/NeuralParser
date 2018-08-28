@@ -70,14 +70,14 @@ class DeprelLabeler(
     propagateToInput = true)
 
   /**
-   * The dependency tree used for the last predictions done.
+   * The dependency tree used for the last predictions done, during the training.
    */
   private lateinit var dependencyTree: DependencyTree
 
   /**
    * Predict the possible deprels for each token.
    *
-   * @param input the input
+   * @param input a [DeprelLabeler] input
    *
    * @return a list of deprels for each token sorted by descending order
    */
@@ -88,7 +88,7 @@ class DeprelLabeler(
   /**
    * Return the network outcomes for each token.
    *
-   * @param input the input
+   * @param input a [DeprelLabeler] input
    *
    * @return the network outcomes for each token
    */
