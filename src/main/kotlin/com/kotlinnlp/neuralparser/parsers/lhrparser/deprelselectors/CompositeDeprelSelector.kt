@@ -46,8 +46,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
      *
      * @return the base morphology type associated to the given POS tag
      */
-    private fun getMorphologyType(posTag: String): MorphologyType =
-      morphologiesByBaseAnnotation.getValue(posTag.replace("PHRASE", "PHRASE-AFF"))
+    private fun getMorphologyType(posTag: String): MorphologyType = this.morphologiesByBaseAnnotation.getValue(posTag)
 
     /**
      * Get the position of a deprel.
