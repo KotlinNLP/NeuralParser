@@ -70,7 +70,7 @@ class DeprelLabeler(
     propagateToInput = true)
 
   /**
-   * The dependency tree used for the last predictions done, during the training.
+   * The dependency tree of the last input, used during the training.
    */
   private lateinit var dependencyTree: DependencyTree
 
