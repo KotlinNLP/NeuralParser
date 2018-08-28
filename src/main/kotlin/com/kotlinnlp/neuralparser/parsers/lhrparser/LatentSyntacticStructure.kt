@@ -31,6 +31,14 @@ data class LatentSyntacticStructure(
   val size: Int = this.sentence.tokens.size
 
   /**
+   * The latent syntactic encodings of the [sentence] tokens, obtained as concatenation of the context vectors with the
+   * related latent head representation.
+   */
+  val latentSyntacticEncodings: List<DenseNDArray> by lazy {
+    this.contextVectors.zip(this.latentHeads) { contextVector, latentHead -> contextVector.concatV(latentHead) }
+  }
+
+  /**
    * @param id the id of a token of the [sentence]
    *
    * @return the context vector of the given token
@@ -43,4 +51,11 @@ data class LatentSyntacticStructure(
    * @return the latent head of the given token
    */
   fun getLatentHeadById(id: Int): DenseNDArray = this.latentHeads[this.sentence.getTokenIndex(id)]
+
+  /**
+   * @param id the id of a token of the [sentence]
+   *
+   * @return the latent syntactic encoding of the given token
+   */
+  fun getLSEncodingById(id: Int): DenseNDArray = this.latentSyntacticEncodings[this.sentence.getTokenIndex(id)]
 }
