@@ -50,6 +50,15 @@ class CommandLineArguments(args: Array<String>) {
   ).default { null }
 
   /**
+   * The path of a JSON file that defines linguistic constraints.
+   */
+  val constraintsPath: String? by parser.storing(
+    "-c",
+    "--constraints",
+    help="the path of a JSON file that defines linguistic constraints"
+  ).default { null }
+
+  /**
    * The beam size.
    */
   val beamSize: Int by parser.storing(

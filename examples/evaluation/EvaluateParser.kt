@@ -8,6 +8,10 @@
 package evaluation
 
 import buildSentencePreproessor
+import com.beust.klaxon.JsonArray
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Parser
+import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.NeuralParserFactory
 import com.kotlinnlp.neuralparser.NeuralParserModel
@@ -31,12 +35,17 @@ fun main(args: Array<String>) = mainBody {
 
   require(parsedArgs.beamSize > 0 && parsedArgs.threads > 0)
 
-  println("Loading model from '${parsedArgs.modelPath}'.")
-
   val parser: NeuralParser<*> = NeuralParserFactory(
-    model = NeuralParserModel.load(FileInputStream(File(parsedArgs.modelPath))),
+    model = parsedArgs.modelPath.let {
+      println("Loading model from '$it'.")
+      NeuralParserModel.load(FileInputStream(File(it)))
+    },
     beamSize = parsedArgs.beamSize,
-    maxParallelThreads = parsedArgs.threads)
+    maxParallelThreads = parsedArgs.threads,
+    constraints = parsedArgs.constraintsPath?.let {
+      println("Loading linguistic constraints from '$it'")
+      (Parser().parse(it) as JsonArray<*>).map { Constraint(it as JsonObject) }
+    })
 
   val validator = Validator(
     neuralParser = parser,
