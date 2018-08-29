@@ -18,6 +18,7 @@
         <syntaxdecoder.version>0.2.3</syntaxdecoder.version>
         <simplednn.version>0.11.0</simplednn.version>
         <conllio.version>0.2.4</conllio.version>
+        <constraints.version>0.1.0</constraints.version>
         <dependencytree.version>0.3.2</dependencytree.version>
         <linguisticdescription.version>0.9.1</linguisticdescription.version>
         <morphologicalanalyzer.version>0.3.1</morphologicalanalyzer.version>
@@ -105,6 +106,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>conllio</artifactId>
             <version>${conllio.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>constraints</artifactId>
+            <version>${constraints.version}</version>
         </dependency>
 
         <dependency>
