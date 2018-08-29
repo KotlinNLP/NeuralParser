@@ -35,7 +35,7 @@ abstract class NeuralParserModel(val language: Language) : Serializable {
      *
      * @return the [NeuralParserModel] read from [inputStream] and decoded
      */
-    fun <ModelType: NeuralParserModel> load(inputStream: InputStream): ModelType = Serializer.deserialize(inputStream)
+    fun load(inputStream: InputStream): NeuralParserModel = Serializer.deserialize(inputStream)
   }
 
   /**
