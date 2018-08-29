@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser
 
+import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuralparser.parsers.transitionbased.TransitionBasedParserFactory
@@ -24,19 +25,21 @@ object NeuralParserFactory {
    * @param beamSize the size of the beam (ignored if the model is not related to a TransitionBasedParser)
    * @param maxParallelThreads the max number of parallel threads (ignored if the model is not related to a
    *                           TransitionBasedParser or the beamSize is 1)
+   * @param constraints a list of linguistic constraints (can be null)
    *
    * @return a [NeuralParser] with the given [model]
    */
   operator fun invoke(model: NeuralParserModel,
                       beamSize: Int = 1,
-                      maxParallelThreads: Int = 1): NeuralParser<*> = when (model) {
+                      maxParallelThreads: Int = 1,
+                      constraints: List<Constraint>? = null): NeuralParser<*> = when (model) {
 
     is TransitionBasedParserModel -> TransitionBasedParserFactory(
       model = model,
       beamSize = beamSize,
       maxParallelThreads = maxParallelThreads)
 
-    is LHRModel -> LHRParser(model)
+    is LHRModel -> LHRParser(model = model, constraints = constraints)
 
     else -> throw RuntimeException("Invalid parser model")
   }

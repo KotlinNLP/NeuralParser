@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
+import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.neuralparser.parsers.lhrparser.decoders.CosineDecoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.ArcScores
 import com.kotlinnlp.dependencytree.DependencyTree
@@ -31,8 +32,9 @@ import com.kotlinnlp.neuralparser.traces.RuleBasedTracesHandler
  *   [Non-Projective Dependency Parsing via Latent Heads Representation (LHR)](https://arxiv.org/abs/1802.02116)
  *
  * @property model the parser model
+ * @param constraints a list of linguistic constraints (can be null)
  */
-class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
+class LHRParser(override val model: LHRModel, val constraints: List<Constraint>? = null) : NeuralParser<LHRModel> {
 
   /**
    * The Encoder of the Latent Syntactic Structure.
