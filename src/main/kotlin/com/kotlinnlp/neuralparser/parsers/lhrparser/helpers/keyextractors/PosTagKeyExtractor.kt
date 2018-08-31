@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * -----------------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors
+package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors
 
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.neuralparser.language.ParsingToken

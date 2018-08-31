@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.decoders
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.HeadsDecoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
-import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.ArcScores
+import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.ArcScores
 import com.kotlinnlp.simplednn.simplemath.cosineSimilarity
 
 /**

@@ -40,8 +40,8 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.BaseConverter
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.MorphoConverter
-import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.PosTagKeyExtractor
-import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.WordKeyExtractor
+import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.PosTagKeyExtractor
+import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.WordKeyExtractor
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge

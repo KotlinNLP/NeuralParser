@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * -----------------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.lhrparser.utils
+package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 
 import com.kotlinnlp.dependencytree.DependencyTree
 

@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
-import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.ArcScores
+import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.ArcScores
 
 /**
  * The interface for a latent syntactic structure decoder.

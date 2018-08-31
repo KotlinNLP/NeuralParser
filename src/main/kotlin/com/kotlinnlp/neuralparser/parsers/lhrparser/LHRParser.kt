@@ -15,7 +15,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.H
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.DeprelLabeler
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.DependencyTreeBuilder
+import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.DependencyTreeBuilder
 import com.kotlinnlp.neuralparser.traces.CoordCorefHelper
 import com.kotlinnlp.neuralparser.traces.ExplicitCorefHelper
 import com.kotlinnlp.neuralparser.traces.ImplicitCorefHelper
