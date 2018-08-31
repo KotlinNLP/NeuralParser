@@ -19,7 +19,9 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.ArcScores.Companion.ro
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.CyclesFixer
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.parsers.lhrparser.constraints.DeprelConstraintSolver
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
 import com.kotlinnlp.neuralparser.traces.CoordCorefHelper
 import com.kotlinnlp.neuralparser.traces.ExplicitCorefHelper
 import com.kotlinnlp.neuralparser.traces.ImplicitCorefHelper
@@ -53,6 +55,11 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
   }
 
   /**
+   * The score threshold above which to consider a deprel valid.
+   */
+  private val deprelScoreThreshold: Double = 1.0 / this.model.corpusDictionary.deprelTags.size
+
+  /**
    * Parse a sentence, returning its dependency tree.
    * The dependency tree is obtained by decoding a latent syntactic structure.
    * If the labeler is available, the dependency tree can contains deprel and posTag annotations.
@@ -66,7 +73,7 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
     val lss: LatentSyntacticStructure = this.lssEncoder.encode(sentence)
 
     val parsedSentence = sentence.toMorphoSyntacticSentence(
-      dependencyTree = this.buildDependencyTree(lss),
+      dependencyTree = this.buildDependencyTree(lss, scores = CosineDecoder().decode(lss))!!,
       morphoDeprelSelector = this.model.morphoDeprelSelector)
 
     // TODO: move the trace handler into the model?
@@ -80,25 +87,24 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
   }
 
   /**
-   * Decode the dependency tree of a given latent syntactic structure.
+   * Build a new dependency tree from a given latent syntactic structure (LSS), using the given possible attachments.
    *
-   * @param lss the latent syntactic structure encoded from the input sentence
+   * @param lss the LSS encoded from the input sentence
+   * @param scores a map of attachments scores
    *
-   * @return the annotated dependency tree of the given LSS
+   * @return the annotated dependency tree with the highest score, built from the given LSS, or null if there is no
+   *         valid configuration (that does not violate any hard constraint)
    */
-  private fun buildDependencyTree(lss: LatentSyntacticStructure): DependencyTree {
-
-    val dependencyTree = DependencyTree(lss.sentence.tokens.map { it.id })
-    val scores: ArcScores = CosineDecoder().decode(lss)
-
-    dependencyTree.apply {
-      assignHeads(scores)
-      fixCycles(scores)
-      assignLabels(lss)
+  private fun buildDependencyTree(lss: LatentSyntacticStructure, scores: ArcScores): DependencyTree? =
+    try {
+      DependencyTree(lss.sentence.tokens.map { it.id }).apply {
+        assignHeads(scores)
+        fixCycles(scores)
+        this@LHRParser.deprelLabeler?.let { assignLabels(lss) }
+      }
+    } catch (e: DeprelConstraintSolver.InvalidConfiguration) {
+      null
     }
-
-    return dependencyTree
-  }
 
   /**
    * Assign the heads to this dependency tree using the highest scoring arcs from the given [scores].
@@ -137,23 +143,49 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
    */
   private fun DependencyTree.assignLabels(lss: LatentSyntacticStructure) {
 
-    this@LHRParser.deprelLabeler?.let { labeler ->
+    val deprelsMap: Map<Int, List<ScoredDeprel>> = this.buildDeprelsMap(lss)
 
-      val selector: MorphoDeprelSelector = this@LHRParser.model.morphoDeprelSelector
+    this@LHRParser.constraints?.let {
+      DeprelConstraintSolver(
+        sentence = lss.sentence,
+        dependencyTree = this,
+        constraints = it,
+        morphoDeprelSelector = this@LHRParser.model.morphoDeprelSelector,
+        scoresMap = deprelsMap
+      ).solve()
+    }
+      ?: deprelsMap.forEach { tokenId, deprels -> this.setDeprel(dependent = tokenId, deprel = deprels.first().value) }
+  }
 
-      labeler.predict(DeprelLabeler.Input(lss, this)).forEachIndexed { tokenIndex, prediction ->
+  /**
+   * @param lss the latent syntactic structure
+   *
+   * @return a map of valid deprels (sorted by descending score) associated to each token id
+   */
+  private fun DependencyTree.buildDeprelsMap(lss: LatentSyntacticStructure): Map<Int, List<ScoredDeprel>> {
 
-        val tokenId: Int = this.elements[tokenIndex]
+    val labeler: DeprelLabeler = this@LHRParser.deprelLabeler!!
+    val selector: MorphoDeprelSelector = this@LHRParser.model.morphoDeprelSelector
 
-        this.setDeprel(
-          dependent = tokenId,
-          deprel = selector.getValidDeprels(
-            deprels = prediction,
-            sentence = lss.sentence,
-            tokenIndex = tokenIndex,
-            headIndex = this.getHead(tokenId)?.let { this.getPosition(it) }
-          ).first().value)
-      }
+    return labeler.predict(DeprelLabeler.Input(lss, this)).withIndex().associate { (tokenIndex, prediction) ->
+
+      val tokenId: Int = this.elements[tokenIndex]
+      val validDeprels: List<ScoredDeprel> = selector.getValidDeprels(
+        deprels = prediction,
+        sentence = lss.sentence,
+        tokenIndex = tokenIndex,
+        headIndex = this.getHead(tokenId)?.let { this.getPosition(it) })
+
+      tokenId to validDeprels
+        .filter { it.score >= this@LHRParser.deprelScoreThreshold }
+        .notEmptyOr { validDeprels.subList(0, 1) }
     }
   }
+
+  /**
+   * @param callback a callback that returns a list
+   *
+   * @return this list if it is not empty, otherwise the value returned by the callback
+   */
+  private fun <T> List<T>.notEmptyOr(callback: () -> List<T>): List<T> = if (this.isNotEmpty()) this else callback()
 }
