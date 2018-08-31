@@ -26,7 +26,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.
  * @param morphoDeprelSelector a morpho-deprel selector used to build a [MorphoSyntacticToken]
  * @param deprelScoreThreshold the score threshold above which to consider a deprel valid
  */
-class DependencyTreeBuilder(
+internal class DependencyTreeBuilder(
   private val lss: LatentSyntacticStructure,
   private val deprelLabeler: DeprelLabeler?,
   private val constraints: List<Constraint>?,

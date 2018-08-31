@@ -32,7 +32,7 @@ import com.kotlinnlp.syntaxdecoder.utils.removeLast
  * @param maxForkSize the max number of forks that can be generated from a state
  * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion)
  */
-class DeprelConstraintSolver(
+internal class DeprelConstraintSolver(
   private val sentence: ParsingSentence,
   private val dependencyTree: DependencyTree,
   private val constraints: List<Constraint>,
