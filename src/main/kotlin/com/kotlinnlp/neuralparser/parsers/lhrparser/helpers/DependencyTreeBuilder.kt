@@ -11,7 +11,6 @@ import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
-import com.kotlinnlp.neuralparser.parsers.lhrparser.constraints.DeprelConstraintSolver
 import com.kotlinnlp.neuralparser.parsers.lhrparser.decoders.CosineDecoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.DeprelLabeler
