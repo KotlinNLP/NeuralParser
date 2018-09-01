@@ -99,11 +99,11 @@ internal class DeprelConstraintSolver(
 
       this.deprels.forEachIndexed { i, deprel ->
 
-        val possibleDeprels: List<ScoredDeprel> = this@DeprelConstraintSolver.scoresMap.getValue(deprel.tokenId)
+        val possibleDeprels: List<ScoredDeprel> = scoresMap.getValue(deprel.tokenId)
 
         if (deprel.index < possibleDeprels.lastIndex) {
 
-          val scoresDiff: List<Double> = this@DeprelConstraintSolver.scoresDiffMap.getValue(deprel.tokenId)
+          val scoresDiff: List<Double> = scoresDiffMap.getValue(deprel.tokenId)
           val newDeprels: List<StateDeprel> = this.deprels
             .replace(i, deprel.copy(index = deprel.index + 1, deprel = possibleDeprels[deprel.index + 1]))
             .sortedBy { if (it.index < possibleDeprels.lastIndex) scoresDiff[it.index] else 1.0 }
@@ -111,7 +111,7 @@ internal class DeprelConstraintSolver(
           states.add(State(newDeprels))
         }
 
-        if (states.size == this@DeprelConstraintSolver.maxForkSize) return@forEachIndexed
+        if (states.size == maxForkSize) return@forEachIndexed
       }
 
       this.forked = true
