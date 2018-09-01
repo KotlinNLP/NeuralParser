@@ -78,7 +78,7 @@ internal class DependencyTreeBuilder(
 
     this.setAttachmentScore(dependent = topId, score = topScore)
 
-    scores.keys.filter { it != topId }.forEach { depId ->
+    this.elements.filter { it != topId }.forEach { depId ->
 
       val (govId: Int, score: Double) = scores.findHighestScoringHead(dependentId = depId, except = listOf(ArcScores.rootId))!!
 
