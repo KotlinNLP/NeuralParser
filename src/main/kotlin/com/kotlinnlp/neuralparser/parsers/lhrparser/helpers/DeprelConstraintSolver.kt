@@ -97,21 +97,23 @@ internal class DeprelConstraintSolver(
 
       val states: MutableList<State> = mutableListOf()
 
-      this.deprels.forEachIndexed { i, deprel ->
+      run forkSteps@{
+        this.deprels.forEachIndexed { i, deprel ->
 
-        val possibleDeprels: List<ScoredDeprel> = scoresMap.getValue(deprel.tokenId)
+          val possibleDeprels: List<ScoredDeprel> = scoresMap.getValue(deprel.tokenId)
 
-        if (deprel.index < possibleDeprels.lastIndex) {
+          if (deprel.index < possibleDeprels.lastIndex) {
 
-          val scoresDiff: List<Double> = scoresDiffMap.getValue(deprel.tokenId)
-          val newDeprels: List<StateDeprel> = this.deprels
-            .replace(i, deprel.copy(index = deprel.index + 1, deprel = possibleDeprels[deprel.index + 1]))
-            .sortedBy { if (it.index < possibleDeprels.lastIndex) scoresDiff[it.index] else 1.0 }
+            val scoresDiff: List<Double> = scoresDiffMap.getValue(deprel.tokenId)
+            val newDeprels: List<StateDeprel> = this.deprels
+              .replace(i, deprel.copy(index = deprel.index + 1, deprel = possibleDeprels[deprel.index + 1]))
+              .sortedBy { if (it.index < possibleDeprels.lastIndex) scoresDiff[it.index] else 1.0 }
 
-          states.add(State(newDeprels))
+            states.add(State(newDeprels))
+          }
+
+          if (states.size == maxForkSize) return@forkSteps
         }
-
-        if (states.size == maxForkSize) return@forEachIndexed
       }
 
       this.forked = true
