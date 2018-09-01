@@ -34,6 +34,13 @@ class ArcScores(private val scores: Map<Int, Map<Int, Double>>) {
     this.scores.getValue(dependentId).getValue(governorId ?: rootId)
 
   /**
+   * @param dependentId the dependent id
+   *
+   * @return the map of attachments scores between the given [dependentId] and each possible governor
+   */
+  fun getHeads(dependentId: Int): Map<Int, Double> = this.scores.getValue(dependentId)
+
+  /**
    * Find the best head of a given dependent.
    *
    * @param dependentId the id of the dependent token
