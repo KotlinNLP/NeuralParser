@@ -240,7 +240,7 @@ internal class DeprelConstraintSolver(
       (0 until this.maxIterations).forEach { if (!this.solvingStep()) return@steps }
     }
 
-    this.beam.firstOrNull()?.applyDeprels() ?: throw InvalidConfiguration()
+    this.beam.firstOrNull { it.isValid }?.applyDeprels() ?: throw InvalidConfiguration()
   }
 
   /**
