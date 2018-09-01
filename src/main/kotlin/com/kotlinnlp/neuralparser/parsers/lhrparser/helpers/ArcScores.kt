@@ -14,9 +14,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
  *
  * @param scores the scores map
  */
-class ArcScores(
-  private val scores: Map<Int, Map<Int, Double>>
-) : Map<Int, Map<Int, Double>> by scores {
+class ArcScores(private val scores: Map<Int, Map<Int, Double>>) {
 
   companion object {
 
@@ -55,7 +53,7 @@ class ArcScores(
    */
   fun findHighestScoringTop(): Pair<Int, Double> {
 
-    val topId = this.maxBy { it.value.getValue(rootId) }!!.key
+    val topId = this.scores.maxBy { it.value.getValue(rootId) }!!.key
 
     return Pair(topId, this.scores.getValue(topId).getValue(rootId))
   }
