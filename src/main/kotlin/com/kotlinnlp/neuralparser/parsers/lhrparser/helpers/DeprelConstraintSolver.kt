@@ -74,6 +74,7 @@ internal class DeprelConstraintSolver(
      * Whether this state does not violate any hard constraint.
      */
     var isValid: Boolean = true
+      private set
 
     /**
      * Apply the linguistic constraints to this state.
