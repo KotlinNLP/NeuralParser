@@ -17,6 +17,7 @@ import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
+import com.kotlinnlp.neuralparser.utils.replace
 import com.kotlinnlp.syntaxdecoder.utils.removeLast
 
 /**
@@ -196,17 +197,6 @@ internal class DeprelConstraintSolver(
         attachmentScore = 0.0),
       morphoDeprelSelector = morphoDeprelSelector
     )
-
-    /**
-     * Replace an element of this list at a given index with another returning a new list.
-     *
-     * @param index the index of the replacement
-     * @param elm the replacement
-     *
-     * @return a new list with the given element replaced
-     */
-    private fun <T> List<T>.replace(index: Int, elm: T): List<T> =
-      this.mapIndexed { i, it ->  if (i == index) elm else it }
   }
 
   /**

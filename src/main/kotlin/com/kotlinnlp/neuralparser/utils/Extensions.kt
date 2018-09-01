@@ -44,8 +44,8 @@ fun loadSentences(type: String,
  *
  * @throws InvalidTree if the tree of a sentence is not valid
  */
-fun String.loadFromTreeBank(maxSentences: Int? = null,
-                            skipNonProjective: Boolean = false): List<CoNLLSentence> {
+private fun String.loadFromTreeBank(maxSentences: Int? = null,
+                                    skipNonProjective: Boolean = false): List<CoNLLSentence> {
 
   var index = 0
   val sentences = ArrayList<CoNLLSentence>()
@@ -66,3 +66,14 @@ fun String.loadFromTreeBank(maxSentences: Int? = null,
 
   return sentences.toList()
 }
+
+/**
+ * Replace an element of this list at a given index with another returning a new list.
+ *
+ * @param index the index of the replacement
+ * @param elm the replacement
+ *
+ * @return a new list with the given element replaced
+ */
+internal fun <T> List<T>.replace(index: Int, elm: T): List<T> =
+  this.mapIndexed { i, it ->  if (i == index) elm else it }
