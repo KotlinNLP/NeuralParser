@@ -36,10 +36,14 @@ internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: Bea
 
   /**
    * The possible value of an element.
-   *
-   * @property score the score of this value
    */
-  abstract class Value(var score: Double)
+  abstract class Value {
+
+    /**
+     * The score of this value.
+     */
+    abstract var score: Double
+  }
 
   /**
    * The state that contains a configuration of values, one per element.

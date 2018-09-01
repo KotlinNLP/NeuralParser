@@ -57,7 +57,13 @@ internal class DeprelConstraintSolver(
    *
    * @property deprel a scored deprel
    */
-  internal data class DeprelValue(var deprel: ScoredDeprel) : Value(score = deprel.score)
+  internal data class DeprelValue(var deprel: ScoredDeprel) : Value() {
+
+    /**
+     * The score of this value.
+     */
+    override var score: Double = this.deprel.score
+  }
 
   /**
    * The state that represents a configuration of deprels for the [dependencyTree].
