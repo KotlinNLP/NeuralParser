@@ -19,7 +19,7 @@ class ArcScores(private val scores: Map<Int, Map<Int, Double>>) {
   companion object {
 
     /**
-     * The root is intended to have id = -1
+     * The root is intended to have id = -1.
      */
     const val rootId: Int = -1
   }
