@@ -8,10 +8,10 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 
 import com.kotlinnlp.constraints.Constraint
+import com.kotlinnlp.dependencytree.CycleDetectedError
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
-import com.kotlinnlp.neuralparser.parsers.lhrparser.decoders.CosineDecoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.DeprelLabeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
@@ -25,28 +25,99 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.
  * @param constraints a list of linguistic constraints (can be null)
  * @param morphoDeprelSelector a morpho-deprel selector used to build a [MorphoSyntacticToken]
  * @param deprelScoreThreshold the score threshold above which to consider a deprel valid
+ * @param maxBeamSize the max number of parallel states that the beam supports
+ * @param maxForkSize the max number of forks that can be generated from a state
+ * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion)
  */
 internal class DependencyTreeBuilder(
   private val lss: LatentSyntacticStructure,
+  private val scoresMap: ArcScores,
   private val deprelLabeler: DeprelLabeler?,
   private val constraints: List<Constraint>?,
   private val morphoDeprelSelector: MorphoDeprelSelector,
-  private val deprelScoreThreshold: Double
+  private val deprelScoreThreshold: Double,
+  maxBeamSize: Int = 10,
+  maxForkSize: Int = 5,
+  maxIterations: Int = 10
+) : BeamManager<DependencyTreeBuilder.ArcValue, DependencyTreeBuilder.TreeState>(
+  valuesMap = lss.sentence.tokens.associate {
+    it.id to scoresMap.getSortedHeads(it.id).map { arc ->
+      ArcValue(dependentId = it.id, governorId = arc.governorId, score = arc.score)
+    }
+  },
+  maxBeamSize = maxBeamSize,
+  maxForkSize = maxForkSize,
+  maxIterations = maxIterations
 ) {
+
+  /**
+   * An arc of a state, including information about its dependent token and its index in the related scored arcs list.
+   *
+   * @property dependentId the id of the dependent of this arc
+   * @property governorId the id of the governor of this arc
+   * @property score the arc score
+   */
+  internal data class ArcValue(val dependentId: Int, val governorId: Int, override var score: Double) : Value()
+
+  /**
+   * The state that contains the configuration of a possible [DependencyTree].
+   *
+   * @param elements the list of elements in this state, sorted by diff score
+   */
+  internal inner class TreeState(elements: List<StateElement<ArcValue>>) : State(elements) {
+
+    /**
+     * The global score of the state.
+     */
+    override val score: Double get() = this.tree.score
+
+    /**
+     * The dependency tree of this state.
+     */
+    val tree = DependencyTree(lss.sentence.tokens.map { it.id })
+
+    /**
+     * Whether the [tree] is a fully-connected DAG (Direct Acyclic Graph).
+     */
+    override var isValid: Boolean = true
+
+    /**
+     * Initialize the dependency tree.
+     */
+    init {
+
+      try {
+        elements.forEach {
+          if (it.value.governorId > -1)
+            this.tree.setArc(dependent = it.value.dependentId, governor = it.value.governorId, score = it.value.score)
+          else
+            this.tree.setAttachmentScore(dependent = it.value.dependentId, score = it.value.score) // it is the top
+        }
+      } catch (e: CycleDetectedError) {
+        this.isValid = false
+      }
+
+      if (!this.tree.hasSingleRoot()) this.isValid = false
+
+      if (this.isValid) deprelLabeler?.let { this.tree.assignLabels() }
+    }
+  }
 
   /**
    * Find the best dependency tree that does not violates any linguistic constraint and with the highest global score.
    *
    * @return the best dependency tree built from the given LSS
    */
-  fun build(): DependencyTree {
+  fun build(): DependencyTree = this.findBestConfiguration()?.tree ?: this.buildDependencyTree(scoresMap)!!
 
-    val scores: ArcScores = CosineDecoder().decode(this.lss)
-
-    // TODO("implement beam frobbing")
-
-    return this.buildDependencyTree(scores)!!
-  }
+  /**
+   * Build a new state with the given elements.
+   *
+   * @param elements the elements that compose the building state
+   *
+   * @return a new state with the given elements
+   */
+  override fun buildState(elements: List<StateElement<ArcValue>>): TreeState = TreeState(elements)
 
   /**
    * Build a new dependency tree from the latent syntactic structure [lss], using the given possible attachments.
