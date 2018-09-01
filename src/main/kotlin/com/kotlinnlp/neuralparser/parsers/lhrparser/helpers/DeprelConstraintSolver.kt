@@ -83,7 +83,7 @@ internal class DeprelConstraintSolver(
       this.applyConstraints()
 
       // Attention: the score must be set after the constraints have been applied.
-      this.score = this.deprels.sumByDouble { it.deprel.score }
+      this.score = this.deprels.sumByDouble { it.deprel.score * dependencyTree.getAttachmentScore(it.tokenId) }
     }
 
     /**
