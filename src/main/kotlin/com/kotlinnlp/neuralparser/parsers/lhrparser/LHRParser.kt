@@ -15,6 +15,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.H
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.DeprelLabeler
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.parsers.lhrparser.decoders.CosineDecoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.DependencyTreeBuilder
 import com.kotlinnlp.neuralparser.traces.CoordCorefHelper
 import com.kotlinnlp.neuralparser.traces.ExplicitCorefHelper
@@ -63,10 +64,12 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
 
     val dependencyTree: DependencyTree = DependencyTreeBuilder(
       lss = lss,
+      scoresMap = CosineDecoder().decode(lss),
       deprelLabeler = this.deprelLabeler,
       constraints = this.constraints,
       morphoDeprelSelector = this.model.morphoDeprelSelector,
-      deprelScoreThreshold = 1.0 / this.model.corpusDictionary.deprelTags.size).build()
+      deprelScoreThreshold = 1.0 / this.model.corpusDictionary.deprelTags.size
+    ).build()
 
     val parsedSentence = sentence.toMorphoSyntacticSentence(
       dependencyTree = dependencyTree,
