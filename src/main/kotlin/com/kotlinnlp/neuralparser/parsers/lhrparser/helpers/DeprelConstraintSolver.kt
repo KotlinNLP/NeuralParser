@@ -17,8 +17,6 @@ import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
-import com.kotlinnlp.neuralparser.utils.replace
-import com.kotlinnlp.syntaxdecoder.utils.removeLast
 
 /**
  * A helper that finds the best configuration of the deprels of a dependency tree given all the possible scored deprels
@@ -38,10 +36,15 @@ internal class DeprelConstraintSolver(
   private val dependencyTree: DependencyTree,
   private val constraints: List<Constraint>,
   private val morphoDeprelSelector: MorphoDeprelSelector,
-  private val scoresMap: Map<Int, List<ScoredDeprel>>,
-  private val maxBeamSize: Int = 10,
-  private val maxForkSize: Int = 5,
-  private val maxIterations: Int = 10
+  scoresMap: Map<Int, List<ScoredDeprel>>,
+  maxBeamSize: Int = 10,
+  maxForkSize: Int = 5,
+  maxIterations: Int = 10
+) : BeamManager<DeprelConstraintSolver.DeprelValue, DeprelConstraintSolver.DeprelState>(
+  valuesMap = scoresMap.mapValues { (_, deprels) -> deprels.map { DeprelValue(it) }.sortedByDescending { it.score } },
+  maxBeamSize = maxBeamSize,
+  maxForkSize = maxForkSize,
+  maxIterations = maxIterations
 ) {
 
   /**
@@ -50,32 +53,28 @@ internal class DeprelConstraintSolver(
   class InvalidConfiguration : RuntimeException()
 
   /**
-   * A deprel of a state, including information about its token and its index in the related deprels list.
+   * A value containing a deprel.
    *
-   * @property tokenId the id of the token of this deprel
-   * @property index the index of this deprel within the possible deprels of its token
-   * @property deprel the scored deprel
+   * @property deprel a scored deprel
    */
-  private data class StateDeprel(val tokenId: Int, val index: Int, var deprel: ScoredDeprel)
+  internal data class DeprelValue(var deprel: ScoredDeprel) : Value(score = deprel.score)
 
   /**
    * The state that represents a configuration of deprels for the [dependencyTree].
    *
-   * @property deprels a list of state deprels, one per token and sorted by diff score
-   * @property forked whether this state has been already forked
+   * @param elements the list of elements in this state, sorted by diff score
    */
-  private inner class State(val deprels: List<StateDeprel>, var forked: Boolean = false) {
+  internal inner class DeprelState(elements: List<StateElement<DeprelValue>>) : State(elements) {
 
     /**
      * The global score of the state.
      */
-    val score: Double
+    override val score: Double
 
     /**
      * Whether this state does not violate any hard constraint.
      */
-    var isValid: Boolean = true
-      private set
+    override var isValid: Boolean = true
 
     /**
      * Apply the linguistic constraints to this state.
@@ -85,74 +84,7 @@ internal class DeprelConstraintSolver(
       this.applyConstraints()
 
       // Attention: the score must be set after the constraints have been applied.
-      this.score = this.deprels.sumByDouble { it.deprel.score * dependencyTree.getAttachmentScore(it.tokenId) }
-    }
-
-    /**
-     * Fork this states into more, each built replacing the deprel of a token with the following in the [scoresDiffMap].
-     *
-     * @return the list of new states forked from this
-     */
-    fun fork(): List<State> {
-
-      val states: MutableList<State> = mutableListOf()
-
-      run forkSteps@{
-        this.deprels.forEachIndexed { i, deprel ->
-
-          val possibleDeprels: List<ScoredDeprel> = scoresMap.getValue(deprel.tokenId)
-
-          if (deprel.index < possibleDeprels.lastIndex) {
-
-            val scoresDiff: List<Double> = scoresDiffMap.getValue(deprel.tokenId)
-            val newDeprels: List<StateDeprel> = this.deprels
-              .replace(i, deprel.copy(index = deprel.index + 1, deprel = possibleDeprels[deprel.index + 1]))
-              .sortedBy { if (it.index < possibleDeprels.lastIndex) scoresDiff[it.index] else 1.0 }
-
-            states.add(State(newDeprels))
-          }
-
-          if (states.size == maxForkSize) return@forkSteps
-        }
-      }
-
-      this.forked = true
-
-      return states
-    }
-
-    /**
-     * Set the deprels of this state into the [dependencyTree].
-     */
-    fun applyDeprels() {
-
-      this.deprels.forEach {
-        dependencyTree.setDeprel(dependent = it.tokenId, deprel = it.deprel.value)
-      }
-
-      dependencyTree.score = this.score
-    }
-
-    /**
-     * @return the hash code of this state
-     */
-    override fun hashCode(): Int = this.deprels.map { it.deprel.hashCode() }.hashCode()
-
-    /**
-     * @param other any other object
-     *
-     * @return whether this state is equal to the given object
-     */
-    override fun equals(other: Any?): Boolean {
-
-      if (this === other) return true
-      if (javaClass != other?.javaClass) return false
-
-      other as State
-
-      if (deprels != other.deprels) return false
-
-      return true
+      this.score = this.elements.sumByDouble { it.value.score * dependencyTree.getAttachmentScore(it.id) }
     }
 
     /**
@@ -160,17 +92,17 @@ internal class DeprelConstraintSolver(
      */
     private fun applyConstraints() {
 
-      this.applyDeprels()
+      applyDeprels(this)
 
       val morphoSyntacticTokens: Map<Int, MorphoSyntacticToken> =
         sentence.tokens.associate { it.id to it.toMorphoSyntactic() }
 
       constraints.forEach { constraint ->
-        this.deprels.forEach {
+        this.elements.forEach {
 
-          val dependent: MorphoSyntacticToken = morphoSyntacticTokens.getValue(it.tokenId)
+          val dependent: MorphoSyntacticToken = morphoSyntacticTokens.getValue(it.id)
           val governor: MorphoSyntacticToken? =
-            dependencyTree.getHead(it.tokenId)?.let { morphoSyntacticTokens.getValue(it) }
+            dependencyTree.getHead(it.id)?.let { morphoSyntacticTokens.getValue(it) }
 
           val isVerified: Boolean = when (constraint) {
             is DoubleConstraint ->
@@ -181,7 +113,7 @@ internal class DeprelConstraintSolver(
 
           if (!isVerified) {
             if (constraint.isHard) this.isValid = false
-            it.deprel = it.deprel.copy(score = it.deprel.score * constraint.penalty)
+            it.value.deprel = it.value.deprel.copy(score = it.value.score * constraint.penalty)
           }
         }
       }
@@ -202,112 +134,36 @@ internal class DeprelConstraintSolver(
   }
 
   /**
-   * The [scoresMap] with the values remapped to the differences between scores of adjacent deprels.
-   */
-  private val scoresDiffMap: Map<Int, List<Double>> = this.scoresMap.mapValues { (_, deprels) ->
-    deprels.zipWithNext().map { it.first.score - it.second.score }
-  }
-
-  /**
-   * The list of the best states found, sorted by descending score.
-   */
-  private val beam: MutableList<State> = mutableListOf()
-
-  /**
-   * A set of states already visited.
-   */
-  private val visitedStates: MutableSet<State> = mutableSetOf()
-
-  /**
-   * Whether to prohibit invalid states into the beam.
-   * It is false when the algorithm starts, in order to find a first valid state even if it is not present into the
-   * first forks.
-   * When a valid state is found, then it is set to true.
-   */
-  private var validStatesOnly = false
-
-  /**
    * Find the best configuration of deprels for the given [dependencyTree] that does not violates any hard constraint,
-   * using the given [scoresMap].
+   * using the given scores map.
    *
    * @throws InvalidConfiguration if all the possible deprels configurations violate a hard constraint
    */
   fun solve() {
 
-    this.initBeam()
-
-    run steps@{
-      (0 until this.maxIterations).forEach { if (!this.solvingStep()) return@steps }
-    }
-
-    this.beam.firstOrNull { it.isValid }?.applyDeprels() ?: throw InvalidConfiguration()
+    this.findBestConfiguration()?.let { this.applyDeprels(it) } ?: throw InvalidConfiguration()
   }
 
   /**
-   * Initialize the beam with the first state (the one with highest score deprels).
+   * Build a new state with the given elements.
+   *
+   * @param elements the elements that compose the building state
+   *
+   * @return a new state with the given elements
    */
-  private fun initBeam() {
-
-    val initState = State(
-      deprels = this.scoresMap.map { StateDeprel(tokenId = it.key, index = 0, deprel = it.value.first()) })
-
-    if (initState.isValid) this.validStatesOnly = true
-
-    this.beam.add(initState)
-  }
+  override fun buildState(elements: List<StateElement<DeprelValue>>): DeprelState = DeprelState(elements)
 
   /**
-   * Let the beam go forward to the next step, forking each state into more.
+   * Set the deprels of the given state into the [dependencyTree].
    *
-   * @return true if at least one new state has been added to the beam, otherwise false
+   * @param state a state
    */
-  private fun solvingStep(): Boolean {
+  private fun applyDeprels(state: DeprelState) {
 
-    val forkedStates: List<State> = this.beam.filterNot { it.forked }.flatMap { it.fork() }
-
-    if (!this.validStatesOnly && forkedStates.any { it.isValid }) {
-
-      this.validStatesOnly = true
-
-      this.beam.retainAll { it.isValid } // invalid states are no more allowed -> remove them from the beam
+    state.elements.forEach {
+      this.dependencyTree.setDeprel(dependent = it.id, deprel = it.value.deprel.value)
     }
 
-    return this.getAllowedStates(forkedStates).map { this.addNewState(it) }.any { it }
-  }
-
-  /**
-   * @param states a list of states
-   *
-   * @return the states that are allowed to enter the beam
-   */
-  private fun getAllowedStates(states: List<State>): List<State> =
-    if (this.validStatesOnly) states.filter { it.isValid } else states
-
-  /**
-   * Add a new state (if possible) into the beam.
-   *
-   * @param state the new state to add
-   *
-   * @return true if a new state has been added, otherwise false
-   */
-  private fun addNewState(state: State): Boolean {
-
-    if (state in this.visitedStates) return false
-
-    val beamFull: Boolean = this.beam.size == this.maxBeamSize
-
-    if (!beamFull || state.score > this.beam.last().score) {
-
-      val index: Int = this.beam.indexOfFirst { it.score < state.score }.let { if (it >= 0) it else this.beam.size }
-
-      if (beamFull) this.beam.removeLast()
-
-      this.beam.add(index, state)
-      this.visitedStates.add(state)
-
-      return true
-    }
-
-    return false
+    this.dependencyTree.score = state.score
   }
 }
