@@ -49,9 +49,8 @@ class ArcScores(private val scores: Map<Int, Map<Int, Double>>) {
    * @return the highest scoring head-score entry
    */
   fun findHighestScoringHead(dependentId: Int, except: List<Int> = emptyList()): Pair<Int, Double>? =
-    this.scores
-      .getValue(dependentId)
-      .filterNot { it.key in except }
+    this.getHeads(dependentId)
+      .filterNot { it.key in except || Pair(dependentId, it.key) in this.disabledArcs }
       .maxBy { it.value }
       ?.toPair()
 
