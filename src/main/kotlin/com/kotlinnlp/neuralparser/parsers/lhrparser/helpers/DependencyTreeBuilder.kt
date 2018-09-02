@@ -108,7 +108,7 @@ internal class DependencyTreeBuilder(
    *
    * @return the best dependency tree built from the given LSS
    */
-  fun build(): DependencyTree = this.findBestConfiguration()?.tree ?: this.buildDependencyTree(scoresMap)!!
+  fun build(): DependencyTree = this.findBestConfiguration()?.tree ?: this.buildDependencyTree()!!
 
   /**
    * Build a new state with the given elements.
@@ -120,18 +120,17 @@ internal class DependencyTreeBuilder(
   override fun buildState(elements: List<StateElement<ArcValue>>): TreeState = TreeState(elements)
 
   /**
-   * Build a new dependency tree from the latent syntactic structure [lss], using the given possible attachments.
-   *
-   * @param scores a map of attachments scores between pairs of tokens
+   * Build a new dependency tree from the latent syntactic structure [lss], using the possible attachments in the
+   * [scoresMap].
    *
    * @return the annotated dependency tree with the highest score, built from the given LSS, or null if there is no
    *         valid configuration (that does not violate any hard constraint)
    */
-  private fun buildDependencyTree(scores: ArcScores): DependencyTree? =
+  private fun buildDependencyTree(): DependencyTree? =
     try {
       DependencyTree(lss.sentence.tokens.map { it.id }).apply {
-        assignHeads(scores)
-        fixCycles(scores)
+        assignBestHeads()
+        fixCycles()
         deprelLabeler?.let { assignLabels() }
       }
     } catch (e: DeprelConstraintSolver.InvalidConfiguration) {
@@ -139,19 +138,18 @@ internal class DependencyTreeBuilder(
     }
 
   /**
-   * Assign the heads to this dependency tree using the highest scoring arcs from the given [scores].
-   *
-   * @param scores a map of attachments scores between pairs of tokens
+   * Assign the heads to this dependency tree using the highest scoring arcs of the [scoresMap].
    */
-  private fun DependencyTree.assignHeads(scores: ArcScores) {
+  private fun DependencyTree.assignBestHeads() {
 
-    val (topId: Int, topScore: Double) = scores.findHighestScoringTop()
+    val (topId: Int, topScore: Double) = scoresMap.findHighestScoringTop()
 
     this.setAttachmentScore(dependent = topId, score = topScore)
 
     this.elements.filter { it != topId }.forEach { depId ->
 
-      val (govId: Int, score: Double) = scores.findHighestScoringHead(dependentId = depId, except = listOf(ArcScores.rootId))!!
+      val (govId: Int, score: Double) =
+        scoresMap.findHighestScoringHead(dependentId = depId, except = listOf(ArcScores.rootId))!!
 
       this.setArc(
         dependent = depId,
@@ -162,11 +160,9 @@ internal class DependencyTreeBuilder(
   }
 
   /**
-   * Fix possible cycles using the given [scores].
-   *
-   * @param scores a map of attachments scores between pairs of tokens
+   * Fix possible cycles using the [scoresMap].
    */
-  private fun DependencyTree.fixCycles(scores: ArcScores) = CyclesFixer(this, scores).fixCycles()
+  private fun DependencyTree.fixCycles() = CyclesFixer(dependencyTree = this, arcScores = scoresMap).fixCycles()
 
   /**
    * Annotate this dependency tree with the labels.
