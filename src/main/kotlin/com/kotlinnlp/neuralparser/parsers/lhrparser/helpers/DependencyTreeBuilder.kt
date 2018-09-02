@@ -108,7 +108,7 @@ internal class DependencyTreeBuilder(
    *
    * @return the best dependency tree built from the given LSS
    */
-  fun build(): DependencyTree = this.findBestConfiguration()?.tree ?: this.buildDependencyTree()!!
+  fun build(): DependencyTree = this.findBestConfiguration()?.tree ?: this.buildDependencyTree()
 
   /**
    * Build a new state with the given elements.
@@ -126,15 +126,11 @@ internal class DependencyTreeBuilder(
    * @return the annotated dependency tree with the highest score, built from the given LSS, or null if there is no
    *         valid configuration (that does not violate any hard constraint)
    */
-  private fun buildDependencyTree(): DependencyTree? =
-    try {
-      DependencyTree(lss.sentence.tokens.map { it.id }).apply {
-        assignBestHeads()
-        fixCycles()
-        deprelLabeler?.let { assignLabels() }
-      }
-    } catch (e: DeprelConstraintSolver.InvalidConfiguration) {
-      null
+  private fun buildDependencyTree(): DependencyTree =
+    DependencyTree(lss.sentence.tokens.map { it.id }).apply {
+      assignBestHeads()
+      fixCycles()
+      deprelLabeler?.let { assignLabels() }
     }
 
   /**
@@ -171,16 +167,22 @@ internal class DependencyTreeBuilder(
 
     val deprelsMap: Map<Int, List<ScoredDeprel>> = this.buildDeprelsMap()
 
+    fun applyBestConfiguration() =
+      deprelsMap.forEach { tokenId, deprels -> this.setDeprel(dependent = tokenId, deprel = deprels.first().value) }
+
     constraints?.let {
-      DeprelConstraintSolver(
-        sentence = lss.sentence,
-        dependencyTree = this,
-        constraints = it,
-        morphoDeprelSelector = morphoDeprelSelector,
-        scoresMap = deprelsMap
-      ).solve()
-    }
-      ?: deprelsMap.forEach { tokenId, deprels -> this.setDeprel(dependent = tokenId, deprel = deprels.first().value) }
+      try {
+        DeprelConstraintSolver(
+          sentence = lss.sentence,
+          dependencyTree = this,
+          constraints = it,
+          morphoDeprelSelector = morphoDeprelSelector,
+          scoresMap = deprelsMap
+        ).solve()
+      } catch (e: DeprelConstraintSolver.InvalidConfiguration) {
+        applyBestConfiguration()
+      }
+    } ?: applyBestConfiguration()
   }
 
   /**
