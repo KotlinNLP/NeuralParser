@@ -81,10 +81,9 @@ internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: Bea
 
           if (elm.index < possibleValues.lastIndex) {
 
-            val scoresDiff: List<Double> = scoresDiffMap.getValue(elm.id)
             val newElements: List<StateElement<ValueType>> = this.elements
               .replace(i, elm.copy(index = elm.index + 1, value = possibleValues[elm.index + 1]))
-              .sortedBy { if (it.index < possibleValues.lastIndex) scoresDiff[it.index] else 1.0 }
+              .sortedByAmbiguity()
 
             states.add(buildState(newElements))
           }
@@ -188,9 +187,11 @@ internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: Bea
    */
   private fun initBeam() {
 
-    val initState = this.buildState(this.valuesMap.map { (id, values) ->
-      StateElement(id = id, index = 0, value = values.first()) // first = highest score value
-    })
+    val initState = this.buildState(
+      this.valuesMap.map { (id, values) ->
+        StateElement(id = id, index = 0, value = values.first()) // first = highest score value
+      }.sortedByAmbiguity()
+    )
 
     if (initState.isValid) this.validStatesOnly = true
 
@@ -251,4 +252,12 @@ internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: Bea
 
     return false
   }
+
+  /**
+   * Note: a lower score difference means a greater ambiguity
+   *
+   * @return a new list with the values sorted by descending ambiguity.
+   */
+  private fun <T: Value> List<StateElement<T>>.sortedByAmbiguity(): List<StateElement<T>> =
+    this.sortedBy { scoresDiffMap.getValue(it.id).getOrElse(it.index) { 1.0 } }
 }
