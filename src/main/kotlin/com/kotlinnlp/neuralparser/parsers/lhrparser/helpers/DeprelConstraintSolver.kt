@@ -100,20 +100,20 @@ internal class DeprelConstraintSolver(
 
       applyDeprels(this)
 
-      val morphoSyntacticTokens: Map<Int, MorphoSyntacticToken> =
-        sentence.tokens.associate { it.id to it.toMorphoSyntactic() }
+      val tokens: List<MorphoSyntacticToken> = sentence.tokens.map { it.toMorphoSyntactic() }
+      val tokensMap: Map<Int, MorphoSyntacticToken> = tokens.associateBy { it.id }
 
       constraints.forEach { constraint ->
         this.elements.forEach {
 
-          val dependent: MorphoSyntacticToken = morphoSyntacticTokens.getValue(it.id)
-          val governor: MorphoSyntacticToken? =
-            dependencyTree.getHead(it.id)?.let { morphoSyntacticTokens.getValue(it) }
+          val dependent: MorphoSyntacticToken = tokensMap.getValue(it.id)
+          val governor: MorphoSyntacticToken? = dependencyTree.getHead(it.id)?.let { tokensMap.getValue(it) }
 
           val isVerified: Boolean = when (constraint) {
-            is DoubleConstraint ->
-              constraint.isVerified(dependent = dependent, governor = governor, dependencyTree = dependencyTree)
-            is SingleConstraint -> constraint.isVerified(token = dependent, dependencyTree = dependencyTree)
+            is DoubleConstraint -> constraint.isVerified(
+              dependent = dependent, governor = governor, tokens = tokens, dependencyTree = dependencyTree)
+            is SingleConstraint -> constraint.isVerified(
+              token = dependent, tokens = tokens, dependencyTree = dependencyTree)
             else -> throw RuntimeException("Invalid Constraint type: ${constraint.javaClass.simpleName}")
           }
 
