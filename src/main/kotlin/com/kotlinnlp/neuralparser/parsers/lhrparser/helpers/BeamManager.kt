@@ -144,7 +144,7 @@ internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: Bea
   private val visitedStates: MutableSet<StateType> = mutableSetOf()
 
   /**
-   * A remapping of the [valuesMap] to the differences between scores of adjacent values.
+   * A remapping of the [valuesMap] to the differences between scores of consecutive values.
    */
   private val scoresDiffMap: Map<Int, List<Double>> = this.valuesMap.mapValues { (_, values) ->
     values.zipWithNext().map { it.first.score - it.second.score }
