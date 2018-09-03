@@ -25,7 +25,7 @@ class ArcScores(private val scores: Map<Int, Map<Int, Double>>) {
   }
 
   /**
-   * An arc.
+   * The arc related to a specific dependent.
    *
    * @property governorId the id of the governor
    * @property score the arc score
@@ -53,16 +53,16 @@ class ArcScores(private val scores: Map<Int, Map<Int, Double>>) {
   /**
    * @param dependentId the dependent id
    *
-   * @return the map of attachments scores between the given [dependentId] and each possible governor
+   * @return the map of attachments scores of the given [dependentId] associated by each possible governor
    */
-  fun getHeads(dependentId: Int): Map<Int, Double> = this.scores.getValue(dependentId)
+  fun getHeadsMap(dependentId: Int): Map<Int, Double> = this.scores.getValue(dependentId)
 
   /**
    * @param dependentId the dependent id
    *
    * @return the list of possible arcs of the given [dependentId], sorted by diff score
    */
-  fun getSortedHeads(dependentId: Int): List<Arc> = this.sortedArcs.getValue(dependentId)
+  fun getSortedArcs(dependentId: Int): List<Arc> = this.sortedArcs.getValue(dependentId)
 
   /**
    * Find the best head of a given dependent.
@@ -73,7 +73,7 @@ class ArcScores(private val scores: Map<Int, Map<Int, Double>>) {
    * @return the highest scoring head-score entry
    */
   fun findHighestScoringHead(dependentId: Int, except: List<Int> = emptyList()): Pair<Int, Double>? =
-    this.getHeads(dependentId)
+    this.getHeadsMap(dependentId)
       .filterNot { it.key in except }
       .maxBy { it.value }
       ?.toPair()

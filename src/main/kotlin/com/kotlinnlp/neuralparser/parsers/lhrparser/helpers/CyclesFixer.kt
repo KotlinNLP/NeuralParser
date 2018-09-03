@@ -87,12 +87,12 @@ internal class CyclesFixer(private val dependencyTree: DependencyTree, private v
    */
   private fun findBestGovernor(element: Int): Pair<Int, Double> {
 
-    val headScores: Map<Int, Double> = this.arcScores.getHeads(element)
+    val headsMap: Map<Int, Double> = this.arcScores.getHeadsMap(element)
 
-    val candidates: List<Int> = this.directElements.intersect(headScores.keys).filter { candidateGov ->
+    val candidates: List<Int> = this.directElements.intersect(headsMap.keys).filter { candidateGov ->
       !this.dependencyTree.introduceCycle(dependent = element, governor = candidateGov)
     }
 
-    return headScores.filter { it.key in candidates }.maxBy { it.value }!!.toPair()
+    return headsMap.filter { it.key in candidates }.maxBy { it.value }!!.toPair()
   }
 }

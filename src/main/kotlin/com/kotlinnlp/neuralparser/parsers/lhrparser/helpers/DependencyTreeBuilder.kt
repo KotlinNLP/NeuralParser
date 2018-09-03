@@ -42,7 +42,7 @@ internal class DependencyTreeBuilder(
   maxIterations: Int = 10
 ) : BeamManager<DependencyTreeBuilder.ArcValue, DependencyTreeBuilder.TreeState>(
   valuesMap = lss.sentence.tokens.associate {
-    val sortedArcs: List<ArcScores.Arc> = scoresMap.getSortedHeads(it.id)
+    val sortedArcs: List<ArcScores.Arc> = scoresMap.getSortedArcs(it.id)
     val threshold: Double = 1.0 / sortedArcs.size // it is the distribution mean
     it.id to sortedArcs.filter { it.score >= threshold }.notEmptyOr { sortedArcs }.map { arc ->
       ArcValue(dependentId = it.id, governorId = arc.governorId, score = arc.score)
