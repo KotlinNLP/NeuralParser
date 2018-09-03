@@ -37,8 +37,8 @@ internal class DependencyTreeBuilder(
   private val constraints: List<Constraint>?,
   private val morphoDeprelSelector: MorphoDeprelSelector,
   private val deprelScoreThreshold: Double,
-  maxBeamSize: Int = 10,
-  maxForkSize: Int = 5,
+  maxBeamSize: Int = 5,
+  maxForkSize: Int = 3,
   maxIterations: Int = 10
 ) : BeamManager<DependencyTreeBuilder.ArcValue, DependencyTreeBuilder.TreeState>(
   valuesMap = lss.sentence.tokens.associate {

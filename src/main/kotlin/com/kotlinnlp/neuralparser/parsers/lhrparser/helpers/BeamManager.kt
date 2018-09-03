@@ -20,8 +20,8 @@ import com.kotlinnlp.syntaxdecoder.utils.removeLast
  */
 internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: BeamManager<ValueType, StateType>.State>(
   private val valuesMap: Map<Int, List<ValueType>>,
-  private val maxBeamSize: Int = 10,
-  private val maxForkSize: Int = 5,
+  private val maxBeamSize: Int = 5,
+  private val maxForkSize: Int = 3,
   private val maxIterations: Int = 10
 ) {
 

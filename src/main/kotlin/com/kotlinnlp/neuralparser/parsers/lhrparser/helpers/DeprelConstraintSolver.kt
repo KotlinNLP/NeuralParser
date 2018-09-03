@@ -37,8 +37,8 @@ internal class DeprelConstraintSolver(
   private val constraints: List<Constraint>,
   private val morphoDeprelSelector: MorphoDeprelSelector,
   scoresMap: Map<Int, List<ScoredDeprel>>,
-  maxBeamSize: Int = 10,
-  maxForkSize: Int = 5,
+  maxBeamSize: Int = 5,
+  maxForkSize: Int = 3,
   maxIterations: Int = 10
 ) : BeamManager<DeprelConstraintSolver.DeprelValue, DeprelConstraintSolver.DeprelState>(
   valuesMap = scoresMap.mapValues { (_, deprels) -> deprels.map { DeprelValue(it) }.sortedByDescending { it.score } },
