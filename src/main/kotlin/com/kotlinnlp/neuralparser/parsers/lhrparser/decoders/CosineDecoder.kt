@@ -18,6 +18,14 @@ import com.kotlinnlp.simplednn.simplemath.cosineSimilarity
  */
 class CosineDecoder : HeadsDecoder {
 
+  companion object {
+
+    /**
+     * Half PI.
+     */
+    private const val HALF_PI = Math.PI / 2
+  }
+
   /**
    * The private map of scored arcs.
    * Scores are mapped by dependents to governors ids (the root is intended to have id = -1).
@@ -53,6 +61,7 @@ class CosineDecoder : HeadsDecoder {
 
       this.setHeadsScores(it)
       this.setRootScore(it)
+      this.normalizeToDistribution(it)
     }
 
     return ArcScores(scores = this.similarityMatrix)
@@ -91,5 +100,21 @@ class CosineDecoder : HeadsDecoder {
         a = this.lssNorm.getLatentHeadById(dependent.id),
         b = this.lssNorm.virtualRoot)
     }
+  }
+
+  /**
+   * Normalize the scores of the given [dependent].
+   * Scores are transformed into a linear scale with the arc cosine function and normalized into a probability
+   * distribution.
+   */
+  private fun normalizeToDistribution(dependent: ParsingToken) {
+
+    val scores: MutableMap<Int, Double> = this.similarityMatrix.getValue(dependent.id)
+
+    scores.forEach { scores.compute(it.key) { _, _ -> HALF_PI - Math.acos(it.value) } }
+
+    val normSum: Double = scores.values.sum()
+
+    scores.forEach { scores.compute(it.key) { _, _ -> it.value / normSum } }
   }
 }
