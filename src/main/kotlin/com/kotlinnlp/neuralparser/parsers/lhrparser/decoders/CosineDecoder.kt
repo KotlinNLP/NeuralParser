@@ -52,7 +52,7 @@ class CosineDecoder : HeadsDecoder {
       this.similarityMatrix[it.id] = mutableMapOf()
 
       this.setHeadsScores(it)
-      this.setRootScores(it)
+      this.setRootScore(it)
     }
 
     return ArcScores(scores = this.similarityMatrix)
@@ -81,7 +81,7 @@ class CosineDecoder : HeadsDecoder {
    *
    * @param dependent the the dependent token
    */
-  private fun setRootScores(dependent: ParsingToken) {
+  private fun setRootScore(dependent: ParsingToken) {
 
     this.similarityMatrix.getValue(dependent.id)[ArcScores.rootId] = 0.0 // default root score
 
