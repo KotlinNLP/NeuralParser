@@ -35,8 +35,10 @@ class ArcScores(private val scores: Map<Int, Map<Int, Double>>) {
   /**
    * Arcs sorted by descending score and associated by dependent id.
    */
-  private val sortedArcs: Map<Int, List<Arc>> = this.scores.mapValues {
-    it.value.map { Arc(governorId = it.key, score = it.value) }.sortedByDescending { it.score }
+  private val sortedArcs: Map<Int, List<Arc>> by lazy {
+    this.scores.mapValues {
+      it.value.map { Arc(governorId = it.key, score = it.value) }.sortedByDescending { it.score }
+    }
   }
 
   /**
