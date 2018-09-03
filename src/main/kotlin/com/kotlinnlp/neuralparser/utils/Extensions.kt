@@ -77,3 +77,10 @@ private fun String.loadFromTreeBank(maxSentences: Int? = null,
  */
 internal fun <T> List<T>.replace(index: Int, elm: T): List<T> =
   this.mapIndexed { i, it ->  if (i == index) elm else it }
+
+/**
+ * @param callback a callback that returns a list
+ *
+ * @return this list if it is not empty, otherwise the value returned by the callback
+ */
+internal fun <T> List<T>.notEmptyOr(callback: () -> List<T>): List<T> = if (this.isNotEmpty()) this else callback()

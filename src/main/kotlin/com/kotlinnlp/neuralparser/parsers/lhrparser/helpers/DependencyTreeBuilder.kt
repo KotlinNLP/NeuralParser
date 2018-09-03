@@ -15,6 +15,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.DeprelLabeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
+import com.kotlinnlp.neuralparser.utils.notEmptyOr
 
 /**
  * A helper that builds the sentence dependency tree with the best configuration exploring the possible arcs and
@@ -203,11 +204,4 @@ internal class DependencyTreeBuilder(
         .filter { it.score >= deprelScoreThreshold }
         .notEmptyOr { validDeprels.subList(0, 1) }
     }
-
-  /**
-   * @param callback a callback that returns a list
-   *
-   * @return this list if it is not empty, otherwise the value returned by the callback
-   */
-  private fun <T> List<T>.notEmptyOr(callback: () -> List<T>): List<T> = if (this.isNotEmpty()) this else callback()
 }

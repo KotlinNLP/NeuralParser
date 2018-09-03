@@ -16,6 +16,7 @@ import com.kotlinnlp.linguisticdescription.morphology.morphologies.ContentWord
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
+import com.kotlinnlp.neuralparser.utils.notEmptyOr
 
 /**
  * The deprel selector to use with the "composite" deprel format.
@@ -198,13 +199,6 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
 
     return false
   }
-
-  /**
-   * @param callback a callback that returns a list
-   *
-   * @return this list if it is not empty, otherwise the value returned by the callback
-   */
-  private fun <T> List<T>.notEmptyOr(callback: () -> List<T>): List<T> = if (this.isNotEmpty()) this else callback()
 
   /**
    * @return the list of POS tags annotated in the label of this deprel
