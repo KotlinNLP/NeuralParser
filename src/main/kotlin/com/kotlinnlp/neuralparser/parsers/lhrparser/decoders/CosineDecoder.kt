@@ -70,7 +70,7 @@ class CosineDecoder : HeadsDecoder {
   /**
    * Set the heads scores of the given [dependent] in the [similarityMatrix] map.
    *
-   * @param dependent the the dependent token
+   * @param dependent the dependent token
    */
   private fun setHeadsScores(dependent: ParsingToken) {
 
@@ -88,7 +88,7 @@ class CosineDecoder : HeadsDecoder {
   /**
    * Set the root score of the given [dependent] in the [similarityMatrix] map.
    *
-   * @param dependent the the dependent token
+   * @param dependent the dependent token
    */
   private fun setRootScore(dependent: ParsingToken) {
 
@@ -106,6 +106,8 @@ class CosineDecoder : HeadsDecoder {
    * Normalize the scores of the given [dependent].
    * Scores are transformed into a linear scale with the arc cosine function and normalized into a probability
    * distribution.
+   *
+   * @param dependent the dependent token
    */
   private fun normalizeToDistribution(dependent: ParsingToken) {
 
