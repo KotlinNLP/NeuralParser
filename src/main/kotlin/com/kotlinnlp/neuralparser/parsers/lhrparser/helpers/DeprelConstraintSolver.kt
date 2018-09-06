@@ -8,8 +8,6 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 
 import com.kotlinnlp.constraints.Constraint
-import com.kotlinnlp.constraints.DoubleConstraint
-import com.kotlinnlp.constraints.SingleConstraint
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
@@ -106,16 +104,8 @@ internal class DeprelConstraintSolver(
       constraints.forEach { constraint ->
         this.elements.forEach {
 
-          val dependent: MorphoSyntacticToken = tokensMap.getValue(it.id)
-          val governor: MorphoSyntacticToken? = dependencyTree.getHead(it.id)?.let { tokensMap.getValue(it) }
-
-          val isVerified: Boolean = when (constraint) {
-            is DoubleConstraint -> constraint.isVerified(
-              dependent = dependent, governor = governor, tokens = tokens, dependencyTree = dependencyTree)
-            is SingleConstraint -> constraint.isVerified(
-              token = dependent, tokens = tokens, dependencyTree = dependencyTree)
-            else -> throw RuntimeException("Invalid Constraint type: ${constraint.javaClass.simpleName}")
-          }
+          val isVerified: Boolean =
+            constraint.isVerified(token = tokensMap.getValue(it.id), tokens = tokens, dependencyTree = dependencyTree)
 
           if (!isVerified) {
             if (constraint.isHard) this.isValid = false
