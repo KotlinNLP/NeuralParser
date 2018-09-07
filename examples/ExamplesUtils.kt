@@ -22,7 +22,7 @@ import java.io.FileInputStream
  *
  * @return a new sentence preprocessor
  */
-internal fun buildSentencePreproessor(morphoDictionaryPath: String?, language: Language): SentencePreprocessor {
+internal fun buildSentencePreprocessor(morphoDictionaryPath: String?, language: Language): SentencePreprocessor {
 
   return morphoDictionaryPath?.let {
 

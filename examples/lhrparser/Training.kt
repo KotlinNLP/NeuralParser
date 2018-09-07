@@ -7,7 +7,7 @@
 
 package lhrparser
 
-import buildSentencePreproessor
+import buildSentencePreprocessor
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
@@ -304,7 +304,7 @@ private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAn
  */
 private fun buildTrainer(parser: LHRParser, parsedArgs: CommandLineArguments): LHRTrainer {
 
-  val preprocessor: SentencePreprocessor = buildSentencePreproessor(
+  val preprocessor: SentencePreprocessor = buildSentencePreprocessor(
     morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
     language = getLanguageByIso(parsedArgs.langCode))
 

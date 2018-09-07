@@ -7,7 +7,7 @@
 
 package evaluation
 
-import buildSentencePreproessor
+import buildSentencePreprocessor
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
@@ -54,7 +54,7 @@ fun main(args: Array<String>) = mainBody {
       filePath = parsedArgs.validationSetPath,
       maxSentences = null,
       skipNonProjective = false),
-    sentencePreprocessor = buildSentencePreproessor(
+    sentencePreprocessor = buildSentencePreprocessor(
       morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
       language = parser.model.language))
 
