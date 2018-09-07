@@ -73,12 +73,21 @@ fun main(args: Array<String>) = mainBody {
     CorpusDictionary(it)
   }
 
+  val morphologyDictionary: MorphologyDictionary? = parsedArgs.morphoDictionaryPath?.let {
+    println("Loading serialized dictionary from '$it'...")
+    MorphologyDictionary.load(FileInputStream(File(it)))
+  }
+
   val parser: LHRParser = buildParser(
     parsedArgs = parsedArgs,
-    tokensEncoderWrapperModel = buildTokensEncoderWrapperModel(parsedArgs, trainingSentences, corpus),
+    tokensEncoderWrapperModel = buildTokensEncoderWrapperModel(
+      parsedArgs = parsedArgs,
+      sentences = trainingSentences,
+      corpus = corpus,
+      morphologyDictionary = morphologyDictionary),
     corpus = corpus)
 
-  val trainer = buildTrainer(parser = parser, parsedArgs = parsedArgs)
+  val trainer = buildTrainer(parser = parser, parsedArgs = parsedArgs, morphologyDictionary = morphologyDictionary)
 
   println("\n-- MODEL")
   println(parser.model)
@@ -132,7 +141,8 @@ private fun buildParser(
 private fun buildTokensEncoderWrapperModel(
   parsedArgs: CommandLineArguments,
   sentences: List<CoNLLSentence>, // TODO: it will be used to initialize the MorphoEncoder
-  corpus: CorpusDictionary
+  corpus: CorpusDictionary,
+  morphologyDictionary: MorphologyDictionary?
 ): TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *> =
 
   when (parsedArgs.tokensEncodingType) {
@@ -226,14 +236,9 @@ private fun buildTokensEncoderWrapperModel(
 
     CommandLineArguments.TokensEncodingType.MORPHO_FEATURES -> {
 
-      val analyzer: MorphologicalAnalyzer = parsedArgs.morphoDictionaryPath!!.let {
-
-        println("Loading serialized dictionary from '$it'...")
-
-        MorphologicalAnalyzer(
-          language = getLanguageByIso(parsedArgs.langCode),
-          dictionary = MorphologyDictionary.load(FileInputStream(File(it))))
-      }
+      val analyzer = MorphologicalAnalyzer(
+        language = getLanguageByIso(parsedArgs.langCode),
+        dictionary = morphologyDictionary!!)
 
       val lexiconDictionary = LexiconDictionary.load(parsedArgs.lexiconDictionaryPath!!)
 
@@ -299,13 +304,16 @@ private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAn
  *
  * @param parser an LHR parser
  * @param parsedArgs the parsed command line arguments
+ * @param morphologyDictionary a morphology dictionary
  *
  * @return a trainer for the given [parser]
  */
-private fun buildTrainer(parser: LHRParser, parsedArgs: CommandLineArguments): LHRTrainer {
+private fun buildTrainer(parser: LHRParser,
+                         parsedArgs: CommandLineArguments,
+                         morphologyDictionary: MorphologyDictionary?): LHRTrainer {
 
   val preprocessor: SentencePreprocessor = buildSentencePreprocessor(
-    morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
+    morphoDictionary = morphologyDictionary,
     language = getLanguageByIso(parsedArgs.langCode))
 
   return LHRTrainer(

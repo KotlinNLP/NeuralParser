@@ -12,6 +12,7 @@ import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
 import com.kotlinnlp.constraints.Constraint
+import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.NeuralParserFactory
 import com.kotlinnlp.neuralparser.NeuralParserModel
@@ -55,7 +56,10 @@ fun main(args: Array<String>) = mainBody {
       maxSentences = null,
       skipNonProjective = false),
     sentencePreprocessor = buildSentencePreprocessor(
-      morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
+      morphoDictionary = parsedArgs.morphoDictionaryPath?.let {
+        println("Loading serialized dictionary from '$it'...")
+        MorphologyDictionary.load(FileInputStream(File(it)))
+      },
       language = parser.model.language))
 
   println("\nBeam size = ${parsedArgs.beamSize}, MaxParallelThreads = ${parsedArgs.threads}\n")

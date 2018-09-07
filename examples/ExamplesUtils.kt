@@ -11,26 +11,16 @@ import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
-import java.io.File
-import java.io.FileInputStream
 
 /**
  * Build a [SentencePreprocessor].
  *
- * @param morphoDictionaryPath the path of the serialized morphology dictionary
+ * @param morphoDictionary a morphology dictionary
  * @param language the language in which to process the sentence
  *
  * @return a new sentence preprocessor
  */
-internal fun buildSentencePreprocessor(morphoDictionaryPath: String?, language: Language): SentencePreprocessor {
-
-  return morphoDictionaryPath?.let {
-
-    println("Loading serialized dictionary from '$it'...")
-
-    MorphoPreprocessor(
-      MorphologicalAnalyzer(language = language, dictionary = MorphologyDictionary.load(FileInputStream(File(it))))
-    )
-
-  } ?: BasePreprocessor()
-}
+internal fun buildSentencePreprocessor(morphoDictionary: MorphologyDictionary?,
+                                       language: Language): SentencePreprocessor =
+  morphoDictionary?.let { MorphoPreprocessor(MorphologicalAnalyzer(language = language, dictionary = it)) }
+    ?: BasePreprocessor()
