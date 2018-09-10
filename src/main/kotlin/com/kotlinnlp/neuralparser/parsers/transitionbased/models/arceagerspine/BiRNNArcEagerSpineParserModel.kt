@@ -71,9 +71,9 @@ class BiRNNArcEagerSpineParserModel(
 
     val biRNNOutput: Int = this.deepBiRNN.outputSize
     val sortedDeprels: Set<Deprel> = corpusDictionary.deprelTags.getElementsReversedSet()
-    val rootDeprelsCount: Int = sortedDeprels.filter { it.direction == Deprel.Position.ROOT }.count()
-    val leftDeprelsCount: Int = sortedDeprels.filter { it.direction == Deprel.Position.LEFT }.count()
-    val rightDeprelsCount: Int = sortedDeprels.filter { it.direction == Deprel.Position.RIGHT }.count()
+    val rootDeprelsCount: Int = sortedDeprels.filter { it.direction == Deprel.Direction.ROOT }.count()
+    val leftDeprelsCount: Int = sortedDeprels.filter { it.direction == Deprel.Direction.LEFT }.count()
+    val rightDeprelsCount: Int = sortedDeprels.filter { it.direction == Deprel.Direction.RIGHT }.count()
 
     this.actionsScorerNetworkModel = MultiPredictionModel(
       this.buildMPNetworkConfig( // Shift

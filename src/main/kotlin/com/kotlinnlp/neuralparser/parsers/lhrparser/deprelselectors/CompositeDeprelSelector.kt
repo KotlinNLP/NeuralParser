@@ -50,16 +50,16 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
     private fun getMorphologyType(posTag: String): MorphologyType = this.morphologiesByBaseAnnotation.getValue(posTag)
 
     /**
-     * Get the position of a deprel.
+     * Get the direction of a deprel.
      *
      * @param tokenIndex the index of the token to which the deprel must be assigned
      * @param headIndex the index of the token head (can be null)
      *
-     * @return the deprel position related to the given dependency relation
+     * @return the deprel direction related to the given dependency relation
      */
-    private fun getDeprelPosition(tokenIndex: Int, headIndex: Int?): Deprel.Position =
-      headIndex?.let { if (tokenIndex < headIndex) Deprel.Position.LEFT else Deprel.Position.RIGHT }
-        ?: Deprel.Position.ROOT
+    private fun getDeprelDirection(tokenIndex: Int, headIndex: Int?): Deprel.Direction =
+      headIndex?.let { if (tokenIndex < headIndex) Deprel.Direction.LEFT else Deprel.Direction.RIGHT }
+        ?: Deprel.Direction.ROOT
   }
 
   /**
@@ -80,8 +80,8 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
     val possibleMorphologies: List<Morphology> =
       sentence.tokens[tokenIndex].morphologies + sentence.getTokenMultiWordsMorphologies(tokenIndex)
 
-    val correctPosition: Deprel.Position = getDeprelPosition(tokenIndex = tokenIndex, headIndex = headIndex)
-    val possibleDeprels: List<ScoredDeprel> = deprels.filter { it.value.direction == correctPosition }
+    val correctDirection: Deprel.Direction = getDeprelDirection(tokenIndex = tokenIndex, headIndex = headIndex)
+    val possibleDeprels: List<ScoredDeprel> = deprels.filter { it.value.direction == correctDirection }
     val worstScore: Double = deprels.last().score
 
     return if (possibleMorphologies.isNotEmpty())
@@ -91,7 +91,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
       }
     else
       possibleDeprels.filter { it.value.isSingleContentWord() }.notEmptyOr {
-        listOf(ScoredDeprel(value = Deprel(label = UNKNOWN_LABEL, direction = correctPosition), score = worstScore))
+        listOf(ScoredDeprel(value = Deprel(label = UNKNOWN_LABEL, direction = correctDirection), score = worstScore))
       }
   }
 
@@ -161,7 +161,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
   private fun Morphology.buildDeprel(tokenIndex: Int, headIndex: Int?, score: Double) = ScoredDeprel(
     value = Deprel(
       label = this.buildDeprelLabel(topToken = headIndex == null),
-      direction = getDeprelPosition(tokenIndex = tokenIndex, headIndex = headIndex)),
+      direction = getDeprelDirection(tokenIndex = tokenIndex, headIndex = headIndex)),
     score = score
   )
 

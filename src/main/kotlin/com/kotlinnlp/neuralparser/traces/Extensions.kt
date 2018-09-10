@@ -145,12 +145,12 @@ fun MorphoSyntacticSentence.toDependencyTree() = DependencyTree(
         id = it.id,
         deprel = Deprel(
           label = it.dependencyRelation.deprel,
-          direction = Deprel.Position.NULL))
+          direction = Deprel.Direction.NULL))
     else
       ArcConfiguration(
         dependent = it.id,
         governor = it.dependencyRelation.governor!!,
         deprel = Deprel(
           label = it.dependencyRelation.deprel,
-          direction = Deprel.Position.NULL))
+          direction = Deprel.Direction.NULL))
   })

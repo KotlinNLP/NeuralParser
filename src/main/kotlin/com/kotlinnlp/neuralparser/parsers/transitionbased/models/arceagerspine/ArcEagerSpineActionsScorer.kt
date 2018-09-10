@@ -77,10 +77,10 @@ open class ArcEagerSpineActionsScorer<
     deprelTags.getElements().forEach {
 
       when(it.direction) {
-        Deprel.Position.ROOT -> map[it] = rootIndex++
-        Deprel.Position.LEFT -> map[it] = leftIndex++
-        Deprel.Position.RIGHT -> map[it] = rightIndex++
-        Deprel.Position.NULL -> throw RuntimeException("Deprel direction cannot be NULL")
+        Deprel.Direction.ROOT -> map[it] = rootIndex++
+        Deprel.Direction.LEFT -> map[it] = leftIndex++
+        Deprel.Direction.RIGHT -> map[it] = rightIndex++
+        Deprel.Direction.NULL -> throw RuntimeException("Deprel direction cannot be NULL")
       }
     }
 

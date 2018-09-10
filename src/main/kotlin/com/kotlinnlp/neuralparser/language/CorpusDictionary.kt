@@ -98,9 +98,9 @@ class CorpusDictionary : Serializable {
     return Deprel(
       label = token.deprel,
       direction = when {
-        head == 0 -> Deprel.Position.ROOT
-        head > token.id -> Deprel.Position.LEFT // the id follows the incremental order of the CoNLL sentence tokens
-        else -> Deprel.Position.RIGHT
+        head == 0 -> Deprel.Direction.ROOT
+        head > token.id -> Deprel.Direction.LEFT // the id follows the incremental order of the CoNLL sentence tokens
+        else -> Deprel.Direction.RIGHT
       })
   }
 }
