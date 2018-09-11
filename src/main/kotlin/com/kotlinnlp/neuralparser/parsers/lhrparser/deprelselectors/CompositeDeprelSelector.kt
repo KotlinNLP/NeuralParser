@@ -101,7 +101,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
     else
     // In this case the deprel label always defines a single morphology.
       listOf(Morphology(
-        morphologies = listOf(MorphologyFactory(
+        morphologies = listOf(SingleMorphology(
           lemma = token.form,
           pos = POS.byBaseAnnotation(posTags.first()),
           allowIncompleteProperties = true))

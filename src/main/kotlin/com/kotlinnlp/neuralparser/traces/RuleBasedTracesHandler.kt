@@ -8,10 +8,7 @@
 package com.kotlinnlp.neuralparser.traces
 
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.morphology.Morphology
-import com.kotlinnlp.linguisticdescription.morphology.MorphologyFactory
-import com.kotlinnlp.linguisticdescription.morphology.POS
-import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
+import com.kotlinnlp.linguisticdescription.morphology.*
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Trace
@@ -65,7 +62,7 @@ class RuleBasedTracesHandler(private val corefHelpers: List<CorefHelper>) : Trac
   private fun makeTraceMorphology(): List<ScoredMorphology> =
     listOf(ScoredMorphology(
       type = Morphology.Type.Single,
-      list = listOf(MorphologyFactory(
+      list = listOf(SingleMorphology(
         lemma = "", // TODO: it doesn't make sense for the trace
         pos = POS.Pron, // TODO: why don't use a 'Noun' instead?
         allowIncompleteProperties = true)),
