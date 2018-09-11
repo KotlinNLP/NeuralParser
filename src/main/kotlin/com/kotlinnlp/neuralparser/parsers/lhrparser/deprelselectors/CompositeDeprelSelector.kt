@@ -8,11 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors
 
 import com.kotlinnlp.dependencytree.Deprel
-import com.kotlinnlp.linguisticdescription.morphology.Morphology
-import com.kotlinnlp.linguisticdescription.morphology.MorphologyFactory
-import com.kotlinnlp.linguisticdescription.morphology.POS
-import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.ContentWord
+import com.kotlinnlp.linguisticdescription.morphology.*
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
@@ -184,20 +180,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
 
     val posTags: List<String> = this.label.extractPosTags()
 
-    if (posTags.size == 1) {
-
-      val posTag: String = posTags.first()
-
-      if (posTag != "NUM") { // The NUM is not a content word and cannot be built with the MorphologyFactory.
-
-        val morphology: SingleMorphology =
-          MorphologyFactory(lemma = "", pos = getPOS(posTag), allowIncompleteProperties = true)
-
-        if (morphology is ContentWord) return true
-      }
-    }
-
-    return false
+    return posTags.size == 1 && getPOS(posTags.first()).isContentWord
   }
 
   /**
