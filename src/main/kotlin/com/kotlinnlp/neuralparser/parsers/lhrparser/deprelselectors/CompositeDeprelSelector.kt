@@ -33,19 +33,6 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
     private const val UNKNOWN_LABEL = "NOUN-UNKNOWN"
 
     /**
-     * POS associated by base annotation.
-     */
-    private val posByBaseAnnotation: Map<String, POS> =
-      POS.values().filter { it.annotation == it.baseAnnotation }.associateBy { it.baseAnnotation }
-
-    /**
-     * @param annotation a POS annotation
-     *
-     * @return the POS with the given annotation
-     */
-    private fun getPOS(annotation: String): POS = this.posByBaseAnnotation.getValue(annotation)
-
-    /**
      * Get the direction of a deprel.
      *
      * @param tokenIndex the index of the token to which the deprel must be assigned
@@ -116,7 +103,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
       listOf(Morphology(
         morphologies = listOf(MorphologyFactory(
           lemma = token.form,
-          pos = getPOS(posTags.first()),
+          pos = POS.byBaseAnnotation(posTags.first()),
           allowIncompleteProperties = true))
       ))
   }
@@ -180,7 +167,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
 
     val posTags: List<String> = this.label.extractPosTags()
 
-    return posTags.size == 1 && getPOS(posTags.first()).isContentWord
+    return posTags.size == 1 && POS.byBaseAnnotation(posTags.first()).isContentWord
   }
 
   /**
