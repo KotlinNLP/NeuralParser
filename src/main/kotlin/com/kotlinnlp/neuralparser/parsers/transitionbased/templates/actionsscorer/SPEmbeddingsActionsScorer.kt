@@ -7,7 +7,6 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.actionsscorer
 
-import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEncodingContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.OutputErrorsInit
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.singleprediction.SPSupportStructure
@@ -15,7 +14,6 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFe
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFeaturesErrors
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
-import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
@@ -24,14 +22,11 @@ import com.kotlinnlp.syntaxdecoder.modules.actionsscorer.ActionsScorer
 import com.kotlinnlp.syntaxdecoder.modules.actionsscorer.ActionsScorerTrainable
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
-import com.kotlinnlp.utils.DictionarySet
 
 /**
  * The Single Prediction Embeddings ActionsScorer.
  *
- * @param network a NeuralNetwork
- * @param optimizer the optimizer of the [network] params
- * @param deprelTags the dictionary set of deprels
+ * @param optimizer the optimizer of the network params
  */
 abstract class SPEmbeddingsActionsScorer<
   StateType : State<StateType>,
@@ -39,22 +34,18 @@ abstract class SPEmbeddingsActionsScorer<
   InputContextType: TokensEncodingContext<InputContextType>,
   in SupportStructureType : SPSupportStructure>
 (
-  private val network: NeuralNetwork,
-  private val optimizer: ParamsOptimizer<NetworkParameters>,
-  private val deprelTags: DictionarySet<Deprel>
-) :
-  ActionsScorerTrainable<
-    StateType,
-    TransitionType,
-    InputContextType,
-    DenseItem,
-    DenseFeaturesErrors,
-    DenseFeatures,
-    SupportStructureType>()
-{
+  private val optimizer: ParamsOptimizer<NetworkParameters>
+) : ActionsScorerTrainable<
+  StateType,
+  TransitionType,
+  InputContextType,
+  DenseItem,
+  DenseFeaturesErrors,
+  DenseFeatures,
+  SupportStructureType>() {
 
   /**
-   * The [network] outcome index of this action.
+   * The network outcome index of this action.
    */
   protected abstract val Transition<TransitionType, StateType>.Action.outcomeIndex: Int
 

@@ -7,7 +7,6 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.actionsscorer
 
-import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.multiprediction.MPSupportStructure
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.GroupedDenseFeatures
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.GroupedDenseFeaturesErrors
@@ -23,7 +22,6 @@ import com.kotlinnlp.syntaxdecoder.modules.actionsscorer.ActionsScorer
 import com.kotlinnlp.syntaxdecoder.modules.actionsscorer.ActionsScorerTrainable
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
-import com.kotlinnlp.utils.DictionarySet
 import com.kotlinnlp.utils.MultiMap
 
 /**
@@ -31,7 +29,6 @@ import com.kotlinnlp.utils.MultiMap
  *
  * @param network a NeuralNetwork
  * @param optimizer the optimizer of the [network] params
- * @param deprelTags the dictionary set of deprels
  */
 abstract class MPEmbeddingsActionsScorer<
   StateType : State<StateType>,
@@ -41,18 +38,15 @@ abstract class MPEmbeddingsActionsScorer<
   in SupportStructureType : MPSupportStructure>
 (
   private val network: MultiPredictionModel,
-  private val optimizer: MultiPredictionOptimizer,
-  private val deprelTags: DictionarySet<Deprel>
-) :
-  ActionsScorerTrainable<
-    StateType,
-    TransitionType,
-    InputContextType,
-    ItemType,
-    GroupedDenseFeaturesErrors,
-    GroupedDenseFeatures,
-    SupportStructureType>()
-{
+  private val optimizer: MultiPredictionOptimizer
+) : ActionsScorerTrainable<
+  StateType,
+  TransitionType,
+  InputContextType,
+  ItemType,
+  GroupedDenseFeaturesErrors,
+  GroupedDenseFeatures,
+  SupportStructureType>() {
 
   /**
    * Assign scores to the actions contained into the given [decodingContext] using the features contained in it and the
@@ -70,8 +64,8 @@ abstract class MPEmbeddingsActionsScorer<
     decodingContext.actions
       .filter { it.isAllowed }
       .forEach { action ->
-      action.score = prediction.getValue(i = action.transition.groupId, j = action.transition.id)[action.outcomeIndex]
-    }
+        action.score = prediction.getValue(i = action.transition.groupId, j = action.transition.id)[action.outcomeIndex]
+      }
   }
 
   /**
@@ -164,18 +158,14 @@ abstract class MPEmbeddingsActionsScorer<
 
             if (actions.any { it.error != 0.0}) {
 
-              val errors: DenseNDArray = DenseNDArrayFactory.zeros(shape = Shape(
-                this@MPEmbeddingsActionsScorer.network.networks[groupId].layersConfiguration.last().size))
+              val errors: DenseNDArray = DenseNDArrayFactory.zeros(
+                shape = Shape(this.network.networks[groupId].layersConfiguration.last().size))
 
               actions
                 .filter { it.error != 0.0 }
                 .forEach { errors[it.outcomeIndex] = it.error }
 
-              if (groupId !in errorsMap) {
-                errorsMap[groupId] = mutableMapOf()
-              }
-
-              errorsMap[groupId]!![transitionId] = errors
+              errorsMap.getOrPut(groupId) { mutableMapOf() }[transitionId] = errors
             }
           }
       }

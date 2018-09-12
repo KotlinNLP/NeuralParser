@@ -7,8 +7,6 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.actionsscorer
 
-import com.kotlinnlp.dependencytree.Deprel
-import com.kotlinnlp.dependencytree.POSTag
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEncodingContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.compositeprediction.TPDSupportStructure
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFeatures
@@ -16,7 +14,6 @@ import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFe
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
-import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
@@ -25,7 +22,6 @@ import com.kotlinnlp.syntaxdecoder.modules.actionsscorer.ActionsScorer
 import com.kotlinnlp.syntaxdecoder.modules.actionsscorer.ActionsScorerTrainable
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
-import com.kotlinnlp.utils.DictionarySet
 
 /**
  * The Transition+POS+Deprel ActionsScorer.
@@ -33,52 +29,40 @@ import com.kotlinnlp.utils.DictionarySet
  * POS and one for the deprel.
  *
  * @param activationFunction the function used to activate the actions scores
- * @param transitionNetwork a neural network to score the transitions
- * @param posNetwork a neural network to score the posTags
- * @param deprelNetwork a neural network to score the deprels
- * @param transitionOptimizer the optimizer of the [transitionNetwork] params
- * @param posOptimizer the optimizer of the [posNetwork] params
- * @param deprelOptimizer the optimizer of the [deprelNetwork] params
- * @param posTags the dictionary set of POS tags
- * @param deprelTags the dictionary set of deprels
+ * @param transitionOptimizer the optimizer of the transition network params
+ * @param posOptimizer the optimizer of the POS network params
+ * @param deprelOptimizer the optimizer of the deprel network params
  */
 abstract class TPDEmbeddingsActionsScorer<
   StateType : State<StateType>,
   TransitionType : Transition<TransitionType, StateType>,
   InputContextType: TokensEncodingContext<InputContextType>>
 (
-  val activationFunction: ActivationFunction?,
-  val transitionNetwork: NeuralNetwork,
-  val posNetwork: NeuralNetwork,
-  val deprelNetwork: NeuralNetwork,
-  val transitionOptimizer: ParamsOptimizer<NetworkParameters>,
-  val posOptimizer: ParamsOptimizer<NetworkParameters>,
-  val deprelOptimizer: ParamsOptimizer<NetworkParameters>,
-  val posTags: DictionarySet<POSTag>,
-  val deprelTags: DictionarySet<Deprel>
-) :
-  ActionsScorerTrainable<
-    StateType,
-    TransitionType,
-    InputContextType,
-    DenseItem,
-    DenseFeaturesErrors,
-    DenseFeatures,
-    TPDSupportStructure>()
-{
+  private val activationFunction: ActivationFunction?,
+  private val transitionOptimizer: ParamsOptimizer<NetworkParameters>,
+  private val posOptimizer: ParamsOptimizer<NetworkParameters>,
+  private val deprelOptimizer: ParamsOptimizer<NetworkParameters>
+) : ActionsScorerTrainable<
+  StateType,
+  TransitionType,
+  InputContextType,
+  DenseItem,
+  DenseFeaturesErrors,
+  DenseFeatures,
+  TPDSupportStructure>() {
 
   /**
-   * The [deprelNetwork] outcome index of this action.
+   * The deprel network outcome index of this action.
    */
   protected abstract val Transition<TransitionType, StateType>.Action.deprelOutcomeIndex: Int
 
   /**
-   * The [posNetwork] outcome index of this action.
+   * The POS network outcome index of this action.
    */
   protected abstract val Transition<TransitionType, StateType>.Action.posTagOutcomeIndex: Int
 
   /**
-   * The [transitionNetwork] outcome index of this transition.
+   * The outcome index of this transition.
    */
   protected abstract val Transition<TransitionType, StateType>.outcomeIndex: Int
 

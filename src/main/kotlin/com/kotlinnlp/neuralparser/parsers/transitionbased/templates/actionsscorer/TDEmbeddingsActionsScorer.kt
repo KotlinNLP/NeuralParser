@@ -7,14 +7,12 @@
 
 package com.kotlinnlp.neuralparser.parsers.transitionbased.templates.actionsscorer
 
-import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.inputcontexts.TokensEncodingContext
 import com.kotlinnlp.neuralparser.parsers.transitionbased.templates.supportstructure.compositeprediction.TDSupportStructure
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFeatures
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.features.DenseFeaturesErrors
 import com.kotlinnlp.neuralparser.parsers.transitionbased.utils.items.DenseItem
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
-import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
@@ -23,45 +21,36 @@ import com.kotlinnlp.syntaxdecoder.modules.actionsscorer.ActionsScorer
 import com.kotlinnlp.syntaxdecoder.modules.actionsscorer.ActionsScorerTrainable
 import com.kotlinnlp.syntaxdecoder.transitionsystem.Transition
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.State
-import com.kotlinnlp.utils.DictionarySet
 
 /**
  * The Transition+Deprel Embeddings ActionsScorer.
  *
- * @param transitionNetwork a NeuralNetwork to score the transitions
- * @param deprelNetwork a NeuralNetwork to score the deprels
- * @param transitionOptimizer the optimizer of the [transitionNetwork] params
- * @param deprelOptimizer the optimizer of the [deprelNetwork] params
- * @param deprelTags the dictionary set of deprels
+ * @param transitionOptimizer the optimizer of the transition network params
+ * @param deprelOptimizer the optimizer of the deprel network params
  */
 abstract class TDEmbeddingsActionsScorer<
   StateType : State<StateType>,
   TransitionType : Transition<TransitionType, StateType>,
   InputContextType: TokensEncodingContext<InputContextType>>
 (
-  val transitionNetwork: NeuralNetwork,
-  val deprelNetwork: NeuralNetwork,
-  val transitionOptimizer: ParamsOptimizer<NetworkParameters>,
-  val deprelOptimizer: ParamsOptimizer<NetworkParameters>,
-  val deprelTags: DictionarySet<Deprel>
-) :
-  ActionsScorerTrainable<
-    StateType,
-    TransitionType,
-    InputContextType,
-    DenseItem,
-    DenseFeaturesErrors,
-    DenseFeatures,
-    TDSupportStructure>()
-{
+  private val transitionOptimizer: ParamsOptimizer<NetworkParameters>,
+  private val deprelOptimizer: ParamsOptimizer<NetworkParameters>
+) : ActionsScorerTrainable<
+  StateType,
+  TransitionType,
+  InputContextType,
+  DenseItem,
+  DenseFeaturesErrors,
+  DenseFeatures,
+  TDSupportStructure>() {
 
   /**
-   * The [deprelNetwork] outcome index of this action.
+   * The deprel network outcome index of this action.
    */
   protected abstract val Transition<TransitionType, StateType>.Action.outcomeIndex: Int
 
   /**
-   * The [transitionNetwork] outcome index of this transition.
+   * The transition network outcome index of this transition.
    */
   protected abstract val Transition<TransitionType, StateType>.outcomeIndex: Int
 
