@@ -74,7 +74,7 @@ class ArcStandardATPDFeaturesExtractor(
   override val Transition<ArcStandardTransition, StackBufferState>.Action.deprelKey: Int
     get() = when {
       this.transition is Shift -> 0
-      this is DependencyRelation -> this@ArcStandardATPDFeaturesExtractor.deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
+      this is DependencyRelation -> deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
       else -> throw RuntimeException("unknown action")
     }
 
@@ -84,7 +84,7 @@ class ArcStandardATPDFeaturesExtractor(
   override val Transition<ArcStandardTransition, StackBufferState>.Action.posTagKey: Int
     get() = when {
       this.transition is Shift -> 0
-      this is DependencyRelation -> this@ArcStandardATPDFeaturesExtractor.posTags.getId(this.posTag!!)!! + 1 // + shift offset
+      this is DependencyRelation -> posTags.getId(this.posTag!!)!! + 1 // + shift offset
       else -> throw RuntimeException("unknown action")
     }
 

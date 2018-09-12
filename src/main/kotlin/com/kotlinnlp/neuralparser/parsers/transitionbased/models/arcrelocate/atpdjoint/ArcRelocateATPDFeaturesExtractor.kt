@@ -73,7 +73,7 @@ class ArcRelocateATPDFeaturesExtractor(
     get() = when {
       this.transition is Shift -> 0
       this.transition is Wait -> 0
-      this is DependencyRelation -> this@ArcRelocateATPDFeaturesExtractor.deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
+      this is DependencyRelation -> deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
       else -> throw RuntimeException("unknown action")
     }
 
@@ -84,7 +84,7 @@ class ArcRelocateATPDFeaturesExtractor(
     get() = when {
       this.transition is Shift -> 0
       this.transition is Wait -> 0
-      this is DependencyRelation -> this@ArcRelocateATPDFeaturesExtractor.posTags.getId(this.posTag!!)!! + 1 // + shift offset
+      this is DependencyRelation -> posTags.getId(this.posTag!!)!! + 1 // + shift offset
       else -> throw RuntimeException("unknown action")
     }
 
