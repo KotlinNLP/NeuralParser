@@ -18,7 +18,6 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitio
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferState
 import com.kotlinnlp.syntaxdecoder.syntax.DependencyRelation
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
-import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitions.ArcLeft
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitions.ArcRight
@@ -29,44 +28,27 @@ import com.kotlinnlp.utils.DictionarySet
  * The ArcStandardTPDActionsScorer.
  *
  * @param activationFunction the function used to activate the actions scores
- * @param transitionNetwork a neural network to score the transitions
- * @param posNetwork a neural network to score the posTags
- * @param deprelNetwork a neural network to score the deprels
- * @param transitionOptimizer the optimizer of the [transitionNetwork] params
- * @param posOptimizer the optimizer of the [posNetwork] params
- * @param deprelOptimizer the optimizer of the [deprelNetwork] params
+ * @param transitionOptimizer the optimizer of the transition network params
+ * @param posOptimizer the optimizer of the POS network params
+ * @param deprelOptimizer the optimizer of the deprel network params
  * @param posTags the dictionary set of POS tags
  * @param deprelTags the dictionary set of deprels
  */
 class ArcStandardTPDActionsScorer(
   activationFunction: ActivationFunction?,
-  transitionNetwork: NeuralNetwork,
-  posNetwork: NeuralNetwork,
-  deprelNetwork: NeuralNetwork,
   transitionOptimizer: ParamsOptimizer<NetworkParameters>,
   posOptimizer: ParamsOptimizer<NetworkParameters>,
   deprelOptimizer: ParamsOptimizer<NetworkParameters>,
-  posTags: DictionarySet<POSTag>,
-  deprelTags: DictionarySet<Deprel>
-) :
-  TPDEmbeddingsActionsScorer<
-    StackBufferState,
-    ArcStandardTransition,
-    TokensAmbiguousPOSContext>
-  (
-    activationFunction = activationFunction,
-    transitionNetwork = transitionNetwork,
-    posNetwork = posNetwork,
-    deprelNetwork = deprelNetwork,
-    transitionOptimizer = transitionOptimizer,
-    posOptimizer = posOptimizer,
-    deprelOptimizer = deprelOptimizer,
-    posTags = posTags,
-    deprelTags = deprelTags
-  ) {
+  private val posTags: DictionarySet<POSTag>,
+  private val deprelTags: DictionarySet<Deprel>
+) : TPDEmbeddingsActionsScorer<StackBufferState, ArcStandardTransition, TokensAmbiguousPOSContext>(
+  activationFunction = activationFunction,
+  transitionOptimizer = transitionOptimizer,
+  posOptimizer = posOptimizer,
+  deprelOptimizer = deprelOptimizer) {
 
   /**
-   * The [transitionNetwork] outcome index of this transition.
+   * The transition network outcome index of this transition.
    */
   override val Transition<ArcStandardTransition, StackBufferState>.outcomeIndex: Int
     get() = when (this) {
@@ -78,22 +60,22 @@ class ArcStandardTPDActionsScorer(
     }
 
   /**
-   * The [deprelNetwork] outcome index of this action.
+   * The deprel network outcome index of this action.
    */
   override val Transition<ArcStandardTransition, StackBufferState>.Action.deprelOutcomeIndex: Int
     get() = when {
       this.transition is Shift -> 0
-      this is DependencyRelation -> this@ArcStandardTPDActionsScorer.deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
+      this is DependencyRelation -> deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
       else -> throw RuntimeException("unknown action")
     }
 
   /**
-   * The [posNetwork] outcome index of this action.
+   * The POS network outcome index of this action.
    */
   override val Transition<ArcStandardTransition, StackBufferState>.Action.posTagOutcomeIndex: Int
     get() = when {
       this.transition is Shift -> 0
-      this is DependencyRelation -> this@ArcStandardTPDActionsScorer.posTags.getId(this.posTag!!)!! + 1 // + shift offset
+      this is DependencyRelation -> posTags.getId(this.posTag!!)!! + 1 // + shift offset
       else -> throw RuntimeException("unknown action")
     }
 }

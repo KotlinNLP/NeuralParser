@@ -18,9 +18,7 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitio
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferState
 import com.kotlinnlp.syntaxdecoder.syntax.DependencyRelation
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
-import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
-import com.kotlinnlp.simplednn.deeplearning.multitasknetwork.MultiTaskNetworkModel
 import com.kotlinnlp.simplednn.deeplearning.multitasknetwork.MultiTaskNetworkParameters
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitions.ArcLeft
 import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitions.ArcRight
@@ -31,38 +29,24 @@ import com.kotlinnlp.utils.DictionarySet
  * The ArcStandardTPDJointActionsScorer.
  *
  * @param activationFunction the function used to activate the actions scores
- * @param transitionNetwork a neural network to score the transitions
- * @param posDeprelNetworkModel the model of a multi-task network to score POS tags and deprels
- * @param transitionOptimizer the optimizer of the [transitionNetwork] params
- * @param posDeprelOptimizer the optimizer of the [posDeprelNetworkModel] params
+ * @param transitionOptimizer the optimizer of the transition network params
+ * @param posDeprelOptimizer the optimizer of the POS-deprel network params
  * @param posTags the dictionary set of POS tags
  * @param deprelTags the dictionary set of deprels
  */
 class ArcStandardTPDJointActionsScorer(
   activationFunction: ActivationFunction?,
-  transitionNetwork: NeuralNetwork,
-  posDeprelNetworkModel: MultiTaskNetworkModel,
   transitionOptimizer: ParamsOptimizer<NetworkParameters>,
   posDeprelOptimizer: ParamsOptimizer<MultiTaskNetworkParameters>,
-  deprelTags: DictionarySet<Deprel>,
-  posTags: DictionarySet<POSTag>
-) :
-  TPDJointEmbeddingsActionsScorer<
-    StackBufferState,
-    ArcStandardTransition,
-    TokensAmbiguousPOSContext>
-  (
-    activationFunction = activationFunction,
-    transitionNetwork = transitionNetwork,
-    posDeprelNetworkModel = posDeprelNetworkModel,
-    transitionOptimizer = transitionOptimizer,
-    posDeprelOptimizer = posDeprelOptimizer,
-    deprelTags = deprelTags,
-    posTags = posTags
-  ) {
+  private val deprelTags: DictionarySet<Deprel>,
+  private val posTags: DictionarySet<POSTag>
+) : TPDJointEmbeddingsActionsScorer<StackBufferState, ArcStandardTransition, TokensAmbiguousPOSContext>(
+  activationFunction = activationFunction,
+  transitionOptimizer = transitionOptimizer,
+  posDeprelOptimizer = posDeprelOptimizer) {
 
   /**
-   * The [transitionNetwork] outcome index of this transition.
+   * The transition network outcome index of this transition.
    */
   override val Transition<ArcStandardTransition, StackBufferState>.outcomeIndex: Int
     get() = when (this) {
@@ -79,7 +63,7 @@ class ArcStandardTPDJointActionsScorer(
   override val Transition<ArcStandardTransition, StackBufferState>.Action.deprelOutcomeIndex: Int
     get() = when {
       this.transition is Shift -> 0
-      this is DependencyRelation -> this@ArcStandardTPDJointActionsScorer.deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
+      this is DependencyRelation -> deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
       else -> throw RuntimeException("unknown action")
     }
 
@@ -89,7 +73,7 @@ class ArcStandardTPDJointActionsScorer(
   override val Transition<ArcStandardTransition, StackBufferState>.Action.posTagOutcomeIndex: Int
     get() = when {
       this.transition is Shift -> 0
-      this is DependencyRelation -> this@ArcStandardTPDJointActionsScorer.posTags.getId(this.posTag!!)!! + 1 // + shift offset
+      this is DependencyRelation -> posTags.getId(this.posTag!!)!! + 1 // + shift offset
       else -> throw RuntimeException("unknown action")
     }
 }

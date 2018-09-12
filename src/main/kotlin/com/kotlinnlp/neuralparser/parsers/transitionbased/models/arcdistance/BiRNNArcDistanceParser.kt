@@ -83,7 +83,6 @@ class BiRNNArcDistanceParser(
    * @return the [ActionsScorer] used in this parser
    */
   override fun buildActionsScorer() = ArcDistanceActionsScorer(
-    network = this.model.actionsScorerNetwork,
     optimizer = ParamsOptimizer(
       params = this.model.actionsScorerNetwork.model,
       updateMethod = ADAMMethod(stepSize = 0.001)),

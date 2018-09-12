@@ -92,7 +92,6 @@ class BiRNNArcStandardParser(
    * @return the [ActionsScorer] used in this parser
    */
   override fun buildActionsScorer() = ArcStandardActionsScorer<SPSupportStructure, TokensEmbeddingsContext>(
-    network = this.model.actionsScorerNetwork,
     optimizer = ParamsOptimizer(
       params = this.model.actionsScorerNetwork.model,
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),

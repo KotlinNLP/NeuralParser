@@ -17,40 +17,27 @@ import com.kotlinnlp.syntaxdecoder.transitionsystem.models.arcstandard.transitio
 import com.kotlinnlp.syntaxdecoder.transitionsystem.state.templates.StackBufferState
 import com.kotlinnlp.syntaxdecoder.syntax.DependencyRelation
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
-import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.utils.DictionarySet
 
 /**
  * The ArcStandardActionsScorer.
  *
- * @param network a NeuralNetwork
- * @param optimizer the optimizer of the [network] params
+ * @param optimizer the optimizer of the network params
  * @param deprelTags the dictionary set of deprels
  */
 class CharBasedArcStandardActionsScorer(
-  private val network: NeuralNetwork,
-  private val optimizer: ParamsOptimizer<NetworkParameters>,
+  optimizer: ParamsOptimizer<NetworkParameters>,
   private val deprelTags: DictionarySet<Deprel>
-) :
-  SPEmbeddingsActionsScorer<
-    StackBufferState,
-    ArcStandardTransition,
-    TokensCharsEncodingContext,
-    SPSupportStructure>
-  (
-    network = network,
-    optimizer = optimizer,
-    deprelTags = deprelTags
-  )
-{
+) : SPEmbeddingsActionsScorer<StackBufferState, ArcStandardTransition, TokensCharsEncodingContext,
+  SPSupportStructure>(optimizer) {
 
   /**
-   * The [network] outcome index of this action.
+   * The network outcome index of this action.
    */
   override val Transition<ArcStandardTransition, StackBufferState>.Action.outcomeIndex: Int get() = when {
     this.transition is Shift -> 0
-    this is DependencyRelation -> this@CharBasedArcStandardActionsScorer.deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
+    this is DependencyRelation -> deprelTags.getId(this.deprel!!)!! + 1 // + shift offset
     else -> throw RuntimeException("unknown action")
   }
 }

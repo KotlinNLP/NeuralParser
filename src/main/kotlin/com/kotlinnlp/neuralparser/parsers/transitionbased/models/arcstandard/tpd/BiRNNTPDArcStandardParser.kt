@@ -92,9 +92,6 @@ class BiRNNTPDArcStandardParser(
    */
   override fun buildActionsScorer() = ArcStandardTPDActionsScorer(
     activationFunction = this.model.actionsScoresActivation,
-    transitionNetwork = this.model.transitionScorerNetwork,
-    deprelNetwork = this.model.deprelScorerNetwork,
-    posNetwork = this.model.posTagsScorerNetwork,
     transitionOptimizer = ParamsOptimizer(
       params = this.model.transitionScorerNetwork.model,
       updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)),

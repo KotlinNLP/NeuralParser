@@ -28,21 +28,16 @@ import com.kotlinnlp.utils.DictionarySet
  * @param optimizer the optimizer of the [network] params
  * @param deprelTags the dictionary set of deprels
  */
-open class ArcEagerSpineActionsScorer<
+class ArcEagerSpineActionsScorer<
   InputContextType: InputContext<InputContextType, ItemType>,
   ItemType: StateItem<ItemType, *, *>,
   in SupportStructureType : MPSupportStructure>
 (
-  protected val network: MultiPredictionModel,
-  private val optimizer: MultiPredictionOptimizer,
+  network: MultiPredictionModel,
+  optimizer: MultiPredictionOptimizer,
   private val deprelTags: DictionarySet<Deprel>
-) :
-  MPEmbeddingsActionsScorer<ArcEagerSpineState, ArcEagerSpineTransition, InputContextType, ItemType,
-    SupportStructureType>(
-    network = network,
-    optimizer = optimizer,
-    deprelTags = deprelTags
-  ) {
+) : MPEmbeddingsActionsScorer<ArcEagerSpineState, ArcEagerSpineTransition, InputContextType, ItemType,
+  SupportStructureType>(network = network, optimizer = optimizer) {
 
   /**
    * Map deprels with their related outcome indices
@@ -74,7 +69,7 @@ open class ArcEagerSpineActionsScorer<
     var leftIndex = 0
     var rightIndex = 0
 
-    deprelTags.getElements().forEach {
+    this.deprelTags.getElements().forEach {
 
       when(it.direction) {
         Deprel.Direction.ROOT -> map[it] = rootIndex++
