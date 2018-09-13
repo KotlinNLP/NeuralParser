@@ -59,24 +59,6 @@ class CommandLineArguments(args: Array<String>) {
   ).default { null }
 
   /**
-   * The beam size.
-   */
-  val beamSize: Int by parser.storing(
-    "-b",
-    "--beam-size",
-    help="the beam size"
-  ) { toInt() }.default(1)
-
-  /**
-   * The max number of parallel threads.
-   */
-  val threads: Int by parser.storing(
-    "-t",
-    "--threads",
-    help="the max number of parallel threads"
-  ) { toInt() }.default(1)
-
-  /**
    * Force parsing all arguments (only read ones are parsed by default).
    */
   init {

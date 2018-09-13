@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * -----------------------------------------------------------------------------*/
 
-package lhrparser
+package training
 
 import buildSentencePreprocessor
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
