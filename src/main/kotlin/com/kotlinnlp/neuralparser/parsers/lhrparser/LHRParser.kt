@@ -19,6 +19,7 @@ import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.DependencyTreeBuilder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.GreedyDependencyTreeBuilder
+import com.kotlinnlp.neuralparser.traces.*
 
 /**
  * The Latent Head Representation (LHR) Parser.
@@ -63,9 +64,19 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
       labeler = this.labeler
     ).build()
 
-    return MorphoSynBuilder(
+    val parsedSentence: MorphoSynSentence = MorphoSynBuilder(
       parsingSentence = sentence,
       dependencyTree = dependencyTree
     ).buildSentence()
+
+    // TODO: move the trace handler into the model?
+    RuleBasedTracesHandler(listOf(
+      CoordCorefHelper(),
+      ImplicitCorefHelper(),
+      ExplicitCorefHelper(),
+      InfinitiveCorefHelper())
+    ).addTraces(parsedSentence)
+
+    return parsedSentence
   }
 }
