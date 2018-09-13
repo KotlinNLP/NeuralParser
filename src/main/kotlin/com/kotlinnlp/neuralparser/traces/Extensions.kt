@@ -73,7 +73,9 @@ val MorphoSynToken.isVerb: Boolean get() = this.flatMorphologies.any { it is Ver
 /**
  *
  */
-val MorphoSynToken.isVerbInfinite: Boolean get() = TODO()
+val MorphoSynToken.isVerbInfinite: Boolean get() = this.flatMorphologies.any {
+  it is Verb && it.mood == Mood.Infinite
+}
 
 /**
  * TODO: find a better and safe solution
