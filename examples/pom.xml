@@ -15,7 +15,6 @@
         <kotlin.version>1.2.41</kotlin.version>
         <klaxon.version>3.0.5</klaxon.version>
         <neuralparser.version>0.4.2</neuralparser.version>
-        <syntaxdecoder.version>0.2.3</syntaxdecoder.version>
         <simplednn.version>0.11.0</simplednn.version>
         <conllio.version>0.2.4</conllio.version>
         <constraints.version>0.1.0</constraints.version>
@@ -88,12 +87,6 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>neuralparser</artifactId>
             <version>${neuralparser.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>syntaxdecoder</artifactId>
-            <version>${syntaxdecoder.version}</version>
         </dependency>
 
         <dependency>

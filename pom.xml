@@ -66,7 +66,6 @@
         <conllio.version>0.2.4</conllio.version>
         <constraints.version>0.1.0</constraints.version>
         <simplednn.version>0.11.0</simplednn.version>
-        <syntaxdecoder.version>0.2.3</syntaxdecoder.version>
         <dependencytree.version>0.3.2</dependencytree.version>
         <tokensencoder.version>0.3.1</tokensencoder.version>
         <linguisticdescription.version>0.9.1</linguisticdescription.version>
@@ -273,12 +272,6 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>tokensencoder</artifactId>
             <version>${tokensencoder.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>syntaxdecoder</artifactId>
-            <version>${syntaxdecoder.version}</version>
         </dependency>
 
         <dependency>
