@@ -7,8 +7,6 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 
-import com.kotlinnlp.syntaxdecoder.utils.removeLast
-
 /**
  * A helper that uses a beam of parallel states to finds the best configuration of a set of elements to which more
  * possible values can be assigned.
@@ -260,4 +258,11 @@ internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: Bea
    */
   private fun <T: Value> List<StateElement<T>>.sortedByAmbiguity(): List<StateElement<T>> =
     this.sortedBy { scoresDiffMap.getValue(it.id).getOrElse(it.index) { 1.0 } }
+
+  /**
+   * Remove the last element of the list.
+   */
+  private fun <T>MutableList<T>.removeLast() {
+    this.removeAt(this.lastIndex)
+  }
 }
