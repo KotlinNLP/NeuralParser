@@ -96,16 +96,17 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
       it.list.map { it.pos.baseAnnotation } == posTags
     }
 
-    return if (possibleMorphologies.isNotEmpty())
-      possibleMorphologies
-    else
-    // In this case the deprel label always defines a single morphology.
-      listOf(Morphology(
-        morphologies = listOf(SingleMorphology(
-          lemma = token.form,
-          pos = POS.byBaseAnnotation(posTags.first()),
-          allowIncompleteProperties = true))
-      ))
+    return when {
+      possibleMorphologies.isNotEmpty() -> possibleMorphologies
+      posTags.first() != POS.Num.baseAnnotation -> // In this case the deprel label always defines a single morphology.
+        listOf(Morphology(
+          morphologies = listOf(SingleMorphology(
+            lemma = token.form,
+            pos = POS.byBaseAnnotation(posTags.first()),
+            allowIncompleteProperties = true))
+        ))
+      else -> listOf() // TODO: handle Number morphology
+    }
   }
 
   /**
