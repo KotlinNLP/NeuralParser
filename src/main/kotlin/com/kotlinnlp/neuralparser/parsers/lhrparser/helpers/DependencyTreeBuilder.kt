@@ -193,11 +193,11 @@ internal class DependencyTreeBuilder(
    */
   private fun DependencyTree.buildDeprelsMap(): Map<Int, List<ScoredDeprel>> =
 
-    deprelLabeler!!.predict(DeprelLabeler.Input(lss, this)).withIndex().associate { (tokenIndex, prediction) ->
+    deprelLabeler!!.predict(DeprelLabeler.Input(lss, this)).withIndex().associate { (tokenIndex, deprels) ->
 
       val tokenId: Int = this.elements[tokenIndex]
       val validDeprels: List<ScoredDeprel> = morphoDeprelSelector.getValidDeprels(
-        deprels = prediction,
+        deprels = deprels,
         sentence = lss.sentence,
         tokenIndex = tokenIndex,
         headIndex = this.getHead(tokenId)?.let { this.getPosition(it) })
