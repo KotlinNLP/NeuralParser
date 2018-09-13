@@ -74,7 +74,7 @@ class InfinitiveCorefHelper : CorefHelper {
 
       when {
 
-        governor.isVerb -> this.findCandidates(sentence, governor).select(control = this.getControl(governor))?.let {
+        governor.isVerb -> sentence.findCandidates(governor).select(control = this.getControl(governor))?.let {
 
           CoReference(tokenId = it.id,
             sentenceId = sentence.id,
@@ -91,18 +91,14 @@ class InfinitiveCorefHelper : CorefHelper {
   /**
    *
    */
-  private fun findCandidates(sentence: MorphoSynSentence,
-                             token: MorphoSynToken): CorefCandidates = with(sentence) {
-
+  private fun MorphoSynSentence.findCandidates(token: MorphoSynToken) =
     CorefCandidates(
-      subj = getSubj(token),
-      obj = getObj(token),
-      iobj = getIObj(token)
-    )
-  }
+      subj = this.getSubj(token),
+      obj = this.getObj(token),
+      iobj = this.getIObj(token))
 
   /**
    *
    */
-  private fun getControl(token: MorphoSynToken): TraceControl = TODO()
+  private fun getControl(token: MorphoSynToken): InfinitiveCorefHelper.TraceControl = TraceControl.SUBJ
 }
