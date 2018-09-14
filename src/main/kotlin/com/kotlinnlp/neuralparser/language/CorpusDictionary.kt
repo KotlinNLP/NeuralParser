@@ -62,12 +62,12 @@ class CorpusDictionary : Serializable {
   val deprels = DictionarySet<Deprel>()
 
   /**
-   * The map of forms to pos tags.
+   * The map of forms to their possible POS tags.
    */
   val formsToPosTags: HashMultimap<String, POSTag> = HashMultimap.create()
 
   /**
-   * The map of forms to pos tags.
+   * The map of deprels to their possible POS tags.
    */
   val deprelPosTagCombinations: HashMultimap<Deprel, POSTag> = HashMultimap.create()
 
