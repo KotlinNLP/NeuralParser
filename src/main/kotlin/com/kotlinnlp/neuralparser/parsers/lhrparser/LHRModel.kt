@@ -34,7 +34,7 @@ import java.io.InputStream
  * The model of the [LHRParser].
  *
  * @property language the language within the parser works (default = unknown)
- * @property corpusDictionary a corpus dictionary
+ * @param corpusDictionary a corpus dictionary
  * @property tokensEncoderWrapperModel the model of the TokensEncoder combined with its sentence converter
  * @property contextBiRNNConfig the configuration of the ContextEncoder BiRNN (if null the ContextEncoder is not used)
  * @property headsBiRNNConfig the configuration of the HeadsEncoder BiRNN
@@ -45,7 +45,7 @@ import java.io.InputStream
  */
 class LHRModel(
   language: Language = Language.Unknown,
-  val corpusDictionary: CorpusDictionary,
+  corpusDictionary: CorpusDictionary,
   val tokensEncoderWrapperModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>,
   val contextBiRNNConfig: BiRNNConfig,
   val headsBiRNNConfig: BiRNNConfig,
@@ -72,6 +72,11 @@ class LHRModel(
      */
     fun load(inputStream: InputStream): LHRModel = Serializer.deserialize(inputStream)
   }
+
+  /**
+   * The score threshold above which to consider a labeler output valid.
+   */
+  val labelerScoreThreshold = 1.0 / corpusDictionary.dependencyRelations.size
 
   /**
    * The model of the ContextEncoder.
