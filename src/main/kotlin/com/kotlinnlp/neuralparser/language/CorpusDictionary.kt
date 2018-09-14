@@ -67,9 +67,9 @@ class CorpusDictionary : Serializable {
   val formsToPosTags: HashMultimap<String, POSTag> = HashMultimap.create()
 
   /**
-   * The map of deprels to their possible POS tags.
+   * The dictionary set of all the possible dependency relations.
    */
-  val deprelPosTagCombinations: HashMultimap<Deprel, POSTag> = HashMultimap.create()
+  val dependencyRelations = DictionarySet<DependencyRelation>()
 
   /**
    * Add the info of a given [token] into this dictionary.
@@ -86,7 +86,7 @@ class CorpusDictionary : Serializable {
     this.deprels.add(deprel)
 
     this.formsToPosTags.put(token.normalizedForm, posTag)
-    this.deprelPosTagCombinations.put(deprel, posTag)
+    this.dependencyRelations.add(DependencyRelation(posTag = posTag, deprel = deprel))
   }
 
   /**
