@@ -25,7 +25,7 @@ import com.kotlinnlp.neuralparser.utils.notEmptyOr
  * @param deprelLabeler a deprel labeler (can be null)
  * @param constraints a list of linguistic constraints (can be null)
  * @param morphoDeprelSelector a morpho-deprel selector used to build a [MorphoSyntacticToken]
- * @param deprelScoreThreshold the score threshold above which to consider a deprel valid
+ * @param labelerScoreThreshold the score threshold above which to consider a labeler output valid
  * @param maxBeamSize the max number of parallel states that the beam supports
  * @param maxForkSize the max number of forks that can be generated from a state
  * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion)
@@ -36,7 +36,7 @@ internal class DependencyTreeBuilder(
   private val deprelLabeler: DeprelLabeler?,
   private val constraints: List<Constraint>?,
   private val morphoDeprelSelector: MorphoDeprelSelector,
-  private val deprelScoreThreshold: Double,
+  private val labelerScoreThreshold: Double,
   maxBeamSize: Int = 5,
   maxForkSize: Int = 3,
   maxIterations: Int = 10
@@ -203,7 +203,7 @@ internal class DependencyTreeBuilder(
         headIndex = this.getHead(tokenId)?.let { this.getPosition(it) })
 
       tokenId to validDeprels
-        .filter { it.score >= deprelScoreThreshold }
+        .filter { it.score >= labelerScoreThreshold }
         .notEmptyOr { validDeprels.subList(0, 1) }
     }
 }

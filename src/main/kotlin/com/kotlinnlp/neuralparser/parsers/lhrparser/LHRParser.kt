@@ -64,7 +64,7 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
       deprelLabeler = this.deprelLabeler,
       constraints = this.constraints,
       morphoDeprelSelector = this.model.morphoDeprelSelector,
-      deprelScoreThreshold = 1.0 / this.model.corpusDictionary.deprels.size
+      labelerScoreThreshold = this.model.labelerScoreThreshold
     ).build()
 
     return sentence.toMorphoSyntacticSentence(
