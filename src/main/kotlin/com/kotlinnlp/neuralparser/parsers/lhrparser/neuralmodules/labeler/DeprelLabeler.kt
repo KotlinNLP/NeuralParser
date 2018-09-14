@@ -9,7 +9,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler
 
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.neuralparser.language.DependencyRelation
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.batchfeedforward.BatchFeedforwardProcessor
@@ -81,7 +81,7 @@ class DeprelLabeler(
    */
   fun predict(input: Input): List<List<ScoredDeprel>> = this.forward(input).map { prediction ->
     (0 until prediction.length)
-      .map { i -> ScoredDeprel(this.getDeprel(i), score = prediction[i]) }
+      .map { i -> ScoredDeprel(this.getDependencyRelation(i).deprel, score = prediction[i]) }
       .sortedWith(compareByDescending { it.score })
   }
 
@@ -149,9 +149,9 @@ class DeprelLabeler(
   /**
    * @param index a prediction index
    *
-   * @return the [Deprel] with the given [index]
+   * @return the dependency relation with the given [index]
    */
-  private fun getDeprel(index: Int) = this.model.deprels.getElement(index)!!
+  private fun getDependencyRelation(index: Int): DependencyRelation = this.model.dependencyRelations.getElement(index)!!
 
   /**
    * @param tokenId the id of a token of the input sentence

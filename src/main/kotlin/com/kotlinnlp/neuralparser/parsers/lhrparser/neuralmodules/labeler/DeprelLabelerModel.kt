@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.LossCriterion
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.LossCriterionType
-import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.neuralparser.language.DependencyRelation
 import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerInterface
@@ -24,12 +24,12 @@ import java.io.Serializable
  * The model of the [DeprelLabeler].
  *
  * @property contextEncodingSize the size of the token encoding vectors
- * @property deprels the dictionary set of all possible deprels
+ * @property dependencyRelations the dictionary set of all the possible dependency relations
  * @property lossCriterionType the training mode
  */
 class DeprelLabelerModel(
   val contextEncodingSize: Int,
-  val deprels: DictionarySet<Deprel>,
+  val dependencyRelations: DictionarySet<DependencyRelation>,
   val lossCriterionType: LossCriterionType
 ) : Serializable {
 
@@ -53,7 +53,7 @@ class DeprelLabelerModel(
       activationFunction = Tanh()),
     LayerInterface(
       type = LayerType.Input.Dense,
-      size = this.deprels.size,
+      size = this.dependencyRelations.size,
       dropout = 0.0,
       connectionType = LayerType.Connection.Feedforward,
       activationFunction = when (this.lossCriterionType) {
@@ -78,11 +78,15 @@ class DeprelLabelerModel(
     predictions.forEachIndexed { tokenIndex, prediction ->
 
       val tokenId: Int = goldTree.elements[tokenIndex]
-      val goldDeprel: Deprel = goldTree.getDeprel(tokenId)!!
-      val goldDeprelIndex: Int = this.deprels.getId(goldDeprel)!!
+      val goldDependencyRelation = DependencyRelation(
+        deprel = goldTree.getDeprel(tokenId)!!,
+        posTag = goldTree.getPosTag(tokenId)!!)
 
-      errorsList.add(LossCriterion(this.lossCriterionType).getPredictionErrors(
-        prediction = prediction, goldIndex = goldDeprelIndex))
+      val errors: DenseNDArray = LossCriterion(this.lossCriterionType).getPredictionErrors(
+        prediction = prediction,
+        goldIndex = this.dependencyRelations.getId(goldDependencyRelation)!!)
+
+      errorsList.add(errors)
     }
 
     return errorsList
