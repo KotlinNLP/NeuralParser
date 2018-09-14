@@ -23,11 +23,12 @@ class CorpusDictionary : Serializable {
   companion object Factory {
 
     /**
-     * Use the given [sentences] to populate the dictionary sets (words, posTags, deprelTags).
+     * Create a new corpus populated with the information contained in the given [sentences] (words, POS tags and
+     * deprels).
      *
      * @param sentences a list of sentences
      *
-     * @return a new CorpusDictionary
+     * @return a new corpus dictionary
      */
     operator fun invoke(sentences: List<CoNLLSentence>): CorpusDictionary {
 
@@ -45,12 +46,12 @@ class CorpusDictionary : Serializable {
   val words = DictionarySet<String>()
 
   /**
-   * The pos tags.
+   * The set of all the possible POS tags.
    */
   val posTags = DictionarySet<POSTag>()
 
   /**
-   * The deprel tags.
+   * The set of all the possible deprels.
    */
   val deprelTags = DictionarySet<Deprel>()
 
@@ -65,7 +66,7 @@ class CorpusDictionary : Serializable {
   val deprelPosTagCombinations: HashMultimap<Deprel, POSTag> = HashMultimap.create()
 
   /**
-   * Add info (form and POS) of a given [token] into this dictionary.
+   * Add the info of a given [token] into this dictionary.
    *
    * @param token the token of a sentence
    */
