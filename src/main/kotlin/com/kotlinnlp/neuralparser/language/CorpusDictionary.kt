@@ -33,9 +33,7 @@ class CorpusDictionary : Serializable {
 
       val dictionary = CorpusDictionary()
 
-      sentences.forEach { sentence ->
-        sentence.tokens.forEach { token -> dictionary.addInfo(token) }
-      }
+      sentences.forEach { it.tokens.forEach { token -> dictionary.addInfo(token) } }
 
       return dictionary
     }
@@ -74,32 +72,28 @@ class CorpusDictionary : Serializable {
   private fun addInfo(token: CoNLLToken) {
 
     val posTag = POSTag(token.pos)
-    val deprel: Deprel = this.getDeprel(token)
+    val deprel: Deprel = token.buildDeprel()
 
     this.words.add(token.normalizedForm)
     this.posTags.add(posTag)
-    this.formsToPosTags.put(token.normalizedForm, posTag)
+    this.deprelTags.add(deprel)
 
-    if (token.head != null) {
-      this.deprelTags.add(deprel)
-      this.deprelPosTagCombinations.put(deprel, posTag)
-    }
+    this.formsToPosTags.put(token.normalizedForm, posTag)
+    this.deprelPosTagCombinations.put(deprel, posTag)
   }
 
   /**
-   * @param token the token of a sentence
-   *
-   * @return the deprel of the given [token]
+   * @return the deprel of this token
    */
-  private fun getDeprel(token: CoNLLToken): Deprel {
+  private fun CoNLLToken.buildDeprel(): Deprel {
 
-    val head: Int = checkNotNull(token.head)
+    val head: Int = checkNotNull(this.head)
 
     return Deprel(
-      label = token.deprel,
+      label = this.deprel,
       direction = when {
         head == 0 -> Deprel.Direction.ROOT
-        head > token.id -> Deprel.Direction.LEFT // the id follows the incremental order of the CoNLL sentence tokens
+        head > this.id -> Deprel.Direction.LEFT // the id follows the incremental order of the CoNLL sentence tokens
         else -> Deprel.Direction.RIGHT
       })
   }
