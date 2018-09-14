@@ -109,7 +109,7 @@ class LHRModel(
   val labelerModel: DeprelLabelerModel? = if (this.useLabeler)
     DeprelLabelerModel(
       contextEncodingSize = this.contextVectorsSize,
-      deprels = this.corpusDictionary.deprelTags,
+      deprels = this.corpusDictionary.deprels,
       lossCriterionType = this.lossCriterionType)
   else
     null

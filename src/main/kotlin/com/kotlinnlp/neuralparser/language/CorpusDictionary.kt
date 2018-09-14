@@ -53,7 +53,7 @@ class CorpusDictionary : Serializable {
   /**
    * The set of all the possible deprels.
    */
-  val deprelTags = DictionarySet<Deprel>()
+  val deprels = DictionarySet<Deprel>()
 
   /**
    * The map of forms to pos tags.
@@ -77,7 +77,7 @@ class CorpusDictionary : Serializable {
 
     this.words.add(token.normalizedForm)
     this.posTags.add(posTag)
-    this.deprelTags.add(deprel)
+    this.deprels.add(deprel)
 
     this.formsToPosTags.put(token.normalizedForm, posTag)
     this.deprelPosTagCombinations.put(deprel, posTag)
