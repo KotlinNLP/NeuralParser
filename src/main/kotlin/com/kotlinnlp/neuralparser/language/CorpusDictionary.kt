@@ -20,7 +20,13 @@ import java.io.Serializable
  */
 class CorpusDictionary : Serializable {
 
-  companion object Factory {
+  companion object {
+
+    /**
+     * Private val used to serialize the class (needed by Serializable).
+     */
+    @Suppress("unused")
+    private const val serialVersionUID: Long = 1L
 
     /**
      * Create a new corpus populated with the information contained in the given [sentences] (words, POS tags and
