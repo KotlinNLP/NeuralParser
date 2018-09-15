@@ -30,7 +30,7 @@ class Validator(
   neuralParser: NeuralParser<*>,
   val sentences: List<CoNLLSentence>,
   sentencePreprocessor: SentencePreprocessor,
-  val verbose: Boolean = true
+  private val verbose: Boolean = true
 ) {
 
   companion object {
@@ -82,8 +82,8 @@ class Validator(
 
     this.sentences.zip(parsedSentences).forEach { (goldSentence, parsedSentence) ->
 
-      val goldTree: DependencyTree = goldSentence.buildDependencyTree()
-      val parsedTree: DependencyTree = parsedSentence.buildDependencyTree()
+      val goldTree = DependencyTree(goldSentence)
+      val parsedTree = DependencyTree(parsedSentence)
 
       require(parsedTree.size == goldTree.size) { "The dependency tree and its gold haven't the same size" }
 
