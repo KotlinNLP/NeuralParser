@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
-import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
+import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
@@ -121,9 +121,9 @@ internal class DeprelConstraintSolver(
      * @return a new morpho-syntactic token built from this
      */
     private fun ParsingToken.toMorphoSyntactic(): MorphoSyntacticToken = this.toMutableMorphoSyntacticToken(
-      dependencyRelation = DependencyRelation(
+      syntacticRelation = SyntacticRelation(
         governor = dependencyTree.getHead(this.id),
-        deprel = dependencyTree.getDeprel(this.id)!!.label,
+        dependencyRelation = dependencyTree.getDependencyRelation(this.id)!!,
         attachmentScore = 0.0),
       morphoDeprelSelector = morphoDeprelSelector
     )
@@ -157,7 +157,7 @@ internal class DeprelConstraintSolver(
   private fun applyDeprels(state: DeprelState) {
 
     state.elements.forEach {
-      this.dependencyTree.setDeprel(dependent = it.id, deprel = it.value.deprel.value)
+      this.dependencyTree.setDependencyRelation(dependent = it.id, deprel = it.value.deprel.value)
     }
 
     this.dependencyTree.score = state.score

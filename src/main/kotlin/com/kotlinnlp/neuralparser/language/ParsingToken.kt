@@ -7,10 +7,11 @@
 
 package com.kotlinnlp.neuralparser.language
 
+import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
 import com.kotlinnlp.linguisticdescription.sentence.token.*
-import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
+import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
 
@@ -27,23 +28,23 @@ data class ParsingToken(
   override val id: Int,
   override val form: String,
   override val morphologies: List<Morphology>,
-  val posTag: String? = null, // TODO: find a better solution
+  val posTag: POSTag? = null, // TODO: find a better solution
   private val position: Position?
 ) : MorphoToken, FormToken, TokenIdentificable {
 
   /**
-   * @param dependencyRelation the dependency relation of this token
+   * @param syntacticRelation the syntactic relation of this token
    * @param morphoDeprelSelector the morphology and deprel selector
    *
    * @return a new morpho syntactic token
    */
-  fun toMutableMorphoSyntacticToken(dependencyRelation: DependencyRelation,
+  fun toMutableMorphoSyntacticToken(syntacticRelation: SyntacticRelation,
                                     morphoDeprelSelector: MorphoDeprelSelector): MutableMorphoSyntacticToken {
 
     val morphologies: List<ScoredMorphology> = morphoDeprelSelector.getValidMorphologies(
       token = this,
       morphologies = this.morphologies,
-      deprelLabel = dependencyRelation.deprel
+      dependencyRelation = syntacticRelation.dependencyRelation
     ).map { ScoredMorphology(type = it.type, list = it.list, score = 0.0) } // TODO: set the score?
 
     return if (this.position != null)
@@ -52,7 +53,7 @@ data class ParsingToken(
         form = this.form,
         position = this.position,
         morphologies = morphologies,
-        dependencyRelation = dependencyRelation,
+        syntacticRelation = syntacticRelation,
         coReferences = null, // TODO: set it
         semanticRelations = null) // TODO: set it
     else
@@ -60,7 +61,7 @@ data class ParsingToken(
         id = this.id,
         form = this.form,
         morphologies = morphologies,
-        dependencyRelation = dependencyRelation,
+        syntacticRelation = syntacticRelation,
         coReferences = null, // TODO: set it
         semanticRelations = null)
   }

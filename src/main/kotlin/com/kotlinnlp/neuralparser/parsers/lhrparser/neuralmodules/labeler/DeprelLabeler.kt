@@ -9,7 +9,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler
 
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.neuralparser.language.DependencyRelation
+import com.kotlinnlp.linguisticdescription.DependencyRelation
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.batchfeedforward.BatchFeedforwardProcessor

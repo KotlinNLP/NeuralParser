@@ -7,7 +7,8 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors
 
-import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.linguisticdescription.DependencyRelation
+import com.kotlinnlp.linguisticdescription.Deprel
 import com.kotlinnlp.linguisticdescription.morphology.*
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
@@ -74,7 +75,9 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
       }
     else
       possibleDeprels.filter { it.value.isSingleContentWord() }.notEmptyOr {
-        listOf(ScoredDeprel(value = Deprel(label = UNKNOWN_LABEL, direction = correctDirection), score = worstScore))
+        listOf(ScoredDeprel(
+          value = Deprel(labels = listOf(UNKNOWN_LABEL), direction = correctDirection),
+          score = worstScore))
       }
   }
 
@@ -83,15 +86,15 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    *
    * @param token a parsing token
    * @param morphologies the list of possible morphologies of the token
-   * @param deprelLabel the deprel label of the token
+   * @param dependencyRelation the dependency relation of the token
    *
    * @return the morphologies compatible with the given deprel
    */
   override fun getValidMorphologies(token: ParsingToken,
                                     morphologies: List<Morphology>,
-                                    deprelLabel: String): List<Morphology> {
+                                    dependencyRelation: DependencyRelation): List<Morphology> {
 
-    val posTags: List<String> = deprelLabel.extractPosTags()
+    val posTags: List<String> = dependencyRelation.posTag?.labels ?: listOf()
     val possibleMorphologies: List<Morphology> = morphologies.filter {
       it.list.map { it.pos.baseAnnotation } == posTags
     }

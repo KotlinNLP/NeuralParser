@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils
 
-import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.linguisticdescription.Deprel
 
 /**
  * The outcome of a single prediction of the labeler.

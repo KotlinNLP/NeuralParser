@@ -10,7 +10,8 @@ package com.kotlinnlp.neuralparser.helpers
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.linguisticdescription.DependencyRelation
+import com.kotlinnlp.linguisticdescription.Deprel
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.statistics.MetricsCounter
@@ -141,8 +142,10 @@ class Validator(
   private fun addTokenMetrics(token: CoNLLToken, parsedTree: DependencyTree, goldTree: DependencyTree) {
 
     val isNotPunct: Boolean = !punctuationRegex.matches(token.form)
-    val parsedDeprel: Deprel? = parsedTree.getDeprel(token.id)
-    val goldDeprel: Deprel? = goldTree.getDeprel(token.id)
+    val parsedDependencyRelation: DependencyRelation? = parsedTree.getDependencyRelation(token.id)
+    val goldDependencyRelation: DependencyRelation? = goldTree.getDependencyRelation(token.id)
+    val parsedDeprel: Deprel? = parsedDependencyRelation?.deprel
+    val goldDeprel: Deprel? = goldTree.getDependencyRelation(token.id)?.deprel
 
     if (isNotPunct) this.counterNoPunct.totalTokens++
 
@@ -160,7 +163,7 @@ class Validator(
       this.addUncorrectLabeledAttachment(isNotPunct)
     }
 
-    if (parsedTree.getPosTag(token.id) == goldTree.getPosTag(token.id)) this.addCorrectPOSTag(isNotPunct)
+    if (parsedDependencyRelation?.posTag == goldDependencyRelation?.posTag) this.addCorrectPOSTag(isNotPunct)
     if (parsedDeprel?.softEquals(goldDeprel) ?: (parsedDeprel == goldDeprel)) this.addCorrectDeprel(isNotPunct)
   }
 

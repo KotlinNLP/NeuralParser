@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors
 
+import com.kotlinnlp.linguisticdescription.DependencyRelation
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
@@ -46,11 +47,11 @@ class NoFilterSelector : MorphoDeprelSelector {
    *
    * @param token a parsing token
    * @param morphologies the list of possible morphologies of the token
-   * @param deprelLabel the deprel label of the token
+   * @param dependencyRelation the dependency relation of the token
    *
    * @return all the given morphologies
    */
   override fun getValidMorphologies(token: ParsingToken,
                                     morphologies: List<Morphology>,
-                                    deprelLabel: String): List<Morphology> = morphologies
+                                    dependencyRelation: DependencyRelation): List<Morphology> = morphologies
 }

@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors
 
+import com.kotlinnlp.linguisticdescription.DependencyRelation
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
@@ -38,9 +39,11 @@ interface MorphoDeprelSelector : Serializable {
    *
    * @param token a parsing token
    * @param morphologies the list of possible morphologies of the token
-   * @param deprelLabel the deprel label of the token
+   * @param dependencyRelation the dependency relation of the token
    *
-   * @return the morphologies compatible with the given deprel
+   * @return the morphologies compatible with the given dependency relation
    */
-  fun getValidMorphologies(token: ParsingToken, morphologies: List<Morphology>, deprelLabel: String): List<Morphology>
+  fun getValidMorphologies(token: ParsingToken,
+                           morphologies: List<Morphology>,
+                           dependencyRelation: DependencyRelation): List<Morphology>
 }

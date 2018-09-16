@@ -8,7 +8,6 @@
 package com.kotlinnlp.neuralparser.traces
 
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.dependencytree.configuration.RootConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
@@ -24,7 +23,7 @@ import com.kotlinnlp.linguisticdescription.syntax.SyntaxType
  *
  */
 fun MorphoSyntacticSentence.getGovernor(token: MorphoSyntacticToken): MutableMorphoSyntacticToken? =
-  token.dependencyRelation.governor?.let { this.getTokenById(it) }
+  token.syntacticRelation.governor?.let { this.getTokenById(it) }
 
 /**
  *
@@ -36,19 +35,25 @@ fun MorphoSyntacticSentence.missingRequiredSubject(token: MorphoSyntacticToken):
  * TODO: find a better solution to match the deprel
  */
 fun MorphoSyntacticSentence.getIObj(token: MorphoSyntacticToken): MutableMorphoSyntacticToken? =
-  this.getDependents(token.id).firstOrNull { it.dependencyRelation.deprel.contains(SyntaxType.IndirectObject.baseAnnotation) }
+  this.getDependents(token.id).firstOrNull {
+    it.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.IndirectObject.baseAnnotation) }
+  }
 
 /**
  * TODO: find a better solution to match the deprel
  */
 fun MorphoSyntacticSentence.getObj(token: MorphoSyntacticToken): MutableMorphoSyntacticToken? =
-  this.getDependents(token.id).firstOrNull { it.dependencyRelation.deprel.contains(SyntaxType.Object.baseAnnotation) }
+  this.getDependents(token.id).firstOrNull {
+    it.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.Object.baseAnnotation) }
+  }
 
 /**
  * TODO: find a better solution to match the deprel
  */
 fun MorphoSyntacticSentence.getSubj(token: MorphoSyntacticToken): MutableMorphoSyntacticToken? =
-  this.getDependents(token.id).firstOrNull { it.dependencyRelation.deprel.contains(SyntaxType.Subject.baseAnnotation) }
+  this.getDependents(token.id).firstOrNull {
+    it.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.Subject.baseAnnotation) }
+  }
 
 /**
  *
@@ -109,25 +114,25 @@ val MorphoSyntacticToken.isVerbExplicit: Boolean get() = this.mainMorphology.let
  * TODO: find a better solution to match the deprel
  */
 val MorphoSyntacticToken.isAux: Boolean get() =
-  this.dependencyRelation.deprel.contains(SyntaxType.AuxTense.annotation)
+  this.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.AuxTense.annotation) }
 
 /**
  * TODO: find a better solution to match the deprel
  */
 val MorphoSyntacticToken.isNeg: Boolean get() =
-  this.dependencyRelation.deprel.contains(SyntaxType.RModNeg.annotation)
+  this.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.RModNeg.annotation) }
 
 /**
  * TODO: find a better solution to match the deprel
  */
 val MorphoSyntacticToken.isCoord2Nd: Boolean get() =
-  this.dependencyRelation.deprel.contains(SyntaxType.Coord2Nd.annotation)
+  this.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.Coord2Nd.annotation) }
 
 /**
  * TODO: find a better solution to match the deprel
  */
 val MorphoSyntacticToken.isRMod: Boolean get() =
-  this.dependencyRelation.deprel.contains(SyntaxType.RMod.annotation)
+  this.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.RMod.annotation) }
 
 /**
  * TODO: find a better way to get the main token morphology
@@ -140,17 +145,11 @@ val MorphoSyntacticToken.mainMorphology: SingleMorphology get() = this.morpholog
 fun MorphoSyntacticSentence.toDependencyTree() = DependencyTree(
   elements = this.tokens.map { it.id },
   dependencies = this.tokens.map {
-    if (it.dependencyRelation.governor == null)
-      RootConfiguration(
-        id = it.id,
-        deprel = Deprel(
-          label = it.dependencyRelation.deprel,
-          direction = Deprel.Direction.NULL))
+    if (it.syntacticRelation.governor == null)
+      RootConfiguration(id = it.id, deprel = it.syntacticRelation.dependencyRelation.deprel)
     else
       ArcConfiguration(
         dependent = it.id,
-        governor = it.dependencyRelation.governor!!,
-        deprel = Deprel(
-          label = it.dependencyRelation.deprel,
-          direction = Deprel.Direction.NULL))
+        governor = it.syntacticRelation.governor!!,
+        deprel = it.syntacticRelation.dependencyRelation.deprel)
   })

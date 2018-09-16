@@ -10,8 +10,8 @@ package com.kotlinnlp.neuralparser.language
 import com.google.common.collect.HashMultimap
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
-import com.kotlinnlp.dependencytree.Deprel
-import com.kotlinnlp.dependencytree.POSTag
+import com.kotlinnlp.linguisticdescription.POSTag
+import com.kotlinnlp.linguisticdescription.DependencyRelation
 import com.kotlinnlp.utils.DictionarySet
 import java.io.Serializable
 
@@ -52,16 +52,6 @@ class CorpusDictionary : Serializable {
   val words = DictionarySet<String>()
 
   /**
-   * The set of all the possible POS tags.
-   */
-  val posTags = DictionarySet<POSTag>()
-
-  /**
-   * The set of all the possible deprels.
-   */
-  val deprels = DictionarySet<Deprel>()
-
-  /**
    * The map of forms to their possible POS tags.
    */
   val formsToPosTags: HashMultimap<String, POSTag> = HashMultimap.create()
@@ -78,30 +68,9 @@ class CorpusDictionary : Serializable {
    */
   private fun addInfo(token: CoNLLToken) {
 
-    val posTag = POSTag(token.pos)
-    val deprel: Deprel = token.buildDeprel()
-
     this.words.add(token.normalizedForm)
-    this.posTags.add(posTag)
-    this.deprels.add(deprel)
 
-    this.formsToPosTags.put(token.normalizedForm, posTag)
-    this.dependencyRelations.add(DependencyRelation(posTag = posTag, deprel = deprel))
-  }
-
-  /**
-   * @return the deprel of this token
-   */
-  private fun CoNLLToken.buildDeprel(): Deprel {
-
-    val head: Int = checkNotNull(this.head)
-
-    return Deprel(
-      label = this.deprel,
-      direction = when {
-        head == 0 -> Deprel.Direction.ROOT
-        head > this.id -> Deprel.Direction.LEFT // the id follows the incremental order of the CoNLL sentence tokens
-        else -> Deprel.Direction.RIGHT
-      })
+    this.formsToPosTags.put(token.normalizedForm, token.pos)
+    this.dependencyRelations.add(DependencyRelation(posTag = token.pos, deprel = token.deprel))
   }
 }

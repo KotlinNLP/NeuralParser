@@ -14,7 +14,7 @@ import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
 import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
-import com.kotlinnlp.linguisticdescription.sentence.token.properties.DependencyRelation
+import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
 import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.NoFilterSelector
@@ -49,9 +49,9 @@ class ParsingSentence(
       entities = null,
       tokens = this.tokens.map {
         it.toMutableMorphoSyntacticToken(
-          dependencyRelation = DependencyRelation(
+          syntacticRelation = SyntacticRelation(
             governor = dependencyTree.getHead(it.id),
-            deprel = dependencyTree.getDeprel(it.id)?.label ?: "_",
+            dependencyRelation = dependencyTree.getDependencyRelation(it.id)!!,
             attachmentScore = 0.0), // TODO: set it
           morphoDeprelSelector = morphoDeprelSelector
         )

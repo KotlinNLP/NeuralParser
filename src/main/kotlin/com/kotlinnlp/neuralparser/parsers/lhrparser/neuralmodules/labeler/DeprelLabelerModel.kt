@@ -10,7 +10,6 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.LossCriterion
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.LossCriterionType
-import com.kotlinnlp.neuralparser.language.DependencyRelation
 import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerInterface
@@ -29,7 +28,7 @@ import java.io.Serializable
  */
 class DeprelLabelerModel(
   val contextEncodingSize: Int,
-  val dependencyRelations: DictionarySet<DependencyRelation>,
+  val dependencyRelations: DictionarySet<com.kotlinnlp.linguisticdescription.DependencyRelation>,
   val lossCriterionType: LossCriterionType
 ) : Serializable {
 
@@ -78,13 +77,9 @@ class DeprelLabelerModel(
     predictions.forEachIndexed { tokenIndex, prediction ->
 
       val tokenId: Int = goldTree.elements[tokenIndex]
-      val goldDependencyRelation = DependencyRelation(
-        deprel = goldTree.getDeprel(tokenId)!!,
-        posTag = goldTree.getPosTag(tokenId)!!)
-
       val errors: DenseNDArray = LossCriterion(this.lossCriterionType).getPredictionErrors(
         prediction = prediction,
-        goldIndex = this.dependencyRelations.getId(goldDependencyRelation)!!)
+        goldIndex = this.dependencyRelations.getId(goldTree.getDependencyRelation(tokenId)!!)!!)
 
       errorsList.add(errors)
     }
