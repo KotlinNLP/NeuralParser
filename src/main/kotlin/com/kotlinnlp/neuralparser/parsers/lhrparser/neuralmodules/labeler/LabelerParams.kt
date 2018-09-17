@@ -10,8 +10,8 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler
 import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
 
 /**
- * The parameters of the [DeprelLabeler].
+ * The parameters of the [Labeler].
  *
- * @property params the parameters of the deprel classifier
+ * @property params the parameters of the classifier network
  */
-data class DeprelLabelerParams(val params: NetworkParameters)
+data class LabelerParams(val params: NetworkParameters)

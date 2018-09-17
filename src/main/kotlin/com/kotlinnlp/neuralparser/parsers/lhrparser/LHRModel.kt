@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.contextencoder.ContextEncoderModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.HeadsEncoderModel
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.DeprelLabelerModel
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.LabelerModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.LossCriterionType
 import com.kotlinnlp.simplednn.core.arrays.UpdatableDenseArray
 import com.kotlinnlp.simplednn.core.functionalities.initializers.GlorotInitializer
@@ -111,8 +111,8 @@ class LHRModel(
   /**
    * The model of the Labeler.
    */
-  val labelerModel: DeprelLabelerModel? = if (this.useLabeler)
-    DeprelLabelerModel(
+  val labelerModel: LabelerModel? = if (this.useLabeler)
+    LabelerModel(
       contextEncodingSize = this.contextVectorsSize,
       dependencyRelations = corpusDictionary.dependencyRelations,
       lossCriterionType = this.lossCriterionType)

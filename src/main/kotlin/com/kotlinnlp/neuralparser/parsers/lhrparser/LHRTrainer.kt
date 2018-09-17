@@ -11,8 +11,8 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.contextencoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.contextencoder.ContextEncoderOptimizer
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.HeadsEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.HeadsEncoderOptimizer
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.DeprelLabeler
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.DeprelLabelerOptimizer
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.LabelerOptimizer
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.Trainer
@@ -88,8 +88,8 @@ class LHRTrainer(
   /**
    * The builder of the labeler.
    */
-  private val deprelLabeler: DeprelLabeler? = this.parser.model.labelerModel?.let {
-    DeprelLabeler(it, useDropout = true)
+  private val labeler: Labeler? = this.parser.model.labelerModel?.let {
+    Labeler(it, useDropout = true)
   }
 
   /**
@@ -122,8 +122,8 @@ class LHRTrainer(
   /**
    * The optimizer of the labeler (can be null).
    */
-  private val deprelLabelerOptimizer: DeprelLabelerOptimizer? = this.parser.model.labelerModel?.let {
-    DeprelLabelerOptimizer(model = this.parser.model.labelerModel, updateMethod = this.updateMethod)
+  private val labelerOptimizer: LabelerOptimizer? = this.parser.model.labelerModel?.let {
+    LabelerOptimizer(model = this.parser.model.labelerModel, updateMethod = this.updateMethod)
   }
 
   /**
@@ -143,7 +143,7 @@ class LHRTrainer(
   private val optimizers = listOf(
     this.headsEncoderOptimizer,
     this.contextEncoderOptimizer,
-    this.deprelLabelerOptimizer,
+    this.labelerOptimizer,
     this.tokensEncoderOptimizer,
     this.pointerNetworkOptimizer)
 
@@ -217,8 +217,8 @@ class LHRTrainer(
     val lss: LatentSyntacticStructure = this.lssEncoder.encode(sentence)
     val latentHeadsErrors = calculateLatentHeadsErrors(lss, goldTree)
 
-    val labelerErrors: List<DenseNDArray>? = this.deprelLabeler?.let {
-      val labelerPrediction: List<DenseNDArray> = it.forward(DeprelLabeler.Input(lss, goldTree))
+    val labelerErrors: List<DenseNDArray>? = this.labeler?.let {
+      val labelerPrediction: List<DenseNDArray> = it.forward(Labeler.Input(lss, goldTree))
       this.parser.model.labelerModel?.calculateLoss(labelerPrediction, goldTree)
     }
 
@@ -292,7 +292,7 @@ class LHRTrainer(
 
     contextErrors.assignSum(headsEncoderInputErrors)
 
-    this.deprelLabeler?.propagateErrors(labelerErrors!!, this.deprelLabelerOptimizer!!)?.let { labelerInputErrors ->
+    this.labeler?.propagateErrors(labelerErrors!!, this.labelerOptimizer!!)?.let { labelerInputErrors ->
       contextErrors.assignSum(labelerInputErrors.contextErrors)
       this.propagateRootErrors(labelerInputErrors.rootErrors)
     }

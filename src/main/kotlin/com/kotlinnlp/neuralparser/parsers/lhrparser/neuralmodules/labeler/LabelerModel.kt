@@ -20,13 +20,13 @@ import com.kotlinnlp.utils.DictionarySet
 import java.io.Serializable
 
 /**
- * The model of the [DeprelLabeler].
+ * The model of the [Labeler].
  *
  * @property contextEncodingSize the size of the token encoding vectors
- * @property dependencyRelations the dictionary set of all the possible dependency relations
+ * @property dependencyRelations the dictionary set of all the possible grammatical configurations
  * @property lossCriterionType the training mode
  */
-class DeprelLabelerModel(
+class LabelerModel(
   val contextEncodingSize: Int,
   val dependencyRelations: DictionarySet<com.kotlinnlp.linguisticdescription.DependencyRelation>,
   val lossCriterionType: LossCriterionType
@@ -42,7 +42,7 @@ class DeprelLabelerModel(
   }
 
   /**
-   * The Network model that predicts the Deprels
+   * The Network model that predicts the grammatical configurations.
    */
   val networkModel: NeuralNetwork = NeuralNetwork(
     LayerInterface(sizes = listOf(this.contextEncodingSize, this.contextEncodingSize)),
@@ -63,7 +63,7 @@ class DeprelLabelerModel(
 
   /**
    * Return the errors of a given labeler predictions, respect to a gold dependency tree.
-   * Errors are calculated comparing the last predictions done with the given gold deprels.
+   * Errors are calculated comparing the last predictions done with the given gold grammatical configurations.
    *
    * @param predictions the current network predictions
    * @param goldTree the gold tree of the sentence

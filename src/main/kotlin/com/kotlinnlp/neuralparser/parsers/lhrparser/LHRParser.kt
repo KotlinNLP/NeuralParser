@@ -12,7 +12,7 @@ import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.contextencoder.ContextEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.HeadsEncoder
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.DeprelLabeler
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.decoders.CosineDecoder
@@ -41,14 +41,14 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
   /**
    * The builder of the labeler.
    */
-  private val deprelLabeler: DeprelLabeler? = this.model.labelerModel?.let {
-    DeprelLabeler(it, useDropout = false)
+  private val labeler: Labeler? = this.model.labelerModel?.let {
+    Labeler(it, useDropout = false)
   }
 
   /**
    * Parse a sentence, returning its dependency tree.
    * The dependency tree is obtained by decoding a latent syntactic structure.
-   * If the labeler is available, the dependency tree can contains deprel and posTag annotations.
+   * If the labeler is available, the dependency tree could contain grammatical information.
    *
    * @param sentence a parsing sentence
    *
@@ -61,7 +61,7 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
     val dependencyTree: DependencyTree = DependencyTreeBuilder(
       lss = lss,
       scoresMap = CosineDecoder().decode(lss),
-      deprelLabeler = this.deprelLabeler,
+      labeler = this.labeler,
       constraints = this.constraints,
       morphoDeprelSelector = this.model.morphoDeprelSelector,
       labelerScoreThreshold = this.model.labelerScoreThreshold

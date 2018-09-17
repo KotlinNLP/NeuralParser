@@ -15,10 +15,10 @@ import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
  * @param updateMethod the update method helper (Learning Rate, ADAM, AdaGrad, ...)
  * @param model the model of this optimizer
  */
-class DeprelLabelerOptimizer(
-  private val model: DeprelLabelerModel,
+class LabelerOptimizer(
+  private val model: LabelerModel,
   updateMethod: UpdateMethod<*>
-) : Optimizer<DeprelLabelerParams>(
+) : Optimizer<LabelerParams>(
   updateMethod = updateMethod
 ) {
 
@@ -41,7 +41,7 @@ class DeprelLabelerOptimizer(
    * @param copy a Boolean indicating if the [paramsErrors] can be used as reference or must be copied. Set copy = false
    *             to optimize the accumulation when the amount of the errors to accumulate is 1. (default = true)
    */
-  override fun accumulate(paramsErrors: DeprelLabelerParams, copy: Boolean) {
+  override fun accumulate(paramsErrors: LabelerParams, copy: Boolean) {
 
     this.optimizer.accumulate(paramsErrors = paramsErrors.params, copy = copy)
   }

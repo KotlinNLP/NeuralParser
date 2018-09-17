@@ -24,17 +24,16 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
  * @property useDropout whether to apply the dropout during the forward
  * @property id an identification number useful to track a specific encoder
  */
-class DeprelLabeler(
-  private val model: DeprelLabelerModel,
+class Labeler(
+  private val model: LabelerModel,
   override val useDropout: Boolean,
   override val id: Int = 0
 ) : NeuralProcessor<
-  DeprelLabeler.Input, // InputType
+  Labeler.Input, // InputType
   List<DenseNDArray>, // OutputType
   List<DenseNDArray>, // ErrorsType
-  DeprelLabeler.InputErrors, // InputErrorsType
-  DeprelLabelerParams // ParamsType
-  > {
+  Labeler.InputErrors, // InputErrorsType
+  LabelerParams> { // ParamsType
 
   /**
    * The input of this labeler.
@@ -60,7 +59,7 @@ class DeprelLabeler(
     val contextErrors: List<DenseNDArray>)
 
   /**
-   * The processor that classify the deprels.
+   * The processor that classify the grammar of a token.
    */
   private val processor = BatchFeedforwardProcessor<DenseNDArray>(
     neuralNetwork = this.model.networkModel,
@@ -73,11 +72,11 @@ class DeprelLabeler(
   private lateinit var dependencyTree: DependencyTree
 
   /**
-   * Score the possible deprels of each token of a given input.
+   * Score the possible grammatical configurations of each token of a given input.
    *
-   * @param input a [DeprelLabeler] input
+   * @param input a [Labeler] input
    *
-   * @return the list of possible deprels of each input token, sorted by descending score
+   * @return the list of possible grammatical configurations of each input token, sorted by descending score
    */
   fun predict(input: Input): List<List<ScoredDeprel>> = this.forward(input).map { prediction ->
     (0 until prediction.length)
@@ -88,7 +87,7 @@ class DeprelLabeler(
   /**
    * Return the network outcomes for each token.
    *
-   * @param input a [DeprelLabeler] input
+   * @param input a [Labeler] input
    *
    * @return the network outcomes for each token
    */
@@ -142,9 +141,9 @@ class DeprelLabeler(
   /**
    * @param copy a Boolean indicating whether the returned errors must be a copy or a reference
    *
-   * @return the errors of the [DeprelLabeler] parameters
+   * @return the errors of the [Labeler] parameters
    */
-  override fun getParamsErrors(copy: Boolean) = DeprelLabelerParams(this.processor.getParamsErrors(copy = copy))
+  override fun getParamsErrors(copy: Boolean) = LabelerParams(this.processor.getParamsErrors(copy = copy))
 
   /**
    * @param index a prediction index

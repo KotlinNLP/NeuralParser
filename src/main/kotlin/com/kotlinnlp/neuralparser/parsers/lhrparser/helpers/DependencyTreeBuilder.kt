@@ -14,7 +14,7 @@ import com.kotlinnlp.linguisticdescription.DependencyRelation
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.DeprelLabeler
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
 import com.kotlinnlp.neuralparser.utils.notEmptyOr
 
@@ -23,7 +23,7 @@ import com.kotlinnlp.neuralparser.utils.notEmptyOr
  * the related labels with a greedy approach through a beam of parallel states.
  *
  * @param lss the latent syntactic structure of the input sentence
- * @param deprelLabeler a deprel labeler (can be null)
+ * @param labeler a classifier of grammatical configurations (can be null)
  * @param constraints a list of linguistic constraints (can be null)
  * @param morphoDeprelSelector a morpho-deprel selector used to build a [MorphoSyntacticToken]
  * @param labelerScoreThreshold the score threshold above which to consider a labeler output valid
@@ -34,7 +34,7 @@ import com.kotlinnlp.neuralparser.utils.notEmptyOr
 internal class DependencyTreeBuilder(
   private val lss: LatentSyntacticStructure,
   private val scoresMap: ArcScores,
-  private val deprelLabeler: DeprelLabeler?,
+  private val labeler: Labeler?,
   private val constraints: List<Constraint>?,
   private val morphoDeprelSelector: MorphoDeprelSelector,
   private val labelerScoreThreshold: Double,
@@ -103,7 +103,7 @@ internal class DependencyTreeBuilder(
 
       if (!this.tree.hasSingleRoot()) this.isValid = false
 
-      if (this.isValid) deprelLabeler?.let { this.tree.assignLabels() }
+      if (this.isValid) labeler?.let { this.tree.assignLabels() }
     }
   }
 
@@ -134,7 +134,7 @@ internal class DependencyTreeBuilder(
     DependencyTree(lss.sentence.tokens.map { it.id }).apply {
       assignBestHeads()
       fixCycles()
-      deprelLabeler?.let { assignLabels() }
+      labeler?.let { assignLabels() }
     }
 
   /**
@@ -197,7 +197,7 @@ internal class DependencyTreeBuilder(
    */
   private fun DependencyTree.buildDeprelsMap(): Map<Int, List<ScoredDeprel>> =
 
-    deprelLabeler!!.predict(DeprelLabeler.Input(lss, this)).withIndex().associate { (tokenIndex, deprels) ->
+    labeler!!.predict(Labeler.Input(lss, this)).withIndex().associate { (tokenIndex, deprels) ->
 
       val tokenId: Int = this.elements[tokenIndex]
       val validDeprels: List<ScoredDeprel> = morphoDeprelSelector.getValidDeprels(
