@@ -179,14 +179,14 @@ internal class DependencyTreeBuilder(
 
     constraints?.let {
       try {
-        DeprelConstraintSolver(
+        ConstraintsSolver(
           sentence = lss.sentence,
           dependencyTree = this,
           constraints = it,
           morphoDeprelSelector = morphoDeprelSelector,
           scoresMap = deprelsMap
         ).solve()
-      } catch (e: DeprelConstraintSolver.InvalidConfiguration) {
+      } catch (e: ConstraintsSolver.InvalidConfiguration) {
         applyBestConfiguration()
       }
     } ?: applyBestConfiguration()

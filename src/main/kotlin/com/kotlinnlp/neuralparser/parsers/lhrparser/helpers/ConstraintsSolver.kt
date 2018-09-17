@@ -17,8 +17,8 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
 
 /**
- * A helper that finds the best configuration of the deprels of a dependency tree given all the possible scored deprels
- * for each token.
+ * A helper that finds the best configuration of the labels of a dependency tree given the probability distribution of
+ * the grammatical configurations for each token.
  *
  * @param sentence a parsing sentence
  * @param dependencyTree the dependency tree of the given sentence
@@ -29,7 +29,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.
  * @param maxForkSize the max number of forks that can be generated from a state
  * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion)
  */
-internal class DeprelConstraintSolver(
+internal class ConstraintsSolver(
   private val sentence: ParsingSentence,
   private val dependencyTree: DependencyTree,
   private val constraints: List<Constraint>,
@@ -38,8 +38,8 @@ internal class DeprelConstraintSolver(
   maxBeamSize: Int = 5,
   maxForkSize: Int = 3,
   maxIterations: Int = 10
-) : BeamManager<DeprelConstraintSolver.DeprelValue, DeprelConstraintSolver.DeprelState>(
-  valuesMap = scoresMap.mapValues { (_, deprels) -> deprels.map { DeprelValue(it) }.sortedByDescending { it.score } },
+) : BeamManager<ConstraintsSolver.GrammarValue, ConstraintsSolver.GrammarState>(
+  valuesMap = scoresMap.mapValues { (_, grammar) -> grammar.map { GrammarValue(it) }.sortedByDescending { it.score } },
   maxBeamSize = maxBeamSize,
   maxForkSize = maxForkSize,
   maxIterations = maxIterations
@@ -51,24 +51,24 @@ internal class DeprelConstraintSolver(
   class InvalidConfiguration : RuntimeException()
 
   /**
-   * A value containing a deprel.
+   * A value containing a grammatical configuration.
    *
-   * @property deprel a scored deprel
+   * @property grammar a scored grammatical configuration
    */
-  internal data class DeprelValue(var deprel: ScoredDeprel) : Value() {
+  internal data class GrammarValue(var grammar: ScoredDeprel) : Value() {
 
     /**
      * The score of this value.
      */
-    override var score: Double = this.deprel.score
+    override var score: Double = this.grammar.score
   }
 
   /**
-   * The state that represents a configuration of deprels for the [dependencyTree].
+   * The state that represents a grammatical configuration of the [dependencyTree].
    *
    * @param elements the list of elements in this state, sorted by diff score
    */
-  internal inner class DeprelState(elements: List<StateElement<DeprelValue>>) : State(elements) {
+  internal inner class GrammarState(elements: List<StateElement<GrammarValue>>) : State(elements) {
 
     /**
      * The global score of the state.
@@ -96,7 +96,7 @@ internal class DeprelConstraintSolver(
      */
     private fun applyConstraints() {
 
-      applyDeprels(this)
+      applyConfiguration(this)
 
       val tokens: List<MorphoSyntacticToken> = sentence.tokens.map { it.toMorphoSyntactic() }
       val tokensMap: Map<Int, MorphoSyntacticToken> = tokens.associateBy { it.id }
@@ -109,7 +109,7 @@ internal class DeprelConstraintSolver(
 
           if (!isVerified) {
             if (constraint.isHard) this.isValid = false
-            it.value.deprel = it.value.deprel.copy(score = it.value.score * constraint.penalty)
+            it.value.grammar = it.value.grammar.copy(score = it.value.score * constraint.penalty)
           }
         }
       }
@@ -130,14 +130,14 @@ internal class DeprelConstraintSolver(
   }
 
   /**
-   * Find the best configuration of deprels for the given [dependencyTree] that does not violates any hard constraint,
+   * Find the best grammatical configuration for the given [dependencyTree] that does not violates any hard constraint,
    * using the given scores map.
    *
-   * @throws InvalidConfiguration if all the possible deprels configurations violate a hard constraint
+   * @throws InvalidConfiguration if all the possible configurations violate a hard constraint
    */
   fun solve() {
 
-    this.findBestConfiguration()?.let { this.applyDeprels(it) } ?: throw InvalidConfiguration()
+    this.findBestConfiguration()?.let { this.applyConfiguration(it) } ?: throw InvalidConfiguration()
   }
 
   /**
@@ -147,17 +147,17 @@ internal class DeprelConstraintSolver(
    *
    * @return a new state with the given elements
    */
-  override fun buildState(elements: List<StateElement<DeprelValue>>): DeprelState = DeprelState(elements)
+  override fun buildState(elements: List<StateElement<GrammarValue>>): GrammarState = GrammarState(elements)
 
   /**
-   * Set the deprels of the given state into the [dependencyTree].
+   * Set the grammatical configuration of the given state into the [dependencyTree].
    *
    * @param state a state
    */
-  private fun applyDeprels(state: DeprelState) {
+  private fun applyConfiguration(state: GrammarState) {
 
     state.elements.forEach {
-      this.dependencyTree.setDependencyRelation(dependent = it.id, deprel = it.value.deprel.value)
+      this.dependencyTree.setDependencyRelation(dependent = it.id, deprel = it.value.grammar.value)
     }
 
     this.dependencyTree.score = state.score
