@@ -23,5 +23,5 @@ object PosTagKeyExtractor : EmbeddingKeyExtractor {
   private const val serialVersionUID: Long = 1L
 
   override fun getKey(sentence: Sentence<*>, tokenId: Int): String =
-    (sentence.tokens[tokenId] as ParsingToken).posTag ?: "_"
+    (sentence.tokens[tokenId] as ParsingToken).pos?.toString() ?: "_"
 }

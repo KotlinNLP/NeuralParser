@@ -45,7 +45,7 @@ class CoNLLDependencyParser(
 
       it.copy(
         head = parsedToken.syntacticRelation.governor ?: 0, // the CoNLL root ID is 0
-        deprel = parsedToken.syntacticRelation.grammaticalConfiguration.deprel)
+        deprel = parsedToken.syntacticRelation.dependency)
     })
   }
 }

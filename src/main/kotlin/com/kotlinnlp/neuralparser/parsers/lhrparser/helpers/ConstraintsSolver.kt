@@ -10,7 +10,6 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
-import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
@@ -121,12 +120,10 @@ internal class ConstraintsSolver(
      * @return a new morpho-syntactic token built from this
      */
     private fun ParsingToken.toMorphoSyntactic(): MorphoSyntacticToken = this.toMutableMorphoSyntacticToken(
-      syntacticRelation = SyntacticRelation(
-        governor = dependencyTree.getHead(this.id),
-        grammaticalConfiguration = dependencyTree.getGrammaticalConfiguration(this.id)!!,
-        attachmentScore = 0.0),
-      morphoDeprelSelector = morphoDeprelSelector
-    )
+      governorId = dependencyTree.getHead(this.id),
+      attachmentScore = 0.0,
+      grammaticalConfiguration = dependencyTree.getGrammaticalConfiguration(this.id)!!,
+      morphoDeprelSelector = morphoDeprelSelector)
   }
 
   /**

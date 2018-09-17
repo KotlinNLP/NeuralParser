@@ -8,6 +8,7 @@
 package training
 
 import buildSentencePreprocessor
+import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
@@ -263,7 +264,9 @@ private fun buildTokensEncoderWrapperModel(
 /**
  * A concrete [MorphoToken] class.
  */
-private class MorphoTokenClass(override val morphologies: List<Morphology>) : MorphoToken
+private class MorphoTokenClass(override val morphologies: List<Morphology>) : MorphoToken {
+  override val pos: POSTag? = null
+}
 
 /**
  * A concrete [MorphoSentence] class.

@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser.language
 
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
@@ -21,37 +22,47 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprel
  * @property id the id of the token, unique within its sentence
  * @property form the form
  * @property morphologies the list of possible morphologies of the token
- * @property posTag the best part-of-speech tags associated to the token (can be null)
+ * @property pos the best part-of-speech tags associated to the token (can be null)
  * @param position the position of the token in the text (null if it is a trace)
  */
 data class ParsingToken(
   override val id: Int,
   override val form: String,
   override val morphologies: List<Morphology>,
-  val posTag: POSTag? = null, // TODO: find a better solution
+  override val pos: POSTag? = null, // TODO: find a better solution
   private val position: Position?
 ) : MorphoToken, FormToken, TokenIdentificable {
 
   /**
-   * @param syntacticRelation the syntactic relation of this token
+   * @param governorId the governor id
+   * @param attachmentScore the attachment score
+   * @param grammaticalConfiguration the grammatical configuration of this token
    * @param morphoDeprelSelector the morphology and deprel selector
    *
    * @return a new morpho syntactic token
    */
-  fun toMutableMorphoSyntacticToken(syntacticRelation: SyntacticRelation,
+  fun toMutableMorphoSyntacticToken(governorId: Int?,
+                                    attachmentScore: Double,
+                                    grammaticalConfiguration: GrammaticalConfiguration,
                                     morphoDeprelSelector: MorphoDeprelSelector): MutableMorphoSyntacticToken {
 
     val morphologies: List<ScoredMorphology> = morphoDeprelSelector.getValidMorphologies(
       token = this,
       morphologies = this.morphologies,
-      grammaticalConfiguration = syntacticRelation.grammaticalConfiguration
+      grammaticalConfiguration = grammaticalConfiguration
     ).map { ScoredMorphology(type = it.type, list = it.list, score = 0.0) } // TODO: set the score?
+
+    val syntacticRelation = SyntacticRelation(
+      governor = governorId,
+      attachmentScore = attachmentScore,
+      dependency = grammaticalConfiguration.deprel)
 
     return if (this.position != null)
       Word(
         id = this.id,
         form = this.form,
         position = this.position,
+        pos = pos,
         morphologies = morphologies,
         syntacticRelation = syntacticRelation,
         coReferences = null, // TODO: set it
@@ -60,6 +71,7 @@ data class ParsingToken(
       WordTrace(
         id = this.id,
         form = this.form,
+        pos = pos,
         morphologies = morphologies,
         syntacticRelation = syntacticRelation,
         coReferences = null, // TODO: set it
