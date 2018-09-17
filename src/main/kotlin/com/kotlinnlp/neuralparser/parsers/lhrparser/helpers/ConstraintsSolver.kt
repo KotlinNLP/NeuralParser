@@ -123,7 +123,7 @@ internal class ConstraintsSolver(
     private fun ParsingToken.toMorphoSyntactic(): MorphoSyntacticToken = this.toMutableMorphoSyntacticToken(
       syntacticRelation = SyntacticRelation(
         governor = dependencyTree.getHead(this.id),
-        dependencyRelation = dependencyTree.getDependencyRelation(this.id)!!,
+        grammaticalConfiguration = dependencyTree.getGrammaticalConfiguration(this.id)!!,
         attachmentScore = 0.0),
       morphoDeprelSelector = morphoDeprelSelector
     )
@@ -157,7 +157,7 @@ internal class ConstraintsSolver(
   private fun applyConfiguration(state: GrammarState) {
 
     state.elements.forEach {
-      this.dependencyTree.setDependencyRelation(dependent = it.id, deprel = it.value.grammar.value)
+      this.dependencyTree.setGrammaticalConfiguration(dependent = it.id, deprel = it.value.grammar.value)
     }
 
     this.dependencyTree.score = state.score

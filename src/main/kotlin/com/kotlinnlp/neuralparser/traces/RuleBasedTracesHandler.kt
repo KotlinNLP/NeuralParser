@@ -8,7 +8,7 @@
 package com.kotlinnlp.neuralparser.traces
 
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.DependencyRelation
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.Deprel
 import com.kotlinnlp.linguisticdescription.morphology.*
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
@@ -48,7 +48,7 @@ class RuleBasedTracesHandler(private val corefHelpers: List<CorefHelper>) : Trac
             morphologies = this.makeTraceMorphology(),
             syntacticRelation = SyntacticRelation(
               governor = token.id,
-              dependencyRelation = DependencyRelation(deprel = Deprel(labels = listOf("SUBJ"))), // TODO: set deprel
+              grammaticalConfiguration = GrammaticalConfiguration(deprel = Deprel(labels = listOf("SUBJ"))), // TODO: set deprel
               attachmentScore = 0.0),
             coReferences = null,
             semanticRelations = null))

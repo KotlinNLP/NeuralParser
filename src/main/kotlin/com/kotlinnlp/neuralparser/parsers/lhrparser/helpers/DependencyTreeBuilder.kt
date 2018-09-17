@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.dependencytree.CycleDetectedError
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.DependencyRelation
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
@@ -172,9 +172,9 @@ internal class DependencyTreeBuilder(
     val deprelsMap: Map<Int, List<ScoredDeprel>> = this.buildDeprelsMap()
 
     fun applyBestConfiguration() = deprelsMap.forEach { tokenId, deprels ->
-      this.setDependencyRelation(
+      this.setGrammaticalConfiguration(
         dependent = tokenId,
-        dependencyRelation = DependencyRelation(deprel = deprels.first().value))
+        grammaticalConfiguration = GrammaticalConfiguration(deprel = deprels.first().value))
     }
 
     constraints?.let {

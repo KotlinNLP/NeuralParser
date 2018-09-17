@@ -11,7 +11,7 @@ import com.google.common.collect.HashMultimap
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.linguisticdescription.POSTag
-import com.kotlinnlp.linguisticdescription.DependencyRelation
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.utils.DictionarySet
 import java.io.Serializable
 
@@ -57,9 +57,9 @@ class CorpusDictionary : Serializable {
   val formsToPosTags: HashMultimap<String, POSTag> = HashMultimap.create()
 
   /**
-   * The dictionary set of all the possible dependency relations.
+   * The dictionary set of all the possible grammatical configurations.
    */
-  val dependencyRelations = DictionarySet<DependencyRelation>()
+  val grammaticalConfigurations = DictionarySet<GrammaticalConfiguration>()
 
   /**
    * Add the info of a given [token] into this dictionary.
@@ -71,6 +71,6 @@ class CorpusDictionary : Serializable {
     this.words.add(token.normalizedForm)
 
     this.formsToPosTags.put(token.normalizedForm, token.pos)
-    this.dependencyRelations.add(DependencyRelation(posTag = token.pos, deprel = token.deprel))
+    this.grammaticalConfigurations.add(GrammaticalConfiguration(posTag = token.pos, deprel = token.deprel))
   }
 }

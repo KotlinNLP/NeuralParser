@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler
 
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.LossCriterion
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.LossCriterionType
 import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
@@ -23,12 +24,12 @@ import java.io.Serializable
  * The model of the [Labeler].
  *
  * @property contextEncodingSize the size of the token encoding vectors
- * @property dependencyRelations the dictionary set of all the possible grammatical configurations
+ * @property grammaticalConfigurations the dictionary set of all the possible grammatical configurations
  * @property lossCriterionType the training mode
  */
 class LabelerModel(
   val contextEncodingSize: Int,
-  val dependencyRelations: DictionarySet<com.kotlinnlp.linguisticdescription.DependencyRelation>,
+  val grammaticalConfigurations: DictionarySet<GrammaticalConfiguration>,
   val lossCriterionType: LossCriterionType
 ) : Serializable {
 
@@ -52,7 +53,7 @@ class LabelerModel(
       activationFunction = Tanh()),
     LayerInterface(
       type = LayerType.Input.Dense,
-      size = this.dependencyRelations.size,
+      size = this.grammaticalConfigurations.size,
       dropout = 0.0,
       connectionType = LayerType.Connection.Feedforward,
       activationFunction = when (this.lossCriterionType) {
@@ -79,7 +80,7 @@ class LabelerModel(
       val tokenId: Int = goldTree.elements[tokenIndex]
       val errors: DenseNDArray = LossCriterion(this.lossCriterionType).getPredictionErrors(
         prediction = prediction,
-        goldIndex = this.dependencyRelations.getId(goldTree.getDependencyRelation(tokenId)!!)!!)
+        goldIndex = this.grammaticalConfigurations.getId(goldTree.getGrammaticalConfiguration(tokenId)!!)!!)
 
       errorsList.add(errors)
     }

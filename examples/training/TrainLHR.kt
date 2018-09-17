@@ -161,7 +161,7 @@ private fun buildTokensEncoderWrapperModel(
       val posEmbeddingsMap = EmbeddingsMapByDictionary(
         size = parsedArgs.posEmbeddingSize,
         dictionary = DictionarySet(
-          corpus.dependencyRelations.getElements().mapNotNull { it.posTag?.labels?.joinToString("+") }))
+          corpus.grammaticalConfigurations.getElements().mapNotNull { it.posTag?.labels?.joinToString("+") }))
 
       TokensEncoderWrapperModel(
         model = EnsembleTokensEncoderModel(
@@ -200,7 +200,7 @@ private fun buildTokensEncoderWrapperModel(
       val posEmbeddingsMap = EmbeddingsMapByDictionary(
         size = parsedArgs.posEmbeddingSize,
         dictionary = DictionarySet(
-          corpus.dependencyRelations.getElements().mapNotNull { it.posTag?.labels?.joinToString("+") }))
+          corpus.grammaticalConfigurations.getElements().mapNotNull { it.posTag?.labels?.joinToString("+") }))
 
       TokensEncoderWrapperModel(
         model = EnsembleTokensEncoderModel(

@@ -51,7 +51,7 @@ class ParsingSentence(
         it.toMutableMorphoSyntacticToken(
           syntacticRelation = SyntacticRelation(
             governor = dependencyTree.getHead(it.id),
-            dependencyRelation = dependencyTree.getDependencyRelation(it.id)!!,
+            grammaticalConfiguration = dependencyTree.getGrammaticalConfiguration(it.id)!!,
             attachmentScore = 0.0), // TODO: set it
           morphoDeprelSelector = morphoDeprelSelector
         )

@@ -44,7 +44,7 @@ data class ParsingToken(
     val morphologies: List<ScoredMorphology> = morphoDeprelSelector.getValidMorphologies(
       token = this,
       morphologies = this.morphologies,
-      dependencyRelation = syntacticRelation.dependencyRelation
+      grammaticalConfiguration = syntacticRelation.grammaticalConfiguration
     ).map { ScoredMorphology(type = it.type, list = it.list, score = 0.0) } // TODO: set the score?
 
     return if (this.position != null)

@@ -76,7 +76,7 @@ class LHRModel(
   /**
    * The score threshold above which to consider a labeler output valid.
    */
-  val labelerScoreThreshold = 1.0 / corpusDictionary.dependencyRelations.size
+  val labelerScoreThreshold = 1.0 / corpusDictionary.grammaticalConfigurations.size
 
   /**
    * The model of the ContextEncoder.
@@ -114,7 +114,7 @@ class LHRModel(
   val labelerModel: LabelerModel? = if (this.useLabeler)
     LabelerModel(
       contextEncodingSize = this.contextVectorsSize,
-      dependencyRelations = corpusDictionary.dependencyRelations,
+      grammaticalConfigurations = corpusDictionary.grammaticalConfigurations,
       lossCriterionType = this.lossCriterionType)
   else
     null

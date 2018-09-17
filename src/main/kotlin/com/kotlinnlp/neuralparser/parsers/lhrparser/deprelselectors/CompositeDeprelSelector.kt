@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors
 
-import com.kotlinnlp.linguisticdescription.DependencyRelation
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.Deprel
 import com.kotlinnlp.linguisticdescription.morphology.*
 import com.kotlinnlp.neuralparser.language.ParsingSentence
@@ -39,7 +39,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
      * @param tokenIndex the index of the token to which the deprel must be assigned
      * @param headIndex the index of the token head (can be null)
      *
-     * @return the deprel direction related to the given dependency relation
+     * @return the deprel direction related to the given grammatical configuration
      */
     private fun getDeprelDirection(tokenIndex: Int, headIndex: Int?): Deprel.Direction =
       headIndex?.let { if (tokenIndex < headIndex) Deprel.Direction.LEFT else Deprel.Direction.RIGHT }
@@ -86,15 +86,15 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    *
    * @param token a parsing token
    * @param morphologies the list of possible morphologies of the token
-   * @param dependencyRelation the dependency relation of the token
+   * @param grammaticalConfiguration the grammatical configuration of the token
    *
    * @return the morphologies compatible with the given deprel
    */
   override fun getValidMorphologies(token: ParsingToken,
                                     morphologies: List<Morphology>,
-                                    dependencyRelation: DependencyRelation): List<Morphology> {
+                                    grammaticalConfiguration: GrammaticalConfiguration): List<Morphology> {
 
-    val posTags: List<String> = dependencyRelation.posTag?.labels ?: listOf()
+    val posTags: List<String> = grammaticalConfiguration.posTag?.labels ?: listOf()
     val possibleMorphologies: List<Morphology> = morphologies.filter {
       it.list.map { it.pos.baseAnnotation } == posTags
     }
@@ -147,22 +147,10 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    */
   private fun Morphology.buildDeprel(tokenIndex: Int, headIndex: Int?, score: Double) = ScoredDeprel(
     value = Deprel(
-      label = this.buildDeprelLabel(topToken = headIndex == null),
+      labels = listOf("TOP") + (1 until this.list.size).map { "UNKNOWN" },
       direction = getDeprelDirection(tokenIndex = tokenIndex, headIndex = headIndex)),
     score = score
   )
-
-  /**
-   * Build a label for a unknown deprel using the POS tags of this morphology.
-   *
-   * @param topToken whether the token to which this deprel is associated is the top of the sentence
-   *
-   * @return a [Deprel] label
-   */
-  private fun Morphology.buildDeprelLabel(topToken: Boolean): String =
-    this.list
-      .mapIndexed { i, it -> it.pos.baseAnnotation + "~" + if (i == 0 && topToken) "TOP" else "UNKNOWN" }
-      .joinToString("+")
 
   /**
    * @return whether this deprel defines a content word with a single morphology
@@ -173,9 +161,4 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
 
     return posTags.size == 1 && POS.byBaseAnnotation(posTags.first()).isContentWord
   }
-
-  /**
-   * @return the list of POS tags annotated in the label of this deprel
-   */
-  private fun String.extractPosTags(): List<String> = this.split("+").map { it.split("~").first() }
 }

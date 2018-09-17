@@ -36,7 +36,7 @@ fun MorphoSyntacticSentence.missingRequiredSubject(token: MorphoSyntacticToken):
  */
 fun MorphoSyntacticSentence.getIObj(token: MorphoSyntacticToken): MutableMorphoSyntacticToken? =
   this.getDependents(token.id).firstOrNull {
-    it.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.IndirectObject.baseAnnotation) }
+    it.syntacticRelation.grammaticalConfiguration.deprel.labels.any { it.contains(SyntaxType.IndirectObject.baseAnnotation) }
   }
 
 /**
@@ -44,7 +44,7 @@ fun MorphoSyntacticSentence.getIObj(token: MorphoSyntacticToken): MutableMorphoS
  */
 fun MorphoSyntacticSentence.getObj(token: MorphoSyntacticToken): MutableMorphoSyntacticToken? =
   this.getDependents(token.id).firstOrNull {
-    it.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.Object.baseAnnotation) }
+    it.syntacticRelation.grammaticalConfiguration.deprel.labels.any { it.contains(SyntaxType.Object.baseAnnotation) }
   }
 
 /**
@@ -52,7 +52,7 @@ fun MorphoSyntacticSentence.getObj(token: MorphoSyntacticToken): MutableMorphoSy
  */
 fun MorphoSyntacticSentence.getSubj(token: MorphoSyntacticToken): MutableMorphoSyntacticToken? =
   this.getDependents(token.id).firstOrNull {
-    it.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.Subject.baseAnnotation) }
+    it.syntacticRelation.grammaticalConfiguration.deprel.labels.any { it.contains(SyntaxType.Subject.baseAnnotation) }
   }
 
 /**
@@ -114,25 +114,25 @@ val MorphoSyntacticToken.isVerbExplicit: Boolean get() = this.mainMorphology.let
  * TODO: find a better solution to match the deprel
  */
 val MorphoSyntacticToken.isAux: Boolean get() =
-  this.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.AuxTense.annotation) }
+  this.syntacticRelation.grammaticalConfiguration.deprel.labels.any { it.contains(SyntaxType.AuxTense.annotation) }
 
 /**
  * TODO: find a better solution to match the deprel
  */
 val MorphoSyntacticToken.isNeg: Boolean get() =
-  this.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.RModNeg.annotation) }
+  this.syntacticRelation.grammaticalConfiguration.deprel.labels.any { it.contains(SyntaxType.RModNeg.annotation) }
 
 /**
  * TODO: find a better solution to match the deprel
  */
 val MorphoSyntacticToken.isCoord2Nd: Boolean get() =
-  this.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.Coord2Nd.annotation) }
+  this.syntacticRelation.grammaticalConfiguration.deprel.labels.any { it.contains(SyntaxType.Coord2Nd.annotation) }
 
 /**
  * TODO: find a better solution to match the deprel
  */
 val MorphoSyntacticToken.isRMod: Boolean get() =
-  this.syntacticRelation.dependencyRelation.deprel.labels.any { it.contains(SyntaxType.RMod.annotation) }
+  this.syntacticRelation.grammaticalConfiguration.deprel.labels.any { it.contains(SyntaxType.RMod.annotation) }
 
 /**
  * TODO: find a better way to get the main token morphology
@@ -146,10 +146,10 @@ fun MorphoSyntacticSentence.toDependencyTree() = DependencyTree(
   elements = this.tokens.map { it.id },
   dependencies = this.tokens.map {
     if (it.syntacticRelation.governor == null)
-      RootConfiguration(id = it.id, deprel = it.syntacticRelation.dependencyRelation.deprel)
+      RootConfiguration(id = it.id, deprel = it.syntacticRelation.grammaticalConfiguration.deprel)
     else
       ArcConfiguration(
         dependent = it.id,
         governor = it.syntacticRelation.governor!!,
-        deprel = it.syntacticRelation.dependencyRelation.deprel)
+        deprel = it.syntacticRelation.grammaticalConfiguration.deprel)
   })
