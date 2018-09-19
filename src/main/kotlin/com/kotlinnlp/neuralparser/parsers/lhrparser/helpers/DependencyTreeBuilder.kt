@@ -10,12 +10,11 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.dependencytree.CycleDetectedError
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 import com.kotlinnlp.neuralparser.utils.notEmptyOr
 
 /**
@@ -169,12 +168,10 @@ internal class DependencyTreeBuilder(
    */
   private fun DependencyTree.assignLabels() {
 
-    val deprelsMap: Map<Int, List<ScoredDeprel>> = this.buildDeprelsMap()
+    val configMap: Map<Int, List<ScoredGrammar>> = this.buildConfigurationsMap()
 
-    fun applyBestConfiguration() = deprelsMap.forEach { tokenId, deprels ->
-      this.setGrammaticalConfiguration(
-        dependent = tokenId,
-        grammaticalConfiguration = GrammaticalConfiguration(deprel = deprels.first().value))
+    fun applyBestConfiguration() = configMap.forEach { tokenId, configurations ->
+      this.setGrammaticalConfiguration(dependent = tokenId, configuration = configurations.first().config)
     }
 
     constraints?.let {
@@ -184,7 +181,7 @@ internal class DependencyTreeBuilder(
           dependencyTree = this,
           constraints = it,
           morphoDeprelSelector = morphoDeprelSelector,
-          scoresMap = deprelsMap
+          scoresMap = configMap
         ).solve()
       } catch (e: ConstraintsSolver.InvalidConfiguration) {
         applyBestConfiguration()
@@ -193,15 +190,15 @@ internal class DependencyTreeBuilder(
   }
 
   /**
-   * @return a map of valid deprels (sorted by descending score) associated to each token id
+   * @return a map of valid grammatical configurations (sorted by descending score) associated to each token id
    */
-  private fun DependencyTree.buildDeprelsMap(): Map<Int, List<ScoredDeprel>> =
+  private fun DependencyTree.buildConfigurationsMap(): Map<Int, List<ScoredGrammar>> =
 
-    labeler!!.predict(Labeler.Input(lss, this)).withIndex().associate { (tokenIndex, deprels) ->
+    labeler!!.predict(Labeler.Input(lss, this)).withIndex().associate { (tokenIndex, configurations) ->
 
       val tokenId: Int = this.elements[tokenIndex]
-      val validDeprels: List<ScoredDeprel> = morphoDeprelSelector.getValidDeprels(
-        deprels = deprels,
+      val validDeprels: List<ScoredGrammar> = morphoDeprelSelector.getValidConfigurations(
+        configurations = configurations,
         sentence = lss.sentence,
         tokenIndex = tokenIndex,
         headIndex = this.getHead(tokenId)?.let { this.getPosition(it) })

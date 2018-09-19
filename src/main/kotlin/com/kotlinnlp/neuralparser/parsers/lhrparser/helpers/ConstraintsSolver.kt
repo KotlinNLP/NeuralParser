@@ -13,7 +13,7 @@ import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 
 /**
  * A helper that finds the best configuration of the labels of a dependency tree given the probability distribution of
@@ -33,7 +33,7 @@ internal class ConstraintsSolver(
   private val dependencyTree: DependencyTree,
   private val constraints: List<Constraint>,
   private val morphoDeprelSelector: MorphoDeprelSelector,
-  scoresMap: Map<Int, List<ScoredDeprel>>,
+  scoresMap: Map<Int, List<ScoredGrammar>>,
   maxBeamSize: Int = 5,
   maxForkSize: Int = 3,
   maxIterations: Int = 10
@@ -54,7 +54,7 @@ internal class ConstraintsSolver(
    *
    * @property grammar a scored grammatical configuration
    */
-  internal data class GrammarValue(var grammar: ScoredDeprel) : Value() {
+  internal data class GrammarValue(var grammar: ScoredGrammar) : Value() {
 
     /**
      * The score of this value.
@@ -154,7 +154,7 @@ internal class ConstraintsSolver(
   private fun applyConfiguration(state: GrammarState) {
 
     state.elements.forEach {
-      this.dependencyTree.setGrammaticalConfiguration(dependent = it.id, deprel = it.value.grammar.value)
+      this.dependencyTree.setGrammaticalConfiguration(dependent = it.id, configuration = it.value.grammar.config)
     }
 
     this.dependencyTree.score = state.score

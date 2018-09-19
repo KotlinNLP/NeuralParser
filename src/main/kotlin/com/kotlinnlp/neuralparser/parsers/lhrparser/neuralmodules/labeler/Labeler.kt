@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.batchfeedforward.BatchFeedforwardProcessor
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
@@ -78,9 +78,9 @@ class Labeler(
    *
    * @return the list of possible grammatical configurations of each input token, sorted by descending score
    */
-  fun predict(input: Input): List<List<ScoredDeprel>> = this.forward(input).map { prediction ->
+  fun predict(input: Input): List<List<ScoredGrammar>> = this.forward(input).map { prediction ->
     (0 until prediction.length)
-      .map { i -> ScoredDeprel(this.getGrammaticalConfiguration(i).deprel, score = prediction[i]) }
+      .map { i -> ScoredGrammar(this.getGrammaticalConfiguration(i), score = prediction[i]) }
       .sortedWith(compareByDescending { it.score })
   }
 

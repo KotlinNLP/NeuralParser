@@ -22,14 +22,14 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprel
  * @property id the id of the token, unique within its sentence
  * @property form the form
  * @property morphologies the list of possible morphologies of the token
- * @property pos the best part-of-speech tags associated to the token (can be null)
+ * @property pos the list of part-of-speech tags associated to the token (more for composite tokens, can be null)
  * @param position the position of the token in the text (null if it is a trace)
  */
 data class ParsingToken(
   override val id: Int,
   override val form: String,
   override val morphologies: List<Morphology>,
-  override val pos: POSTag? = null, // TODO: find a better solution
+  override val pos: List<POSTag>? = null, // TODO: find a better solution
   private val position: Position?
 ) : MorphoToken, FormToken, TokenIdentificable {
 
@@ -46,23 +46,57 @@ data class ParsingToken(
                                     grammaticalConfiguration: GrammaticalConfiguration,
                                     morphoDeprelSelector: MorphoDeprelSelector): MutableMorphoSyntacticToken {
 
+    // TODO: set the score adding the labeler prediction scores of configurations with the same pos
     val morphologies: List<ScoredMorphology> = morphoDeprelSelector.getValidMorphologies(
       token = this,
       morphologies = this.morphologies,
       grammaticalConfiguration = grammaticalConfiguration
-    ).map { ScoredMorphology(type = it.type, list = it.list, score = 0.0) } // TODO: set the score?
+    ).map { ScoredMorphology(type = it.type, list = it.components, score = 0.0) }
+
+    require(morphologies.all { it.components.size == grammaticalConfiguration.components.size }) {
+      "The selected morphologies must have the same number of components of the given grammatical configuration."
+    }
+
+    return if (grammaticalConfiguration.components.size == 1)
+      this.buildToken(
+        governorId = governorId,
+        attachmentScore = attachmentScore,
+        grammaticalComponent = grammaticalConfiguration.components.single(),
+        morphologies = morphologies)
+    else
+      WordComposite(
+        id = this.id,
+        form = this.form,
+        position = checkNotNull(this.position) { "Composite words must have a position." },
+        components = grammaticalConfiguration.components.mapIndexed { i, it ->
+          this.buildToken(
+            governorId = if (i == 0) governorId else null,
+            attachmentScore = attachmentScore,
+            grammaticalComponent = it,
+            morphologies = morphologies.map { it.copy(list = it.components.subList(i, i + 1)) }) as Word
+        }
+      )
+  }
+
+  /**
+   *
+   */
+  private fun buildToken(governorId: Int?,
+                         attachmentScore: Double,
+                         grammaticalComponent: GrammaticalConfiguration.Component,
+                         morphologies: List<ScoredMorphology>): MutableMorphoSyntacticToken {
 
     val syntacticRelation = SyntacticRelation(
       governor = governorId,
       attachmentScore = attachmentScore,
-      dependency = grammaticalConfiguration.deprel)
+      dependency = grammaticalComponent.syntacticDependency)
 
     return if (this.position != null)
       Word(
         id = this.id,
         form = this.form,
         position = this.position,
-        pos = pos,
+        pos = grammaticalComponent.pos,
         morphologies = morphologies,
         syntacticRelation = syntacticRelation,
         coReferences = null, // TODO: set it
@@ -71,7 +105,7 @@ data class ParsingToken(
       WordTrace(
         id = this.id,
         form = this.form,
-        pos = pos,
+        pos = grammaticalComponent.pos,
         morphologies = morphologies,
         syntacticRelation = syntacticRelation,
         coReferences = null, // TODO: set it

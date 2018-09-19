@@ -8,11 +8,12 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors
 
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
-import com.kotlinnlp.linguisticdescription.Deprel
+import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.morphology.*
+import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 import com.kotlinnlp.neuralparser.utils.notEmptyOr
 
 /**
@@ -34,49 +35,53 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
     private const val UNKNOWN_LABEL = "NOUN-UNKNOWN"
 
     /**
-     * Get the direction of a deprel.
+     * Get the direction of a syntactic dependency.
      *
      * @param tokenIndex the index of the token to which the deprel must be assigned
      * @param headIndex the index of the token head (can be null)
      *
-     * @return the deprel direction related to the given grammatical configuration
+     * @return the direction of the syntactic dependency between the given token and its head
      */
-    private fun getDeprelDirection(tokenIndex: Int, headIndex: Int?): Deprel.Direction =
-      headIndex?.let { if (tokenIndex < headIndex) Deprel.Direction.LEFT else Deprel.Direction.RIGHT }
-        ?: Deprel.Direction.ROOT
+    private fun getDependencyDirection(tokenIndex: Int, headIndex: Int?): SyntacticDependency.Direction = when {
+      headIndex == null -> SyntacticDependency.Direction.ROOT
+      tokenIndex < headIndex -> SyntacticDependency.Direction.LEFT
+      else -> SyntacticDependency.Direction.RIGHT
+    }
   }
 
   /**
-   * Get the list of deprels that are valid for a given attachment.
+   * Get the list of scored grammatical configurations that are valid for a given attachment.
    *
-   * @param deprels the list of deprels, sorted by descending score
+   * @param configurations the list of grammatical configurations, sorted by descending score
    * @param sentence the input sentence
    * @param tokenIndex the index of the token to which the deprel must be assigned
    * @param headIndex the index of the token head (can be null)
    *
-   * @return the valid deprels for the given attachment
+   * @return the valid grammatical configurations for the given attachment
    */
-  override fun getValidDeprels(deprels: List<ScoredDeprel>,
-                               sentence: ParsingSentence,
-                               tokenIndex: Int,
-                               headIndex: Int?): List<ScoredDeprel> {
+  override fun getValidConfigurations(configurations: List<ScoredGrammar>,
+                                      sentence: ParsingSentence,
+                                      tokenIndex: Int,
+                                      headIndex: Int?): List<ScoredGrammar> {
 
     val possibleMorphologies: List<Morphology> =
       sentence.tokens[tokenIndex].morphologies + sentence.getTokenMultiWordsMorphologies(tokenIndex)
 
-    val correctDirection: Deprel.Direction = getDeprelDirection(tokenIndex = tokenIndex, headIndex = headIndex)
-    val possibleDeprels: List<ScoredDeprel> = deprels.filter { it.value.direction == correctDirection }
-    val worstScore: Double = deprels.last().score
+    val correctDirection: SyntacticDependency.Direction =
+      getDependencyDirection(tokenIndex = tokenIndex, headIndex = headIndex)
+    val possibleDeprels: List<ScoredGrammar> = configurations.filter { it.config.direction == correctDirection }
+    val worstScore: Double = configurations.last().score
 
     return if (possibleMorphologies.isNotEmpty())
-      possibleDeprels.filter { it.value.isValid(possibleMorphologies) }.notEmptyOr {
+      possibleDeprels.filter { it.config.isValid(possibleMorphologies) }.notEmptyOr {
         listOf(
-          possibleMorphologies.first().buildDeprel(tokenIndex = tokenIndex, headIndex = headIndex, score = worstScore))
+          possibleMorphologies.first().buildGrammar(tokenIndex = tokenIndex, headIndex = headIndex, score = worstScore))
       }
     else
-      possibleDeprels.filter { it.value.isSingleContentWord() }.notEmptyOr {
-        listOf(ScoredDeprel(
-          value = Deprel(labels = listOf(UNKNOWN_LABEL), direction = correctDirection),
+      possibleDeprels.filter { it.config.isSingleContentWord() }.notEmptyOr {
+        listOf(ScoredGrammar(
+          config = GrammaticalConfiguration(GrammaticalConfiguration.Component(
+            SyntacticDependency(annotation = UNKNOWN_LABEL, direction = correctDirection))),
           score = worstScore))
       }
   }
@@ -94,18 +99,15 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
                                     morphologies: List<Morphology>,
                                     grammaticalConfiguration: GrammaticalConfiguration): List<Morphology> {
 
-    val posTags: List<String> = grammaticalConfiguration.posTag?.labels ?: listOf()
-    val possibleMorphologies: List<Morphology> = morphologies.filter {
-      it.list.map { it.pos.baseAnnotation } == posTags
-    }
+    val posList: List<POSTag.Base> = grammaticalConfiguration.components.mapNotNull { it.pos as? POSTag.Base }
 
     return when {
-      possibleMorphologies.isNotEmpty() -> possibleMorphologies
-      posTags.first() != POS.Num.baseAnnotation -> // In this case the deprel label always defines a single morphology.
+      posList.isNotEmpty() -> morphologies.filter { it.components.map { it.pos.baseAnnotation } == posList }
+      posList.first().type != POS.Num -> // In this case the configuration always defines a single morphology.
         listOf(Morphology(
           morphologies = listOf(SingleMorphology(
             lemma = token.form,
-            pos = POS.byBaseAnnotation(posTags.first()),
+            pos = posList.first().type,
             allowIncompleteProperties = true))
         ))
       else -> listOf() // TODO: handle Number morphology
@@ -129,11 +131,11 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    *
    * @return whether this deprel is valid respect to the given morphologies
    */
-  private fun Deprel.isValid(possibleMorphologies: List<Morphology>): Boolean {
+  private fun GrammaticalConfiguration.isValid(possibleMorphologies: List<Morphology>): Boolean {
 
-    val posTags: List<String> = this.label.extractPosTags()
+    val posTags: List<POSTag?> = this.components.map { it.pos }
 
-    return possibleMorphologies.any { it.list.map { it.pos.baseAnnotation } == posTags }
+    return possibleMorphologies.any { it.components.map { it.pos.baseAnnotation } == posTags }
   }
 
   /**
@@ -145,20 +147,30 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    *
    * @return a new deprel represented in this morphology annotation
    */
-  private fun Morphology.buildDeprel(tokenIndex: Int, headIndex: Int?, score: Double) = ScoredDeprel(
-    value = Deprel(
-      labels = listOf("TOP") + (1 until this.list.size).map { "UNKNOWN" },
-      direction = getDeprelDirection(tokenIndex = tokenIndex, headIndex = headIndex)),
-    score = score
-  )
+  private fun Morphology.buildGrammar(tokenIndex: Int, headIndex: Int?, score: Double): ScoredGrammar {
+
+    val direction: SyntacticDependency.Direction =
+      getDependencyDirection(tokenIndex = tokenIndex, headIndex = headIndex)
+
+    return ScoredGrammar(
+      config = GrammaticalConfiguration(components = *Array(
+        size = this.components.size,
+        init = { i -> GrammaticalConfiguration.Component(SyntacticDependency(
+          annotation = if (i == 0) "TOP" else "UNKNOWN",
+          direction = direction))
+        })
+      ),
+      score = score
+    )
+  }
 
   /**
    * @return whether this deprel defines a content word with a single morphology
    */
-  private fun Deprel.isSingleContentWord(): Boolean {
+  private fun GrammaticalConfiguration.isSingleContentWord(): Boolean {
 
-    val posTags: List<String> = this.label.extractPosTags()
+    val posTags: List<POSTag.Base> = this.components.map { it.pos as POSTag.Base }
 
-    return posTags.size == 1 && POS.byBaseAnnotation(posTags.first()).isContentWord
+    return posTags.size == 1 && posTags.first().type.isContentWord
   }
 }

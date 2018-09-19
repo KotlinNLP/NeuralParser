@@ -54,7 +54,7 @@ class CorpusDictionary : Serializable {
   /**
    * The map of forms to their possible POS tags.
    */
-  val formsToPosTags: HashMultimap<String, POSTag> = HashMultimap.create()
+  val formsToPosTags: HashMultimap<String, List<POSTag>> = HashMultimap.create()
 
   /**
    * The dictionary set of all the possible grammatical configurations.
@@ -70,7 +70,13 @@ class CorpusDictionary : Serializable {
 
     this.words.add(token.normalizedForm)
 
-    this.formsToPosTags.put(token.normalizedForm, token.pos)
-    this.grammaticalConfigurations.add(GrammaticalConfiguration(posTag = token.pos, deprel = token.deprel))
+    this.formsToPosTags.put(token.normalizedForm, token.posList)
+
+    this.grammaticalConfigurations.add(GrammaticalConfiguration(*Array(
+      size = maxOf(token.posList.size, token.syntacticDependencies.size),
+      init = { i -> GrammaticalConfiguration.Component(
+        pos = token.posList.getOrElse(i) { token.posList.single() },
+        syntacticDependency = token.syntacticDependencies.getOrElse(i) { token.syntacticDependencies.single() })
+      })))
   }
 }

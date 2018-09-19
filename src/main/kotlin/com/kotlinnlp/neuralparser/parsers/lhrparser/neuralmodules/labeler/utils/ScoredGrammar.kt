@@ -7,12 +7,12 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils
 
-import com.kotlinnlp.linguisticdescription.Deprel
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 
 /**
  * The outcome of a single prediction of the labeler.
  *
- * @property value the deprel
+ * @property config the grammatical configuration
  * @property score the score
  */
-data class ScoredDeprel(val value: Deprel, val score: Double)
+data class ScoredGrammar(val config: GrammaticalConfiguration, val score: Double)

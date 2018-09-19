@@ -162,7 +162,7 @@ private fun buildTokensEncoderWrapperModel(
       val posEmbeddingsMap = EmbeddingsMapByDictionary(
         size = parsedArgs.posEmbeddingSize,
         dictionary = DictionarySet(
-          corpus.grammaticalConfigurations.getElements().mapNotNull { it.posTag?.labels?.joinToString("+") }))
+          elements = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }))
 
       TokensEncoderWrapperModel(
         model = EnsembleTokensEncoderModel(
@@ -201,7 +201,7 @@ private fun buildTokensEncoderWrapperModel(
       val posEmbeddingsMap = EmbeddingsMapByDictionary(
         size = parsedArgs.posEmbeddingSize,
         dictionary = DictionarySet(
-          corpus.grammaticalConfigurations.getElements().mapNotNull { it.posTag?.labels?.joinToString("+") }))
+          elements = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }))
 
       TokensEncoderWrapperModel(
         model = EnsembleTokensEncoderModel(
@@ -265,7 +265,7 @@ private fun buildTokensEncoderWrapperModel(
  * A concrete [MorphoToken] class.
  */
 private class MorphoTokenClass(override val morphologies: List<Morphology>) : MorphoToken {
-  override val pos: POSTag? = null
+  override val pos: List<POSTag>? = null
 }
 
 /**

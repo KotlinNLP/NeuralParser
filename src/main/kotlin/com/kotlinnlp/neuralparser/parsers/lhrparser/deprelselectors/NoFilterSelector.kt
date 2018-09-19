@@ -11,7 +11,7 @@ import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredDeprel
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 
 /**
  * The selector that does not filter.
@@ -28,19 +28,19 @@ class NoFilterSelector : MorphoDeprelSelector {
   }
 
   /**
-   * Get the list of deprels that are valid for a given attachment.
+   * Get the list of scored grammatical configurations that are valid for a given attachment.
    *
-   * @param deprels the list of deprels, sorted by descending score
+   * @param configurations the list of grammatical configurations, sorted by descending score
    * @param sentence the input sentence
    * @param tokenIndex the index of the token to which the deprel must be assigned
    * @param headIndex the index of the token head (can be null)
    *
-   * @return the valid deprels for the given attachment
+   * @return the valid grammatical configurations for the given attachment
    */
-  override fun getValidDeprels(deprels: List<ScoredDeprel>,
-                               sentence: ParsingSentence,
-                               tokenIndex: Int,
-                               headIndex: Int?): List<ScoredDeprel> = deprels
+  override fun getValidConfigurations(configurations: List<ScoredGrammar>,
+                                      sentence: ParsingSentence,
+                                      tokenIndex: Int,
+                                      headIndex: Int?): List<ScoredGrammar> = configurations
 
   /**
    * Return all the morphologies as valid.
