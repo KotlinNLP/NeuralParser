@@ -11,7 +11,7 @@ import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
-import com.kotlinnlp.linguisticdescription.Deprel
+import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.statistics.MetricsCounter
@@ -144,8 +144,10 @@ class Validator(
     val isNotPunct: Boolean = !punctuationRegex.matches(token.form)
     val parsedGrammaticalConfig: GrammaticalConfiguration? = parsedTree.getGrammaticalConfiguration(token.id)
     val goldGrammaticalConfig: GrammaticalConfiguration? = goldTree.getGrammaticalConfiguration(token.id)
-    val parsedDeprel: Deprel? = parsedGrammaticalConfig?.deprel
-    val goldDeprel: Deprel? = goldTree.getGrammaticalConfiguration(token.id)?.deprel
+    val parsedDependencies: List<SyntacticDependency>? =
+      parsedGrammaticalConfig?.components?.map { it.syntacticDependency }
+    val goldDependencies: List<SyntacticDependency>? =
+      goldTree.getGrammaticalConfiguration(token.id)?.components?.map { it.syntacticDependency }
 
     if (isNotPunct) this.counterNoPunct.totalTokens++
 
@@ -153,7 +155,7 @@ class Validator(
 
       this.addCorrectAttachment(isNotPunct)
 
-      if (parsedDeprel == goldDeprel)
+      if (parsedDependencies == goldDependencies)
         this.addCorrectLabeledAttachment(isNotPunct)
       else
         this.addUncorrectLabeledAttachment(isNotPunct)
@@ -163,8 +165,13 @@ class Validator(
       this.addUncorrectLabeledAttachment(isNotPunct)
     }
 
-    if (parsedGrammaticalConfig?.posTag == goldGrammaticalConfig?.posTag) this.addCorrectPOSTag(isNotPunct)
-    if (parsedDeprel?.softEquals(goldDeprel) ?: (parsedDeprel == goldDeprel)) this.addCorrectDeprel(isNotPunct)
+    if (parsedGrammaticalConfig?.components?.map { it.pos } == goldGrammaticalConfig?.components?.map { it.pos })
+      this.addCorrectPOSTag(isNotPunct)
+
+    if ((parsedDependencies != null && goldDependencies != null
+        && parsedDependencies.zip(goldDependencies).all { it.first.softEquals(it.second) })
+      || (parsedDependencies == goldDependencies))
+      this.addCorrectDeprel(isNotPunct)
   }
 
   /**
