@@ -8,12 +8,12 @@
 package com.kotlinnlp.neuralparser.traces
 
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.Deprel
 import com.kotlinnlp.linguisticdescription.morphology.*
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Trace
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
+import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 
 /**
  * A rule-based implementation of the [TracesHandler].
@@ -48,7 +48,7 @@ class RuleBasedTracesHandler(private val corefHelpers: List<CorefHelper>) : Trac
             morphologies = this.makeTraceMorphology(),
             syntacticRelation = SyntacticRelation(
               governor = token.id,
-              dependency = Deprel(labels = listOf("SUBJ")), // TODO: set it
+              dependency = SyntacticDependency("SUBJ"), // TODO: set it
               attachmentScore = 0.0),
             coReferences = null,
             semanticRelations = null))
