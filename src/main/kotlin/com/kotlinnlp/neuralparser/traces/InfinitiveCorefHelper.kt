@@ -11,6 +11,7 @@ import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Ver
 import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Noun
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.MutableMorphoSyntacticToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.CoReference
 
 /**
@@ -70,20 +71,20 @@ class InfinitiveCorefHelper : CorefHelper {
    * @param token a token
    */
   private fun findSubjCoref(sentence: MorphoSyntacticSentence,
-                            token: MorphoSyntacticToken): CoReference? {
+                            token: MutableMorphoSyntacticToken): CoReference? {
 
     return sentence.getGovernor(token)?.let { governor ->
 
-      when (governor.mainMorphology) {
+      when {
 
-        is Verb -> this.findCandidates(sentence, governor).select(control = this.getControl(governor))?.let {
+        governor.isVerb -> this.findCandidates(sentence, governor).select(control = this.getControl(governor))?.let {
 
           CoReference(tokenId = it.id,
             sentenceId = sentence.id,
             confidence = 0.0) // TODO: set confidence
         }
 
-        is Noun -> TODO()
+        // governor.isNoun -> TODO()
 
         else -> TODO()
       }
@@ -94,7 +95,7 @@ class InfinitiveCorefHelper : CorefHelper {
    *
    */
   private fun findCandidates(sentence: MorphoSyntacticSentence,
-                             token: MorphoSyntacticToken): CorefCandidates = with(sentence) {
+                             token: MutableMorphoSyntacticToken): CorefCandidates = with(sentence) {
 
     CorefCandidates(
       subj = getSubj(token),
@@ -106,5 +107,5 @@ class InfinitiveCorefHelper : CorefHelper {
   /**
    *
    */
-  private fun getControl(token: MorphoSyntacticToken): TraceControl = TODO()
+  private fun getControl(token: MutableMorphoSyntacticToken): TraceControl = TODO()
 }
