@@ -9,7 +9,7 @@ package com.kotlinnlp.neuralparser.traces
 
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.morphology.*
-import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Trace
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
@@ -28,7 +28,7 @@ class RuleBasedTracesHandler(private val corefHelpers: List<CorefHelper>) : Trac
    *
    * @param sentence the sentence
    */
-  override fun addTraces(sentence: MorphoSyntacticSentence) {
+  override fun addTraces(sentence: MorphoSynSentence) {
 
     val tree: DependencyTree = sentence.toDependencyTree()
     var lastId: Int = sentence.tokens.maxBy { it.id }!!.id
@@ -82,7 +82,7 @@ class RuleBasedTracesHandler(private val corefHelpers: List<CorefHelper>) : Trac
    *
    * @return the token id after witch to insert the trace of a subject
    */
-  private fun findBestSubjPosition(sentence: MorphoSyntacticSentence,
+  private fun findBestSubjPosition(sentence: MorphoSynSentence,
                                    tree: DependencyTree,
                                    governor: MorphoSynToken): Int {
 

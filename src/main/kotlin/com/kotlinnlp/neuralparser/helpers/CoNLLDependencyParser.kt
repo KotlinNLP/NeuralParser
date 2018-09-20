@@ -8,7 +8,7 @@
 package com.kotlinnlp.neuralparser.helpers
 
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
-import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.WordComposite
 import com.kotlinnlp.neuralparser.NeuralParser
@@ -37,7 +37,7 @@ class CoNLLDependencyParser(
    */
   fun parse(sentence: CoNLLSentence, index: Int): CoNLLSentence {
 
-    val parsedSentence: MorphoSyntacticSentence = this.neuralParser.parse(
+    val parsedSentence: MorphoSynSentence = this.neuralParser.parse(
       this.sentencePreprocessor.process(BaseSentence.fromCoNLL(sentence, index = index)))
 
     return sentence.copy(tokens = sentence.tokens.map {

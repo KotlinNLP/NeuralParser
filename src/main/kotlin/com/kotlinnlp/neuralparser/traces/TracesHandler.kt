@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.traces
 
-import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 
 /**
  * The TracesHandler is a Deep-parsing module which inserts the tokens that are missing on the surface level but
@@ -21,5 +21,5 @@ interface TracesHandler {
    *
    * @param sentence the sentence
    */
-  fun addTraces(sentence: MorphoSyntacticSentence)
+  fun addTraces(sentence: MorphoSynSentence)
 }

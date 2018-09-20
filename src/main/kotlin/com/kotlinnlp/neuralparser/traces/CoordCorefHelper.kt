@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.traces
 
-import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.CoReference
 
 /**
@@ -18,7 +18,7 @@ class CoordCorefHelper : CorefHelper {
   /**
    *
    */
-  override fun setCoref(sentence: MorphoSyntacticSentence) {
+  override fun setCoref(sentence: MorphoSynSentence) {
 
     sentence.tokens.filter { it.isVerb && it.isCoord2Nd }.forEach { token ->
 

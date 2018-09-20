@@ -9,7 +9,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser
 
 import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.contextencoder.ContextEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.HeadsEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
@@ -54,7 +54,7 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
    *
    * @return the dependency tree predicted for the given [sentence]
    */
-  override fun parse(sentence: ParsingSentence): MorphoSyntacticSentence {
+  override fun parse(sentence: ParsingSentence): MorphoSynSentence {
 
     val lss: LatentSyntacticStructure = this.lssEncoder.encode(sentence)
 

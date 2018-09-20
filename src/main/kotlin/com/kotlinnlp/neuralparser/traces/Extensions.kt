@@ -12,7 +12,7 @@ import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.dependencytree.configuration.RootConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Verb
 import com.kotlinnlp.linguisticdescription.morphology.properties.Mood
-import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Trace
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.*
@@ -20,37 +20,37 @@ import com.kotlinnlp.linguisticdescription.syntax.dependencies.*
 /**
  *
  */
-fun MorphoSyntacticSentence.getGovernor(token: MorphoSynToken): MorphoSynToken? =
+fun MorphoSynSentence.getGovernor(token: MorphoSynToken): MorphoSynToken? =
   token.syntacticRelation.governor?.let { this.getTokenById(it) }
 
 /**
  *
  */
-fun MorphoSyntacticSentence.missingRequiredSubject(token: MorphoSynToken): Boolean =
+fun MorphoSynSentence.missingRequiredSubject(token: MorphoSynToken): Boolean =
   this.getSubj(token) == null && !token.isImpersonal && token.isActive
 
 /**
  *
  */
-fun MorphoSyntacticSentence.getIObj(token: MorphoSynToken): MorphoSynToken? =
+fun MorphoSynSentence.getIObj(token: MorphoSynToken): MorphoSynToken? =
   this.getDependents(token.id).firstOrNull { it.isDependentAs(IndirectObject::class) }
 
 /**
  *
  */
-fun MorphoSyntacticSentence.getObj(token: MorphoSynToken): MorphoSynToken? =
+fun MorphoSynSentence.getObj(token: MorphoSynToken): MorphoSynToken? =
   this.getDependents(token.id).firstOrNull { it.isDependentAs(Object::class) }
 
 /**
  *
  */
-fun MorphoSyntacticSentence.getSubj(token: MorphoSynToken): MorphoSynToken? =
+fun MorphoSynSentence.getSubj(token: MorphoSynToken): MorphoSynToken? =
   this.getDependents(token.id).firstOrNull { it.isDependentAs(Subject::class) }
 
 /**
  *
  */
-fun MorphoSyntacticSentence.getTraceSubj(token: MorphoSynToken): MorphoSynToken? =
+fun MorphoSynSentence.getTraceSubj(token: MorphoSynToken): MorphoSynToken? =
   this.getSubj(token)?.takeUnless { it !is Trace }
 
 /**
@@ -122,7 +122,7 @@ val MorphoSynToken.isRMod: Boolean get() = this.isDependentAs(RestrictiveModifie
 /**
  *
  */
-fun MorphoSyntacticSentence.toDependencyTree() = DependencyTree(
+fun MorphoSynSentence.toDependencyTree() = DependencyTree(
   elements = this.tokens.map { it.id },
   dependencies = this.tokens.map {
     if (it.syntacticRelation.governor == null)

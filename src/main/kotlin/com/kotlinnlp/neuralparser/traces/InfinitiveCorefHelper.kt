@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.traces
 
-import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.CoReference
 
@@ -51,7 +51,7 @@ class InfinitiveCorefHelper : CorefHelper {
    *
    * @param sentence the sentence
    */
-  override fun setCoref(sentence: MorphoSyntacticSentence) {
+  override fun setCoref(sentence: MorphoSynSentence) {
 
     sentence.tokens.filter { it.isVerbNotAux && it.isVerbInfinite }.forEach { token ->
 
@@ -67,7 +67,7 @@ class InfinitiveCorefHelper : CorefHelper {
    * @param sentence the sentence
    * @param token a token
    */
-  private fun findSubjCoref(sentence: MorphoSyntacticSentence,
+  private fun findSubjCoref(sentence: MorphoSynSentence,
                             token: MorphoSynToken): CoReference? {
 
     return sentence.getGovernor(token)?.let { governor ->
@@ -91,7 +91,7 @@ class InfinitiveCorefHelper : CorefHelper {
   /**
    *
    */
-  private fun findCandidates(sentence: MorphoSyntacticSentence,
+  private fun findCandidates(sentence: MorphoSynSentence,
                              token: MorphoSynToken): CorefCandidates = with(sentence) {
 
     CorefCandidates(

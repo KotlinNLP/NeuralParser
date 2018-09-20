@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser
 
-import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 
@@ -28,5 +28,5 @@ interface NeuralParser<out ModelType: NeuralParserModel> {
    *
    * @return the dependency tree predicted for the given [sentence]
    */
-  fun parse(sentence: ParsingSentence): MorphoSyntacticSentence
+  fun parse(sentence: ParsingSentence): MorphoSynSentence
 }

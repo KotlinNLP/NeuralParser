@@ -11,7 +11,7 @@ import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
-import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
 import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
 import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
@@ -37,11 +37,11 @@ class ParsingSentence(
    * @param dependencyTree the dependency tree from which to extract the dependency relations
    * @param morphoDeprelSelector the morphology and deprel selector
    *
-   * @return a new [MorphoSyntacticSentence]
+   * @return a new [MorphoSynSentence]
    */
   fun toMorphoSyntacticSentence(dependencyTree: DependencyTree,
                                 morphoDeprelSelector: MorphoDeprelSelector = NoFilterSelector()) =
-    MorphoSyntacticSentence(
+    MorphoSynSentence(
       id = 0,
       confidence = 0.0,
       dateTimes = if (this.dateTimes.isNotEmpty()) this.dateTimes else null,

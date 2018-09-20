@@ -1,6 +1,6 @@
 package com.kotlinnlp.neuralparser.traces
 
-import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 
 /**
  *
@@ -12,5 +12,5 @@ interface CorefHelper {
    *
    * @param sentence the sentence
    */
-  fun setCoref(sentence: MorphoSyntacticSentence)
+  fun setCoref(sentence: MorphoSynSentence)
 }
