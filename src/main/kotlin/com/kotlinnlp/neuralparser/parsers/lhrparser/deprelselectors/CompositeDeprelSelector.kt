@@ -74,7 +74,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
     val worstScore: Double = configurations.last().score
 
     return if (possibleMorphologies.isNotEmpty())
-      possibleConfigurations.filter { it.config.isValid(possibleMorphologies) }.notEmptyOr {
+      possibleConfigurations.filter { it.config.isCompatible(possibleMorphologies) }.notEmptyOr {
         listOf(
           possibleMorphologies.first()
             .buildUnknownConfig(tokenIndex = tokenIndex, headIndex = headIndex, score = worstScore))
@@ -139,9 +139,9 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
   /**
    * @param possibleMorphologies the list of possible morphologies of the token to which this deprel is assigned
    *
-   * @return whether this deprel is valid respect to the given morphologies
+   * @return whether this deprel is compatible with the given morphologies
    */
-  private fun GrammaticalConfiguration.isValid(possibleMorphologies: List<Morphology>): Boolean =
+  private fun GrammaticalConfiguration.isCompatible(possibleMorphologies: List<Morphology>): Boolean =
     possibleMorphologies.any {
       it.components.size == this.components.size
         && it.components.zip(this.components).all { it.first.pos == it.second.pos }
