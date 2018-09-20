@@ -64,7 +64,7 @@ data class ParsingToken(
         grammaticalComponent = grammaticalConfiguration.components.single(),
         morphologies = morphologies)
     else
-      WordComposite(
+      MorphoSynToken.Composite(
         id = this.id,
         form = this.form,
         position = checkNotNull(this.position) { "Composite words must have a position." },
