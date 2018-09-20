@@ -104,12 +104,10 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
     return when {
       posList.isNotEmpty() -> morphologies.filter { it.components.map { it.pos.baseAnnotation } == posList }
       posList.first().type != POS.Num -> // In this case the configuration always defines a single morphology.
-        listOf(Morphology(
-          morphologies = listOf(SingleMorphology(
-            lemma = token.form,
-            pos = posList.first().type,
-            allowIncompleteProperties = true))
-        ))
+        listOf(Morphology(SingleMorphology(
+          lemma = token.form,
+          pos = posList.first().type,
+          allowIncompleteProperties = true)))
       else -> listOf() // TODO: handle Number morphology
     }
   }
