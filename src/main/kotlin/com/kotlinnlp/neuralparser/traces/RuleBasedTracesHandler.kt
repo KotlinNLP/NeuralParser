@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.traces
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.morphology.*
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
-import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Trace
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
 import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
@@ -84,7 +84,7 @@ class RuleBasedTracesHandler(private val corefHelpers: List<CorefHelper>) : Trac
    */
   private fun findBestSubjPosition(sentence: MorphoSyntacticSentence,
                                    tree: DependencyTree,
-                                   governor: MorphoSyntacticToken): Int {
+                                   governor: MorphoSynToken): Int {
 
     val token = tree.getLeftDependents(governor.id)
       .map { sentence.getTokenById(it) }

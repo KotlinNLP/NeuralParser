@@ -44,7 +44,7 @@ data class ParsingToken(
   fun toMutableMorphoSyntacticToken(governorId: Int?,
                                     attachmentScore: Double,
                                     grammaticalConfiguration: GrammaticalConfiguration,
-                                    morphoDeprelSelector: MorphoDeprelSelector): MutableMorphoSyntacticToken {
+                                    morphoDeprelSelector: MorphoDeprelSelector): MorphoSynToken {
 
     // TODO: set the score adding the labeler prediction scores of configurations with the same pos
     val morphologies: List<ScoredMorphology> = morphoDeprelSelector.getValidMorphologies(
@@ -84,7 +84,7 @@ data class ParsingToken(
   private fun buildToken(governorId: Int?,
                          attachmentScore: Double,
                          grammaticalComponent: GrammaticalConfiguration.Component,
-                         morphologies: List<ScoredMorphology>): MutableMorphoSyntacticToken {
+                         morphologies: List<ScoredMorphology>): MorphoSynToken {
 
     val syntacticRelation = SyntacticRelation(
       governor = governorId,

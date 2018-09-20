@@ -9,7 +9,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 
 import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
@@ -22,7 +22,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.
  * @param sentence a parsing sentence
  * @param dependencyTree the dependency tree of the given sentence
  * @param constraints a list of linguistic constraints
- * @param morphoDeprelSelector a morpho-deprel selector used to build a [MorphoSyntacticToken]
+ * @param morphoDeprelSelector a morpho-deprel selector used to build a [MorphoSynToken]
  * @param scoresMap a map of valid deprels (sorted by descending score) associated to each token id
  * @param maxBeamSize the max number of parallel states that the beam supports
  * @param maxForkSize the max number of forks that can be generated from a state
@@ -97,8 +97,8 @@ internal class ConstraintsSolver(
 
       applyConfiguration(this)
 
-      val tokens: List<MorphoSyntacticToken> = sentence.tokens.map { it.toMorphoSyntactic() }
-      val tokensMap: Map<Int, MorphoSyntacticToken> = tokens.associateBy { it.id }
+      val tokens: List<MorphoSynToken> = sentence.tokens.map { it.toMorphoSyntactic() }
+      val tokensMap: Map<Int, MorphoSynToken> = tokens.associateBy { it.id }
 
       constraints.forEach { constraint ->
         this.elements.forEach {
@@ -115,11 +115,11 @@ internal class ConstraintsSolver(
     }
 
     /**
-     * Convert this token into a [MorphoSyntacticToken].
+     * Convert this token into a [MorphoSynToken].
      *
      * @return a new morpho-syntactic token built from this
      */
-    private fun ParsingToken.toMorphoSyntactic(): MorphoSyntacticToken = this.toMutableMorphoSyntacticToken(
+    private fun ParsingToken.toMorphoSyntactic(): MorphoSynToken = this.toMutableMorphoSyntacticToken(
       governorId = dependencyTree.getHead(this.id),
       attachmentScore = 0.0,
       grammaticalConfiguration = dependencyTree.getGrammaticalConfiguration(this.id)!!,

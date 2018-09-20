@@ -7,11 +7,8 @@
 
 package com.kotlinnlp.neuralparser.traces
 
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Verb
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Noun
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
-import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
-import com.kotlinnlp.linguisticdescription.sentence.token.MutableMorphoSyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.CoReference
 
 /**
@@ -33,15 +30,15 @@ class InfinitiveCorefHelper : CorefHelper {
    * @property iobj
    */
   data class CorefCandidates(
-    val subj: MorphoSyntacticToken?,
-    val obj: MorphoSyntacticToken?,
-    val iobj: MorphoSyntacticToken?
+    val subj: MorphoSynToken?,
+    val obj: MorphoSynToken?,
+    val iobj: MorphoSynToken?
   ) {
 
     /**
      * @param control
      */
-    fun select(control: TraceControl): MorphoSyntacticToken? = when {
+    fun select(control: TraceControl): MorphoSynToken? = when {
       this.iobj != null && control == TraceControl.IOBJ -> this.iobj
       this.obj != null && control == TraceControl.OBJ -> this.obj
       this.subj != null && control == TraceControl.SUBJ -> this.subj
@@ -71,7 +68,7 @@ class InfinitiveCorefHelper : CorefHelper {
    * @param token a token
    */
   private fun findSubjCoref(sentence: MorphoSyntacticSentence,
-                            token: MutableMorphoSyntacticToken): CoReference? {
+                            token: MorphoSynToken): CoReference? {
 
     return sentence.getGovernor(token)?.let { governor ->
 
@@ -95,7 +92,7 @@ class InfinitiveCorefHelper : CorefHelper {
    *
    */
   private fun findCandidates(sentence: MorphoSyntacticSentence,
-                             token: MutableMorphoSyntacticToken): CorefCandidates = with(sentence) {
+                             token: MorphoSynToken): CorefCandidates = with(sentence) {
 
     CorefCandidates(
       subj = getSubj(token),
@@ -107,5 +104,5 @@ class InfinitiveCorefHelper : CorefHelper {
   /**
    *
    */
-  private fun getControl(token: MutableMorphoSyntacticToken): TraceControl = TODO()
+  private fun getControl(token: MorphoSynToken): TraceControl = TODO()
 }

@@ -9,7 +9,7 @@ package com.kotlinnlp.neuralparser.helpers
 
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
-import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.WordComposite
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
@@ -42,7 +42,7 @@ class CoNLLDependencyParser(
 
     return sentence.copy(tokens = sentence.tokens.map {
 
-      val parsedToken: MorphoSyntacticToken = parsedSentence.getTokenById(it.id)
+      val parsedToken: MorphoSynToken = parsedSentence.getTokenById(it.id)
 
       it.copy(
         head = parsedToken.syntacticRelation.governor ?: 0, // the CoNLL root ID is 0

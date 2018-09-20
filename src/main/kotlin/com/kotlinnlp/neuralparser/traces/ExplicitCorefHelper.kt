@@ -8,7 +8,7 @@
 package com.kotlinnlp.neuralparser.traces
 
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
-import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.CoReference
 
 /**
@@ -49,9 +49,9 @@ class ExplicitCorefHelper : CorefHelper {
   /**
    *
    */
-  private fun selectCoref(verb: MorphoSyntacticToken,
-                          govSubj: MorphoSyntacticToken?,
-                          govObj: MorphoSyntacticToken?): MorphoSyntacticToken? {
+  private fun selectCoref(verb: MorphoSynToken,
+                          govSubj: MorphoSynToken?,
+                          govObj: MorphoSynToken?): MorphoSynToken? {
 
 
     val govSubjAgree: Boolean = govSubj?.let {

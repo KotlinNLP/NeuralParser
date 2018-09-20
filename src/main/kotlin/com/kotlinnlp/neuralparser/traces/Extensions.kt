@@ -13,111 +13,111 @@ import com.kotlinnlp.dependencytree.configuration.RootConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Verb
 import com.kotlinnlp.linguisticdescription.morphology.properties.Mood
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
-import com.kotlinnlp.linguisticdescription.sentence.token.MutableMorphoSyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Trace
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.*
 
 /**
  *
  */
-fun MorphoSyntacticSentence.getGovernor(token: MutableMorphoSyntacticToken): MutableMorphoSyntacticToken? =
+fun MorphoSyntacticSentence.getGovernor(token: MorphoSynToken): MorphoSynToken? =
   token.syntacticRelation.governor?.let { this.getTokenById(it) }
 
 /**
  *
  */
-fun MorphoSyntacticSentence.missingRequiredSubject(token: MutableMorphoSyntacticToken): Boolean =
+fun MorphoSyntacticSentence.missingRequiredSubject(token: MorphoSynToken): Boolean =
   this.getSubj(token) == null && !token.isImpersonal && token.isActive
 
 /**
  *
  */
-fun MorphoSyntacticSentence.getIObj(token: MutableMorphoSyntacticToken): MutableMorphoSyntacticToken? =
+fun MorphoSyntacticSentence.getIObj(token: MorphoSynToken): MorphoSynToken? =
   this.getDependents(token.id).firstOrNull { it.isDependentAs(IndirectObject::class) }
 
 /**
  *
  */
-fun MorphoSyntacticSentence.getObj(token: MutableMorphoSyntacticToken): MutableMorphoSyntacticToken? =
+fun MorphoSyntacticSentence.getObj(token: MorphoSynToken): MorphoSynToken? =
   this.getDependents(token.id).firstOrNull { it.isDependentAs(Object::class) }
 
 /**
  *
  */
-fun MorphoSyntacticSentence.getSubj(token: MutableMorphoSyntacticToken): MutableMorphoSyntacticToken? =
+fun MorphoSyntacticSentence.getSubj(token: MorphoSynToken): MorphoSynToken? =
   this.getDependents(token.id).firstOrNull { it.isDependentAs(Subject::class) }
 
 /**
  *
  */
-fun MorphoSyntacticSentence.getTraceSubj(token: MutableMorphoSyntacticToken): MutableMorphoSyntacticToken? =
+fun MorphoSyntacticSentence.getTraceSubj(token: MorphoSynToken): MorphoSynToken? =
   this.getSubj(token)?.takeUnless { it !is Trace }
 
 /**
  *
  */
-val MutableMorphoSyntacticToken.isImpersonal: Boolean get() = false  // TODO()
+val MorphoSynToken.isImpersonal: Boolean get() = false  // TODO()
 
 /**
  *
  */
-val MutableMorphoSyntacticToken.isActive: Boolean get() = true // TODO()
+val MorphoSynToken.isActive: Boolean get() = true // TODO()
 
 /**
  *
  */
-val MutableMorphoSyntacticToken.isVerbNotAux: Boolean get() = this.isVerb && !this.isAux
+val MorphoSynToken.isVerbNotAux: Boolean get() = this.isVerb && !this.isAux
 
 /**
  *
  */
-val MutableMorphoSyntacticToken.isVerb: Boolean get() = this.flatMorphologies.any { it is Verb }
+val MorphoSynToken.isVerb: Boolean get() = this.flatMorphologies.any { it is Verb }
 
 /**
  *
  */
-val MutableMorphoSyntacticToken.isVerbInfinite: Boolean get() = TODO()
+val MorphoSynToken.isVerbInfinite: Boolean get() = TODO()
 
 /**
  * TODO: find a better and safe solution
  */
-val MutableMorphoSyntacticToken.isVerbGerundive: Boolean get() = this.flatMorphologies.any {
+val MorphoSynToken.isVerbGerundive: Boolean get() = this.flatMorphologies.any {
   it is Verb && it.mood == Mood.Gerund
 }
 
 /**
  * TODO: find a better and safe solution
  */
-val MutableMorphoSyntacticToken.isVerbParticiple: Boolean get() = this.flatMorphologies.any {
+val MorphoSynToken.isVerbParticiple: Boolean get() = this.flatMorphologies.any {
   it is Verb && it.mood == Mood.Participle
 }
 
 /**
  * TODO: find a better and safe solution
  */
-val MutableMorphoSyntacticToken.isVerbExplicit: Boolean get() = this.flatMorphologies.any {
+val MorphoSynToken.isVerbExplicit: Boolean get() = this.flatMorphologies.any {
   it is Verb && it.mood in listOf(Mood.Indicative, Mood.Subjunctive, Mood.Conditional)
 }
 
 /**
  *
  */
-val MutableMorphoSyntacticToken.isAux: Boolean get() = this.isDependentAs(Auxiliary.Tense::class)
+val MorphoSynToken.isAux: Boolean get() = this.isDependentAs(Auxiliary.Tense::class)
 
 /**
  *
  */
-val MutableMorphoSyntacticToken.isNeg: Boolean get() = this.isDependentAs(RestrictiveModifier.Negative::class)
+val MorphoSynToken.isNeg: Boolean get() = this.isDependentAs(RestrictiveModifier.Negative::class)
 
 /**
  *
  */
-val MutableMorphoSyntacticToken.isCoord2Nd: Boolean get() = TODO("Coord2Nd class is missing") // this.matches(Coord2Nd::class)
+val MorphoSynToken.isCoord2Nd: Boolean get() = TODO("Coord2Nd class is missing") // this.matches(Coord2Nd::class)
 
 /**
  *
  */
-val MutableMorphoSyntacticToken.isRMod: Boolean get() = this.isDependentAs(RestrictiveModifier::class)
+val MorphoSynToken.isRMod: Boolean get() = this.isDependentAs(RestrictiveModifier::class)
 
 /**
  *

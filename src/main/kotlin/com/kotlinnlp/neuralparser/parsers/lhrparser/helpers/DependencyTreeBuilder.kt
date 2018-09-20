@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.dependencytree.CycleDetectedError
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
@@ -24,7 +24,7 @@ import com.kotlinnlp.neuralparser.utils.notEmptyOr
  * @param lss the latent syntactic structure of the input sentence
  * @param labeler a classifier of grammatical configurations (can be null)
  * @param constraints a list of linguistic constraints (can be null)
- * @param morphoDeprelSelector a morpho-deprel selector used to build a [MorphoSyntacticToken]
+ * @param morphoDeprelSelector a morpho-deprel selector used to build a [MorphoSynToken]
  * @param labelerScoreThreshold the score threshold above which to consider a labeler output valid
  * @param maxBeamSize the max number of parallel states that the beam supports
  * @param maxForkSize the max number of forks that can be generated from a state
