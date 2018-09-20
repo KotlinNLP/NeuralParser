@@ -90,13 +90,11 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    * Get the morphologies that are compatible with the deprel of a given token.
    *
    * @param token a parsing token
-   * @param morphologies the list of possible morphologies of the token
    * @param grammaticalConfiguration the grammatical configuration of the token
    *
    * @return the morphologies compatible with the given deprel
    */
   override fun getValidMorphologies(token: ParsingToken,
-                                    morphologies: List<Morphology>,
                                     grammaticalConfiguration: GrammaticalConfiguration): List<Morphology> {
 
     val posList: List<POSTag.Base> = grammaticalConfiguration.components.mapNotNull { it.pos as? POSTag.Base }

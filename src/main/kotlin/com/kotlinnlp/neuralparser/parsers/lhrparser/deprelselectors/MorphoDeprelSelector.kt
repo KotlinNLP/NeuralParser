@@ -38,12 +38,9 @@ interface MorphoDeprelSelector : Serializable {
    * Get the morphologies that are compatible with the deprel of a given token.
    *
    * @param token a parsing token
-   * @param morphologies the list of possible morphologies of the token
    * @param grammaticalConfiguration the grammatical configuration of the token
    *
    * @return the morphologies compatible with the given grammatical configuration
    */
-  fun getValidMorphologies(token: ParsingToken,
-                           morphologies: List<Morphology>,
-                           grammaticalConfiguration: GrammaticalConfiguration): List<Morphology>
+  fun getValidMorphologies(token: ParsingToken, grammaticalConfiguration: GrammaticalConfiguration): List<Morphology>
 }

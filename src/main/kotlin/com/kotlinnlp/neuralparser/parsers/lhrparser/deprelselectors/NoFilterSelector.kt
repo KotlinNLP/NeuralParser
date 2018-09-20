@@ -46,12 +46,11 @@ class NoFilterSelector : MorphoDeprelSelector {
    * Return all the morphologies as valid.
    *
    * @param token a parsing token
-   * @param morphologies the list of possible morphologies of the token
    * @param grammaticalConfiguration the grammatical configuration of the token
    *
    * @return all the given morphologies
    */
   override fun getValidMorphologies(token: ParsingToken,
-                                    morphologies: List<Morphology>,
-                                    grammaticalConfiguration: GrammaticalConfiguration): List<Morphology> = morphologies
+                                    grammaticalConfiguration: GrammaticalConfiguration): List<Morphology> =
+    token.morphologies
 }

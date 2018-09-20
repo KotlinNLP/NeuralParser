@@ -49,7 +49,6 @@ data class ParsingToken(
     // TODO: set the score adding the labeler prediction scores of configurations with the same pos
     val morphologies: List<ScoredMorphology> = morphoDeprelSelector.getValidMorphologies(
       token = this,
-      morphologies = this.morphologies,
       grammaticalConfiguration = grammaticalConfiguration
     ).map { ScoredMorphology(list = it.components, score = 0.0) }
 
