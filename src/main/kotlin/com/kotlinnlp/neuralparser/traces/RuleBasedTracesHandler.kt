@@ -63,10 +63,10 @@ class RuleBasedTracesHandler(private val corefHelpers: List<CorefHelper>) : Trac
    */
   private fun makeTraceMorphology(): List<ScoredMorphology> =
     listOf(ScoredMorphology(
-      list = listOf(SingleMorphology(
+      morphology = SingleMorphology(
         lemma = "", // TODO: it doesn't make sense for the trace
         pos = POS.Pron, // TODO: why don't use a 'Noun' instead?
-        allowIncompleteProperties = true)),
+        allowIncompleteProperties = true),
       score = 0.0)) // TODO: set it
 
   /**
