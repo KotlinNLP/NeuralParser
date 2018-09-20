@@ -129,12 +129,11 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    *
    * @return whether this deprel is valid respect to the given morphologies
    */
-  private fun GrammaticalConfiguration.isValid(possibleMorphologies: List<Morphology>): Boolean {
-
-    val posTags: List<POSTag?> = this.components.map { it.pos }
-
-    return possibleMorphologies.any { it.components.map { it.pos.baseAnnotation } == posTags }
-  }
+  private fun GrammaticalConfiguration.isValid(possibleMorphologies: List<Morphology>): Boolean =
+    possibleMorphologies.any {
+      it.components.size == this.components.size
+        && it.components.zip(this.components).all { it.first.pos == it.second.pos }
+    }
 
   /**
    * Build the deprel represented by this morphology annotation.
