@@ -99,9 +99,13 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
   override fun getValidMorphologies(token: ParsingToken,
                                     grammaticalConfiguration: GrammaticalConfiguration): List<Morphology> {
 
-    val posList: List<POSTag.Base> = grammaticalConfiguration.components.mapNotNull { it.pos as? POSTag.Base }
-    val possibleMorphologies: List<Morphology> =
-      token.morphologies.filter { it.components.map { it.pos.baseAnnotation } == posList }
+    val posList: List<POSTag.Base> =
+      grammaticalConfiguration.components.filter { it.pos != null }.map { it.pos as POSTag.Base }
+
+    val possibleMorphologies: List<Morphology> = token.morphologies.filter {
+      it.components.size == posList.size
+        && it.components.zip(posList).all { it.first.pos.baseAnnotation == it.second.type.baseAnnotation }
+    }
 
     return when {
 
@@ -142,8 +146,10 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
    */
   private fun GrammaticalConfiguration.isCompatible(possibleMorphologies: List<Morphology>): Boolean =
     possibleMorphologies.any {
-      it.components.size == this.components.size
-        && it.components.zip(this.components).all { it.first.pos == it.second.pos }
+      it.components.size == this.components.size &&
+        it.components.zip(this.components).all {
+          it.first.pos.baseAnnotation == (it.second.pos as POSTag.Base).type.baseAnnotation
+        }
     }
 
   /**
@@ -164,7 +170,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
       config = GrammaticalConfiguration(components = this.components.mapIndexed { i, it ->
         GrammaticalConfiguration.Component(
           syntacticDependency = if (i == 0) Top(direction) else Unknown(direction),
-          pos = POSTag.Base(it.pos))
+          pos = POSTag.Base(POS.byBaseAnnotation(it.pos.baseAnnotation)))
       }),
       score = score
     )
