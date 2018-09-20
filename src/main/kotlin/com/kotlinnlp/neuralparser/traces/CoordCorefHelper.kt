@@ -25,7 +25,9 @@ class CoordCorefHelper : CorefHelper {
       sentence.getTraceSubj(token)?.let { subj ->
         sentence.getGovernor(token)?.let { governor ->
 
-          if (governor.isVerb && token.mainMorphology.agree(governor.mainMorphology)) {
+          if (governor.isVerb && governor.flatMorphologies.let { gMorpho ->
+              token.flatMorphologies.any { tMorpho -> gMorpho.any { tMorpho.agree(it) } }
+            }) {
 
             sentence.getSubj(governor)?.let {
               subj.addCoReference(CoReference(
