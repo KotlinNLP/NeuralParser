@@ -10,7 +10,6 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.morphology.*
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.ContentWord
 import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Top
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Unknown
@@ -110,7 +109,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
 
       grammaticalConfiguration.type == GrammaticalConfiguration.Type.Single -> {
 
-        require(posList.single().type is ContentWord) {
+        require(posList.single().type.isContentWord) {
           "Grammatical configuration for tokens without morphological analysis must define a content word."
         }
 
