@@ -51,7 +51,7 @@ data class ParsingToken(
       token = this,
       morphologies = this.morphologies,
       grammaticalConfiguration = grammaticalConfiguration
-    ).map { ScoredMorphology(type = it.type, list = it.components, score = 0.0) }
+    ).map { ScoredMorphology(list = it.components, score = 0.0) }
 
     require(morphologies.all { it.components.size == grammaticalConfiguration.components.size }) {
       "The selected morphologies must have the same number of components of the given grammatical configuration."

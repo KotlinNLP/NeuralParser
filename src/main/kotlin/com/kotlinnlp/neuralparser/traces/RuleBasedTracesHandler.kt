@@ -63,7 +63,6 @@ class RuleBasedTracesHandler(private val corefHelpers: List<CorefHelper>) : Trac
    */
   private fun makeTraceMorphology(): List<ScoredMorphology> =
     listOf(ScoredMorphology(
-      type = Morphology.Type.Single,
       list = listOf(SingleMorphology(
         lemma = "", // TODO: it doesn't make sense for the trace
         pos = POS.Pron, // TODO: why don't use a 'Noun' instead?
