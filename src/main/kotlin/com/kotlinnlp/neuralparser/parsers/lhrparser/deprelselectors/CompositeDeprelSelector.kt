@@ -162,10 +162,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
   /**
    * @return whether this deprel defines a content word with a single morphology
    */
-  private fun GrammaticalConfiguration.isSingleContentWord(): Boolean {
-
-    val posTags: List<POSTag.Base> = this.components.map { it.pos as POSTag.Base }
-
-    return posTags.size == 1 && posTags.first().type.isContentWord
-  }
+  private fun GrammaticalConfiguration.isSingleContentWord(): Boolean =
+    this.type == GrammaticalConfiguration.Type.Single
+      && (this.components.single().pos as POSTag.Base).type.isContentWord
 }
