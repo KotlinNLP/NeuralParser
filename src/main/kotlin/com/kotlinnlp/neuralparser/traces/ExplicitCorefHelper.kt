@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser.traces
 
+import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.CoReference
@@ -55,11 +56,17 @@ class ExplicitCorefHelper : CorefHelper {
 
 
     val govSubjAgree: Boolean = govSubj?.let {
-      verb.mainMorphology.agree(it.mainMorphology, weakMatch = true)
+      val govSubjMorphologies: List<SingleMorphology> = it.flatMorphologies
+      verb.flatMorphologies.any { vMorpho ->
+        govSubjMorphologies.any { sMorpho -> vMorpho.agree(sMorpho, weakMatch = true) }
+      }
     } == true
 
     val govObjAgree: Boolean = govObj?.let {
-      verb.mainMorphology.agree(it.mainMorphology, weakMatch = true)
+      val govObjMorphologies: List<SingleMorphology> = it.flatMorphologies
+      verb.flatMorphologies.any { vMorpho ->
+        govObjMorphologies.any { oMorpho -> vMorpho.agree(oMorpho, weakMatch = true) }
+      }
     } == true
 
     return if (govSubjAgree && govObjAgree) {
