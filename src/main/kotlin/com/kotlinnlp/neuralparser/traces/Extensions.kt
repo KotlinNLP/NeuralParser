@@ -32,25 +32,25 @@ fun MorphoSynSentence.missingRequiredSubject(token: MorphoSynToken): Boolean =
 /**
  *
  */
-fun MorphoSynSentence.getIObj(token: MorphoSynToken): MorphoSynToken? =
+fun MorphoSynSentence.getIObj(token: MorphoSynToken): MorphoSynToken.Single? =
   this.getDependents(token.id).firstOrNull { it.isDependentAs(IndirectObject::class) }
 
 /**
  *
  */
-fun MorphoSynSentence.getObj(token: MorphoSynToken): MorphoSynToken? =
+fun MorphoSynSentence.getObj(token: MorphoSynToken): MorphoSynToken.Single? =
   this.getDependents(token.id).firstOrNull { it.isDependentAs(Object::class) }
 
 /**
  *
  */
-fun MorphoSynSentence.getSubj(token: MorphoSynToken): MorphoSynToken? =
+fun MorphoSynSentence.getSubj(token: MorphoSynToken): MorphoSynToken.Single? =
   this.getDependents(token.id).firstOrNull { it.isDependentAs(Subject::class) }
 
 /**
  *
  */
-fun MorphoSynSentence.getTraceSubj(token: MorphoSynToken): MorphoSynToken? =
+fun MorphoSynSentence.getTraceSubj(token: MorphoSynToken): MorphoSynToken.Single? =
   this.getSubj(token)?.takeUnless { it !is Trace }
 
 /**
