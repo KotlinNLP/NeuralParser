@@ -73,11 +73,13 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
     val worstScore: Double = configurations.last().score
 
     return if (possibleMorphologies.isNotEmpty())
-      possibleConfigurations.filter { it.config.isCompatible(possibleMorphologies) }.notEmptyOr {
-        listOf(
-          possibleMorphologies.first()
-            .buildUnknownConfig(tokenIndex = tokenIndex, headIndex = headIndex, score = worstScore))
-      }
+      possibleConfigurations
+        .filter { possibleMorphologies.any { morpho -> it.config.isCompatible(morpho) } }
+        .notEmptyOr {
+          listOf(
+            possibleMorphologies.first()
+              .buildUnknownConfig(tokenIndex = tokenIndex, headIndex = headIndex, score = worstScore))
+        }
     else
       possibleConfigurations.filter { it.config.isSingleContentWord() }.notEmptyOr {
         listOf(ScoredGrammar(
@@ -89,23 +91,25 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
   }
 
   /**
-   * Get the morphologies that are compatible with the deprel of a given token.
+   * Get the morphologies of a given token that are compatible with the given grammatical configurations.
    *
-   * @param token a parsing token
+   * @param sentence the input sentence
+   * @param tokenIndex the index of a token of the sentence
    * @param grammaticalConfiguration the grammatical configuration of the token
    *
    * @return the morphologies compatible with the given deprel
    */
-  override fun getValidMorphologies(token: ParsingToken,
+  override fun getValidMorphologies(sentence: ParsingSentence,
+                                    tokenIndex: Int,
                                     grammaticalConfiguration: GrammaticalConfiguration): List<Morphology> {
 
+    val token: ParsingToken = sentence.tokens[tokenIndex]
     val posList: List<POSTag.Base> =
       grammaticalConfiguration.components.filter { it.pos != null }.map { it.pos as POSTag.Base }
 
-    val possibleMorphologies: List<Morphology> = token.morphologies.filter {
-      it.components.size == posList.size
-        && it.components.zip(posList).all { it.first.pos.baseAnnotation == it.second.type.baseAnnotation }
-    }
+    val possibleMorphologies: List<Morphology> =
+      (token.morphologies + sentence.getTokenMultiWordsMorphologies(tokenIndex))
+        .filter { grammaticalConfiguration.isCompatible(it) }
 
     return when {
 
@@ -140,17 +144,15 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
       .flatMap { it.morphologies }
 
   /**
-   * @param possibleMorphologies the list of possible morphologies of the token to which this deprel is assigned
+   * @param morphology a morphology
    *
-   * @return whether this deprel is compatible with the given morphologies
+   * @return true if this grammatical configuration is compatible with the given morphology, otherwise false
    */
-  private fun GrammaticalConfiguration.isCompatible(possibleMorphologies: List<Morphology>): Boolean =
-    possibleMorphologies.any {
-      it.components.size == this.components.size &&
-        it.components.zip(this.components).all {
-          it.first.pos.baseAnnotation == (it.second.pos as POSTag.Base).type.baseAnnotation
-        }
-    }
+  private fun GrammaticalConfiguration.isCompatible(morphology: Morphology): Boolean =
+    morphology.components.size == this.components.size &&
+      morphology.components.zip(this.components).all {
+        it.first.pos.baseAnnotation == (it.second.pos as POSTag.Base).type.baseAnnotation
+      }
 
   /**
    * Build a grammatical configuration from this [Morphology] with TOP or UNKNOWN dependency.
