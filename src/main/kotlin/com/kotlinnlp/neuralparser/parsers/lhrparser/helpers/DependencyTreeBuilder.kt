@@ -197,14 +197,14 @@ internal class DependencyTreeBuilder(
     labeler!!.predict(Labeler.Input(lss, this)).withIndex().associate { (tokenIndex, configurations) ->
 
       val tokenId: Int = this.elements[tokenIndex]
-      val validDeprels: List<ScoredGrammar> = morphoDeprelSelector.getValidConfigurations(
+      val validConfigurations: List<ScoredGrammar> = morphoDeprelSelector.getValidConfigurations(
         configurations = configurations,
         sentence = lss.sentence,
         tokenIndex = tokenIndex,
         headIndex = this.getHead(tokenId)?.let { this.getPosition(it) })
 
-      tokenId to validDeprels
+      tokenId to validConfigurations
         .filter { it.score >= labelerScoreThreshold }
-        .notEmptyOr { validDeprels.subList(0, 1) }
+        .notEmptyOr { validConfigurations.subList(0, 1) }
     }
 }

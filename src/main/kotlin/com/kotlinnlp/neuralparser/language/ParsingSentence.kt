@@ -46,8 +46,10 @@ class ParsingSentence(
       confidence = 0.0,
       dateTimes = if (this.dateTimes.isNotEmpty()) this.dateTimes else null,
       entities = null,
-      tokens = this.tokens.map {
+      tokens = this.tokens.mapIndexed { i, it ->
         it.toMutableMorphoSyntacticToken(
+          sentence = this,
+          tokenIndex = i,
           governorId = dependencyTree.getHead(it.id),
           attachmentScore = 0.0, // TODO: set it
           grammaticalConfiguration = dependencyTree.getGrammaticalConfiguration(it.id)!!,

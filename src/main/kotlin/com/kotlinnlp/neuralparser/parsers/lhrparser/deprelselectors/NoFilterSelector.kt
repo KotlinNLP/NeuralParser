@@ -10,7 +10,6 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 
 /**
@@ -45,12 +44,14 @@ class NoFilterSelector : MorphoDeprelSelector {
   /**
    * Return all the morphologies as valid.
    *
-   * @param token a parsing token
+   * @param sentence the input sentence
+   * @param tokenIndex the index of a token of the sentence
    * @param grammaticalConfiguration the grammatical configuration of the token
    *
    * @return all the given morphologies
    */
-  override fun getValidMorphologies(token: ParsingToken,
+  override fun getValidMorphologies(sentence: ParsingSentence,
+                                    tokenIndex: Int,
                                     grammaticalConfiguration: GrammaticalConfiguration): List<Morphology> =
-    token.morphologies
+    sentence.tokens[tokenIndex].morphologies
 }

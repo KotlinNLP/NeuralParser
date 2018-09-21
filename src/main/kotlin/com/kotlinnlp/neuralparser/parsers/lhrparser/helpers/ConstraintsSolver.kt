@@ -97,7 +97,9 @@ internal class ConstraintsSolver(
 
       applyConfiguration(this)
 
-      val tokens: List<MorphoSynToken> = sentence.tokens.map { it.toMorphoSyntactic() }
+      val tokens: List<MorphoSynToken> = sentence.tokens.mapIndexed { i, it ->
+        it.toMorphoSyntactic(sentence = sentence, tokenIndex = i)
+      }
       val tokensMap: Map<Int, MorphoSynToken> = tokens.associateBy { it.id }
 
       constraints.forEach { constraint ->
@@ -119,11 +121,14 @@ internal class ConstraintsSolver(
      *
      * @return a new morpho-syntactic token built from this
      */
-    private fun ParsingToken.toMorphoSyntactic(): MorphoSynToken = this.toMutableMorphoSyntacticToken(
-      governorId = dependencyTree.getHead(this.id),
-      attachmentScore = 0.0,
-      grammaticalConfiguration = dependencyTree.getGrammaticalConfiguration(this.id)!!,
-      morphoDeprelSelector = morphoDeprelSelector)
+    private fun ParsingToken.toMorphoSyntactic(sentence: ParsingSentence, tokenIndex: Int): MorphoSynToken =
+      this.toMutableMorphoSyntacticToken(
+        sentence = sentence,
+        tokenIndex = tokenIndex,
+        governorId = dependencyTree.getHead(this.id),
+        attachmentScore = 0.0,
+        grammaticalConfiguration = dependencyTree.getGrammaticalConfiguration(this.id)!!,
+        morphoDeprelSelector = morphoDeprelSelector)
   }
 
   /**
