@@ -47,6 +47,80 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
   }
 
   /**
+   * A helper that manages the morphologies of a [ParsingToken] and checks their compatibilities with a
+   * [GrammaticalConfiguration].
+   *
+   * @param sentence a sentence
+   * @param tokenIndex the index of a token of the sentence
+   */
+  private class TokenMorphologies(sentence: ParsingSentence, tokenIndex: Int) {
+
+    /**
+     * The focus token.
+     */
+    val token: ParsingToken = sentence.tokens[tokenIndex]
+
+    /**
+     * The union of the [token] morphologies and the morphologies of multi-words that the [token] introduces.
+     */
+    val startMorphologies: List<Morphology> = this.token.morphologies + sentence.getTokenStartMWMorphologies(tokenIndex)
+
+    /**
+     * The morphologies of multi-words that involve the [token], but do not start with.
+     */
+    val middleMWMorphologies: List<Morphology> = sentence.getTokenMiddleMWMorphologies(tokenIndex)
+
+    /**
+     * All the possible morphologies of the token (multi-words included).
+     */
+    val possibleMorphologies: List<Morphology> = this.startMorphologies + this.middleMWMorphologies
+
+    /**
+     * Check whether the morphologies of the [token] are compatible with the given configuration.
+     * Middle multi-words morphologies are compared partially (only with the "CONTIN" components.
+     *
+     * @param configuration a grammatical configuration
+     *
+     * @return true if the morphologies of the [token] are compatible with the given configuration, otherwise false
+     */
+    fun areCompatible(configuration: GrammaticalConfiguration): Boolean =
+      this.startMorphologies.any { configuration.isCompatible(it) } ||
+        this.middleMWMorphologies.any { configuration.isPartiallyCompatible(it) }
+
+    /**
+     * @param configuration a grammatical configuration
+     *
+     * @return the [token] morphologies that are compatible with the given configuration
+     */
+    fun getCompatible(configuration: GrammaticalConfiguration): List<Morphology> =
+      this.possibleMorphologies.filter { configuration.isCompatible(it) }
+
+    /**
+     * Return the morphologies of the multi-words that start with a given token.
+     *
+     * @param tokenIndex the index of the token
+     *
+     * @return a list of morphologies
+     */
+    private fun ParsingSentence.getTokenStartMWMorphologies(tokenIndex: Int): List<Morphology> =
+      this.multiWords
+        .filter { tokenIndex == it.startToken }
+        .flatMap { it.morphologies }
+
+    /**
+     * Return the morphologies of the multi-words that involve a given token, but do not start with it.
+     *
+     * @param tokenIndex the index of the token
+     *
+     * @return a list of morphologies
+     */
+    private fun ParsingSentence.getTokenMiddleMWMorphologies(tokenIndex: Int): List<Morphology> =
+      this.multiWords
+        .filter { tokenIndex in (it.startToken + 1)..it.endToken }
+        .flatMap { it.morphologies }
+  }
+
+  /**
    * Get the list of scored grammatical configurations that are valid for a given attachment.
    *
    * @param configurations the list of grammatical configurations, sorted by descending score
@@ -61,9 +135,7 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
                                       tokenIndex: Int,
                                       headIndex: Int?): List<ScoredGrammar> {
 
-    // The token morphologies obtained with a morphological analysis.
-    val possibleMorphologies: List<Morphology> =
-      sentence.tokens[tokenIndex].morphologies + sentence.getTokenMultiWordsMorphologies(tokenIndex)
+    val tokenMorphologies = TokenMorphologies(sentence = sentence, tokenIndex = tokenIndex)
 
     val correctDirection: SyntacticDependency.Direction =
       getDependencyDirection(tokenIndex = tokenIndex, headIndex = headIndex)
@@ -72,12 +144,12 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
     val possibleConfigurations: List<ScoredGrammar> = configurations.filter { it.config.direction == correctDirection }
     val worstScore: Double = configurations.last().score
 
-    return if (possibleMorphologies.isNotEmpty())
+    return if (tokenMorphologies.possibleMorphologies.isNotEmpty())
       possibleConfigurations
-        .filter { possibleMorphologies.any { morpho -> it.config.isCompatible(morpho) } }
+        .filter { tokenMorphologies.areCompatible(it.config) }
         .notEmptyOr {
           listOf(
-            possibleMorphologies.first()
+            tokenMorphologies.possibleMorphologies.first()
               .buildUnknownConfig(tokenIndex = tokenIndex, headIndex = headIndex, score = worstScore))
         }
     else
@@ -103,13 +175,8 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
                                     tokenIndex: Int,
                                     grammaticalConfiguration: GrammaticalConfiguration): List<Morphology> {
 
-    val token: ParsingToken = sentence.tokens[tokenIndex]
-    val posList: List<POSTag.Base> =
-      grammaticalConfiguration.components.filter { it.pos != null }.map { it.pos as POSTag.Base }
-
     val possibleMorphologies: List<Morphology> =
-      (token.morphologies + sentence.getTokenMultiWordsMorphologies(tokenIndex))
-        .filter { grammaticalConfiguration.isCompatible(it) }
+      TokenMorphologies(sentence = sentence, tokenIndex = tokenIndex).getCompatible(grammaticalConfiguration)
 
     return when {
 
@@ -117,42 +184,21 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
 
       grammaticalConfiguration.type == GrammaticalConfiguration.Type.Single -> {
 
-        require(posList.single().type.isContentWord) {
+        val pos: POSTag.Base = grammaticalConfiguration.components.single().pos as POSTag.Base
+
+        require(pos.type.isContentWord) {
           "Grammatical configuration for tokens without morphological analysis must define a content word."
         }
 
         listOf(Morphology(SingleMorphology(
-          lemma = token.form,
-          pos = posList.single().type,
+          lemma = sentence.tokens[tokenIndex].form,
+          pos = pos.type,
           allowIncompleteProperties = true)))
       }
 
       else -> listOf()
     }
   }
-
-  /**
-   * Return the morphologies associated to the multi-words that involve a given token.
-   *
-   * @param tokenIndex the index of the token
-   *
-   * @return a list of morphologies
-   */
-  private fun ParsingSentence.getTokenMultiWordsMorphologies(tokenIndex: Int): List<Morphology> =
-    this.multiWords
-      .filter { tokenIndex in it.startToken..it.endToken }
-      .flatMap { it.morphologies }
-
-  /**
-   * @param morphology a morphology
-   *
-   * @return true if this grammatical configuration is compatible with the given morphology, otherwise false
-   */
-  private fun GrammaticalConfiguration.isCompatible(morphology: Morphology): Boolean =
-    morphology.components.size == this.components.size &&
-      morphology.components.zip(this.components).all {
-        it.first.pos.baseAnnotation == (it.second.pos as POSTag.Base).type.baseAnnotation
-      }
 
   /**
    * Build a grammatical configuration from this [Morphology] with TOP or UNKNOWN dependency.
