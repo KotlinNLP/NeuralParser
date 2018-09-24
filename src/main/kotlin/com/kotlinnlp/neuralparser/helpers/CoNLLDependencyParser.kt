@@ -45,6 +45,7 @@ class CoNLLDependencyParser(
 
       it.copy(
         head = parsedToken.syntacticRelation.governor ?: 0, // Note: the CoNLL root ID is 0
+        posList = parsedToken.flatPOS,
         syntacticDependencies = parsedToken.flatSyntacticRelations.map { it.dependency }
       )
     })
