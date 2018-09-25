@@ -70,11 +70,11 @@ data class ParsingToken(
         id = this.id,
         form = this.form,
         position = checkNotNull(this.position) { "Composite words must have a position." },
-        components = grammaticalConfiguration.components.mapIndexed { i, it ->
+        components = grammaticalConfiguration.components.mapIndexed { i, component ->
           this.buildToken(
             governorId = if (i == 0) governorId else null,
             attachmentScore = attachmentScore,
-            grammaticalComponent = it,
+            grammaticalComponent = component,
             morphologies = morphologies.map { it.copy(list = it.components.subList(i, i + 1)) }) as Word
         }
       )
