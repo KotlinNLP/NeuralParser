@@ -53,5 +53,5 @@ class NoFilterSelector : MorphoDeprelSelector {
   override fun getValidMorphologies(sentence: ParsingSentence,
                                     tokenIndex: Int,
                                     grammaticalConfiguration: GrammaticalConfiguration): List<Morphology> =
-    sentence.tokens[tokenIndex].morphologies
+    sentence.tokens[tokenIndex].morphologies.filter { it.components.size == grammaticalConfiguration.components.size }
 }
