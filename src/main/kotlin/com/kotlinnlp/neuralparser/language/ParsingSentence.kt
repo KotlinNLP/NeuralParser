@@ -16,7 +16,6 @@ import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
 import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
 import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.NoFilterSelector
 
 /**
  * The sentence used as input of the [com.kotlinnlp.neuralparser.NeuralParser].
@@ -39,8 +38,7 @@ class ParsingSentence(
    *
    * @return a new [MorphoSynSentence]
    */
-  fun toMorphoSyntacticSentence(dependencyTree: DependencyTree,
-                                morphoDeprelSelector: MorphoDeprelSelector = NoFilterSelector()) =
+  fun toMorphoSyntacticSentence(dependencyTree: DependencyTree, morphoDeprelSelector: MorphoDeprelSelector) =
     MorphoSynSentence(
       id = 0,
       confidence = 0.0,

@@ -15,16 +15,13 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.
 /**
  * The selector that does not filter.
  */
-class NoFilterSelector : MorphoDeprelSelector {
+object NoFilterSelector : MorphoDeprelSelector {
 
-  companion object {
-
-    /**
-     * Private val used to serialize the class (needed by Serializable).
-     */
-    @Suppress("unused")
-    private const val serialVersionUID: Long = 1L
-  }
+  /**
+   * Private val used to serialize the class (needed by Serializable).
+   */
+  @Suppress("unused")
+  private const val serialVersionUID: Long = 1L
 
   /**
    * Get the list of scored grammatical configurations that are valid for a given attachment.

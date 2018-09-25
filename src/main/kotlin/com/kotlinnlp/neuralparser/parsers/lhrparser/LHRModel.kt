@@ -52,7 +52,7 @@ class LHRModel(
   val useLabeler: Boolean,
   val lossCriterionType: LossCriterionType,
   val predictPosTags: Boolean,
-  val morphoDeprelSelector: MorphoDeprelSelector = NoFilterSelector()
+  val morphoDeprelSelector: MorphoDeprelSelector = NoFilterSelector
 ) : NeuralParserModel(language) {
 
   companion object {

@@ -127,8 +127,8 @@ private fun buildParser(
   lossCriterionType = LossCriterionType.Softmax,
   predictPosTags = !parsedArgs.noPosPrediction,
   morphoDeprelSelector = when (parsedArgs.morphoDeprelSelectorType) {
-    CommandLineArguments.MorphoDeprelSelectorType.NO_FILTER -> NoFilterSelector()
-    CommandLineArguments.MorphoDeprelSelectorType.COMPOSITE -> CompositeDeprelSelector()
+    CommandLineArguments.MorphoDeprelSelectorType.NO_FILTER -> NoFilterSelector
+    CommandLineArguments.MorphoDeprelSelectorType.COMPOSITE -> CompositeDeprelSelector
   }))
 
 /**

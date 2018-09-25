@@ -21,30 +21,7 @@ import com.kotlinnlp.neuralparser.utils.notEmptyOr
 /**
  * The deprel selector to use with the "composite" deprel format.
  */
-class CompositeDeprelSelector : MorphoDeprelSelector {
-
-  companion object {
-
-    /**
-     * Private val used to serialize the class (needed by Serializable).
-     */
-    @Suppress("unused")
-    private const val serialVersionUID: Long = 1L
-
-    /**
-     * Get the direction of a syntactic dependency.
-     *
-     * @param tokenIndex the index of the token to which the deprel must be assigned
-     * @param headIndex the index of the token head (can be null)
-     *
-     * @return the direction of the syntactic dependency between the given token and its head
-     */
-    private fun getDependencyDirection(tokenIndex: Int, headIndex: Int?): SyntacticDependency.Direction = when {
-      headIndex == null -> SyntacticDependency.Direction.ROOT
-      tokenIndex < headIndex -> SyntacticDependency.Direction.LEFT
-      else -> SyntacticDependency.Direction.RIGHT
-    }
-  }
+object CompositeDeprelSelector : MorphoDeprelSelector {
 
   /**
    * A helper that manages the morphologies of a [ParsingToken] and checks their compatibilities with a
@@ -119,6 +96,12 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
         .filter { tokenIndex in (it.startToken + 1)..it.endToken }
         .flatMap { it.morphologies }
   }
+
+  /**
+   * Private val used to serialize the class (needed by Serializable).
+   */
+  @Suppress("unused")
+  private const val serialVersionUID: Long = 1L
 
   /**
    * Get the list of scored grammatical configurations that are valid for a given attachment.
@@ -222,6 +205,20 @@ class CompositeDeprelSelector : MorphoDeprelSelector {
       }),
       score = score
     )
+  }
+
+  /**
+   * Get the direction of a syntactic dependency.
+   *
+   * @param tokenIndex the index of the token to which the deprel must be assigned
+   * @param headIndex the index of the token head (can be null)
+   *
+   * @return the direction of the syntactic dependency between the given token and its head
+   */
+  private fun getDependencyDirection(tokenIndex: Int, headIndex: Int?): SyntacticDependency.Direction = when {
+    headIndex == null -> SyntacticDependency.Direction.ROOT
+    tokenIndex < headIndex -> SyntacticDependency.Direction.LEFT
+    else -> SyntacticDependency.Direction.RIGHT
   }
 
   /**
