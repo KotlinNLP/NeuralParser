@@ -14,7 +14,7 @@ import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
 import com.kotlinnlp.linguisticdescription.sentence.token.*
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.LabelerSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 
 /**
  * The token of the [ParsingSentence].

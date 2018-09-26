@@ -15,7 +15,7 @@ import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
 import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
 import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.LabelerSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 
 /**
  * The sentence used as input of the [com.kotlinnlp.neuralparser.NeuralParser].

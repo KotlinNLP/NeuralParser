@@ -12,7 +12,7 @@ import com.kotlinnlp.dependencytree.CycleDetectedError
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.LabelerSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 import com.kotlinnlp.neuralparser.utils.notEmptyOr

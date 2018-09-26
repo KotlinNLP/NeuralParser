@@ -20,8 +20,8 @@ import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.LabelerSelector
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.NoFilterSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.NoFilterSelector
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkModel
