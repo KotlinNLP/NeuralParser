@@ -126,9 +126,9 @@ private fun buildParser(
   useLabeler = !parsedArgs.noLabeler,
   lossCriterionType = LossCriterionType.Softmax,
   predictPosTags = !parsedArgs.noPosPrediction,
-  morphoDeprelSelector = when (parsedArgs.morphoDeprelSelectorType) {
-    CommandLineArguments.MorphoDeprelSelectorType.NO_FILTER -> NoFilterSelector
-    CommandLineArguments.MorphoDeprelSelectorType.COMPOSITE -> CompositeSelector
+  labelerSelector = when (parsedArgs.labelerSelectorType) {
+    CommandLineArguments.LabelerSelectorType.NO_FILTER -> NoFilterSelector
+    CommandLineArguments.LabelerSelectorType.COMPOSITE -> CompositeSelector
   }))
 
 /**

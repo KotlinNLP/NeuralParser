@@ -14,7 +14,7 @@ import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
 import com.kotlinnlp.linguisticdescription.sentence.token.*
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.LabelerSelector
 
 /**
  * The token of the [ParsingSentence].
@@ -37,7 +37,7 @@ data class ParsingToken(
    * @param governorId the governor id
    * @param attachmentScore the attachment score
    * @param grammaticalConfiguration the grammatical configuration of this token
-   * @param morphoDeprelSelector the morphology and deprel selector
+   * @param labelerSelector a labeler prediction selector
    *
    * @return a new morpho syntactic token
    */
@@ -46,10 +46,10 @@ data class ParsingToken(
                                     governorId: Int?,
                                     attachmentScore: Double,
                                     grammaticalConfiguration: GrammaticalConfiguration,
-                                    morphoDeprelSelector: MorphoDeprelSelector): MorphoSynToken {
+                                    labelerSelector: LabelerSelector): MorphoSynToken {
 
     // TODO: set the score adding the labeler prediction scores of configurations with the same pos
-    val morphologies: List<ScoredMorphology> = morphoDeprelSelector.getValidMorphologies(
+    val morphologies: List<ScoredMorphology> = labelerSelector.getValidMorphologies(
       sentence = sentence,
       tokenIndex = tokenIndex,
       grammaticalConfiguration = grammaticalConfiguration

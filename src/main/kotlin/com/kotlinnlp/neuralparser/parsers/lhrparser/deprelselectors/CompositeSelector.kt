@@ -19,9 +19,10 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.
 import com.kotlinnlp.neuralparser.utils.notEmptyOr
 
 /**
- * The deprel selector to use with the "composite" deprel format.
+ * The selector to use when the labeler predictions are defined as combinations of POS and syntactic types in the
+ * Base format.
  */
-object CompositeSelector : MorphoDeprelSelector {
+object CompositeSelector : LabelerSelector {
 
   /**
    * A helper that manages the morphologies of a [ParsingToken] and checks their compatibilities with a

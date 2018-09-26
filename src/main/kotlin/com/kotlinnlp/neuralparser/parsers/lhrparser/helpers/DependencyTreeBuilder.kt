@@ -12,7 +12,7 @@ import com.kotlinnlp.dependencytree.CycleDetectedError
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.LabelerSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 import com.kotlinnlp.neuralparser.utils.notEmptyOr
@@ -24,7 +24,7 @@ import com.kotlinnlp.neuralparser.utils.notEmptyOr
  * @param lss the latent syntactic structure of the input sentence
  * @param labeler a classifier of grammatical configurations (can be null)
  * @param constraints a list of linguistic constraints (can be null)
- * @param morphoDeprelSelector a morpho-deprel selector used to build a [MorphoSynToken]
+ * @param labelerSelector a labeler selector used to build a [MorphoSynToken]
  * @param labelerScoreThreshold the score threshold above which to consider a labeler output valid
  * @param maxBeamSize the max number of parallel states that the beam supports
  * @param maxForkSize the max number of forks that can be generated from a state
@@ -35,7 +35,7 @@ internal class DependencyTreeBuilder(
   private val scoresMap: ArcScores,
   private val labeler: Labeler?,
   private val constraints: List<Constraint>?,
-  private val morphoDeprelSelector: MorphoDeprelSelector,
+  private val labelerSelector: LabelerSelector,
   private val labelerScoreThreshold: Double,
   maxBeamSize: Int = 5,
   maxForkSize: Int = 3,
@@ -180,7 +180,7 @@ internal class DependencyTreeBuilder(
           sentence = lss.sentence,
           dependencyTree = this,
           constraints = it,
-          morphoDeprelSelector = morphoDeprelSelector,
+          labelerSelector = labelerSelector,
           scoresMap = configMap
         ).solve()
       } catch (e: ConstraintsSolver.InvalidConfiguration) {
@@ -197,7 +197,7 @@ internal class DependencyTreeBuilder(
     labeler!!.predict(Labeler.Input(lss, this)).withIndex().associate { (tokenIndex, configurations) ->
 
       val tokenId: Int = this.elements[tokenIndex]
-      val validConfigurations: List<ScoredGrammar> = morphoDeprelSelector.getValidConfigurations(
+      val validConfigurations: List<ScoredGrammar> = labelerSelector.getValidConfigurations(
         configurations = configurations,
         sentence = lss.sentence,
         tokenIndex = tokenIndex,

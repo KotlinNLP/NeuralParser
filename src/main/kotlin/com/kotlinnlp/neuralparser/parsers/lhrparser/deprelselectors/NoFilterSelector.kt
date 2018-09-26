@@ -15,7 +15,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.
 /**
  * The selector that does not filter.
  */
-object NoFilterSelector : MorphoDeprelSelector {
+object NoFilterSelector : LabelerSelector {
 
   /**
    * Private val used to serialize the class (needed by Serializable).

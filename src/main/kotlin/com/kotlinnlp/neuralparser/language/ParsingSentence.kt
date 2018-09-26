@@ -15,7 +15,7 @@ import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
 import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
 import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.LabelerSelector
 
 /**
  * The sentence used as input of the [com.kotlinnlp.neuralparser.NeuralParser].
@@ -34,11 +34,11 @@ class ParsingSentence(
    * TODO: set all properties except for tokens
    *
    * @param dependencyTree the dependency tree from which to extract the dependency relations
-   * @param morphoDeprelSelector the morphology and deprel selector
+   * @param labelerSelector a labeler prediction selector
    *
    * @return a new [MorphoSynSentence]
    */
-  fun toMorphoSyntacticSentence(dependencyTree: DependencyTree, morphoDeprelSelector: MorphoDeprelSelector) =
+  fun toMorphoSyntacticSentence(dependencyTree: DependencyTree, labelerSelector: LabelerSelector) =
     MorphoSynSentence(
       id = 0,
       confidence = 0.0,
@@ -51,7 +51,7 @@ class ParsingSentence(
           governorId = dependencyTree.getHead(it.id),
           attachmentScore = 0.0, // TODO: set it
           grammaticalConfiguration = dependencyTree.getGrammaticalConfiguration(it.id)!!,
-          morphoDeprelSelector = morphoDeprelSelector)
+          labelerSelector = labelerSelector)
       }
     )
 }

@@ -14,9 +14,9 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.
 import java.io.Serializable
 
 /**
- * The selector of the valid morphologies and the best deprel of a prediction.
+ * The selector of valid configurations of the labeler and compatible morphologies.
  */
-interface MorphoDeprelSelector : Serializable {
+interface LabelerSelector : Serializable {
 
   /**
    * Get the list of scored grammatical configurations that are valid for a given attachment.

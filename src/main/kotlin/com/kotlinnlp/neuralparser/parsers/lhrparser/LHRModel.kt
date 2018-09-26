@@ -20,7 +20,7 @@ import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.LabelerSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.NoFilterSelector
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
@@ -41,7 +41,7 @@ import java.io.InputStream
  * @property useLabeler whether to use the labeler
  * @property lossCriterionType the training mode of the labeler
  * @property predictPosTags whether to predict the POS tags together with the Deprels
- * @property morphoDeprelSelector the morphology and deprel selector (no filter by default)
+ * @property labelerSelector the labeler prediction selector (no filter by default)
  */
 class LHRModel(
   language: Language = Language.Unknown,
@@ -52,7 +52,7 @@ class LHRModel(
   val useLabeler: Boolean,
   val lossCriterionType: LossCriterionType,
   val predictPosTags: Boolean,
-  val morphoDeprelSelector: MorphoDeprelSelector = NoFilterSelector
+  val labelerSelector: LabelerSelector = NoFilterSelector
 ) : NeuralParserModel(language) {
 
   companion object {

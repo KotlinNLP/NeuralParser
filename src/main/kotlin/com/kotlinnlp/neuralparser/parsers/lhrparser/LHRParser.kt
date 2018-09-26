@@ -63,12 +63,12 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
       scoresMap = CosineDecoder().decode(lss),
       labeler = this.labeler,
       constraints = this.constraints,
-      morphoDeprelSelector = this.model.morphoDeprelSelector,
+      labelerSelector = this.model.labelerSelector,
       labelerScoreThreshold = this.model.labelerScoreThreshold
     ).build()
 
     return sentence.toMorphoSyntacticSentence(
       dependencyTree = dependencyTree,
-      morphoDeprelSelector = this.model.morphoDeprelSelector)
+      labelerSelector = this.model.labelerSelector)
   }
 }

@@ -12,7 +12,7 @@ import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.MorphoDeprelSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.LabelerSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 
 /**
@@ -22,7 +22,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.
  * @param sentence a parsing sentence
  * @param dependencyTree the dependency tree of the given sentence
  * @param constraints a list of linguistic constraints
- * @param morphoDeprelSelector a morpho-deprel selector used to build a [MorphoSynToken]
+ * @param labelerSelector a labeler selector used to build a [MorphoSynToken]
  * @param scoresMap a map of valid deprels (sorted by descending score) associated to each token id
  * @param maxBeamSize the max number of parallel states that the beam supports
  * @param maxForkSize the max number of forks that can be generated from a state
@@ -32,7 +32,7 @@ internal class ConstraintsSolver(
   private val sentence: ParsingSentence,
   private val dependencyTree: DependencyTree,
   private val constraints: List<Constraint>,
-  private val morphoDeprelSelector: MorphoDeprelSelector,
+  private val labelerSelector: LabelerSelector,
   scoresMap: Map<Int, List<ScoredGrammar>>,
   maxBeamSize: Int = 5,
   maxForkSize: Int = 3,
@@ -128,7 +128,7 @@ internal class ConstraintsSolver(
         governorId = dependencyTree.getHead(this.id),
         attachmentScore = 0.0,
         grammaticalConfiguration = dependencyTree.getGrammaticalConfiguration(this.id)!!,
-        morphoDeprelSelector = morphoDeprelSelector)
+        labelerSelector = labelerSelector)
   }
 
   /**

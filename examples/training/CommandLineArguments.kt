@@ -31,9 +31,9 @@ class CommandLineArguments(args: Array<String>) {
   }
 
   /**
-   * The type of morpho-deprel selector.
+   * The type of the labeler selector.
    */
-  enum class MorphoDeprelSelectorType {
+  enum class LabelerSelectorType {
     NO_FILTER,
     COMPOSITE
   }
@@ -229,13 +229,13 @@ class CommandLineArguments(args: Array<String>) {
   ).default { TokensEncodingType.WORD_AND_POS_EMBEDDINGS }
 
   /**
-   * The type of morpho-deprel selector.
+   * The type of the labeler selector.
    */
-  val morphoDeprelSelectorType: MorphoDeprelSelectorType by parser.mapping(
-    "--no-filter-morpho-deprel" to MorphoDeprelSelectorType.NO_FILTER,
-    "--composite-morpho-deprel" to MorphoDeprelSelectorType.COMPOSITE,
-    help = "the type of morpho-deprel selector (default --no-filter-morpho-deprel)"
-  ).default { MorphoDeprelSelectorType.NO_FILTER}
+  val labelerSelectorType: LabelerSelectorType by parser.mapping(
+    "--no-filter-selector" to LabelerSelectorType.NO_FILTER,
+    "--composite-selector" to LabelerSelectorType.COMPOSITE,
+    help = "the type of the labeler selector (default --no-filter-selector)"
+  ).default { LabelerSelectorType.NO_FILTER}
 
   /**
    * Whether to do not show details about the training.
