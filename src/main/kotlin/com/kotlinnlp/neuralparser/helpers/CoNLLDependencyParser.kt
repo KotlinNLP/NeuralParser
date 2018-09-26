@@ -7,13 +7,16 @@
 
 package com.kotlinnlp.neuralparser.helpers
 
+import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
+import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.BaseSentence
+import com.kotlinnlp.neuralparser.utils.notEmptyOr
 
 /**
  * A helper that wraps a generic [NeuralParser] to let it working on CoNLL sentences.
@@ -45,7 +48,7 @@ class CoNLLDependencyParser(
 
       it.copy(
         head = parsedToken.syntacticRelation.governor ?: 0, // Note: the CoNLL root ID is 0
-        posList = parsedToken.flatPOS,
+        posList = parsedToken.flatPOS.notEmptyOr { listOf(POSTag(CoNLLToken.EMPTY_FILLER)) },
         syntacticDependencies = parsedToken.flatSyntacticRelations.map { it.dependency }
       )
     })
