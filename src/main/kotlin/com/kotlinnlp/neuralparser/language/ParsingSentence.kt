@@ -38,14 +38,14 @@ class ParsingSentence(
    *
    * @return a new [MorphoSynSentence]
    */
-  fun toMorphoSyntacticSentence(dependencyTree: DependencyTree, labelerSelector: LabelerSelector) =
+  fun toMorphoSynSentence(dependencyTree: DependencyTree, labelerSelector: LabelerSelector) =
     MorphoSynSentence(
       id = 0,
       confidence = 0.0,
       dateTimes = if (this.dateTimes.isNotEmpty()) this.dateTimes else null,
       entities = null,
       tokens = this.tokens.mapIndexed { i, it ->
-        it.toMutableMorphoSyntacticToken(
+        it.toMorphoSynToken(
           sentence = this,
           tokenIndex = i,
           governorId = dependencyTree.getHead(it.id),

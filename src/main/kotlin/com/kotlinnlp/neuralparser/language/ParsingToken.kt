@@ -41,12 +41,12 @@ data class ParsingToken(
    *
    * @return a new morpho syntactic token
    */
-  fun toMutableMorphoSyntacticToken(sentence: ParsingSentence,
-                                    tokenIndex: Int,
-                                    governorId: Int?,
-                                    attachmentScore: Double,
-                                    config: GrammaticalConfiguration,
-                                    labelerSelector: LabelerSelector): MorphoSynToken {
+  fun toMorphoSynToken(sentence: ParsingSentence,
+                       tokenIndex: Int,
+                       governorId: Int?,
+                       attachmentScore: Double,
+                       config: GrammaticalConfiguration,
+                       labelerSelector: LabelerSelector): MorphoSynToken {
 
     // TODO: set the score adding the labeler prediction scores of configurations with the same pos
     val morphologies: List<ScoredMorphology> = labelerSelector.getValidMorphologies(

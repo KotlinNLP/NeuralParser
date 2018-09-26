@@ -67,8 +67,6 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
       labelerScoreThreshold = this.model.labelerScoreThreshold
     ).build()
 
-    return sentence.toMorphoSyntacticSentence(
-      dependencyTree = dependencyTree,
-      labelerSelector = this.model.labelerSelector)
+    return sentence.toMorphoSynSentence(dependencyTree = dependencyTree, labelerSelector = this.model.labelerSelector)
   }
 }

@@ -131,7 +131,7 @@ internal class ConstraintsSolver(
      * @return a new morpho-syntactic token built from this
      */
     private fun ParsingToken.toMorphoSyntactic(sentence: ParsingSentence, tokenIndex: Int): MorphoSynToken =
-      this.toMutableMorphoSyntacticToken(
+      this.toMorphoSynToken(
         sentence = sentence,
         tokenIndex = tokenIndex,
         governorId = dependencyTree.getHead(this.id),
