@@ -83,9 +83,12 @@ internal class ConstraintsSolver(
     override var isValid: Boolean = true
 
     /**
-     * Apply the linguistic constraints to this state.
+     * Apply the linguistic constraints to this state and apply its configuration to the dependency tree.
      */
     init {
+
+      // Attention: the configuration must be applied before the constraints
+      applyConfiguration(this)
 
       this.applyConstraints()
 
@@ -97,8 +100,6 @@ internal class ConstraintsSolver(
      * Apply the [constraints] to this state.
      */
     private fun applyConstraints() {
-
-      applyConfiguration(this)
 
       val tokens: List<MorphoSynToken> = sentence.tokens.mapIndexed { i, it ->
         it.toMorphoSyntactic(sentence = sentence, tokenIndex = i)
@@ -146,7 +147,12 @@ internal class ConstraintsSolver(
    * @throws InvalidConfiguration if all the possible configurations violate a hard constraint
    */
   fun solve() {
-    this.applyConfiguration(this.findBestConfiguration(onlyValid = false)!!)
+
+    val bestConfig: GrammarState = this.findBestConfiguration(onlyValid = false)!!
+
+    this.applyConfiguration(bestConfig)
+
+    this.dependencyTree.score = bestConfig.score
   }
 
   /**
@@ -170,8 +176,6 @@ internal class ConstraintsSolver(
         dependent = it.id,
         configuration = if (it.value.isValid) it.value.grammar.config else it.value.grammar.config.toUnknown())
     }
-
-    this.dependencyTree.score = state.score
   }
 
   /**
