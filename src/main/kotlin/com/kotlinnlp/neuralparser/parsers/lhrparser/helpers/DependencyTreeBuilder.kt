@@ -173,23 +173,18 @@ internal class DependencyTreeBuilder(
 
     val configMap: Map<Int, List<ScoredGrammar>> = this.buildConfigurationsMap()
 
-    fun applyBestConfiguration() = configMap.forEach { tokenId, configurations ->
-      this.setGrammaticalConfiguration(dependent = tokenId, configuration = configurations.first().config)
-    }
-
-    constraints?.let {
-      try {
-        ConstraintsSolver(
-          sentence = lss.sentence,
-          dependencyTree = this,
-          constraints = it,
-          labelerSelector = labelerSelector,
-          scoresMap = configMap
-        ).solve()
-      } catch (e: ConstraintsSolver.InvalidConfiguration) {
-        applyBestConfiguration()
+    if (constraints != null)
+      ConstraintsSolver(
+        sentence = lss.sentence,
+        dependencyTree = this,
+        constraints = constraints,
+        labelerSelector = labelerSelector,
+        scoresMap = configMap
+      ).solve()
+    else
+      configMap.forEach { tokenId, configurations ->
+        this.setGrammaticalConfiguration(dependent = tokenId, configuration = configurations.first().config)
       }
-    } ?: applyBestConfiguration()
   }
 
   /**

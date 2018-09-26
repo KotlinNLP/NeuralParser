@@ -9,7 +9,9 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 
 import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
+import com.kotlinnlp.linguisticdescription.syntax.dependencies.Unknown
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
@@ -53,8 +55,9 @@ internal class ConstraintsSolver(
    * A value containing a grammatical configuration.
    *
    * @property grammar a scored grammatical configuration
+   * @property isValid whether the grammatical configuration violates a hard constraint or not
    */
-  internal data class GrammarValue(var grammar: ScoredGrammar) : Value() {
+  internal data class GrammarValue(var grammar: ScoredGrammar, var isValid: Boolean = true) : Value() {
 
     /**
      * The score of this value.
@@ -109,7 +112,12 @@ internal class ConstraintsSolver(
             constraint.isVerified(token = tokensMap.getValue(it.id), tokens = tokens, dependencyTree = dependencyTree)
 
           if (!isVerified) {
-            if (constraint.isHard) this.isValid = false
+
+            if (constraint.isHard) {
+              it.value.isValid = false
+              this.isValid = false
+            }
+
             it.value.grammar = it.value.grammar.copy(score = it.value.score * constraint.penalty)
           }
         }
@@ -138,7 +146,7 @@ internal class ConstraintsSolver(
    * @throws InvalidConfiguration if all the possible configurations violate a hard constraint
    */
   fun solve() {
-    this.findBestConfiguration()?.let { this.applyConfiguration(it) } ?: throw InvalidConfiguration()
+    this.applyConfiguration(this.findBestConfiguration(onlyValid = false)!!)
   }
 
   /**
@@ -158,9 +166,20 @@ internal class ConstraintsSolver(
   private fun applyConfiguration(state: GrammarState) {
 
     state.elements.forEach {
-      this.dependencyTree.setGrammaticalConfiguration(dependent = it.id, configuration = it.value.grammar.config)
+      this.dependencyTree.setGrammaticalConfiguration(
+        dependent = it.id,
+        configuration = if (it.value.isValid) it.value.grammar.config else it.value.grammar.config.toUnknown())
     }
 
     this.dependencyTree.score = state.score
   }
+
+  /**
+   * @return a new grammatical configuration with unknown values built from this
+   */
+  private fun GrammaticalConfiguration.toUnknown() = GrammaticalConfiguration(this.components.map {
+    GrammaticalConfiguration.Component(
+      syntacticDependency = Unknown(direction = it.syntacticDependency.direction),
+      pos = null)
+  })
 }
