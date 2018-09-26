@@ -166,7 +166,8 @@ object CompositeSelector : LabelerSelector {
 
       possibleMorphologies.isNotEmpty() -> possibleMorphologies
 
-      configuration.type == GrammaticalConfiguration.Type.Single -> {
+      configuration.type == GrammaticalConfiguration.Type.Single &&
+        configuration.components.single().pos != null -> {
 
         val pos: POSTag.Base = configuration.components.single().pos as POSTag.Base
 
@@ -174,10 +175,8 @@ object CompositeSelector : LabelerSelector {
           "Grammatical configuration for tokens without morphological analysis must define a content word."
         }
 
-        listOf(Morphology(SingleMorphology(
-          lemma = sentence.tokens[tokenIndex].form,
-          pos = pos.type,
-          allowIncompleteProperties = true)))
+        listOf(Morphology(
+          SingleMorphology(lemma = sentence.tokens[tokenIndex].form, pos = pos.type, allowIncompleteProperties = true)))
       }
 
       else -> listOf()
