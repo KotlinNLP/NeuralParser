@@ -21,7 +21,7 @@ import com.kotlinnlp.neuralparser.utils.notEmptyOr
 /**
  * The deprel selector to use with the "composite" deprel format.
  */
-object CompositeDeprelSelector : MorphoDeprelSelector {
+object CompositeSelector : MorphoDeprelSelector {
 
   /**
    * A helper that manages the morphologies of a [ParsingToken] and checks their compatibilities with a

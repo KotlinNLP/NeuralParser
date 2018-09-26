@@ -35,7 +35,7 @@ import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRTrainer
-import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.CompositeDeprelSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.CompositeSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.deprelselectors.NoFilterSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.LossCriterionType
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.BaseConverter
@@ -128,7 +128,7 @@ private fun buildParser(
   predictPosTags = !parsedArgs.noPosPrediction,
   morphoDeprelSelector = when (parsedArgs.morphoDeprelSelectorType) {
     CommandLineArguments.MorphoDeprelSelectorType.NO_FILTER -> NoFilterSelector
-    CommandLineArguments.MorphoDeprelSelectorType.COMPOSITE -> CompositeDeprelSelector
+    CommandLineArguments.MorphoDeprelSelectorType.COMPOSITE -> CompositeSelector
   }))
 
 /**
