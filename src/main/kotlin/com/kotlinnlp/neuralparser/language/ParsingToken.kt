@@ -36,7 +36,7 @@ data class ParsingToken(
   /**
    * @param governorId the governor id
    * @param attachmentScore the attachment score
-   * @param grammaticalConfiguration the grammatical configuration of this token
+   * @param config the grammatical configuration of this token
    * @param labelerSelector a labeler prediction selector
    *
    * @return a new morpho syntactic token
@@ -45,32 +45,32 @@ data class ParsingToken(
                                     tokenIndex: Int,
                                     governorId: Int?,
                                     attachmentScore: Double,
-                                    grammaticalConfiguration: GrammaticalConfiguration,
+                                    config: GrammaticalConfiguration,
                                     labelerSelector: LabelerSelector): MorphoSynToken {
 
     // TODO: set the score adding the labeler prediction scores of configurations with the same pos
     val morphologies: List<ScoredMorphology> = labelerSelector.getValidMorphologies(
       sentence = sentence,
       tokenIndex = tokenIndex,
-      grammaticalConfiguration = grammaticalConfiguration
+      configuration = config
     ).map { ScoredMorphology(list = it.components, score = 0.0) }
 
-    require(morphologies.all { it.components.size == grammaticalConfiguration.components.size }) {
+    require(morphologies.all { it.components.size == config.components.size }) {
       "The selected morphologies must have the same number of components of the given grammatical configuration."
     }
 
-    return if (grammaticalConfiguration.components.size == 1)
+    return if (config.components.size == 1)
       this.buildToken(
         governorId = governorId,
         attachmentScore = attachmentScore,
-        grammaticalComponent = grammaticalConfiguration.components.single(),
+        grammaticalComponent = config.components.single(),
         morphologies = morphologies)
     else
       MorphoSynToken.Composite(
         id = this.id,
         form = this.form,
         position = checkNotNull(this.position) { "Composite words must have a position." },
-        components = grammaticalConfiguration.components.mapIndexed { i, component ->
+        components = config.components.mapIndexed { i, component ->
           this.buildToken(
             governorId = if (i == 0) governorId else null,
             attachmentScore = attachmentScore,

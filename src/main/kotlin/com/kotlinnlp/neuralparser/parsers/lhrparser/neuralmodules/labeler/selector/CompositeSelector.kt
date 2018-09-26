@@ -147,28 +147,28 @@ object CompositeSelector : LabelerSelector {
   }
 
   /**
-   * Get the morphologies of a given token that are compatible with the given grammatical configurations.
+   * Get the morphologies of a given token that are compatible with the given grammatical configuration.
    *
    * @param sentence the input sentence
    * @param tokenIndex the index of a token of the sentence
-   * @param grammaticalConfiguration the grammatical configuration of the token
+   * @param configuration the grammatical configuration of the token
    *
    * @return the morphologies compatible with the given deprel
    */
   override fun getValidMorphologies(sentence: ParsingSentence,
                                     tokenIndex: Int,
-                                    grammaticalConfiguration: GrammaticalConfiguration): List<Morphology> {
+                                    configuration: GrammaticalConfiguration): List<Morphology> {
 
     val possibleMorphologies: List<Morphology> =
-      TokenMorphologies(sentence = sentence, tokenIndex = tokenIndex).getCompatible(grammaticalConfiguration)
+      TokenMorphologies(sentence = sentence, tokenIndex = tokenIndex).getCompatible(configuration)
 
     return when {
 
       possibleMorphologies.isNotEmpty() -> possibleMorphologies
 
-      grammaticalConfiguration.type == GrammaticalConfiguration.Type.Single -> {
+      configuration.type == GrammaticalConfiguration.Type.Single -> {
 
-        val pos: POSTag.Base = grammaticalConfiguration.components.single().pos as POSTag.Base
+        val pos: POSTag.Base = configuration.components.single().pos as POSTag.Base
 
         require(pos.type.isContentWord) {
           "Grammatical configuration for tokens without morphological analysis must define a content word."

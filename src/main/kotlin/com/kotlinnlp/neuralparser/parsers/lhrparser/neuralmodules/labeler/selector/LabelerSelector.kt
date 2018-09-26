@@ -34,15 +34,15 @@ interface LabelerSelector : Serializable {
                              headIndex: Int?): List<ScoredGrammar>
 
   /**
-   * Get the morphologies of a given token that are compatible with the given grammatical configurations.
+   * Get the morphologies of a given token that are compatible with the given grammatical configuration.
    *
    * @param sentence the input sentence
    * @param tokenIndex the index of a token of the sentence
-   * @param grammaticalConfiguration the grammatical configuration of the token
+   * @param configuration the grammatical configuration of the token
    *
    * @return the morphologies compatible with the given grammatical configuration
    */
   fun getValidMorphologies(sentence: ParsingSentence,
                            tokenIndex: Int,
-                           grammaticalConfiguration: GrammaticalConfiguration): List<Morphology>
+                           configuration: GrammaticalConfiguration): List<Morphology>
 }

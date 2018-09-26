@@ -43,12 +43,12 @@ object NoFilterSelector : LabelerSelector {
    *
    * @param sentence the input sentence
    * @param tokenIndex the index of a token of the sentence
-   * @param grammaticalConfiguration the grammatical configuration of the token
+   * @param configuration the grammatical configuration of the token
    *
    * @return all the given morphologies
    */
   override fun getValidMorphologies(sentence: ParsingSentence,
                                     tokenIndex: Int,
-                                    grammaticalConfiguration: GrammaticalConfiguration): List<Morphology> =
-    sentence.tokens[tokenIndex].morphologies.filter { it.components.size == grammaticalConfiguration.components.size }
+                                    configuration: GrammaticalConfiguration): List<Morphology> =
+    sentence.tokens[tokenIndex].morphologies.filter { it.components.size == configuration.components.size }
 }

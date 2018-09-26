@@ -142,12 +142,12 @@ class Validator(
   private fun addTokenMetrics(token: CoNLLToken, parsedTree: DependencyTree, goldTree: DependencyTree) {
 
     val isNotPunct: Boolean = !punctuationRegex.matches(token.form)
-    val parsedGrammaticalConfig: GrammaticalConfiguration? = parsedTree.getGrammaticalConfiguration(token.id)
-    val goldGrammaticalConfig: GrammaticalConfiguration? = goldTree.getGrammaticalConfiguration(token.id)
+    val parsedConfig: GrammaticalConfiguration? = parsedTree.getConfiguration(token.id)
+    val goldConfig: GrammaticalConfiguration? = goldTree.getConfiguration(token.id)
     val parsedDependencies: List<SyntacticDependency>? =
-      parsedGrammaticalConfig?.components?.map { it.syntacticDependency }
+      parsedConfig?.components?.map { it.syntacticDependency }
     val goldDependencies: List<SyntacticDependency>? =
-      goldTree.getGrammaticalConfiguration(token.id)?.components?.map { it.syntacticDependency }
+      goldTree.getConfiguration(token.id)?.components?.map { it.syntacticDependency }
 
     if (isNotPunct) this.counterNoPunct.totalTokens++
 
@@ -165,7 +165,7 @@ class Validator(
       this.addUncorrectLabeledAttachment(isNotPunct)
     }
 
-    if (parsedGrammaticalConfig?.components?.map { it.pos } == goldGrammaticalConfig?.components?.map { it.pos })
+    if (parsedConfig?.components?.map { it.pos } == goldConfig?.components?.map { it.pos })
       this.addCorrectPOSTag(isNotPunct)
 
     if ((parsedDependencies != null && goldDependencies != null

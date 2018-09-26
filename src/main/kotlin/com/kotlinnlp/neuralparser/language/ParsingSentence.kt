@@ -50,7 +50,7 @@ class ParsingSentence(
           tokenIndex = i,
           governorId = dependencyTree.getHead(it.id),
           attachmentScore = 0.0, // TODO: set it
-          grammaticalConfiguration = dependencyTree.getGrammaticalConfiguration(it.id)!!,
+          config = dependencyTree.getConfiguration(it.id)!!,
           labelerSelector = labelerSelector)
       }
     )

@@ -80,7 +80,7 @@ class LabelerModel(
       val tokenId: Int = goldTree.elements[tokenIndex]
       val errors: DenseNDArray = LossCriterion(this.lossCriterionType).getPredictionErrors(
         prediction = prediction,
-        goldIndex = this.grammaticalConfigurations.getId(goldTree.getGrammaticalConfiguration(tokenId)!!)!!)
+        goldIndex = this.grammaticalConfigurations.getId(goldTree.getConfiguration(tokenId)!!)!!)
 
       errorsList.add(errors)
     }

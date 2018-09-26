@@ -135,7 +135,7 @@ internal class ConstraintsSolver(
         tokenIndex = tokenIndex,
         governorId = dependencyTree.getHead(this.id),
         attachmentScore = 0.0,
-        grammaticalConfiguration = dependencyTree.getGrammaticalConfiguration(this.id)!!,
+        config = dependencyTree.getConfiguration(this.id)!!,
         labelerSelector = labelerSelector)
   }
 
