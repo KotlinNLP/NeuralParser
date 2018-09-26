@@ -158,9 +158,11 @@ internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: Bea
   /**
    * Find the best valid configuration of elements, with the highest global score.
    *
+   * @param onlyValid whether to return only valid configurations (default = true)
+   *
    * @return the state with the best configuration or null if no valid configuration has been found
    */
-  fun findBestConfiguration(): StateType? {
+  fun findBestConfiguration(onlyValid: Boolean = true): StateType? {
 
     this.initBeam()
 
@@ -168,7 +170,7 @@ internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: Bea
       (0 until this.maxIterations).forEach { if (!this.solvingStep()) return@steps }
     }
 
-    return this.beam.firstOrNull { it.isValid }
+    return if (onlyValid) this.beam.firstOrNull { it.isValid } else this.beam.first()
   }
 
   /**
