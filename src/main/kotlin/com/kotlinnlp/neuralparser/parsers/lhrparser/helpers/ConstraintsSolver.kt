@@ -138,7 +138,6 @@ internal class ConstraintsSolver(
    * @throws InvalidConfiguration if all the possible configurations violate a hard constraint
    */
   fun solve() {
-
     this.findBestConfiguration()?.let { this.applyConfiguration(it) } ?: throw InvalidConfiguration()
   }
 

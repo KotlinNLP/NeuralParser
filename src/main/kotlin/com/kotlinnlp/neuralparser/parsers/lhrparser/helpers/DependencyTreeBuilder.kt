@@ -90,19 +90,22 @@ internal class DependencyTreeBuilder(
     init {
 
       try {
+
         elements.forEach {
           if (it.value.governorId > -1)
             this.tree.setArc(dependent = it.value.dependentId, governor = it.value.governorId, score = it.value.score)
           else
             this.tree.setAttachmentScore(dependent = it.value.dependentId, score = it.value.score) // it is the top
         }
+
+        if (this.tree.hasSingleRoot())
+          labeler?.let { this.tree.assignLabels() }
+        else
+          this.isValid = false
+
       } catch (e: CycleDetectedError) {
         this.isValid = false
       }
-
-      if (!this.tree.hasSingleRoot()) this.isValid = false
-
-      if (this.isValid) labeler?.let { this.tree.assignLabels() }
     }
   }
 
