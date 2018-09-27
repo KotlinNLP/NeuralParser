@@ -15,6 +15,7 @@ import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
 import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
 import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 
 /**
@@ -38,20 +39,31 @@ class ParsingSentence(
    *
    * @return a new [MorphoSynSentence]
    */
-  fun toMorphoSynSentence(dependencyTree: DependencyTree, labelerSelector: LabelerSelector) =
-    MorphoSynSentence(
+  fun toMorphoSynSentence(dependencyTree: DependencyTree, labelerSelector: LabelerSelector): MorphoSynSentence {
+
+    var nextIdAvailable: Int = this.tokens.last().id + 1
+
+    return MorphoSynSentence(
       id = 0,
       confidence = 0.0,
       dateTimes = if (this.dateTimes.isNotEmpty()) this.dateTimes else null,
       entities = null,
       tokens = this.tokens.mapIndexed { i, it ->
-        it.toMorphoSynToken(
+
+        val morphoSynToken: MorphoSynToken = it.toMorphoSynToken(
           sentence = this,
           tokenIndex = i,
+          nextIdAvailable = nextIdAvailable,
           governorId = dependencyTree.getHead(it.id),
           attachmentScore = 0.0, // TODO: set it
           config = dependencyTree.getConfiguration(it.id)!!,
           labelerSelector = labelerSelector)
+
+        if (morphoSynToken is MorphoSynToken.Composite)
+          nextIdAvailable += morphoSynToken.components.size
+
+        morphoSynToken
       }
     )
+  }
 }
