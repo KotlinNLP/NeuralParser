@@ -45,7 +45,7 @@ class RuleBasedTracesHandler(private val corefHelpers: List<CorefHelper>) : Trac
           token = Trace(
             id = ++lastId,
             pos = null, // TODO: set it
-            morphologies = this.makeTraceMorphology(),
+            morphologies = this.buildTraceMorphology(),
             syntacticRelation = SyntacticRelation(
               governor = token.id,
               dependency = SyntacticDependency("SUBJ"), // TODO: set it
@@ -61,9 +61,9 @@ class RuleBasedTracesHandler(private val corefHelpers: List<CorefHelper>) : Trac
   /**
    * @return the morphology of a generic trace
    */
-  private fun makeTraceMorphology(): List<ScoredMorphology> =
-    listOf(ScoredMorphology(
-      morphology = SingleMorphology(
+  private fun buildTraceMorphology(): List<ScoredSingleMorphology> =
+    listOf(ScoredSingleMorphology(
+      value = SingleMorphology(
         lemma = "", // TODO: it doesn't make sense for the trace
         pos = POS.Pron, // TODO: why don't use a 'Noun' instead?
         allowIncompleteProperties = true),

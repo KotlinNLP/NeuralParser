@@ -11,6 +11,7 @@ import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
+import com.kotlinnlp.linguisticdescription.morphology.ScoredSingleMorphology
 import com.kotlinnlp.linguisticdescription.sentence.token.*
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
@@ -64,7 +65,7 @@ data class ParsingToken(
         governorId = governorId,
         attachmentScore = attachmentScore,
         grammaticalComponent = config.components.single(),
-        morphologies = morphologies)
+        morphologies = morphologies.map { it.toSingle() })
     else
       MorphoSynToken.Composite(
         id = this.id,
@@ -75,7 +76,8 @@ data class ParsingToken(
             governorId = if (i == 0) governorId else null,
             attachmentScore = attachmentScore,
             grammaticalComponent = component,
-            morphologies = morphologies.map { it.copy(components = it.components.subList(i, i + 1)) }) as Word
+            morphologies = morphologies.map { ScoredSingleMorphology(value = it.components[i], score = it.score) }
+          ) as Word
         }
       )
   }
@@ -86,7 +88,7 @@ data class ParsingToken(
   private fun buildToken(governorId: Int?,
                          attachmentScore: Double,
                          grammaticalComponent: GrammaticalConfiguration.Component,
-                         morphologies: List<ScoredMorphology>): MorphoSynToken {
+                         morphologies: List<ScoredSingleMorphology>): MorphoSynToken {
 
     val syntacticRelation = SyntacticRelation(
       governor = governorId,
