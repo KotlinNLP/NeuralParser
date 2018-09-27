@@ -13,7 +13,6 @@ import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Unknown
 import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 
@@ -101,9 +100,10 @@ internal class ConstraintsSolver(
      */
     private fun applyConstraints() {
 
-      val tokens: List<MorphoSynToken> = sentence.tokens.mapIndexed { i, it ->
-        it.toMorphoSyntactic(sentence = sentence, tokenIndex = i)
-      }
+      val tokens: List<MorphoSynToken> = sentence.toMorphoSynSentence(
+        dependencyTree = dependencyTree,
+        labelerSelector = labelerSelector
+      ).tokens
       val tokensMap: Map<Int, MorphoSynToken> = tokens.associateBy { it.id }
 
       constraints.forEach { constraint ->
@@ -124,20 +124,6 @@ internal class ConstraintsSolver(
         }
       }
     }
-
-    /**
-     * Convert this token into a [MorphoSynToken].
-     *
-     * @return a new morpho-syntactic token built from this
-     */
-    private fun ParsingToken.toMorphoSyntactic(sentence: ParsingSentence, tokenIndex: Int): MorphoSynToken =
-      this.toMorphoSynToken(
-        sentence = sentence,
-        tokenIndex = tokenIndex,
-        governorId = dependencyTree.getHead(this.id),
-        attachmentScore = 0.0,
-        config = dependencyTree.getConfiguration(this.id)!!,
-        labelerSelector = labelerSelector)
   }
 
   /**
