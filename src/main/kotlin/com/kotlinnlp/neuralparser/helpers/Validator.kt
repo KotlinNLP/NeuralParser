@@ -44,7 +44,7 @@ class Validator(
 
   init {
     require(sentences.all { it.hasAnnotatedHeads() }) {
-      "The gold dependency tree of the sentence cannot be null during the evaluation."
+      "A gold sentence must have a dependency tree with all heads annotated."
     }
   }
 
