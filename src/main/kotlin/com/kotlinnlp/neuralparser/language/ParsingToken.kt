@@ -61,7 +61,7 @@ data class ParsingToken(
     }
 
     return if (config.components.size == 1)
-      this.buildToken(
+      this.buildSingleToken(
         governorId = governorId,
         attachmentScore = attachmentScore,
         grammaticalComponent = config.components.single(),
@@ -72,7 +72,7 @@ data class ParsingToken(
         form = this.form,
         position = checkNotNull(this.position) { "Composite words must have a position." },
         components = config.components.mapIndexed { i, component ->
-          this.buildToken(
+          this.buildSingleToken(
             governorId = if (i == 0) governorId else null,
             attachmentScore = attachmentScore,
             grammaticalComponent = component,
@@ -83,12 +83,17 @@ data class ParsingToken(
   }
 
   /**
+   * @param governorId the governor id
+   * @param attachmentScore the attachment score
+   * @param grammaticalComponent the grammatical configuration of the token as single component
+   * @param morphologies the list of possible scored morphologies of the token
    *
+   * @return a new single token
    */
-  private fun buildToken(governorId: Int?,
-                         attachmentScore: Double,
-                         grammaticalComponent: GrammaticalConfiguration.Component,
-                         morphologies: List<ScoredSingleMorphology>): MorphoSynToken {
+  private fun buildSingleToken(governorId: Int?,
+                               attachmentScore: Double,
+                               grammaticalComponent: GrammaticalConfiguration.Component,
+                               morphologies: List<ScoredSingleMorphology>): MorphoSynToken {
 
     val syntacticRelation = SyntacticRelation(
       governor = governorId,
