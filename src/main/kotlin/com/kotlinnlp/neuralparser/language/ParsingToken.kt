@@ -110,6 +110,7 @@ data class ParsingToken(
         position = this.position,
         pos = grammaticalComponent.pos,
         morphologies = morphologies,
+        contextMorphologies = listOf(), // TODO: set it
         syntacticRelation = syntacticRelation,
         coReferences = null, // TODO: set it
         semanticRelations = null) // TODO: set it
@@ -119,6 +120,7 @@ data class ParsingToken(
         form = this.form,
         pos = grammaticalComponent.pos,
         morphologies = morphologies,
+        contextMorphologies = listOf(), // TODO: set it
         syntacticRelation = syntacticRelation,
         coReferences = null, // TODO: set it
         semanticRelations = null)

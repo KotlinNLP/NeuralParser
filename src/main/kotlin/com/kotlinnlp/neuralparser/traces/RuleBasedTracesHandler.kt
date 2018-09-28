@@ -46,6 +46,7 @@ class RuleBasedTracesHandler(private val corefHelpers: List<CorefHelper>) : Trac
             id = ++lastId,
             pos = null, // TODO: set it
             morphologies = this.buildTraceMorphology(),
+            contextMorphologies = listOf(), // TODO: set it?
             syntacticRelation = SyntacticRelation(
               governor = token.id,
               dependency = SyntacticDependency("SUBJ"), // TODO: set it
