@@ -18,8 +18,8 @@ import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
-import com.kotlinnlp.neuralparser.utils.Timer
 import com.kotlinnlp.neuralparser.utils.loadSentences
+import com.kotlinnlp.utils.Timer
 import com.xenomachina.argparser.mainBody
 import java.io.File
 import java.io.FileInputStream
