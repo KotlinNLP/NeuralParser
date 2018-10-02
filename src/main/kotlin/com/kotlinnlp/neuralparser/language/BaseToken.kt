@@ -8,6 +8,7 @@
 package com.kotlinnlp.neuralparser.language
 
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
+import com.kotlinnlp.linguisticdescription.sentence.token.TokenIdentificable
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 
 /**
@@ -18,7 +19,7 @@ import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
  * @property position the position of the token in the original text
  */
 data class BaseToken(
-  val id: Int,
+  override val id: Int,
   override val form: String,
   override val position: Position
-) : RealToken
+) : RealToken, TokenIdentificable
