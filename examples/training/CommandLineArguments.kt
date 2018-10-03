@@ -90,12 +90,13 @@ class CommandLineArguments(args: Array<String>) {
 
   /**
    * The file path of the gold-POS training set.
+   * TODO: Re-enable for LHR transfer learning.
    */
-  val goldPosSetPath: String? by parser.storing(
-    "-p",
-    "--pos-set",
-    help="the file path of the gold-POS training set"
-  ).default { null }
+//  val goldPosSetPath: String? by parser.storing(
+//    "-p",
+//    "--pos-set",
+//    help="the file path of the gold-POS training set"
+//  ).default { null }
 
   /**
    * The file path of the validation set.
