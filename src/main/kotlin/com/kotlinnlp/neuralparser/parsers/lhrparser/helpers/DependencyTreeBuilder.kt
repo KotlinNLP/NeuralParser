@@ -11,7 +11,10 @@ import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.dependencytree.CycleDetectedError
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
+import com.kotlinnlp.lssencoder.LatentSyntacticStructure
+import com.kotlinnlp.lssencoder.decoder.ScoredArcs
+import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
@@ -31,8 +34,8 @@ import com.kotlinnlp.neuralparser.utils.notEmptyOr
  * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion)
  */
 internal class DependencyTreeBuilder(
-  private val lss: LatentSyntacticStructure,
-  private val scoresMap: ArcScores,
+  private val lss: LatentSyntacticStructure<ParsingToken, ParsingSentence>,
+  private val scoresMap: ScoredArcs,
   private val labeler: Labeler?,
   private val constraints: List<Constraint>?,
   private val labelerSelector: LabelerSelector,
@@ -41,11 +44,11 @@ internal class DependencyTreeBuilder(
   maxForkSize: Int = 3,
   maxIterations: Int = 10
 ) : BeamManager<DependencyTreeBuilder.ArcValue, DependencyTreeBuilder.TreeState>(
-  valuesMap = lss.sentence.tokens.associate {
-    val sortedArcs: List<ArcScores.Arc> = scoresMap.getSortedArcs(it.id)
+  valuesMap = lss.sentence.tokens.associate { token ->
+    val sortedArcs: List<ScoredArcs.Arc> = scoresMap.getSortedArcs(token.id)
     val threshold: Double = 1.0 / sortedArcs.size // it is the distribution mean
-    it.id to sortedArcs.filter { it.score >= threshold }.notEmptyOr { sortedArcs }.map { arc ->
-      ArcValue(dependentId = it.id, governorId = arc.governorId, score = arc.score)
+    token.id to sortedArcs.filter { it.score >= threshold }.notEmptyOr { sortedArcs }.map { arc ->
+      ArcValue(dependentId = token.id, governorId = arc.governorId, score = arc.score)
     }
   },
   maxBeamSize = maxBeamSize,
@@ -151,7 +154,7 @@ internal class DependencyTreeBuilder(
     this.elements.filter { it != topId }.forEach { depId ->
 
       val (govId: Int, score: Double) =
-        scoresMap.findHighestScoringHead(dependentId = depId, except = listOf(ArcScores.rootId))!!
+        scoresMap.findHighestScoringHead(dependentId = depId, except = listOf(ScoredArcs.rootId))!!
 
       this.setArc(
         dependent = depId,
@@ -164,7 +167,7 @@ internal class DependencyTreeBuilder(
   /**
    * Fix possible cycles using the [scoresMap].
    */
-  private fun DependencyTree.fixCycles() = CyclesFixer(dependencyTree = this, arcScores = scoresMap).fixCycles()
+  private fun DependencyTree.fixCycles() = CyclesFixer(dependencyTree = this, scoredArcs = scoresMap).fixCycles()
 
   /**
    * Annotate this dependency tree with the labels.
@@ -192,7 +195,7 @@ internal class DependencyTreeBuilder(
    */
   private fun DependencyTree.buildConfigurationsMap(): Map<Int, List<ScoredGrammar>> =
 
-    labeler!!.predict(Labeler.Input(lss, this)).withIndex().associate { (tokenIndex, configurations) ->
+    labeler!!.predict(Labeler.Input(lss, this)).asSequence().withIndex().associate { (tokenIndex, configurations) ->
 
       val tokenId: Int = this.elements[tokenIndex]
       val validConfigurations: List<ScoredGrammar> = labelerSelector.getValidConfigurations(

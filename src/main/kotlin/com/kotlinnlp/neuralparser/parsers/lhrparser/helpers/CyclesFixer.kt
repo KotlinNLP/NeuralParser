@@ -8,14 +8,15 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.lssencoder.decoder.ScoredArcs
 
 /**
  * Naive strategy to fix possible cycles in a [dependencyTree].
  *
  * @param dependencyTree the dependency tree
- * @param arcScores the scores of the arcs between pair of tree elements
+ * @param scoredArcs the scored arcs between pair of tree elements
  */
-internal class CyclesFixer(private val dependencyTree: DependencyTree, private val arcScores: ArcScores) {
+internal class CyclesFixer(private val dependencyTree: DependencyTree, private val scoredArcs: ScoredArcs) {
 
   /**
    * The set of direct elements of the tree (elements that aren't involved in cycles).
@@ -73,10 +74,10 @@ internal class CyclesFixer(private val dependencyTree: DependencyTree, private v
   /**
    * @param arcs a list of arcs
    *
-   * @return the lowest scoring arc according to the [arcScores].
+   * @return the lowest scoring arc according to the [scoredArcs].
    */
   private fun getLowestScoringArc(arcs: List<DependencyTree.Arc>): DependencyTree.Arc =
-    arcs.minBy { arc -> this.arcScores.getScore(dependentId = arc.dependent, governorId = arc.governor) }!!
+    arcs.minBy { arc -> this.scoredArcs.getScore(dependentId = arc.dependent, governorId = arc.governor) }!!
 
   /**
    * Find the best governor for the given element that doesn't introduce a cycle.
@@ -87,7 +88,7 @@ internal class CyclesFixer(private val dependencyTree: DependencyTree, private v
    */
   private fun findBestGovernor(element: Int): Pair<Int, Double> {
 
-    val headsMap: Map<Int, Double> = this.arcScores.getHeadsMap(element)
+    val headsMap: Map<Int, Double> = this.scoredArcs.getHeadsMap(element)
 
     val candidates: List<Int> = this.directElements.intersect(headsMap.keys).filter { candidateGov ->
       !this.dependencyTree.introduceCycle(dependent = element, governor = candidateGov)
