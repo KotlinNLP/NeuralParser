@@ -94,9 +94,8 @@ class LHRTransferLearning(
       outputSequence = targetLSS.contextVectors,
       outputGoldSequence = refLSS.contextVectors)
 
-    this.targetLSSEncoder.propagateErrors(
-      errors = LSSEncoder.OutputErrors(size = sentence.tokens.size, contextVectors = contextErrors),
-      optimizer = this.targetLSSEncoderOptimizer)
+    this.targetLSSEncoder.backward(LSSEncoder.OutputErrors(size = sentence.tokens.size, contextVectors = contextErrors))
+    this.targetLSSEncoderOptimizer.accumulate((this.targetLSSEncoder.getParamsErrors()))
   }
 
   /**

@@ -256,12 +256,12 @@ class LHRTrainer(
       this.propagateRootErrors(labelerInputErrors.rootErrors)
     }
 
-    this.lssEncoder.propagateErrors(
-      errors = LSSEncoder.OutputErrors(
-        size = latentHeadsErrors.size,
-        contextVectors = contextVectorsErrors,
-        latentHeads = latentHeadsErrors),
-      optimizer = this.lssEncoderOptimizer)
+    this.lssEncoder.backward(outputErrors = LSSEncoder.OutputErrors(
+      size = latentHeadsErrors.size,
+      contextVectors = contextVectorsErrors,
+      latentHeads = latentHeadsErrors))
+
+    this.lssEncoderOptimizer.accumulate(this.lssEncoder.getParamsErrors())
   }
 
   /**
