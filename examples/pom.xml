@@ -22,6 +22,7 @@
         <linguisticdescription.version>0.10.0</linguisticdescription.version>
         <morphologicalanalyzer.version>0.4.0</morphologicalanalyzer.version>
         <tokensencoder.version>0.4.0</tokensencoder.version>
+        <lssencoder.version>0.1.0</lssencoder.version>
         <utils.version>2.1.0</utils.version>
     </properties>
 
@@ -129,6 +130,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>tokensencoder</artifactId>
             <version>${tokensencoder.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>lssencoder</artifactId>
+            <version>${lssencoder.version}</version>
         </dependency>
 
         <dependency>
