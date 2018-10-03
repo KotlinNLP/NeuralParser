@@ -7,9 +7,9 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler
 
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
+import com.kotlinnlp.lssencoder.LatentSyntacticStructure
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.batchfeedforward.BatchFeedforwardProcessor
@@ -41,7 +41,7 @@ class Labeler(
    * @param lss the latent syntactic structure
    * @param dependencyTree the dependency tree
    */
-  class Input(val lss: LatentSyntacticStructure, val dependencyTree: DependencyTree)
+  class Input(val lss: LatentSyntacticStructure<*, *>, val dependencyTree: DependencyTree)
 
   /**
    * This encoder propagate the errors to the input.
@@ -159,7 +159,7 @@ class Labeler(
    *
    * @return the list of features that encode the given token
    */
-  private fun extractFeatures(tokenId: Int, lss: LatentSyntacticStructure): List<DenseNDArray> =
+  private fun extractFeatures(tokenId: Int, lss: LatentSyntacticStructure<*, *>): List<DenseNDArray> =
     listOf(
       lss.getContextVectorById(tokenId),
       this.dependencyTree.getHead(tokenId)?.let { lss.getContextVectorById(it) } ?: lss.virtualRoot
