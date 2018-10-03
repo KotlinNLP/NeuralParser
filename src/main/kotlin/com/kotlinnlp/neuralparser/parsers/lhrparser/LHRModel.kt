@@ -7,7 +7,6 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
-import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.lssencoder.LSSModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.LabelerModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.LossCriterionType
@@ -35,14 +34,13 @@ import java.io.InputStream
  * @property labelerSelector the labeler prediction selector (no filter by default)
  */
 class LHRModel(
-  language: Language = Language.Unknown,
   corpusDictionary: CorpusDictionary,
   val lssModel: LSSModel<ParsingToken, ParsingSentence>,
   val useLabeler: Boolean,
   val lossCriterionType: LossCriterionType,
   val predictPosTags: Boolean,
   val labelerSelector: LabelerSelector = NoFilterSelector
-) : NeuralParserModel(language) {
+) : NeuralParserModel(lssModel.language) {
 
   companion object {
 
