@@ -8,14 +8,9 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
 import com.kotlinnlp.linguisticdescription.language.Language
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.contextencoder.ContextEncoderModel
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.HeadsEncoderModel
+import com.kotlinnlp.lssencoder.LSSModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.LabelerModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.LossCriterionType
-import com.kotlinnlp.simplednn.core.arrays.UpdatableDenseArray
-import com.kotlinnlp.simplednn.core.functionalities.initializers.GlorotInitializer
-import com.kotlinnlp.simplednn.core.embeddings.Embedding
-import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.language.ParsingSentence
@@ -25,8 +20,6 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.select
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkModel
-import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
-import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 import com.kotlinnlp.utils.Serializer
 import java.io.InputStream
 
@@ -35,9 +28,7 @@ import java.io.InputStream
  *
  * @property language the language within the parser works (default = unknown)
  * @param corpusDictionary a corpus dictionary
- * @property tokensEncoderWrapperModel the model of the TokensEncoder combined with its sentence converter
- * @property contextBiRNNConfig the configuration of the ContextEncoder BiRNN (if null the ContextEncoder is not used)
- * @property headsBiRNNConfig the configuration of the HeadsEncoder BiRNN
+ * @property lssModel the model of the LSS encoder
  * @property useLabeler whether to use the labeler
  * @property lossCriterionType the training mode of the labeler
  * @property predictPosTags whether to predict the POS tags together with the Deprels
@@ -46,9 +37,7 @@ import java.io.InputStream
 class LHRModel(
   language: Language = Language.Unknown,
   corpusDictionary: CorpusDictionary,
-  val tokensEncoderWrapperModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>,
-  val contextBiRNNConfig: BiRNNConfig,
-  val headsBiRNNConfig: BiRNNConfig,
+  val lssModel: LSSModel<ParsingToken, ParsingSentence>,
   val useLabeler: Boolean,
   val lossCriterionType: LossCriterionType,
   val predictPosTags: Boolean,
@@ -79,41 +68,11 @@ class LHRModel(
   val labelerScoreThreshold = 1.0 / corpusDictionary.grammaticalConfigurations.size
 
   /**
-   * The model of the ContextEncoder.
-   */
-  val contextEncoderModel = ContextEncoderModel(
-    tokenEncodingSize = this.tokensEncoderWrapperModel.model.tokenEncodingSize,
-    connectionType = this.contextBiRNNConfig.connectionType,
-    hiddenActivation = this.contextBiRNNConfig.hiddenActivation,
-    numberOfLayers = this.contextBiRNNConfig.numberOfLayers,
-    dropout = 0.0,
-    biasesInitializer = null)
-
-  /**
-   * The size of the context vectors.
-   */
-  private val contextVectorsSize: Int = this.contextEncoderModel.contextEncodingSize
-
-  /**
-   * The model of the HeadsEncoder.
-   */
-  val headsEncoderModel = HeadsEncoderModel(
-    tokenEncodingSize = this.contextVectorsSize,
-    connectionType = this.headsBiRNNConfig.connectionType,
-    hiddenActivation = this.headsBiRNNConfig.hiddenActivation,
-    recurrentDropout = 0.0)
-
-  /**
-   * The embeddings vector that represents the root token of a sentence.
-   */
-  val rootEmbedding = Embedding(id = 0, array = UpdatableDenseArray(Shape(this.contextVectorsSize)))
-
-  /**
    * The model of the Labeler.
    */
   val labelerModel: LabelerModel? = if (this.useLabeler)
     LabelerModel(
-      contextEncodingSize = this.contextVectorsSize,
+      contextEncodingSize = this.lssModel.contextVectorsSize,
       grammaticalConfigurations = corpusDictionary.grammaticalConfigurations,
       lossCriterionType = this.lossCriterionType)
   else
@@ -123,18 +82,11 @@ class LHRModel(
    * The model of the pointer network used for the positional encoding.
    */
   val pointerNetworkModel = PointerNetworkModel(
-    inputSize = this.contextVectorsSize,
-    vectorSize = this.contextVectorsSize,
+    inputSize = this.lssModel.contextVectorsSize,
+    vectorSize = this.lssModel.contextVectorsSize,
     mergeConfig = AffineMerge(
       outputSize = 100,
       activationFunction = Tanh()))
-
-  /**
-   * Initialize the root embedding.
-   */
-  init {
-    GlorotInitializer().initialize(this.rootEmbedding.array.values)
-  }
 
   /**
    * @return the string representation of this model
@@ -146,9 +98,9 @@ class LHRModel(
     %-33s : %s
     %-33s : %s
   """.trimIndent().format(
-    this.tokensEncoderWrapperModel.model::class.simpleName, this.tokensEncoderWrapperModel.model,
-    "Context Encoder", this.contextBiRNNConfig,
-    "Heads Encoder", this.headsBiRNNConfig,
+    this.lssModel.tokensEncoderWrapperModel.model::class.simpleName, this.lssModel.tokensEncoderWrapperModel.model,
+    "Context Encoder", this.lssModel.contextBiRNNConfig,
+    "Heads Encoder", this.lssModel.headsBiRNNConfig,
     "Labeler training mode", this.lossCriterionType,
     "Predict POS tags", this.predictPosTags
   )

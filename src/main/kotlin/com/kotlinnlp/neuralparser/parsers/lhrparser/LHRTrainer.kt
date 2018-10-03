@@ -7,33 +7,31 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.contextencoder.ContextEncoder
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.contextencoder.ContextEncoderOptimizer
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.HeadsEncoder
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.HeadsEncoderOptimizer
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.LabelerOptimizer
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.lssencoder.LSSEncoder
+import com.kotlinnlp.lssencoder.LSSOptimizer
+import com.kotlinnlp.lssencoder.LatentSyntacticStructure
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.PositionalEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.PositionalEncoder.Companion.calculateErrors
 import com.kotlinnlp.simplednn.core.functionalities.losses.MSECalculator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
+import com.kotlinnlp.simplednn.core.optimizer.Optimizer
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkProcessor
 import com.kotlinnlp.simplednn.simplemath.assignSum
-import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 import com.kotlinnlp.simplednn.utils.scheduling.BatchScheduling
 import com.kotlinnlp.simplednn.utils.scheduling.EpochScheduling
 import com.kotlinnlp.simplednn.utils.scheduling.ExampleScheduling
-import com.kotlinnlp.tokensencoder.*
 
 /**
  * The training helper.
@@ -79,27 +77,20 @@ class LHRTrainer(
   /**
    * The Encoder of the Latent Syntactic Structure.
    */
-  private val lssEncoder = LSSEncoder(
-    tokensEncoderWrapper = this.parser.model.tokensEncoderWrapperModel.buildWrapper(useDropout = true),
-    contextEncoder = ContextEncoder(this.parser.model.contextEncoderModel, useDropout = true),
-    headsEncoder = HeadsEncoder(this.parser.model.headsEncoderModel, useDropout = true),
-    virtualRoot = this.parser.model.rootEmbedding.array.values)
+  private val lssEncoder = LSSEncoder(model = this.parser.model.lssModel, useDropout = true)
 
   /**
    * The builder of the labeler.
    */
-  private val labeler: Labeler? = this.parser.model.labelerModel?.let {
-    Labeler(it, useDropout = true)
-  }
+  private val labeler: Labeler? = this.parser.model.labelerModel?.let { Labeler(it, useDropout = true) }
 
   /**
    * The positional encoder.
    */
-  private val positionalEncoder: PositionalEncoder? = if (this.lhrErrorsOptions.usePositionalEncodingErrors) {
+  private val positionalEncoder: PositionalEncoder? = if (this.lhrErrorsOptions.usePositionalEncodingErrors)
     PositionalEncoder(this.parser.model.pointerNetworkModel, useDropout = true)
-  } else {
+  else
     null
-  }
 
   /**
    * The pointer network optimizer.
@@ -108,16 +99,9 @@ class LHRTrainer(
     params = this.parser.model.pointerNetworkModel.params, updateMethod = this.updateMethod)
 
   /**
-   * The optimizer of the latent heads encoder.
+   * The optimizer of the LSS encoder.
    */
-  private val headsEncoderOptimizer = HeadsEncoderOptimizer(
-    model = this.parser.model.headsEncoderModel, updateMethod = this.updateMethod)
-
-  /**
-   * The optimizer of the context encoder.
-   */
-  private val contextEncoderOptimizer = ContextEncoderOptimizer(
-    model = this.parser.model.contextEncoderModel, updateMethod = this.updateMethod)
+  private val lssEncoderOptimizer = LSSOptimizer(model = this.parser.model.lssModel, updateMethod = this.updateMethod)
 
   /**
    * The optimizer of the labeler (can be null).
@@ -127,12 +111,6 @@ class LHRTrainer(
   }
 
   /**
-   * The optimizer of the tokens encoder.
-   */
-  private val tokensEncoderOptimizer = TokensEncoderOptimizerFactory(
-    model = this.parser.model.tokensEncoderWrapperModel.model, updateMethod = this.updateMethod)
-
-  /**
    * The epoch counter.
    */
   private var epochCount: Int = 0
@@ -140,11 +118,9 @@ class LHRTrainer(
   /**
    * Group the optimizers all together.
    */
-  private val optimizers = listOf(
-    this.headsEncoderOptimizer,
-    this.contextEncoderOptimizer,
+  private val optimizers: List<Optimizer<*>?> = listOf(
+    this.lssEncoderOptimizer,
     this.labelerOptimizer,
-    this.tokensEncoderOptimizer,
     this.pointerNetworkOptimizer)
 
   /**
@@ -164,10 +140,7 @@ class LHRTrainer(
    * Beat the occurrence of a new batch.
    */
   override fun newBatch() {
-
-    if (this.updateMethod is BatchScheduling) {
-      this.updateMethod.newBatch()
-    }
+    if (this.updateMethod is BatchScheduling) this.updateMethod.newBatch()
   }
 
   /**
@@ -175,9 +148,7 @@ class LHRTrainer(
    */
   override fun newEpoch() {
 
-    if (this.updateMethod is EpochScheduling) {
-      this.updateMethod.newEpoch()
-    }
+    if (this.updateMethod is EpochScheduling) this.updateMethod.newEpoch()
 
     this.epochCount++
   }
@@ -198,10 +169,7 @@ class LHRTrainer(
    * Method to call before learning a new sentence.
    */
   private fun beforeSentenceLearning() {
-
-    if (this.updateMethod is ExampleScheduling) {
-      this.updateMethod.newExample()
-    }
+    if (this.updateMethod is ExampleScheduling) this.updateMethod.newExample()
   }
 
   /**
@@ -214,7 +182,7 @@ class LHRTrainer(
 
     this.beforeSentenceLearning()
 
-    val lss: LatentSyntacticStructure = this.lssEncoder.encode(sentence)
+    val lss: LatentSyntacticStructure<ParsingToken, ParsingSentence> = this.lssEncoder.forward(sentence)
     val latentHeadsErrors = calculateLatentHeadsErrors(lss, goldTree)
 
     val labelerErrors: List<DenseNDArray>? = this.labeler?.let {
@@ -240,7 +208,8 @@ class LHRTrainer(
    *
    * @return the errors of the latent heads
    */
-  private fun calculateLatentHeadsErrors(lss: LatentSyntacticStructure, goldTree: DependencyTree): List<DenseNDArray> =
+  private fun calculateLatentHeadsErrors(lss: LatentSyntacticStructure<ParsingToken, ParsingSentence>,
+                                         goldTree: DependencyTree): List<DenseNDArray> =
     MSECalculator().calculateErrors(
       outputSequence = lss.latentHeads,
       outputGoldSequence = this.getExpectedLatentHeads(lss, goldTree))
@@ -253,7 +222,8 @@ class LHRTrainer(
    *
    * @return the expected latent heads
    */
-  private fun getExpectedLatentHeads(lss: LatentSyntacticStructure, goldTree: DependencyTree): List<DenseNDArray> =
+  private fun getExpectedLatentHeads(lss: LatentSyntacticStructure<ParsingToken, ParsingSentence>,
+                                     goldTree: DependencyTree): List<DenseNDArray> =
 
     lss.sentence.tokens.map { token ->
 
@@ -273,35 +243,22 @@ class LHRTrainer(
    * @param labelerErrors the labeler errors
    * @param positionalEncoderErrors the positional encoder errors
    */
-  private fun propagateErrors(
-    latentHeadsErrors: List<DenseNDArray>,
-    labelerErrors: List<DenseNDArray>?,
-    positionalEncoderErrors: PointerNetworkProcessor.InputErrors?){
+  private fun propagateErrors(latentHeadsErrors: List<DenseNDArray>,
+                              labelerErrors: List<DenseNDArray>?,
+                              positionalEncoderErrors: PointerNetworkProcessor.InputErrors?) {
 
-    val contextErrors = List(size = latentHeadsErrors.size, init = {
-      DenseNDArrayFactory.zeros(latentHeadsErrors[0].shape)
-    } )
-
-    val tokensErrors = List(size = latentHeadsErrors.size, init = {
-      DenseNDArrayFactory.zeros(Shape(this.parser.model.tokensEncoderWrapperModel.model.tokenEncodingSize))
-    } )
-
-    val headsEncoderInputErrors = this.lssEncoder.headsEncoder.propagateErrors(latentHeadsErrors, this.headsEncoderOptimizer)
+    val contextErrors = latentHeadsErrors.map { it.zerosLike() }
 
     positionalEncoderErrors?.let { contextErrors.assignSum(it.inputVectorsErrors) }
-
-    contextErrors.assignSum(headsEncoderInputErrors)
 
     this.labeler?.propagateErrors(labelerErrors!!, this.labelerOptimizer!!)?.let { labelerInputErrors ->
       contextErrors.assignSum(labelerInputErrors.contextErrors)
       this.propagateRootErrors(labelerInputErrors.rootErrors)
     }
 
-    val contextEncoderInputErrors = this.lssEncoder.contextEncoder.propagateErrors(contextErrors, this.contextEncoderOptimizer)
-
-    tokensErrors.assignSum(contextEncoderInputErrors)
-
-    this.lssEncoder.tokensEncoderWrapper.propagateErrors(tokensErrors, this.tokensEncoderOptimizer)
+    this.lssEncoder.propagateErrors(
+      errors = LSSEncoder.OutputErrors(contextVectors = contextErrors, latentHeads = latentHeadsErrors),
+      optimizer = this.lssEncoderOptimizer)
   }
 
   /**
@@ -310,6 +267,6 @@ class LHRTrainer(
    * @param errors the errors
    */
   private fun propagateRootErrors(errors: DenseNDArray) {
-    this.updateMethod.update(array = this.parser.model.rootEmbedding.array, errors = errors)
+    this.updateMethod.update(array = this.parser.model.lssModel.rootEmbedding.array, errors = errors)
   }
 }

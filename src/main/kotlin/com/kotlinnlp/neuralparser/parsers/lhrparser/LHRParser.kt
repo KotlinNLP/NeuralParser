@@ -10,12 +10,13 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser
 import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.contextencoder.ContextEncoder
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.HeadsEncoder
+import com.kotlinnlp.lssencoder.LSSEncoder
+import com.kotlinnlp.lssencoder.LatentSyntacticStructure
+import com.kotlinnlp.lssencoder.decoder.CosineDecoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.parsers.lhrparser.decoders.CosineDecoder
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.DependencyTreeBuilder
 
 /**
@@ -32,18 +33,12 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
   /**
    * The Encoder of the Latent Syntactic Structure.
    */
-  private val lssEncoder = LSSEncoder(
-    tokensEncoderWrapper = this.model.tokensEncoderWrapperModel.buildWrapper(useDropout = false),
-    contextEncoder = ContextEncoder(this.model.contextEncoderModel, useDropout = false),
-    headsEncoder = HeadsEncoder(this.model.headsEncoderModel, useDropout = false),
-    virtualRoot = this.model.rootEmbedding.array.values)
+  private val lssEncoder = LSSEncoder(this.model.lssModel, useDropout = false)
 
   /**
    * The builder of the labeler.
    */
-  private val labeler: Labeler? = this.model.labelerModel?.let {
-    Labeler(it, useDropout = false)
-  }
+  private val labeler: Labeler? = this.model.labelerModel?.let { Labeler(model = it, useDropout = false) }
 
   /**
    * Parse a sentence, returning its dependency tree.
@@ -56,7 +51,7 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
    */
   override fun parse(sentence: ParsingSentence): MorphoSynSentence {
 
-    val lss: LatentSyntacticStructure = this.lssEncoder.encode(sentence)
+    val lss: LatentSyntacticStructure<ParsingToken, ParsingSentence> = this.lssEncoder.forward(sentence)
 
     val dependencyTree: DependencyTree = DependencyTreeBuilder(
       lss = lss,

@@ -19,6 +19,7 @@ import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoToken
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
+import com.kotlinnlp.lssencoder.LSSModel
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
@@ -115,14 +116,16 @@ private fun buildParser(
 ): LHRParser = LHRParser(model = LHRModel(
   language = getLanguageByIso(parsedArgs.langCode),
   corpusDictionary = corpus,
-  tokensEncoderWrapperModel = tokensEncoderWrapperModel,
-  contextBiRNNConfig = BiRNNConfig(
-    connectionType = LayerType.Connection.LSTM,
-    hiddenActivation = Tanh(),
-    numberOfLayers = parsedArgs.numOfContextLayers),
-  headsBiRNNConfig = BiRNNConfig(
-    connectionType = LayerType.Connection.LSTM,
-    hiddenActivation = Tanh()),
+  lssModel = LSSModel(
+    tokensEncoderWrapperModel = tokensEncoderWrapperModel,
+    contextBiRNNConfig = BiRNNConfig(
+      connectionType = LayerType.Connection.LSTM,
+      hiddenActivation = Tanh(),
+      numberOfLayers = parsedArgs.numOfContextLayers),
+    headsBiRNNConfig = BiRNNConfig(
+      connectionType = LayerType.Connection.LSTM,
+      hiddenActivation = Tanh())
+  ),
   useLabeler = !parsedArgs.noLabeler,
   lossCriterionType = LossCriterionType.Softmax,
   predictPosTags = !parsedArgs.noPosPrediction,
