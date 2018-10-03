@@ -168,18 +168,18 @@ private fun buildTokensEncoderWrapperModel(
           elements = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }))
 
       TokensEncoderWrapperModel(
-        model = EnsembleTokensEncoderModel(
+        model = EnsembleTokensEncoderModel<ParsingToken, ParsingSentence>(
           models = listOf(
             TokensEncoderWrapperModel(
               model = EmbeddingsEncoderModel(
                 embeddingsMap = preEmbeddingsMap,
-                embeddingKeyExtractor = WordKeyExtractor,
+                embeddingKeyExtractor = WordKeyExtractor(),
                 dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
               converter = BaseConverter()),
             TokensEncoderWrapperModel(
               model = EmbeddingsEncoderModel(
                 embeddingsMap = embeddingsMap,
-                embeddingKeyExtractor = WordKeyExtractor,
+                embeddingKeyExtractor = WordKeyExtractor(),
                 dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
               converter = BaseConverter()),
             TokensEncoderWrapperModel(
@@ -187,7 +187,7 @@ private fun buildTokensEncoderWrapperModel(
                 embeddingsMap = posEmbeddingsMap,
                 embeddingKeyExtractor = PosTagKeyExtractor,
                 dropoutCoefficient = parsedArgs.posDropoutCoefficient),
-              converter = BaseConverter())),
+              converter = MirrorConverter())),
           outputMergeConfiguration = AffineMerge(
             outputSize = 100, // TODO
             activationFunction = null)),
@@ -207,18 +207,18 @@ private fun buildTokensEncoderWrapperModel(
           elements = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }))
 
       TokensEncoderWrapperModel(
-        model = EnsembleTokensEncoderModel(
+        model = EnsembleTokensEncoderModel<ParsingToken, ParsingSentence>(
           models = listOf(
             TokensEncoderWrapperModel(
               model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
-                embeddingKeyExtractor = WordKeyExtractor,
+                embeddingKeyExtractor = WordKeyExtractor(),
                 dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
               converter = BaseConverter()),
             TokensEncoderWrapperModel(
               model = EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
                 embeddingKeyExtractor = PosTagKeyExtractor,
                 dropoutCoefficient = parsedArgs.posDropoutCoefficient),
-              converter = BaseConverter())),
+              converter = MirrorConverter())),
           outputMergeConfiguration = AffineMerge(
             outputSize = 100, // TODO
             activationFunction = null)),
@@ -234,7 +234,7 @@ private fun buildTokensEncoderWrapperModel(
 
       TokensEncoderWrapperModel(
         model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
-          embeddingKeyExtractor = WordKeyExtractor,
+          embeddingKeyExtractor = WordKeyExtractor(),
           dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
         converter = BaseConverter()
       )
