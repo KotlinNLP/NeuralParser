@@ -22,6 +22,15 @@ import com.kotlinnlp.neuralparser.language.ParsingToken
  */
 class MorphoPreprocessor(private val morphologicalAnalyzer: MorphologicalAnalyzer) : SentencePreprocessor {
 
+  companion object {
+
+    /**
+     * Private val used to serialize the class (needed by Serializable).
+     */
+    @Suppress("unused")
+    private const val serialVersionUID: Long = 1L
+  }
+
   /**
    * Convert a [BaseSentence] to a [ParsingSentence].
    *
