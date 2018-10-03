@@ -9,19 +9,30 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors
 
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
+import com.kotlinnlp.linguisticdescription.sentence.token.Token
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingKeyExtractor
 
 /**
  * An [EmbeddingKeyExtractor] by normalized form.
  */
-object WordKeyExtractor : EmbeddingKeyExtractor {
+class WordKeyExtractor<TokenType : Token, SentenceType : Sentence<TokenType>>
+  : EmbeddingKeyExtractor<TokenType, SentenceType> {
+
+  companion object {
+
+    /**
+     * Private val used to serialize the class (needed by Serializable).
+     */
+    @Suppress("unused")
+    private const val serialVersionUID: Long = 1L
+  }
 
   /**
-   * Private val used to serialize the class (needed by Serializable).
+   * @param sentence a generic sentence
+   * @param tokenId the id of the token from which to extract the key
+   *
+   * @return the form of the token
    */
-  @Suppress("unused")
-  private const val serialVersionUID: Long = 1L
-
-  override fun getKey(sentence: Sentence<*>, tokenId: Int): String =
+  override fun getKey(sentence: SentenceType, tokenId: Int): String =
     (sentence.tokens[tokenId] as? FormToken)?.normalizedForm ?: "_"
 }
