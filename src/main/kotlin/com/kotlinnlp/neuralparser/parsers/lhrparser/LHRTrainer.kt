@@ -28,7 +28,9 @@ import com.kotlinnlp.simplednn.core.optimizer.Optimizer
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkProcessor
 import com.kotlinnlp.simplednn.simplemath.assignSum
+import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 import com.kotlinnlp.simplednn.utils.scheduling.BatchScheduling
 import com.kotlinnlp.simplednn.utils.scheduling.EpochScheduling
 import com.kotlinnlp.simplednn.utils.scheduling.ExampleScheduling
@@ -247,7 +249,10 @@ class LHRTrainer(
                               labelerErrors: List<DenseNDArray>?,
                               positionalEncoderErrors: PointerNetworkProcessor.InputErrors?) {
 
-    val contextErrors = latentHeadsErrors.map { it.zerosLike() }
+    val tokensEncodingsSize: Int = this.lssEncoder.model.tokensEncoderWrapperModel.model.tokenEncodingSize
+    val tokensEncodingsErrors: List<DenseNDArray> =
+      List(size = latentHeadsErrors.size, init = { DenseNDArrayFactory.zeros(Shape(tokensEncodingsSize)) })
+    val contextErrors: List<DenseNDArray> = latentHeadsErrors.map { it.zerosLike() }
 
     positionalEncoderErrors?.let { contextErrors.assignSum(it.inputVectorsErrors) }
 
@@ -257,7 +262,10 @@ class LHRTrainer(
     }
 
     this.lssEncoder.propagateErrors(
-      errors = LSSEncoder.OutputErrors(contextVectors = contextErrors, latentHeads = latentHeadsErrors),
+      errors = LSSEncoder.OutputErrors(
+        tokensEncodings = tokensEncodingsErrors,
+        contextVectors = contextErrors,
+        latentHeads = latentHeadsErrors),
       optimizer = this.lssEncoderOptimizer)
   }
 

@@ -20,7 +20,9 @@ import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.simplednn.core.functionalities.losses.MSECalculator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
+import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 import com.kotlinnlp.simplednn.utils.scheduling.ExampleScheduling
 
 /**
@@ -90,12 +92,17 @@ class LHRTransferLearning(
     val targetLSS: LatentSyntacticStructure<ParsingToken, ParsingSentence> = this.targetLSSEncoder.forward(sentence)
     val refLSS: LatentSyntacticStructure<ParsingToken, ParsingSentence> = this.referenceLSSEncoder.forward(sentence)
 
+    val tokensEncodingsSize: Int = this.targetLSSEncoder.model.tokensEncoderWrapperModel.model.tokenEncodingSize
+    val tokensEncodingsErrors: List<DenseNDArray> =
+      sentence.tokens.map { DenseNDArrayFactory.zeros(Shape(tokensEncodingsSize)) }
+
     val contextErrors: List<DenseNDArray> = MSECalculator().calculateErrors(
       outputSequence = targetLSS.contextVectors,
       outputGoldSequence = refLSS.contextVectors)
 
     this.targetLSSEncoder.propagateErrors(
       errors = LSSEncoder.OutputErrors(
+        tokensEncodings = tokensEncodingsErrors,
         contextVectors = contextErrors,
         latentHeads = contextErrors.map { it.zerosLike() }),
       optimizer = this.targetLSSEncoderOptimizer)
