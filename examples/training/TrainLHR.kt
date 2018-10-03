@@ -114,9 +114,9 @@ private fun buildParser(
   tokensEncoderWrapperModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>,
   corpus: CorpusDictionary
 ): LHRParser = LHRParser(model = LHRModel(
-  language = getLanguageByIso(parsedArgs.langCode),
   corpusDictionary = corpus,
   lssModel = LSSModel(
+    language = getLanguageByIso(parsedArgs.langCode),
     tokensEncoderWrapperModel = tokensEncoderWrapperModel,
     contextBiRNNConfig = BiRNNConfig(
       connectionType = LayerType.Connection.LSTM,
