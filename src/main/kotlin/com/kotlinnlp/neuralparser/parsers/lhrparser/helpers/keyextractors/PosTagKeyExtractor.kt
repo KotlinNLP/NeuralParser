@@ -7,14 +7,14 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors
 
-import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingKeyExtractor
 
 /**
  * An [EmbeddingKeyExtractor] by POS tag.
  */
-object PosTagKeyExtractor : EmbeddingKeyExtractor<ParsingToken, Sentence<ParsingToken>> {
+object PosTagKeyExtractor : EmbeddingKeyExtractor<ParsingToken, ParsingSentence> {
 
   /**
    * Private val used to serialize the class (needed by Serializable).
@@ -28,6 +28,6 @@ object PosTagKeyExtractor : EmbeddingKeyExtractor<ParsingToken, Sentence<Parsing
    *
    * @return the POS as string
    */
-  override fun getKey(sentence: Sentence<ParsingToken>, tokenId: Int): String =
+  override fun getKey(sentence: ParsingSentence, tokenId: Int): String =
     sentence.tokens[tokenId].pos?.toString() ?: "_"
 }
