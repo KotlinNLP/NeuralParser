@@ -29,7 +29,7 @@ class MorphoPreprocessor(private val morphologicalAnalyzer: MorphologicalAnalyze
    *
    * @return a sentence ready to be parsed
    */
-  override fun process(sentence: BaseSentence): ParsingSentence {
+  override fun convert(sentence: BaseSentence): ParsingSentence {
 
     @Suppress("UNCHECKED_CAST")
     val morphoAnalysis: MorphologicalAnalysis = this.morphologicalAnalyzer.analyze(sentence as RealSentence<RealToken>)

@@ -40,7 +40,7 @@ class CoNLLDependencyParser(
   fun parse(sentence: CoNLLSentence, index: Int): CoNLLSentence {
 
     val parsedSentence: MorphoSynSentence = this.neuralParser.parse(
-      this.sentencePreprocessor.process(BaseSentence.fromCoNLL(sentence, index = index)))
+      this.sentencePreprocessor.convert(BaseSentence.fromCoNLL(sentence, index = index)))
 
     return sentence.copy(tokens = sentence.tokens.map {
 

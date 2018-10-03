@@ -9,18 +9,12 @@ package com.kotlinnlp.neuralparser.helpers.preprocessors
 
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.BaseSentence
+import com.kotlinnlp.neuralparser.language.BaseToken
+import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.tokensencoder.wrapper.SentenceConverter
 
 /**
  * Pre-process a sentence before the parsing starts.
  */
-interface SentencePreprocessor {
+interface SentencePreprocessor : SentenceConverter<BaseToken, BaseSentence, ParsingToken, ParsingSentence>
 
-  /**
-   * Convert a [BaseSentence] to a [ParsingSentence].
-   *
-   * @param sentence a base sentence
-   *
-   * @return a sentence ready to be parsed
-   */
-  fun process(sentence: BaseSentence): ParsingSentence
-}

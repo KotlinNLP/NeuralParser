@@ -27,7 +27,7 @@ class CoNLLPreprocessor(private val conllSentences: List<CoNLLSentence>) : Sente
    *
    * @return a sentence ready to be parsed
    */
-  override fun process(sentence: BaseSentence): ParsingSentence {
+  override fun convert(sentence: BaseSentence): ParsingSentence {
 
     val conllTokens: List<CoNLLToken> = this.conllSentences[sentence.position.index].tokens
 
