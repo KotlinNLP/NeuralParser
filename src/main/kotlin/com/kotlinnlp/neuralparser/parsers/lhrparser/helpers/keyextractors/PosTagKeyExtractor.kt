@@ -9,7 +9,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors
 
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.tokensencoder.embeddings.EmbeddingKeyExtractor
+import com.kotlinnlp.tokensencoder.embeddings.keyextractor.EmbeddingKeyExtractor
 
 /**
  * An [EmbeddingKeyExtractor] by POS tag.
