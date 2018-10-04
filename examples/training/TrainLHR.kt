@@ -43,7 +43,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.BaseConve
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.MorphoConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.PosTagKeyExtractor
-import com.kotlinnlp.tokensencoder.embeddings.keyextractor.WordKeyExtractor
+import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
@@ -168,26 +168,29 @@ private fun buildTokensEncoderWrapperModel(
           elements = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }))
 
       TokensEncoderWrapperModel(
-        model = EnsembleTokensEncoderModel<ParsingToken, ParsingSentence>(
-          models = listOf(
-            TokensEncoderWrapperModel(
-              model = EmbeddingsEncoderModel(
-                embeddingsMap = preEmbeddingsMap,
-                embeddingKeyExtractor = WordKeyExtractor(),
-                dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
-              converter = BaseConverter()),
-            TokensEncoderWrapperModel(
-              model = EmbeddingsEncoderModel(
-                embeddingsMap = embeddingsMap,
-                embeddingKeyExtractor = WordKeyExtractor(),
-                dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
-              converter = BaseConverter()),
-            TokensEncoderWrapperModel(
-              model = EmbeddingsEncoderModel(
-                embeddingsMap = posEmbeddingsMap,
-                embeddingKeyExtractor = PosTagKeyExtractor,
-                dropoutCoefficient = parsedArgs.posDropoutCoefficient),
-              converter = MirrorConverter())),
+        model = EnsembleTokensEncoderModel(
+          components = listOf(
+            EnsembleTokensEncoderModel.ComponentModel(
+              TokensEncoderWrapperModel(
+                model = EmbeddingsEncoderModel(
+                  embeddingsMap = preEmbeddingsMap,
+                  embeddingKeyExtractor = NormWordKeyExtractor(),
+                  dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+                converter = BaseConverter())),
+            EnsembleTokensEncoderModel.ComponentModel(
+              TokensEncoderWrapperModel(
+                model = EmbeddingsEncoderModel(
+                  embeddingsMap = embeddingsMap,
+                  embeddingKeyExtractor = NormWordKeyExtractor(),
+                  dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+                converter = BaseConverter())),
+            EnsembleTokensEncoderModel.ComponentModel(
+              TokensEncoderWrapperModel(
+                model = EmbeddingsEncoderModel(
+                  embeddingsMap = posEmbeddingsMap,
+                  embeddingKeyExtractor = PosTagKeyExtractor,
+                  dropoutCoefficient = parsedArgs.posDropoutCoefficient),
+                converter = MirrorConverter()))),
           outputMergeConfiguration = AffineMerge(
             outputSize = 100, // TODO
             activationFunction = null)),
@@ -207,18 +210,20 @@ private fun buildTokensEncoderWrapperModel(
           elements = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }))
 
       TokensEncoderWrapperModel(
-        model = EnsembleTokensEncoderModel<ParsingToken, ParsingSentence>(
-          models = listOf(
-            TokensEncoderWrapperModel(
-              model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
-                embeddingKeyExtractor = WordKeyExtractor(),
-                dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
-              converter = BaseConverter()),
-            TokensEncoderWrapperModel(
-              model = EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
-                embeddingKeyExtractor = PosTagKeyExtractor,
-                dropoutCoefficient = parsedArgs.posDropoutCoefficient),
-              converter = MirrorConverter())),
+        model = EnsembleTokensEncoderModel(
+          components = listOf(
+            EnsembleTokensEncoderModel.ComponentModel(
+              TokensEncoderWrapperModel(
+                model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
+                  embeddingKeyExtractor = NormWordKeyExtractor(),
+                  dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+                converter = BaseConverter())),
+            EnsembleTokensEncoderModel.ComponentModel(
+              TokensEncoderWrapperModel(
+                model = EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
+                  embeddingKeyExtractor = PosTagKeyExtractor,
+                  dropoutCoefficient = parsedArgs.posDropoutCoefficient),
+                converter = MirrorConverter()))),
           outputMergeConfiguration = AffineMerge(
             outputSize = 100, // TODO
             activationFunction = null)),
@@ -234,7 +239,7 @@ private fun buildTokensEncoderWrapperModel(
 
       TokensEncoderWrapperModel(
         model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
-          embeddingKeyExtractor = WordKeyExtractor(),
+          embeddingKeyExtractor = NormWordKeyExtractor(),
           dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
         converter = BaseConverter()
       )
