@@ -27,7 +27,8 @@ class CommandLineArguments(args: Array<String>) {
     WORD_EMBEDDINGS,
     WORD_AND_POS_EMBEDDINGS,
     WORD_AND_EXT_AND_POS_EMBEDDINGS,
-    MORPHO_FEATURES
+    MORPHO_FEATURES,
+    CHARLM
   }
 
   /**
@@ -226,6 +227,7 @@ class CommandLineArguments(args: Array<String>) {
     "--tokens-word-pos-emb" to TokensEncodingType.WORD_AND_POS_EMBEDDINGS,
     "--tokens-word-ext-pos-emb" to TokensEncodingType.WORD_AND_EXT_AND_POS_EMBEDDINGS,
     "--tokens-morpho" to TokensEncodingType.MORPHO_FEATURES,
+    "--tokens-charlm" to TokensEncodingType.CHARLM,
     help = "the type of morphology encoding (default --tokens-word-pos-emb)"
   ).default { TokensEncodingType.WORD_AND_POS_EMBEDDINGS }
 

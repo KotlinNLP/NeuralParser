@@ -8,6 +8,7 @@
 package training
 
 import buildSentencePreprocessor
+import com.kotlinnlp.languagemodel.CharLM
 import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
@@ -44,10 +45,12 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.BaseConve
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.MorphoConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.PosTagKeyExtractor
+import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.FormConverter
 import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
+import com.kotlinnlp.tokensencoder.charlm.CharLMEncoderModel
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.morpho.FeaturesCollector
 import com.kotlinnlp.tokensencoder.morpho.MorphoEncoderModel
@@ -244,6 +247,18 @@ private fun buildTokensEncoderWrapperModel(
           embeddingKeyExtractor = NormWordKeyExtractor(),
           dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
         converter = BaseConverter()
+      )
+    }
+
+    CommandLineArguments.TokensEncodingType.CHARLM -> { // TODO: separate with a dedicated builder
+      TokensEncoderWrapperModel(
+        model = CharLMEncoderModel(
+          charLM = CharLM.load(FileInputStream(File(""))), // TODO
+          revCharLM = CharLM.load(FileInputStream(File(""))), // TODO
+          outputMergeConfiguration = AffineMerge(
+            outputSize = 100, // TODO
+            activationFunction = Tanh())),
+        converter = FormConverter()
       )
     }
 
