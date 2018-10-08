@@ -15,7 +15,7 @@
         <kotlin.version>1.2.41</kotlin.version>
         <klaxon.version>3.0.5</klaxon.version>
         <neuralparser.version>0.5.0</neuralparser.version>
-        <simplednn.version>0.11.0</simplednn.version>
+        <simplednn.version>0.11.1</simplednn.version>
         <conllio.version>0.2.5</conllio.version>
         <constraints.version>0.1.0</constraints.version>
         <dependencytree.version>0.4.0</dependencytree.version>

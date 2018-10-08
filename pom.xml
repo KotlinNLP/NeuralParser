@@ -65,7 +65,7 @@
         <surfire.version>2.19.1</surfire.version>
         <conllio.version>0.2.5</conllio.version>
         <constraints.version>0.1.0</constraints.version>
-        <simplednn.version>0.11.0</simplednn.version>
+        <simplednn.version>0.11.1</simplednn.version>
         <dependencytree.version>0.4.0</dependencytree.version>
         <tokensencoder.version>0.4.0</tokensencoder.version>
         <lssencoder.version>0.1.0</lssencoder.version>
