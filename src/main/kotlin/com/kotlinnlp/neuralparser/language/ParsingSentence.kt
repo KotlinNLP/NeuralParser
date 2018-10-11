@@ -55,7 +55,7 @@ class ParsingSentence(
           tokenIndex = i,
           nextIdAvailable = nextIdAvailable,
           governorId = dependencyTree.getHead(it.id),
-          attachmentScore = 0.0, // TODO: set it
+          attachmentScore = dependencyTree.getAttachmentScore(it.id),
           config = dependencyTree.getConfiguration(it.id)!!,
           labelerSelector = labelerSelector)
 
