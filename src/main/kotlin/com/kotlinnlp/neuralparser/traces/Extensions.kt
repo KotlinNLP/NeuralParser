@@ -122,7 +122,7 @@ val MorphoSynToken.isRMod: Boolean get() = this.isDependentAs(RestrictiveModifie
 /**
  *
  */
-fun MorphoSynSentence.toDependencyTree() = DependencyTree(
+fun MorphoSynSentence.buildDependencyTree() = DependencyTree(
   elements = this.tokens.map { it.id },
   dependencies = this.tokens.map {
     if (it.syntacticRelation.governor == null)

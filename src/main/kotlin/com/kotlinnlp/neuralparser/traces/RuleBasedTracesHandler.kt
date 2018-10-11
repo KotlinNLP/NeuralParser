@@ -30,7 +30,7 @@ class RuleBasedTracesHandler(private val corefHelpers: List<CorefHelper>) : Trac
    */
   override fun addTraces(sentence: MorphoSynSentence) {
 
-    val tree: DependencyTree = sentence.toDependencyTree()
+    val tree: DependencyTree = sentence.buildDependencyTree()
     var lastId: Int = sentence.tokens.maxBy { it.id }!!.id
 
     sentence.tokens.filter { it.isVerbNotAux }.forEach { token ->
