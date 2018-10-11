@@ -7,9 +7,6 @@
 
 package com.kotlinnlp.neuralparser.traces
 
-import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
-import com.kotlinnlp.dependencytree.configuration.RootConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Verb
 import com.kotlinnlp.linguisticdescription.morphology.properties.Mood
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
@@ -118,18 +115,3 @@ val MorphoSynToken.isCoord2Nd: Boolean get() = TODO("Coord2Nd class is missing")
  *
  */
 val MorphoSynToken.isRMod: Boolean get() = this.isDependentAs(RestrictiveModifier::class)
-
-/**
- *
- */
-fun MorphoSynSentence.buildDependencyTree() = DependencyTree(
-  elements = this.tokens.map { it.id },
-  dependencies = this.tokens.map {
-    if (it.syntacticRelation.governor == null)
-      RootConfiguration(id = it.id, dependency = it.syntacticRelation.dependency)
-    else
-      ArcConfiguration(
-        dependent = it.id,
-        governor = it.syntacticRelation.governor!!,
-        dependency = it.syntacticRelation.dependency)
-  })
