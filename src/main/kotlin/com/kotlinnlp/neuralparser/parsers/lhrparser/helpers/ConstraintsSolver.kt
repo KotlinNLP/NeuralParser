@@ -10,7 +10,10 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 import com.kotlinnlp.constraints.Constraint
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
+import com.kotlinnlp.linguisticdescription.sentence.token.Word
+import com.kotlinnlp.linguisticdescription.sentence.token.WordTrace
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Unknown
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
@@ -56,7 +59,7 @@ internal class ConstraintsSolver(
    * @property grammar a scored grammatical configuration
    * @property isValid whether the grammatical configuration violates a hard constraint or not
    */
-  internal data class GrammarValue(var grammar: ScoredGrammar, var isValid: Boolean = true) : Value() {
+  internal data class GrammarValue(val grammar: ScoredGrammar, var isValid: Boolean = true) : Value() {
 
     /**
      * The score of this value.
@@ -100,29 +103,119 @@ internal class ConstraintsSolver(
      */
     private fun applyConstraints() {
 
-      val tokens: List<MorphoSynToken> = sentence.toMorphoSynSentence(
-        dependencyTree = dependencyTree,
-        labelerSelector = labelerSelector
-      ).tokens
-      val tokensMap: Map<Int, MorphoSynToken> = tokens.associateBy { it.id }
+      val morphoSynSentence: MorphoSynSentence = sentence.toMorphoSynSentence(
+        dependencyTree = this@ConstraintsSolver.dependencyTree,
+        labelerSelector = labelerSelector)
+
+      val explodedTokensPairs: List<Pair<Int, MorphoSynToken>> = this.explodeTokens(morphoSynSentence.tokens)
+      val explodedTokens: List<MorphoSynToken> = explodedTokensPairs.map { it.second }
+      val dependencyTree = DependencyTree(explodedTokens)
+
+      val elementsById: Map<Int, StateElement<GrammarValue>> = this.elements.associateBy { it.id }
 
       constraints.forEach { constraint ->
-        this.elements.forEach {
+        explodedTokensPairs.forEach { (originalId, token) ->
 
-          val isVerified: Boolean =
-            constraint.isVerified(token = tokensMap.getValue(it.id), tokens = tokens, dependencyTree = dependencyTree)
+          val isVerified: Boolean = constraint.isVerified(
+            token = token,
+            tokens = explodedTokens,
+            dependencyTree = dependencyTree)
+
+          val element: StateElement<GrammarValue> = elementsById.getValue(originalId)
 
           if (!isVerified) {
 
             if (constraint.isHard) {
-              it.value.isValid = false
+              element.value.isValid = false
               this.isValid = false
             }
 
-            it.value.grammar = it.value.grammar.copy(score = it.value.score * constraint.penalty)
+            element.value.score *= element.value.score * constraint.penalty
           }
         }
       }
+    }
+
+    /**
+     * Explode a list of morpho-syntactic tokens into a list of Single tokens, adding all the components of the
+     * Composite ones.
+     *
+     * @param tokens a list of morpho-syntactic tokens
+     *
+     * @return a new list with all the Single tokens of the given list, in pairs with the original token id
+     */
+    private fun explodeTokens(tokens: List<MorphoSynToken>): List<Pair<Int, MorphoSynToken.Single>> {
+
+      val pairs: MutableList<Pair<Int, MorphoSynToken.Single>> = mutableListOf()
+      var index = 0
+      val dependencies: Map<Int, Int?> = this.getDependenciesByComponents(tokens)
+
+      tokens.forEach { token ->
+        when (token) {
+          is MorphoSynToken.Single -> pairs.add(Pair(token.id, token.copyPositionIndex(index)))
+          is MorphoSynToken.Composite -> token.components.forEach { c ->
+            pairs.add(Pair(token.id, c.copyPositionIndex(index++)))
+          }
+        }
+      }
+
+      pairs.forEach { (_, token) ->
+        token.updateSyntacticRelation(token.syntacticRelation.copy(governor = dependencies.getValue(token.id)))
+      }
+
+      return pairs
+    }
+
+    /**
+     * Get the dependencies of the given tokens considering the components in case of Composite tokens.
+     *
+     * @param tokens a list of morpho-syntactic tokens
+     *
+     * @return the map of Single token ids to their heads
+     */
+    private fun getDependenciesByComponents(tokens: List<MorphoSynToken>): Map<Int, Int?> {
+
+      val dependencies: MutableMap<Int, Int?> = tokens
+        .flatMap {
+          when (it) {
+            is MorphoSynToken.Single -> listOf(it)
+            is MorphoSynToken.Composite -> it.components
+          }
+        }
+        .associate { it.id to it.syntacticRelation.governor }
+        .toMutableMap()
+
+      tokens.forEach {
+        if (it is MorphoSynToken.Composite)
+          dependencies
+            .filterValues { governorId -> governorId == it.id }
+            .keys
+            .forEach { dependentId -> dependencies[dependentId] = it.components.first().id }
+      }
+
+      return dependencies
+    }
+
+    /**
+     * Copy a Single Token assigning a new position index to it.
+     *
+     * @param index the new position index
+     *
+     * @return the same token with the position index replaced
+     */
+    private fun MorphoSynToken.Single.copyPositionIndex(index: Int): MorphoSynToken.Single = when (this) {
+      is Word -> Word(
+        id = this.id,
+        form = this.form,
+        position = this.position.copy(index = index),
+        pos = this.pos,
+        morphologies = this.morphologies,
+        contextMorphologies = this.contextMorphologies,
+        syntacticRelation = this.syntacticRelation,
+        coReferences = this.coReferences,
+        semanticRelations = this.semanticRelations)
+      is WordTrace -> this
+      else -> throw RuntimeException("Invalid token type: only Word and WordTrace are allowed at this step.")
     }
   }
 
@@ -151,7 +244,7 @@ internal class ConstraintsSolver(
   override fun buildState(elements: List<StateElement<GrammarValue>>): GrammarState = GrammarState(elements)
 
   /**
-   * Set the grammatical configuration of the given state into the [dependencyTree].
+   * Set the grammatical configuration of a given state into the [dependencyTree].
    *
    * @param state a state
    */
