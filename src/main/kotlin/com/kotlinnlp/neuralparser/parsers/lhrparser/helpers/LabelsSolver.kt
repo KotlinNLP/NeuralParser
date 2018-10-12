@@ -42,7 +42,9 @@ internal class LabelsSolver(
   maxForkSize: Int = 3,
   maxIterations: Int = 10
 ) : BeamManager<LabelsSolver.GrammarValue, LabelsSolver.GrammarState>(
-  valuesMap = scoresMap.mapValues { (_, grammar) -> grammar.map { GrammarValue(it) }.sortedByDescending { it.score } },
+  valuesMap = scoresMap.mapValues { (_, grammar) ->
+    grammar.asSequence().map { GrammarValue(it) }.sortedByDescending { it.score }.toList()
+  },
   maxBeamSize = maxBeamSize,
   maxForkSize = maxForkSize,
   maxIterations = maxIterations
