@@ -156,11 +156,12 @@ internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: Bea
   private var validStatesOnly = false
 
   /**
-   * Find the best valid configuration of elements, with the highest global score.
+   * Find the best (eventually valid) configuration of elements, with the highest global score.
    *
    * @param onlyValid whether to return only valid configurations (default = true)
    *
-   * @return the state with the best configuration or null if no valid configuration has been found
+   * @return the state with the best configuration or null if [onlyValid] is true and no valid configuration has been
+   *         found
    */
   fun findBestConfiguration(onlyValid: Boolean = true): StateType? {
 
