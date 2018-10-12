@@ -29,9 +29,9 @@ import com.kotlinnlp.neuralparser.utils.notEmptyOr
  * @param constraints a list of linguistic constraints (can be null)
  * @param labelerSelector a labeler selector used to build a [MorphoSynToken]
  * @param labelerScoreThreshold the score threshold above which to consider a labeler output valid
- * @param maxBeamSize the max number of parallel states that the beam supports
- * @param maxForkSize the max number of forks that can be generated from a state
- * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion)
+ * @param maxBeamSize the max number of parallel states that the beam supports (-1 = infinite)
+ * @param maxForkSize the max number of forks that can be generated from a state (-1 = infinite)
+ * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion, -1 = infinite)
  */
 internal class DependencyTreeBuilder(
   private val lss: LatentSyntacticStructure<ParsingToken, ParsingSentence>,

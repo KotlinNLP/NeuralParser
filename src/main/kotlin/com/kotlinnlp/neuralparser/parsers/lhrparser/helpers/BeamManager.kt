@@ -12,9 +12,9 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
  * possible values can be assigned.
  *
  * @param valuesMap a map of element ids associated to their possible values, sorted by descending score
- * @param maxBeamSize the max number of parallel states that the beam supports
- * @param maxForkSize the max number of forks that can be generated from a state
- * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion)
+ * @param maxBeamSize the max number of parallel states that the beam supports (-1 = infinite)
+ * @param maxForkSize the max number of forks that can be generated from a state (-1 = infinite)
+ * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion, -1 = infinite)
  */
 internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: BeamManager<ValueType, StateType>.State>(
   private val valuesMap: Map<Int, List<ValueType>>,
@@ -167,7 +167,8 @@ internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: Bea
     this.initBeam()
 
     run steps@{
-      (0 until this.maxIterations).forEach { if (!this.solvingStep()) return@steps }
+      var i = 0
+      while (i++ != this.maxIterations) { if (!this.solvingStep()) return@steps }
     }
 
     return if (onlyValid) this.beam.firstOrNull { it.isValid } else this.beam.first()

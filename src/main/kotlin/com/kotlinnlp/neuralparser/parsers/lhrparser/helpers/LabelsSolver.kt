@@ -28,9 +28,9 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.
  * @param constraints a list of linguistic constraints
  * @param labelerSelector a labeler selector used to build a [MorphoSynToken]
  * @param scoresMap a map of valid deprels (sorted by descending score) associated to each token id
- * @param maxBeamSize the max number of parallel states that the beam supports
- * @param maxForkSize the max number of forks that can be generated from a state
- * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion)
+ * @param maxBeamSize the max number of parallel states that the beam supports (-1 = infinite)
+ * @param maxForkSize the max number of forks that can be generated from a state (-1 = infinite)
+ * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion, -1 = infinite)
  */
 internal class LabelsSolver(
   private val sentence: ParsingSentence,
