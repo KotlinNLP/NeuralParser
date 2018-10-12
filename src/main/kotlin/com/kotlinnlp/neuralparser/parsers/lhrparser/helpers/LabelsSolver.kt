@@ -51,11 +51,6 @@ internal class LabelsSolver(
 ) {
 
   /**
-   * Raised when there is not a configuration that permits to do not violate a hard constraint.
-   */
-  class InvalidConfiguration : RuntimeException()
-
-  /**
    * A value containing a grammatical configuration.
    *
    * @property grammar a scored grammatical configuration
@@ -224,8 +219,6 @@ internal class LabelsSolver(
   /**
    * Find the best grammatical configuration for the given [dependencyTree] that does not violates any hard constraint,
    * using the given scores map.
-   *
-   * @throws InvalidConfiguration if all the possible configurations violate a hard constraint
    */
   fun solve() {
 
