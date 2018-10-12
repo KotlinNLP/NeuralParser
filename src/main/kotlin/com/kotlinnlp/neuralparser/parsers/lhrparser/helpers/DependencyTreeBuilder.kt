@@ -177,7 +177,7 @@ internal class DependencyTreeBuilder(
     val configMap: Map<Int, List<ScoredGrammar>> = this.buildConfigurationsMap()
 
     if (constraints != null)
-      ConstraintsSolver(
+      LabelsSolver(
         sentence = lss.sentence,
         dependencyTree = this,
         constraints = constraints,

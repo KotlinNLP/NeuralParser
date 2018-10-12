@@ -32,7 +32,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.
  * @param maxForkSize the max number of forks that can be generated from a state
  * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion)
  */
-internal class ConstraintsSolver(
+internal class LabelsSolver(
   private val sentence: ParsingSentence,
   private val dependencyTree: DependencyTree,
   private val constraints: List<Constraint>,
@@ -41,7 +41,7 @@ internal class ConstraintsSolver(
   maxBeamSize: Int = 5,
   maxForkSize: Int = 3,
   maxIterations: Int = 10
-) : BeamManager<ConstraintsSolver.GrammarValue, ConstraintsSolver.GrammarState>(
+) : BeamManager<LabelsSolver.GrammarValue, LabelsSolver.GrammarState>(
   valuesMap = scoresMap.mapValues { (_, grammar) -> grammar.map { GrammarValue(it) }.sortedByDescending { it.score } },
   maxBeamSize = maxBeamSize,
   maxForkSize = maxForkSize,
@@ -104,7 +104,7 @@ internal class ConstraintsSolver(
     private fun applyConstraints() {
 
       val morphoSynSentence: MorphoSynSentence = sentence.toMorphoSynSentence(
-        dependencyTree = this@ConstraintsSolver.dependencyTree,
+        dependencyTree = this@LabelsSolver.dependencyTree,
         labelerSelector = labelerSelector)
 
       val explodedTokensPairs: List<Pair<Int, MorphoSynToken>> = this.explodeTokens(morphoSynSentence.tokens)
