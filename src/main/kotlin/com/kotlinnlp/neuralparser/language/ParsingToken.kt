@@ -40,7 +40,7 @@ data class ParsingToken(
   /**
    * @param sentence the sentence this token is part of
    * @param tokenIndex the index of this token within the sentence tokens list
-   * @param nextAvailableId the next id that can be assigned to a new token to add to the sentence (as component)
+   * @param nextAvailableId the next id that can be assigned to a new token of the sentence (as component)
    * @param governorId the governor id
    * @param attachmentScore the attachment score
    * @param config the grammatical configuration of this token
@@ -127,7 +127,7 @@ data class ParsingToken(
   }
 
   /**
-   * @param nextAvailableId the next id that can be assigned to a new token to add to the sentence (as component)
+   * @param nextAvailableId the next id that can be assigned to a new token of the sentence (as component)
    * @param governorId the governor id
    * @param attachmentScore the attachment score
    * @param config the grammatical configuration of the token
