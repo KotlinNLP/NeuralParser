@@ -144,7 +144,7 @@ internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: Bea
    * A remapping of the [valuesMap] to the differences between scores of consecutive values.
    */
   private val scoresDiffMap: Map<Int, List<Double>> = this.valuesMap.mapValues { (_, values) ->
-    values.zipWithNext().map { it.first.score - it.second.score }
+    values.asSequence().zipWithNext().map { it.first.score - it.second.score }.toList()
   }
 
   /**
@@ -214,7 +214,7 @@ internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: Bea
       this.beam.retainAll { it.isValid } // invalid states are no more allowed -> remove them from the beam
     }
 
-    return this.getAllowedStates(forkedStates).map { this.addNewState(it) }.any { it }
+    return this.getAllowedStates(forkedStates).asSequence().map { this.addNewState(it) }.any { it }
   }
 
   /**
@@ -259,7 +259,7 @@ internal abstract class BeamManager<ValueType: BeamManager.Value, StateType: Bea
    * @return a new list with the values sorted by descending ambiguity.
    */
   private fun <T: Value> List<StateElement<T>>.sortedByAmbiguity(): List<StateElement<T>> =
-    this.sortedBy { scoresDiffMap.getValue(it.id).getOrElse(it.index) { 1.0 } }
+    this.sortedBy { elm -> scoresDiffMap.getValue(elm.id).getOrElse(elm.index) { 1.0 } }
 
   /**
    * Remove the last element of the list.
