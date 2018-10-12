@@ -40,7 +40,7 @@ data class ParsingToken(
   /**
    * @param sentence the sentence this token is part of
    * @param tokenIndex the index of this token within the sentence tokens list
-   * @param nextIdAvailable the next id that can be assigned to a new token to add to the sentence (as component)
+   * @param nextAvailableId the next id that can be assigned to a new token to add to the sentence (as component)
    * @param governorId the governor id
    * @param attachmentScore the attachment score
    * @param config the grammatical configuration of this token
@@ -50,7 +50,7 @@ data class ParsingToken(
    */
   internal fun toMorphoSynToken(sentence: ParsingSentence,
                                 tokenIndex: Int,
-                                nextIdAvailable: Int,
+                                nextAvailableId: Int,
                                 governorId: Int?,
                                 attachmentScore: Double,
                                 config: GrammaticalConfiguration,
@@ -76,7 +76,7 @@ data class ParsingToken(
         morphologies = morphologies.map { it.toSingle() })
     else
       this.buildCompositeToken(
-        nextIdAvailable = nextIdAvailable,
+        nextAvailableId = nextAvailableId,
         governorId = governorId,
         attachmentScore = attachmentScore,
         config = config,
@@ -127,7 +127,7 @@ data class ParsingToken(
   }
 
   /**
-   * @param nextIdAvailable the next id that can be assigned to a new token to add to the sentence (as component)
+   * @param nextAvailableId the next id that can be assigned to a new token to add to the sentence (as component)
    * @param governorId the governor id
    * @param attachmentScore the attachment score
    * @param config the grammatical configuration of the token
@@ -135,7 +135,7 @@ data class ParsingToken(
    *
    * @return a new composite token
    */
-  private fun buildCompositeToken(nextIdAvailable: Int,
+  private fun buildCompositeToken(nextAvailableId: Int,
                                   governorId: Int?,
                                   attachmentScore: Double,
                                   config: GrammaticalConfiguration,
@@ -150,10 +150,10 @@ data class ParsingToken(
       position = checkNotNull(this.position) { "Composite words must have a position." },
       components = config.components.mapIndexed { i, component ->
         this.buildSingleToken(
-          id = nextIdAvailable + i,
+          id = nextAvailableId + i,
           governorId = when {
             i == 0 || isPrepArt -> governorId
-            isVerbEnclitic -> nextIdAvailable // the ID of the first component
+            isVerbEnclitic -> nextAvailableId // the ID of the first component
             else -> null
           },
           attachmentScore = attachmentScore,

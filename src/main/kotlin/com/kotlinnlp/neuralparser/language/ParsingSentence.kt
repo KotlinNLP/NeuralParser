@@ -41,7 +41,7 @@ class ParsingSentence(
    */
   fun toMorphoSynSentence(dependencyTree: DependencyTree, labelerSelector: LabelerSelector): MorphoSynSentence {
 
-    var nextIdAvailable: Int = this.tokens.last().id + 1
+    var nextAvailableId: Int = this.tokens.last().id + 1
 
     return MorphoSynSentence(
       id = 0,
@@ -53,14 +53,14 @@ class ParsingSentence(
         val morphoSynToken: MorphoSynToken = it.toMorphoSynToken(
           sentence = this,
           tokenIndex = i,
-          nextIdAvailable = nextIdAvailable,
+          nextAvailableId = nextAvailableId,
           governorId = dependencyTree.getHead(it.id),
           attachmentScore = dependencyTree.getAttachmentScore(it.id),
           config = dependencyTree.getConfiguration(it.id)!!,
           labelerSelector = labelerSelector)
 
         if (morphoSynToken is MorphoSynToken.Composite)
-          nextIdAvailable += morphoSynToken.components.size
+          nextAvailableId += morphoSynToken.components.size
 
         morphoSynToken
       }
