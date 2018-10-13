@@ -251,7 +251,7 @@ class LHRTrainer(
 
     positionalEncoderErrors?.let { contextVectorsErrors.assignSum(it.inputVectorsErrors) }
 
-    this.labeler?.propagateErrors(labelerErrors!!, this.labelerOptimizer!!)?.let { labelerInputErrors ->
+    this.labeler?.propagateErrors(labelerErrors!!, this.labelerOptimizer!!, copy = false)?.let { labelerInputErrors ->
       contextVectorsErrors.assignSum(labelerInputErrors.contextErrors)
       this.propagateRootErrors(labelerInputErrors.rootErrors)
     }
@@ -261,7 +261,7 @@ class LHRTrainer(
       contextVectors = contextVectorsErrors,
       latentHeads = latentHeadsErrors))
 
-    this.lssEncoderOptimizer.accumulate(this.lssEncoder.getParamsErrors())
+    this.lssEncoderOptimizer.accumulate(this.lssEncoder.getParamsErrors(copy = false))
   }
 
   /**
