@@ -10,6 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
+import com.kotlinnlp.linguisticdescription.morphology.ScoredSingleMorphology
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Word
@@ -104,31 +105,25 @@ internal class LabelsSolver(
         dependencyTree = this@LabelsSolver.dependencyTree,
         labelerSelector = labelerSelector)
 
-      val explodedTokensPairs: List<Pair<Int, MorphoSynToken>> = this.explodeTokens(morphoSynSentence.tokens)
-      val explodedTokens: List<MorphoSynToken> = explodedTokensPairs.map { it.second }
-      val dependencyTree = DependencyTree(explodedTokens)
+      val explodedTokensPairs: List<Pair<Int, MorphoSynToken.Single>> = this.explodeTokens(morphoSynSentence.tokens)
+      val explodedTokens: List<MorphoSynToken.Single> = explodedTokensPairs.map { it.second }
+
+      val validMorphologiesMap: Map<Int, List<ScoredSingleMorphology>> =
+        MorphologySolver(tokens = explodedTokens, constraints = constraints).solve()
 
       val elementsById: Map<Int, StateElement<GrammarValue>> = this.elements.associateBy { it.id }
 
-      constraints.forEach { constraint ->
-        explodedTokensPairs.forEach { (originalId, token) ->
+      explodedTokensPairs.forEach { (originalId, token) ->
 
-          val isVerified: Boolean = constraint.isVerified(
-            token = token,
-            tokens = explodedTokens,
-            dependencyTree = dependencyTree)
+        val element: StateElement<GrammarValue> = elementsById.getValue(originalId)
+        val validMorphologies: List<ScoredSingleMorphology> = validMorphologiesMap.getValue(token.id)
 
-          val element: StateElement<GrammarValue> = elementsById.getValue(originalId)
-
-          if (!isVerified) {
-
-            if (constraint.isHard) {
-              element.value.isValid = false
-              this.isValid = false
-            }
-
-            element.value.score *= element.value.score * constraint.penalty
-          }
+        if (validMorphologies.isNotEmpty()) {
+          element.value.score *= element.value.score * validMorphologies.asSequence().map { it.score }.average()
+        } else {
+          element.value.isValid = false
+          this.isValid = false
+          element.value.score = 0.0
         }
       }
     }
