@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 
-import com.kotlinnlp.constraints.Constraint
+import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.dependencytree.CycleDetectedError
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
