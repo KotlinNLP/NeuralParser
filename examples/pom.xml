@@ -19,7 +19,6 @@
         <neuralparser.version>0.5.0</neuralparser.version>
         <simplednn.version>0.11.1</simplednn.version>
         <conllio.version>0.2.5</conllio.version>
-        <constraints.version>0.1.0</constraints.version>
         <dependencytree.version>0.4.0</dependencytree.version>
         <linguisticdescription.version>0.10.0</linguisticdescription.version>
         <morphologicalanalyzer.version>0.4.0</morphologicalanalyzer.version>
@@ -114,12 +113,6 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>conllio</artifactId>
             <version>${conllio.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>constraints</artifactId>
-            <version>${constraints.version}</version>
         </dependency>
 
         <dependency>
