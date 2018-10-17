@@ -62,11 +62,11 @@
         <dokka.version>0.9.16</dokka.version>
         <surfire.version>2.19.1</surfire.version>
         <conllio.version>0.2.5</conllio.version>
-        <constraints.version>0.1.0</constraints.version>
         <simplednn.version>0.11.1</simplednn.version>
         <dependencytree.version>0.4.0</dependencytree.version>
         <tokensencoder.version>0.4.0</tokensencoder.version>
         <lssencoder.version>0.1.0</lssencoder.version>
+        <linguisticconditions.version>0.1.0</linguisticconditions.version>
         <linguisticdescription.version>0.10.0</linguisticdescription.version>
         <morphologicalanalyzer.version>0.4.0</morphologicalanalyzer.version>
         <utils.version>2.1.0</utils.version>
@@ -245,12 +245,6 @@
 
         <dependency>
             <groupId>com.kotlinnlp</groupId>
-            <artifactId>constraints</artifactId>
-            <version>${constraints.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
             <artifactId>simplednn</artifactId>
             <version>${simplednn.version}</version>
         </dependency>
@@ -265,6 +259,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>lssencoder</artifactId>
             <version>${lssencoder.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>linguisticconditions</artifactId>
+            <version>${linguisticconditions.version}</version>
         </dependency>
 
         <dependency>
