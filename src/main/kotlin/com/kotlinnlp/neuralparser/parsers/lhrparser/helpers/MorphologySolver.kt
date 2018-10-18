@@ -128,16 +128,16 @@ internal class MorphologySolver(
    */
   fun solve(): Map<Int, List<ScoredSingleMorphology>> {
 
-    val morphologiesMap: MutableMap<Int, MutableList<ScoredSingleMorphology>> =
+    val morphologiesByToken: MutableMap<Int, MutableList<ScoredSingleMorphology>> =
       tokens.associate { it.id to mutableListOf<ScoredSingleMorphology>() }.toMutableMap()
 
     this.findConfigurations(onlyValid = true).forEach { state ->
       state.elements.forEach { elm ->
-        morphologiesMap.getValue(elm.id).add(elm.value.morphology.copy(score = elm.value.score))
+        morphologiesByToken.getValue(elm.id).add(elm.value.morphology.copy(score = elm.value.score))
       }
     }
 
-    return morphologiesMap.mapValues { it.value.toList() }
+    return morphologiesByToken.mapValues { it.value.toList() }
   }
 
   /**
