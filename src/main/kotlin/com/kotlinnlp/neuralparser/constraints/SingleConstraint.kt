@@ -51,8 +51,8 @@ class SingleConstraint(
    *
    * @return a boolean indicating if this constraint is verified for the given [token]
    */
-  override fun isVerified(token: MorphoSynToken,
-                          tokens: List<MorphoSynToken>,
+  override fun isVerified(token: MorphoSynToken.Single,
+                          tokens: List<MorphoSynToken.Single>,
                           dependencyTree: DependencyTree): Boolean =
     !this.premise.isVerified(token = token, tokens = tokens, dependencyTree = dependencyTree) ||
       this.condition.isVerified(token = token, tokens = tokens, dependencyTree = dependencyTree)

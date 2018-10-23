@@ -75,11 +75,11 @@ class DoubleConstraint(
    *
    * @return a boolean indicating if this constraint is verified for the given [token]
    */
-  override fun isVerified(token: MorphoSynToken,
-                          tokens: List<MorphoSynToken>,
+  override fun isVerified(token: MorphoSynToken.Single,
+                          tokens: List<MorphoSynToken.Single>,
                           dependencyTree: DependencyTree): Boolean {
 
-    val governor: MorphoSynToken? = dependencyTree.getHead(token.id)?.let {
+    val governor: MorphoSynToken.Single? = dependencyTree.getHead(token.id)?.let {
       tokens[dependencyTree.getPosition(it)]
     }
 
@@ -97,9 +97,9 @@ class DoubleConstraint(
    *
    * @return a boolean indicating if the premise of this constraint is verified for the given pair of tokens
    */
-  private fun isPremiseVerified(dependent: MorphoSynToken,
-                                governor: MorphoSynToken?,
-                                tokens: List<MorphoSynToken>,
+  private fun isPremiseVerified(dependent: MorphoSynToken.Single,
+                                governor: MorphoSynToken.Single?,
+                                tokens: List<MorphoSynToken.Single>,
                                 dependencyTree: DependencyTree): Boolean =
     this.premise.dependent?.isVerified(token = dependent, tokens = tokens, dependencyTree = dependencyTree) ?: true &&
       this.premise.governor?.isVerified(token = governor, tokens = tokens, dependencyTree = dependencyTree) ?: true
@@ -114,9 +114,9 @@ class DoubleConstraint(
    *
    * @return a boolean indicating if the condition of this constraint is verified for the given pair of tokens
    */
-  private fun isConditionVerified(dependent: MorphoSynToken,
-                                  governor: MorphoSynToken?,
-                                  tokens: List<MorphoSynToken>,
+  private fun isConditionVerified(dependent: MorphoSynToken.Single,
+                                  governor: MorphoSynToken.Single?,
+                                  tokens: List<MorphoSynToken.Single>,
                                   dependencyTree: DependencyTree): Boolean =
     this.condition.dependent?.isVerified(token = dependent, tokens = tokens, dependencyTree = dependencyTree) ?: true &&
       this.condition.governor?.isVerified(token = governor, tokens = tokens, dependencyTree = dependencyTree) ?: true
