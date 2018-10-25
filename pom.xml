@@ -69,7 +69,7 @@
         <linguisticconditions.version>0.1.0</linguisticconditions.version>
         <linguisticdescription.version>0.10.0</linguisticdescription.version>
         <morphologicalanalyzer.version>0.4.0</morphologicalanalyzer.version>
-        <utils.version>2.1.0</utils.version>
+        <utils.version>2.1.1</utils.version>
     </properties>
 
     <repositories>
