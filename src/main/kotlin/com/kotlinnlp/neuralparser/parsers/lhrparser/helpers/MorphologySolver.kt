@@ -11,6 +11,7 @@ import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.morphology.ScoredSingleMorphology
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
+import com.kotlinnlp.utils.BeamManager
 
 /**
  * A helper that finds all the valid morphologies of morpho-syntactic tokens respect to given constraints.

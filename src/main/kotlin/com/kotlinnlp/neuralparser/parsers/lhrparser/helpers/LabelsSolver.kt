@@ -19,6 +19,7 @@ import com.kotlinnlp.linguisticdescription.syntax.dependencies.Unknown
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
+import com.kotlinnlp.utils.BeamManager
 
 /**
  * A helper that finds the best configuration of the labels of a dependency tree given the probability distribution of
