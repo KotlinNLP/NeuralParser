@@ -19,6 +19,7 @@ import com.kotlinnlp.neuralparser.constraints.SingleConstraint
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 import constraints.utils.explodeTokens
 import constraints.utils.toMorphoSyntactic
+import constraints.utils.ConstraintsValidator
 import java.io.File
 
 /**
@@ -32,7 +33,7 @@ fun main(args: Array<String>) {
 
   Validator(
     constraints = loadConstraints(args[0]),
-    sentences = loadSentences(args[1])
+    sentences = loadSentences(filename = args[1])
   ).validate()
 }
 
@@ -111,31 +112,35 @@ private class Validator(private val constraints: List<Constraint>, private val s
    */
   private fun processSentence(sentence: CoNLLSentence) {
 
-    var isValid = true
+    val tokens: List<MorphoSynToken.Single> = this.buildMorphoSynTokens(sentence)
+    val validator = ConstraintsValidator(constraints = this.constraints, tokens = tokens)
+    val violated: Map<MorphoSynToken.Single, List<Constraint>> = validator.validate()
+
+    if (violated.isEmpty()) this.correct++
+
+    violated.forEach { token, constraints ->
+      constraints.forEach {
+        this.constraintsViolated.getOrPut(it.description) { mutableListOf() }
+          .add(this.buildPrintSentence(constraint = it, sentence = sentence, token = token))
+      }
+    }
+  }
+
+  /**
+   *
+   */
+  private fun buildMorphoSynTokens(sentence: CoNLLSentence): List<MorphoSynToken.Single> {
+
     val sentenceTree = DependencyTree(sentence)
     var nextAvailableId: Int = sentence.tokens.last().id + 1
+
     val tokens: List<MorphoSynToken> = sentence.tokens.map {
       val morphoSynToken = it.toMorphoSyntactic(tree = sentenceTree, nextAvailableId = nextAvailableId)
       if (morphoSynToken is MorphoSynToken.Composite) nextAvailableId += morphoSynToken.components.size
       morphoSynToken
     }
-    val explodedTokens: List<MorphoSynToken.Single> = explodeTokens(tokens)
-    val tokensTree = DependencyTree(explodedTokens)
 
-    this.constraints.forEach { constraint ->
-      explodedTokens.forEach { token ->
-
-        if (!constraint.isVerified(token = token, tokens = explodedTokens, dependencyTree = tokensTree)) {
-
-          this.constraintsViolated.getOrPut(constraint.description) { mutableListOf() }
-            .add(this.buildPrintSentence(constraint = constraint, sentence = sentence, token = token))
-
-          isValid = false
-        }
-      }
-    }
-
-    if (isValid) this.correct++
+    return explodeTokens(tokens)
   }
 
   /**
