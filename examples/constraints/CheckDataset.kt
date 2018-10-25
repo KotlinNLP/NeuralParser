@@ -17,6 +17,8 @@ import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.neuralparser.constraints.SingleConstraint
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
+import constraints.utils.explodeTokens
+import constraints.utils.toMorphoSyntactic
 import java.io.File
 
 /**

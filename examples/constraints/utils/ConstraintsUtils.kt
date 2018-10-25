@@ -5,7 +5,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package constraints
+package constraints.utils
 
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
