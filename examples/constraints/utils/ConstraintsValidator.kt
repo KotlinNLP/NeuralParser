@@ -35,7 +35,7 @@ import java.lang.IllegalArgumentException
  * @param sentences the list of sentence to validate
  * @param morphoPreprocessor a morphological sentence preprocessor
  */
-internal class Validator(
+internal class ConstraintsValidator(
   private val constraints: List<Constraint>,
   private val sentences: List<Sentence>,
   private val morphoPreprocessor: MorphoPreprocessor

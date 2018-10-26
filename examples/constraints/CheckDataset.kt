@@ -18,7 +18,7 @@ import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
-import constraints.utils.Validator
+import constraints.utils.ConstraintsValidator
 import java.io.File
 import java.io.FileInputStream
 
@@ -37,7 +37,7 @@ fun main(args: Array<String>) {
     MorphologyDictionary.load(FileInputStream(File(args[2])))
   }
 
-  Validator(
+  ConstraintsValidator(
     constraints = loadConstraints(args[0]),
     sentences = loadSentences(filename = args[1]),
     morphoPreprocessor = MorphoPreprocessor(
