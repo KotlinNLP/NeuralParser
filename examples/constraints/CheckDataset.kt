@@ -80,12 +80,23 @@ private fun loadSentences(filename: String): List<CoNLLSentence> {
 private class Validator(private val constraints: List<Constraint>, private val sentences: List<CoNLLSentence>) {
 
   /**
-   * The map of constraint descriptions associated to the lists of related sentences.
+   * Information about a constraint that has been violated.
+   *
+   * @property violations the list of violations as pair of <token, sentence>
+   * @property violatedSentences the count of sentences in which the constraint has been violated
    */
-  private val constraintsViolated = mutableMapOf<String, MutableList<String>>()
+  private class ViolationInfo(
+    val violations: MutableList<Pair<MorphoSynToken.Single, CoNLLSentence>> = mutableListOf(),
+    var violatedSentences: Int = 0
+  )
 
   /**
-   * The count of correct sentences
+   * The map of violated constraint to the related info.
+   */
+  private val violationsByConstraint = mutableMapOf<Constraint, ViolationInfo>()
+
+  /**
+   * The count of correct sentences.
    */
   private var correct = 0
 
@@ -118,11 +129,12 @@ private class Validator(private val constraints: List<Constraint>, private val s
 
     if (violated.isEmpty()) this.correct++
 
+    violated.values.flatMap { it }.toSet().forEach {
+      this.violationsByConstraint.getOrPut(it) { ViolationInfo() }.violatedSentences++
+    }
+
     violated.forEach { token, constraints ->
-      constraints.forEach {
-        this.constraintsViolated.getOrPut(it.description) { mutableListOf() }
-          .add(this.buildPrintSentence(constraint = it, sentence = sentence, token = token))
-      }
+      constraints.forEach { this.violationsByConstraint.getValue(it).violations.add(token to sentence) }
     }
   }
 
@@ -141,6 +153,35 @@ private class Validator(private val constraints: List<Constraint>, private val s
     }
 
     return explodeTokens(tokens)
+  }
+
+  /**
+   * Print the constraints that have been violated.
+   */
+  private fun printConstraintsViolated() {
+
+    if (this.violationsByConstraint.isNotEmpty()) {
+
+      println("\nConstraints violated:")
+
+      this.violationsByConstraint.forEach { constraint, info ->
+
+        val perc: Double = 100.0 * info.violatedSentences / this.sentences.size
+
+        println()
+        println("------------------------------------------------------------------------------------------")
+        println("'$constraint' (violated in ${info.violatedSentences} sentences of ${this.sentences.size} [%.1f%%])"
+          .format(perc))
+        println("------------------------------------------------------------------------------------------")
+
+        info.violations.forEach {
+          println("\n" + buildPrintSentence(constraint = constraint, token = it.first, sentence = it.second))
+        }
+      }
+
+    } else {
+      println("\nNo constraints violated.")
+    }
   }
 
   /**
@@ -167,32 +208,5 @@ private class Validator(private val constraints: List<Constraint>, private val s
           else -> it
         }
       }
-  }
-
-  /**
-   * Print the constraints that have been violated.
-   */
-  private fun printConstraintsViolated() {
-
-    if (this.constraintsViolated.isNotEmpty()) {
-
-      println("\nConstraints violated:")
-
-      this.constraintsViolated.forEach { constraint, sentences ->
-
-        val perc: Double = 100.0 * sentences.size / this.sentences.size
-
-        println()
-        println("------------------------------------------------------------------------------------------")
-        println("'$constraint' (violated in ${sentences.size} sentences of ${this.sentences.size} [%.1f%%])"
-          .format(perc))
-        println("------------------------------------------------------------------------------------------")
-
-        sentences.forEach { println("\n" + it) }
-      }
-
-    } else {
-      println("\nNo constraints violated.")
-    }
   }
 }
