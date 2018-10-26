@@ -18,8 +18,8 @@ import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
-import com.kotlinnlp.neuralparser.utils.notEmptyOr
 import com.kotlinnlp.utils.BeamManager
+import com.kotlinnlp.utils.notEmptyOr
 
 /**
  * A helper that builds the sentence dependency tree with the best configuration exploring the possible arcs and

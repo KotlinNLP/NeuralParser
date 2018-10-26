@@ -16,7 +16,7 @@ import com.kotlinnlp.linguisticdescription.syntax.dependencies.Unknown
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
-import com.kotlinnlp.neuralparser.utils.notEmptyOr
+import com.kotlinnlp.utils.notEmptyOr
 
 /**
  * The selector to use when the labeler predictions are defined as combinations of POS and syntactic types in the

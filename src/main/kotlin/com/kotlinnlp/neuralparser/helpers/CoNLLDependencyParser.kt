@@ -16,7 +16,7 @@ import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.BaseSentence
-import com.kotlinnlp.neuralparser.utils.notEmptyOr
+import com.kotlinnlp.utils.notEmptyOr
 
 /**
  * A helper that wraps a generic [NeuralParser] to let it working on CoNLL sentences.
