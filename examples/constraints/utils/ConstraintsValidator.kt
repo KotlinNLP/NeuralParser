@@ -7,7 +7,7 @@
 
 package constraints.utils
 
-import com.kotlinnlp.conllio.Sentence
+import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
@@ -37,7 +37,7 @@ import java.lang.IllegalArgumentException
  */
 internal class ConstraintsValidator(
   private val constraints: List<Constraint>,
-  private val sentences: List<Sentence>,
+  private val sentences: List<CoNLLSentence>,
   private val morphoPreprocessor: MorphoPreprocessor
 ) {
 
@@ -47,8 +47,8 @@ internal class ConstraintsValidator(
    * @property violations the list of violations as pair of <token, sentence>
    * @property violatedSentences the count of sentences in which the constraint has been violated
    */
-  private class ViolationInfo(
-    val violations: MutableList<Pair<MorphoSynToken.Single, Sentence>> = mutableListOf(),
+  private data class ViolationInfo(
+    val violations: MutableList<Pair<MorphoSynToken.Single, CoNLLSentence>> = mutableListOf(),
     var violatedSentences: Int = 0
   )
 
@@ -81,9 +81,9 @@ internal class ConstraintsValidator(
   }
 
   /**
-   * @param sentence a sentence to process
+   * @param sentence a CoNLL sentence to process
    */
-  private fun processSentence(sentence: Sentence) {
+  private fun processSentence(sentence: CoNLLSentence) {
 
     val tokens: List<MorphoSynToken.Single> = this.buildMorphoSynTokens(sentence)
     val validator = SentenceValidator(constraints = this.constraints, tokens = tokens)
@@ -105,7 +105,7 @@ internal class ConstraintsValidator(
    *
    * @return a list of morpho-syntactic tokens built from the given sentence
    */
-  private fun buildMorphoSynTokens(sentence: Sentence): List<MorphoSynToken.Single> {
+  private fun buildMorphoSynTokens(sentence: CoNLLSentence): List<MorphoSynToken.Single> {
 
     val sentenceTree = DependencyTree(sentence)
     var nextAvailableId: Int = sentence.tokens.last().id + 1
@@ -202,12 +202,14 @@ internal class ConstraintsValidator(
 
   /**
    * @param constraint a constraint violated in the [sentence]
-   * @param sentence a sentence
+   * @param sentence a CoNLL sentence
    * @param token the token of the [sentence] that violates the [constraint]
    *
    * @return the [sentence] to be printed
    */
-  private fun buildPrintSentence(constraint: Constraint, sentence: Sentence, token: MorphoSynToken.Single): String {
+  private fun buildPrintSentence(constraint: Constraint,
+                                 sentence: CoNLLSentence,
+                                 token: MorphoSynToken.Single): String {
 
     val governorId: Int? = token.syntacticRelation.governor
     val conllSentences: List<String> = sentence.toCoNLLString(writeComments = false).split("\n")
