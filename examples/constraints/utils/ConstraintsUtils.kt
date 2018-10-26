@@ -131,6 +131,29 @@ internal fun explodeTokens(tokens: List<MorphoSynToken>): List<MorphoSynToken.Si
 }
 
 /**
+ * Get the id of the CoNLL token that generated a given exploded token.
+ * This is done considering that the [tokens] list has been built replacing the composite tokens with groups of single
+ * tokens with new ids. This new ids are not sequential respect the sequence of original CoNLL token ids.
+ *
+ * @param token a morpho-syntactic token
+ * @param tokens the list of tokens that compose the sentence of the [token]
+ *
+ * @return the id of the CoNLL token that generated the given [token]
+ */
+internal fun getCoNLLTokenId(token: MorphoSynToken.Single, tokens: List<MorphoSynToken.Single>): Int {
+
+  (0 until tokens.indexOf(token)).reversed().forEach { tokenIndex ->
+
+    val focusToken: MorphoSynToken.Single = tokens[tokenIndex]
+    val nextToken: MorphoSynToken.Single = tokens[tokenIndex + 1]
+
+    if (focusToken.id != nextToken.id - 1) return focusToken.id + 1
+  }
+
+  return 0
+}
+
+/**
  * @param id the id
  * @param form the form
  * @param head the head
