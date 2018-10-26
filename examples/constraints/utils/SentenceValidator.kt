@@ -93,13 +93,13 @@ internal class SentenceValidator(
     private fun applyConstraints() {
 
       constraints.forEach { constraint ->
-        tokens.forEach { token ->
+        tokens.forEachIndexed { i, token ->
 
           val isVerified: Boolean =
             constraint.isVerified(token = token, tokens = tokens, dependencyTree = dependencyTree)
 
           if (!isVerified && constraint.isHard) {
-            this.violatedConstraints.getOrPut(token.id) { mutableListOf() }.add(constraint)
+            this.violatedConstraints.getOrPut(i) { mutableListOf() }.add(constraint)
             this.isValid = false
           }
         }
@@ -121,9 +121,9 @@ internal class SentenceValidator(
 
     this.findConfigurations(onlyValid = false).fold(mutableMapOf()) { retMap, state ->
 
-      state.violatedConstraints.forEach { tokenId, constraint ->
+      state.violatedConstraints.forEach { tokenIndex, constraint ->
 
-        val token: MorphoSynToken.Single = this.tokens[this.dependencyTree.getPosition(tokenId)]
+        val token: MorphoSynToken.Single = this.tokens[tokenIndex]
 
         retMap.merge(token, constraint.toSet()) { t, u -> t + u }
       }
