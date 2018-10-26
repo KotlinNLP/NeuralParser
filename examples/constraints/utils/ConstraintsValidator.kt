@@ -207,7 +207,7 @@ internal class ConstraintsValidator(
    *
    * @return the [sentence] to be printed
    */
-  private fun buildPrintSentence(constraint: Constraint, sentence: Sentence, token: MorphoSynToken): String {
+  private fun buildPrintSentence(constraint: Constraint, sentence: Sentence, token: MorphoSynToken.Single): String {
 
     val governorId: Int? = token.syntacticRelation.governor
     val conllSentences: List<String> = sentence.toCoNLLString(writeComments = false).split("\n")
