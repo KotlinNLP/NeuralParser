@@ -19,10 +19,10 @@ import com.kotlinnlp.utils.BeamManager
  * @param tokens a list of single morpho-syntactic tokens
  * @param constraints a list of linguistic constraints
  */
-internal class ConstraintsValidator(
+internal class SentenceValidator(
   private val tokens: List<MorphoSynToken.Single>,
   private val constraints: List<Constraint>
-) : BeamManager<ConstraintsValidator.MorphologyValue, ConstraintsValidator.MorphoState>(
+) : BeamManager<SentenceValidator.MorphologyValue, SentenceValidator.MorphoState>(
   valuesMap = tokens.associate { token ->
     token.id to token.morphologies.asSequence().map { MorphologyValue(it) }.sortedByDescending { it.score }.toList()
   },

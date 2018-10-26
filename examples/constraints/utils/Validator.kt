@@ -86,7 +86,7 @@ internal class Validator(
   private fun processSentence(sentence: Sentence) {
 
     val tokens: List<MorphoSynToken.Single> = this.buildMorphoSynTokens(sentence)
-    val validator = ConstraintsValidator(constraints = this.constraints, tokens = tokens)
+    val validator = SentenceValidator(constraints = this.constraints, tokens = tokens)
     val violated: Map<MorphoSynToken.Single, Set<Constraint>> = validator.validate()
 
     if (violated.isEmpty()) this.correct++
