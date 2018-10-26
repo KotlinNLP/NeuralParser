@@ -81,7 +81,10 @@ internal class SentenceValidator(
      */
     private fun applyMorphologies() {
 
-      tokens.zip(this.elements).forEach { (token, element) ->
+      this.elements.forEach { element ->
+
+        val token: MorphoSynToken.Single = tokens[dependencyTree.getPosition(element.id)]
+
         token.removeAllMorphologies()
         token.addMorphology(element.value.morphology)
       }
