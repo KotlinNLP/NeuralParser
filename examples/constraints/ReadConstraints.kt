@@ -7,10 +7,8 @@
 
 package constraints
 
-import com.beust.klaxon.JsonArray
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Parser
 import com.kotlinnlp.neuralparser.constraints.Constraint
+import constraints.utils.loadConstraints
 
 /**
  * Read constraints from a given JSON file and print them to the standard output.
@@ -21,8 +19,7 @@ import com.kotlinnlp.neuralparser.constraints.Constraint
  */
 fun main(args: Array<String>) {
 
-  val jsonArray = Parser().parse(args[0]) as JsonArray<*>
-  val constraints: List<Constraint> = jsonArray.map { Constraint(it as JsonObject) }
+  val constraints: List<Constraint> = loadConstraints(args[0])
 
   println("${constraints.size} constraints loaded:")
 
