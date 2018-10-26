@@ -119,7 +119,7 @@ internal class ConstraintsValidator(
    */
   fun validate(): Map<MorphoSynToken.Single, List<Constraint>> =
 
-    this.findConfigurations(onlyValid = true).fold(mutableMapOf()) { retMap, state ->
+    this.findConfigurations(onlyValid = false).fold(mutableMapOf()) { retMap, state ->
 
       state.violatedConstraints.forEach { tokenId, constraint ->
 
