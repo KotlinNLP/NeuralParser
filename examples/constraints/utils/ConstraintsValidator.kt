@@ -117,7 +117,7 @@ internal class ConstraintsValidator(
    *
    * @return a map of tokens to the list of constraints that they violate
    */
-  fun validate(): Map<MorphoSynToken.Single, List<Constraint>> =
+  fun validate(): Map<MorphoSynToken.Single, Set<Constraint>> =
 
     this.findConfigurations(onlyValid = false).fold(mutableMapOf()) { retMap, state ->
 
@@ -125,7 +125,7 @@ internal class ConstraintsValidator(
 
         val token: MorphoSynToken.Single = this.tokens[this.dependencyTree.getPosition(tokenId)]
 
-        retMap.merge(token, constraint) { t, u -> t + u }
+        retMap.merge(token, constraint.toSet()) { t, u -> t + u }
       }
 
       retMap

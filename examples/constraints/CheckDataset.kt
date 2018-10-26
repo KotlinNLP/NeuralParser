@@ -114,7 +114,7 @@ private class Validator(private val constraints: List<Constraint>, private val s
 
     val tokens: List<MorphoSynToken.Single> = this.buildMorphoSynTokens(sentence)
     val validator = ConstraintsValidator(constraints = this.constraints, tokens = tokens)
-    val violated: Map<MorphoSynToken.Single, List<Constraint>> = validator.validate()
+    val violated: Map<MorphoSynToken.Single, Set<Constraint>> = validator.validate()
 
     if (violated.isEmpty()) this.correct++
 
