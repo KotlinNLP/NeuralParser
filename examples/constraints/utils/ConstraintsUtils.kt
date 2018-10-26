@@ -11,13 +11,12 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.POSTag
-import com.kotlinnlp.linguisticdescription.morphology.POS
+import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.morphology.ScoredSingleMorphology
 import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
 import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Preposition
 import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Verb
 import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Article
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Number
 import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Pronoun
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Word
@@ -30,11 +29,14 @@ import kotlin.reflect.KClass
  * Convert this token into a [MorphoSynToken].
  *
  * @param tree the dependency tree of the sentence
- * @param nextAvailableId
+ * @param nextAvailableId the next ID that can be assigned to new tokens
+ * @param morphologies the list of possible morphologies of the token
  *
  * @return a new morpho-syntactic token built from this
  */
-internal fun CoNLLToken.toMorphoSyntactic(tree: DependencyTree, nextAvailableId: Int): MorphoSynToken {
+internal fun CoNLLToken.toMorphoSyntactic(tree: DependencyTree,
+                                          nextAvailableId: Int,
+                                          morphologies: List<Morphology>): MorphoSynToken {
 
   val config: GrammaticalConfiguration = tree.getConfiguration(this.id)!!
 
@@ -43,17 +45,17 @@ internal fun CoNLLToken.toMorphoSyntactic(tree: DependencyTree, nextAvailableId:
     GrammaticalConfiguration.Type.Single -> buildSingleToken(
       id = this.id,
       form = this.form,
-      lemma = this.lemma,
       head = if (this.head!! > 0) this.head else null,
-      config = config)
+      config = config,
+      morphologies = morphologies)
 
     GrammaticalConfiguration.Type.Multiple -> buildCompositeToken(
       id = this.id,
       form = this.form,
-      lemma = this.lemma,
       head = if (this.head!! > 0) this.head else null,
       config = config,
-      nextAvailableId = nextAvailableId)
+      nextAvailableId = nextAvailableId,
+      morphologies = morphologies)
   }
 }
 
@@ -90,29 +92,22 @@ internal fun explodeTokens(tokens: List<MorphoSynToken>): List<MorphoSynToken.Si
 /**
  * @param id the id
  * @param form the form
- * @param lemma the lemma
  * @param head the head
  * @param config the grammatical configuration
+ * @param morphologies the list of possible morphologies of the token
  *
  * @return a new single token
  */
 private fun buildSingleToken(id: Int,
                              form: String,
-                             lemma: String,
                              head: Int?,
-                             config: GrammaticalConfiguration) = Word(
+                             config: GrammaticalConfiguration,
+                             morphologies: List<Morphology>) = Word(
   id = id,
   form = form,
   position = Position(index = id - 1, start = 0, end = 0),
   pos = config.components.single().pos,
-  morphologies = config.components.single().pos?.let { it as POSTag.Base
-    listOf(ScoredSingleMorphology(
-      value = if (it.type == POS.Num)
-        Number(lemma = lemma, numericForm = 0)
-      else
-        SingleMorphology(lemma = lemma, pos = it.type, allowIncompleteProperties = true),
-      score = 1.0))
-  } ?: listOf(),
+  morphologies = morphologies.map { ScoredSingleMorphology(value = it.components.single(), score = 1.0) },
   contextMorphologies = listOf(),
   syntacticRelation = SyntacticRelation(
     governor = head,
@@ -126,19 +121,19 @@ private fun buildSingleToken(id: Int,
 /**
  * @param id the id
  * @param form the form
- * @param lemma the lemma
  * @param head the head
  * @param config the grammatical configuration
  * @param nextAvailableId the next id that can be assigned to a new token of the sentence (as component)
+ * @param morphologies the list of possible morphologies of the token
  *
  * @return a new single token
  */
 private fun buildCompositeToken(id: Int,
                                 form: String,
-                                lemma: String,
                                 head: Int?,
                                 config: GrammaticalConfiguration,
-                                nextAvailableId: Int): MorphoSynToken.Composite {
+                                nextAvailableId: Int,
+                                morphologies: List<Morphology>): MorphoSynToken.Composite {
 
   val isPrepArt: Boolean = config.isPrepArt()
   val isVerbEnclitic: Boolean = config.isVerbEnclitic()
@@ -147,20 +142,13 @@ private fun buildCompositeToken(id: Int,
     id = id,
     form = form,
     position = Position(index = id - 1, start = 0, end = 0),
-    components = config.components.mapIndexed { i, it ->
+    components = config.components.mapIndexed { i, component ->
       Word(
         id = nextAvailableId + i,
         form = form,
         position = Position(index = id - 1, start = 0, end = 0),
-        pos = it.pos,
-        morphologies = it.pos?.let { pos -> pos as POSTag.Base
-          listOf(ScoredSingleMorphology(
-            value = if (pos.type == POS.Num)
-              Number(lemma = lemma, numericForm = 0)
-            else
-              SingleMorphology(lemma = lemma, pos = pos.type, allowIncompleteProperties = true),
-            score = 1.0))
-        } ?: listOf(),
+        pos = component.pos,
+        morphologies = morphologies.map { ScoredSingleMorphology(value = it.components[i], score = 1.0) },
         contextMorphologies = listOf(),
         syntacticRelation = SyntacticRelation(
           governor = when {
@@ -168,7 +156,7 @@ private fun buildCompositeToken(id: Int,
             isVerbEnclitic -> nextAvailableId // the ID of the first component
             else -> null
           },
-          dependency = it.syntacticDependency,
+          dependency = component.syntacticDependency,
           attachmentScore = 1.0
         ),
         coReferences = null,
