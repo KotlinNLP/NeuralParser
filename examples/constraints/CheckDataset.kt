@@ -11,16 +11,34 @@ import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
 import com.kotlinnlp.conllio.CoNLLReader
+import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
+import com.kotlinnlp.linguisticdescription.POSTag
+import com.kotlinnlp.linguisticdescription.morphology.Morphology
+import com.kotlinnlp.linguisticdescription.morphology.POS
+import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
+import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Number as NumberMorpho
+import com.kotlinnlp.linguisticdescription.morphology.properties.Gender
+import com.kotlinnlp.linguisticdescription.morphology.properties.Number
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
+import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
+import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.neuralparser.constraints.SingleConstraint
+import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
+import com.kotlinnlp.neuralparser.language.BaseSentence
+import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.CompositeSelector
+import com.kotlinnlp.utils.notEmptyOr
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 import constraints.utils.explodeTokens
 import constraints.utils.toMorphoSyntactic
 import constraints.utils.ConstraintsValidator
 import java.io.File
+import java.io.FileInputStream
+import java.lang.IllegalArgumentException
 
 /**
  * Read constraints from a given JSON file and verify them on a given CoNLL dataset.
@@ -28,12 +46,20 @@ import java.io.File
  * Command line arguments:
  *  1. The path of the JSON constraints file.
  *  2. The path of the CoNLL dataset file.
+ *  3. The path of the morphology dictionary
  */
 fun main(args: Array<String>) {
 
+  val dictionary = run {
+    println("Loading morphology dictionary from '${args[2]}'...")
+    MorphologyDictionary.load(FileInputStream(File(args[2])))
+  }
+
   Validator(
     constraints = loadConstraints(args[0]),
-    sentences = loadSentences(filename = args[1])
+    sentences = loadSentences(filename = args[1]),
+    morphoPreprocessor = MorphoPreprocessor(
+      MorphologicalAnalyzer(language = dictionary.language, dictionary = dictionary))
   ).validate()
 }
 
@@ -44,7 +70,7 @@ fun main(args: Array<String>) {
  */
 private fun loadConstraints(filename: String): List<Constraint> {
 
-  println("Loading linguistic constraints from '$filename'")
+  println("Loading linguistic constraints from '$filename'...")
 
   return (Parser().parse(filename) as JsonArray<*>).map { Constraint(it as JsonObject) }
 }
@@ -76,8 +102,13 @@ private fun loadSentences(filename: String): List<CoNLLSentence> {
  *
  * @param constraints the list of constraints to verify
  * @param sentences the list of sentence to validate
+ * @param morphoPreprocessor a morphological sentence preprocessor
  */
-private class Validator(private val constraints: List<Constraint>, private val sentences: List<CoNLLSentence>) {
+private class Validator(
+  private val constraints: List<Constraint>,
+  private val sentences: List<CoNLLSentence>,
+  private val morphoPreprocessor: MorphoPreprocessor
+) {
 
   /**
    * Information about a constraint that has been violated.
@@ -139,20 +170,75 @@ private class Validator(private val constraints: List<Constraint>, private val s
   }
 
   /**
+   * @param sentence a CoNLL sentence
    *
+   * @return a list of morpho-syntactic tokens built from the given sentence
    */
   private fun buildMorphoSynTokens(sentence: CoNLLSentence): List<MorphoSynToken.Single> {
 
     val sentenceTree = DependencyTree(sentence)
     var nextAvailableId: Int = sentence.tokens.last().id + 1
 
-    val tokens: List<MorphoSynToken> = sentence.tokens.map {
-      val morphoSynToken = it.toMorphoSyntactic(tree = sentenceTree, nextAvailableId = nextAvailableId)
+    val parsingSentence: ParsingSentence = this.morphoPreprocessor.convert(BaseSentence.fromCoNLL(sentence, index = 0))
+
+    val morphoSynTokens: List<MorphoSynToken> = sentence.tokens.mapIndexed { i, conllToken ->
+
+      val morphoSynToken = conllToken.toMorphoSyntactic(
+        tree = sentenceTree,
+        nextAvailableId = nextAvailableId,
+        morphologies = this.getValidMorphologies(
+          configuration = sentenceTree.getConfiguration(conllToken.id)!!,
+          conllToken = conllToken,
+          tokenIndex = i,
+          parsingSentence = parsingSentence))
+
       if (morphoSynToken is MorphoSynToken.Composite) nextAvailableId += morphoSynToken.components.size
+
       morphoSynToken
     }
 
-    return explodeTokens(tokens)
+    return explodeTokens(morphoSynTokens)
+  }
+
+  /**
+   * Get the valid morphologies of a token respect to a given grammatical configuration.
+   *
+   * @param configuration a grammatical configuration of a token
+   * @param conllToken the token
+   * @param tokenIndex the index of the token within the sentence tokens
+   * @param parsingSentence the parsing sentence of the token
+   *
+   * @return the list of valid morphologies of the token
+   */
+  private fun getValidMorphologies(configuration: GrammaticalConfiguration,
+                                   conllToken: CoNLLToken,
+                                   tokenIndex: Int,
+                                   parsingSentence: ParsingSentence): List<Morphology> = try {
+
+    CompositeSelector
+      .getValidMorphologies(configuration = configuration, sentence = parsingSentence, tokenIndex = tokenIndex)
+      .notEmptyOr {
+        listOf(
+          Morphology(components = configuration.components.map {
+            SingleMorphology(
+              lemma = conllToken.form,
+              pos = (it.pos as POSTag.Base).type,
+              allowIncompleteProperties = true)
+          }))
+      }
+
+  } catch (e: IllegalArgumentException) {
+
+    val pos: POS = (conllToken.posList.single() as POSTag.Base).type
+
+    if (pos == POS.Num) // force numbers in case the morphological analyzer did not find them
+      listOf(Morphology(NumberMorpho(
+        lemma = conllToken.form,
+        numericForm = 0,
+        gender = Gender.Undefined,
+        number = Number.Undefined)))
+    else
+      throw e
   }
 
   /**
