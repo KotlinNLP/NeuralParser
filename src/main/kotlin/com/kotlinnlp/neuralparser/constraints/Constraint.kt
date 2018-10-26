@@ -146,4 +146,16 @@ abstract class Constraint(
   abstract fun isVerified(token: MorphoSynToken.Single,
                           tokens: List<MorphoSynToken.Single>,
                           dependencyTree: DependencyTree): Boolean
+
+  /**
+   * @param other another object
+   *
+   * @return true if this constraint is equal to the other object, otherwise false
+   */
+  override fun equals(other: Any?): Boolean = other is Constraint && this.description == other.description
+
+  /**
+   * @return the hash code of this constraint
+   */
+  override fun hashCode(): Int = this.description.hashCode()
 }
