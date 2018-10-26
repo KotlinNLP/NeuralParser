@@ -7,6 +7,11 @@
 
 package constraints.utils
 
+import com.beust.klaxon.JsonArray
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Parser
+import com.kotlinnlp.conllio.CoNLLReader
+import com.kotlinnlp.conllio.Sentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
@@ -23,7 +28,43 @@ import com.kotlinnlp.linguisticdescription.sentence.token.Word
 import com.kotlinnlp.linguisticdescription.sentence.token.WordTrace
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
+import com.kotlinnlp.neuralparser.constraints.Constraint
+import java.io.File
 import kotlin.reflect.KClass
+
+/**
+ * @param filename the path of the JSON file with the constraints
+ *
+ * @return the list of constraints read
+ */
+internal fun loadConstraints(filename: String): List<Constraint> {
+
+  println("Loading linguistic constraints from '$filename'...")
+
+  return (Parser().parse(filename) as JsonArray<*>).map { Constraint(it as JsonObject) }
+}
+
+/**
+ * @param filename the path of the CoNLL dataset
+ *
+ * @return the list of CoNLL sentences read
+ */
+internal fun loadSentences(filename: String): List<Sentence> {
+
+  val sentences = mutableListOf<Sentence>()
+
+  println("Loading sentences from '$filename'...")
+
+  CoNLLReader.forEachSentence(File(filename)) {
+
+    require(it.hasAnnotatedHeads()) { "A dataset with annotated heads is required to check linguistic constraints." }
+    it.assertValidCoNLLTree()
+
+    sentences.add(it)
+  }
+
+  return sentences
+}
 
 /**
  * Convert this token into a [MorphoSynToken].
