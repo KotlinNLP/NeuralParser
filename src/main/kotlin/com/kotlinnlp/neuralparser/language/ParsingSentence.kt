@@ -43,7 +43,7 @@ class ParsingSentence(
    */
   fun toMorphoSynSentence(dependencyTree: DependencyTree, labelerSelector: LabelerSelector): MorphoSynSentence {
 
-    var nextAvailableId: Int = this.tokens.last().id + 1
+    var nextAvailableId: Int = this.tokens.asSequence().map { it.id }.max()!! + 1
 
     return MorphoSynSentence(
       id = 0,
