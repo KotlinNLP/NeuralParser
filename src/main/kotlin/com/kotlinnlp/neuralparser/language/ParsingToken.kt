@@ -10,10 +10,6 @@ package com.kotlinnlp.neuralparser.language
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.morphology.*
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Preposition
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Verb
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Article
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Pronoun
 import com.kotlinnlp.linguisticdescription.sentence.token.*
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
@@ -157,22 +153,21 @@ data class ParsingToken(
    */
   private fun GrammaticalConfiguration.isPrepArt(): Boolean =
     this.components.size == 2 &&
-      this.components[0].isSubTypeOf(Preposition::class) &&
-      this.components[1].isSubTypeOf(Article::class)
+      this.components[0].pos.isSubTypeOf(POS.Prep) &&
+      this.components[1].pos.isSubTypeOf(POS.Art)
 
   /**
    * @return true if this configuration defines a composite VERB + PRON, otherwise false
    */
   private fun GrammaticalConfiguration.isVerbEnclitic(): Boolean =
     this.components.size >= 2 &&
-      this.components[0].isSubTypeOf(Verb::class) &&
-      this.components.subList(1, this.components.size).all { it.isSubTypeOf(Pronoun::class) }
+      this.components[0].pos.isSubTypeOf(POS.Verb) &&
+      this.components.subList(1, this.components.size).all { it.pos.isSubTypeOf(POS.Pron) }
 
   /**
-   * @param morphologyClass the KClass of a single morphology
+   * @param pos a POS type
    *
-   * @return true if this component defines a POS that is a subtype of the type of given morphology, otherwise false
+   * @return true if the type of this POS tag is a subtype of the given POS, otherwise false
    */
-  private fun <T : SingleMorphology>GrammaticalConfiguration.Component.isSubTypeOf(morphologyClass: KClass<T>): Boolean
-    = this.pos.let { it is POSTag.Base && it.type.isSubTypeOf(morphologyClass) }
+  private fun POSTag?.isSubTypeOf(pos: POS): Boolean = this is POSTag.Base && this.type.isComposedBy(pos)
 }
