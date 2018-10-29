@@ -10,14 +10,11 @@ package com.kotlinnlp.neuralparser.language
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
-import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
 import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
 import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
-import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 
 /**
@@ -34,40 +31,11 @@ class ParsingSentence(
 ) : MorphoSentence<ParsingToken>, SentenceIdentificable<ParsingToken>() {
 
   /**
-   * TODO: set missing properties
-   *
    * @param dependencyTree the dependency tree from which to extract the dependency relations
    * @param labelerSelector a labeler prediction selector
    *
    * @return a new [MorphoSynSentence]
    */
-  fun toMorphoSynSentence(dependencyTree: DependencyTree, labelerSelector: LabelerSelector): MorphoSynSentence {
-
-    var nextAvailableId: Int = this.tokens.asSequence().map { it.id }.max()!! + 1
-
-    return MorphoSynSentence(
-      id = 0,
-      confidence = 0.0,
-      dateTimes = if (this.dateTimes.isNotEmpty()) this.dateTimes else null,
-      entities = null,
-      tokens = this.tokens.mapIndexed { i, it ->
-
-        val config: GrammaticalConfiguration = dependencyTree.getConfiguration(it.id)!!
-
-        // TODO: set the morphologies scores adding the labeler prediction scores of configurations with the same pos
-        val morphoSynToken: MorphoSynToken = it.toMorphoSynToken(
-          nextAvailableId = nextAvailableId,
-          governorId = dependencyTree.getHead(it.id),
-          attachmentScore = dependencyTree.getAttachmentScore(it.id),
-          config = config,
-          morphologies = labelerSelector.getValidMorphologies(sentence = this, tokenIndex = i, configuration = config)
-            .map { ScoredMorphology(components = it.components, score = 1.0) })
-
-        if (morphoSynToken is MorphoSynToken.Composite)
-          nextAvailableId += morphoSynToken.components.size
-
-        morphoSynToken
-      }
-    )
-  }
+  fun toMorphoSynSentence(dependencyTree: DependencyTree, labelerSelector: LabelerSelector): MorphoSynSentence =
+    MorphoSynBuilder(parsingSentence = this, dependencyTree = dependencyTree).buildSentence(labelerSelector)
 }
