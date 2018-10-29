@@ -45,11 +45,11 @@ data class ParsingToken(
    *
    * @return a new morpho syntactic token
    */
-  internal fun toMorphoSynToken(nextAvailableId: Int,
-                                governorId: Int?,
-                                attachmentScore: Double,
-                                config: GrammaticalConfiguration,
-                                morphologies: List<ScoredMorphology>): MorphoSynToken {
+  fun toMorphoSynToken(nextAvailableId: Int,
+                       governorId: Int?,
+                       attachmentScore: Double,
+                       config: GrammaticalConfiguration,
+                       morphologies: List<ScoredMorphology>): MorphoSynToken {
 
     require(morphologies.all { it.components.size == config.components.size }) {
       "The selected morphologies must have the same number of components of the given grammatical configuration."
