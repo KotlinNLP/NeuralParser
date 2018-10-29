@@ -13,24 +13,11 @@ import com.beust.klaxon.Parser
 import com.kotlinnlp.conllio.CoNLLReader
 import com.kotlinnlp.conllio.Sentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
-import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
-import com.kotlinnlp.linguisticdescription.POSTag
-import com.kotlinnlp.linguisticdescription.morphology.Morphology
-import com.kotlinnlp.linguisticdescription.morphology.ScoredSingleMorphology
-import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Preposition
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.relations.Verb
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Article
-import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Pronoun
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Word
 import com.kotlinnlp.linguisticdescription.sentence.token.WordTrace
-import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
-import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
 import com.kotlinnlp.neuralparser.constraints.Constraint
 import java.io.File
-import kotlin.reflect.KClass
 
 /**
  * @param filename the path of the JSON file with the constraints
@@ -64,40 +51,6 @@ internal fun loadSentences(filename: String): List<Sentence> {
   }
 
   return sentences
-}
-
-/**
- * Convert this token into a [MorphoSynToken].
- *
- * @param tree the dependency tree of the sentence
- * @param nextAvailableId the next ID that can be assigned to new tokens
- * @param morphologies the list of possible morphologies of the token
- *
- * @return a new morpho-syntactic token built from this
- */
-internal fun CoNLLToken.toMorphoSyntactic(tree: DependencyTree,
-                                          nextAvailableId: Int,
-                                          morphologies: List<Morphology>): MorphoSynToken {
-
-  val config: GrammaticalConfiguration = tree.getConfiguration(this.id)!!
-
-  return when (config.type) {
-
-    GrammaticalConfiguration.Type.Single -> buildSingleToken(
-      id = this.id,
-      form = this.form,
-      head = if (this.head!! > 0) this.head else null,
-      config = config,
-      morphologies = morphologies)
-
-    GrammaticalConfiguration.Type.Multiple -> buildCompositeToken(
-      id = this.id,
-      form = this.form,
-      head = if (this.head!! > 0) this.head else null,
-      config = config,
-      nextAvailableId = nextAvailableId,
-      morphologies = morphologies)
-  }
 }
 
 /**
@@ -152,106 +105,6 @@ internal fun getCoNLLTokenId(token: MorphoSynToken.Single, tokens: List<MorphoSy
 
   return 0
 }
-
-/**
- * @param id the id
- * @param form the form
- * @param head the head
- * @param config the grammatical configuration
- * @param morphologies the list of possible morphologies of the token
- *
- * @return a new single token
- */
-private fun buildSingleToken(id: Int,
-                             form: String,
-                             head: Int?,
-                             config: GrammaticalConfiguration,
-                             morphologies: List<Morphology>) = Word(
-  id = id,
-  form = form,
-  position = Position(index = id - 1, start = 0, end = 0),
-  pos = config.components.single().pos,
-  morphologies = morphologies.map { ScoredSingleMorphology(value = it.components.single(), score = 1.0) },
-  contextMorphologies = listOf(),
-  syntacticRelation = SyntacticRelation(
-    governor = head,
-    dependency = config.components.single().syntacticDependency,
-    attachmentScore = 1.0
-  ),
-  coReferences = null,
-  semanticRelations = null
-)
-
-/**
- * @param id the id
- * @param form the form
- * @param head the head
- * @param config the grammatical configuration
- * @param nextAvailableId the next id that can be assigned to a new token of the sentence (as component)
- * @param morphologies the list of possible morphologies of the token
- *
- * @return a new single token
- */
-private fun buildCompositeToken(id: Int,
-                                form: String,
-                                head: Int?,
-                                config: GrammaticalConfiguration,
-                                nextAvailableId: Int,
-                                morphologies: List<Morphology>): MorphoSynToken.Composite {
-
-  val isPrepArt: Boolean = config.isPrepArt()
-  val isVerbEnclitic: Boolean = config.isVerbEnclitic()
-
-  return MorphoSynToken.Composite(
-    id = id,
-    form = form,
-    position = Position(index = id - 1, start = 0, end = 0),
-    components = config.components.mapIndexed { i, component ->
-      Word(
-        id = nextAvailableId + i,
-        form = form,
-        position = Position(index = id - 1, start = 0, end = 0),
-        pos = component.pos,
-        morphologies = morphologies.map { ScoredSingleMorphology(value = it.components[i], score = 1.0) },
-        contextMorphologies = listOf(),
-        syntacticRelation = SyntacticRelation(
-          governor = when {
-            i == 0 || isPrepArt -> head
-            isVerbEnclitic -> nextAvailableId // the ID of the first component
-            else -> null
-          },
-          dependency = component.syntacticDependency,
-          attachmentScore = 1.0
-        ),
-        coReferences = null,
-        semanticRelations = null)
-    }
-  )
-}
-
-/**
- * @return true if this configuration defines a composite PREP + ART, otherwise false
- */
-private fun GrammaticalConfiguration.isPrepArt(): Boolean =
-  this.components.size == 2 &&
-    this.components[0].isSubTypeOf(Preposition::class) &&
-    this.components[1].isSubTypeOf(Article::class)
-
-/**
- * @return true if this configuration defines a composite VERB + PRON, otherwise false
- */
-private fun GrammaticalConfiguration.isVerbEnclitic(): Boolean =
-  this.components.size >= 2 &&
-    this.components[0].isSubTypeOf(Verb::class) &&
-    this.components.subList(1, this.components.size).all { it.isSubTypeOf(Pronoun::class) }
-
-/**
- * @param morphologyClass the KClass of a single morphology
- *
- * @return true if this component defines a POS that is a subtype of the type of given morphology, otherwise false
- */
-private fun <T : SingleMorphology> GrammaticalConfiguration.Component.isSubTypeOf(morphologyClass: KClass<T>): Boolean
-  = this.pos.let { it is POSTag.Base && it.type.isSubTypeOf(morphologyClass) }
 
 /**
  * Get the dependencies of the given tokens considering the components in case of Composite tokens.
