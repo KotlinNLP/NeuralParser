@@ -75,7 +75,7 @@ class MorphoSynBuilder(
    */
   fun buildToken(tokenId: Int, morphologies: List<ScoredMorphology>): MorphoSynToken {
 
-    val config: GrammaticalConfiguration = dependencyTree.getConfiguration(tokenId)!!
+    val config: GrammaticalConfiguration = this.dependencyTree.getConfiguration(tokenId)!!
 
     require(morphologies.all { it.components.size == config.components.size }) {
       "The given morphologies must have the same number of components of the given grammatical configuration."
@@ -195,6 +195,10 @@ class MorphoSynBuilder(
   }
 
   /**
+   * Get the governor ID of a multi-word, given one of its tokens and going back through its ancestors in the dependency
+   * tree.
+   * Note: the governor of a multi-word is the governor of it first token.
+   *
    * @param tokenId the id of a token that is part of a multi-word
    *
    * @return the governor id of the multi-word of which the given token is part of
