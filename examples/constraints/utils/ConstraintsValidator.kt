@@ -201,6 +201,13 @@ internal class ConstraintsValidator(
     if (this.violationsByConstraint.isNotEmpty()) {
 
       println("\nConstraints violated:")
+      println(this.violationsByConstraint.keys
+        .asSequence()
+        .map { it.description }
+        .sorted()
+        .joinToString("\n") { it.prependIndent("- ") })
+
+      println("\nPer sentence:")
 
       this.violationsByConstraint.forEach { constraint, info ->
 
