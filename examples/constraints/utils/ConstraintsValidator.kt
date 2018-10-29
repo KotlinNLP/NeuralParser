@@ -23,7 +23,7 @@ import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.neuralparser.constraints.SingleConstraint
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.language.BaseSentence
-import com.kotlinnlp.neuralparser.language.MorphoSynBuilder
+import com.kotlinnlp.neuralparser.helpers.MorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.CompositeSelector
 import com.kotlinnlp.utils.notEmptyOr
