@@ -10,6 +10,8 @@ package com.kotlinnlp.neuralparser.language
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
+import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
@@ -32,7 +34,7 @@ class ParsingSentence(
 ) : MorphoSentence<ParsingToken>, SentenceIdentificable<ParsingToken>() {
 
   /**
-   * TODO: set all properties except for tokens
+   * TODO: set missing properties
    *
    * @param dependencyTree the dependency tree from which to extract the dependency relations
    * @param labelerSelector a labeler prediction selector
@@ -50,14 +52,16 @@ class ParsingSentence(
       entities = null,
       tokens = this.tokens.mapIndexed { i, it ->
 
+        val config: GrammaticalConfiguration = dependencyTree.getConfiguration(it.id)!!
+
+        // TODO: set the morphologies scores adding the labeler prediction scores of configurations with the same pos
         val morphoSynToken: MorphoSynToken = it.toMorphoSynToken(
-          sentence = this,
-          tokenIndex = i,
           nextAvailableId = nextAvailableId,
           governorId = dependencyTree.getHead(it.id),
           attachmentScore = dependencyTree.getAttachmentScore(it.id),
-          config = dependencyTree.getConfiguration(it.id)!!,
-          labelerSelector = labelerSelector)
+          config = config,
+          morphologies = labelerSelector.getValidMorphologies(sentence = this, tokenIndex = i, configuration = config)
+            .map { ScoredMorphology(components = it.components, score = 1.0) })
 
         if (morphoSynToken is MorphoSynToken.Composite)
           nextAvailableId += morphoSynToken.components.size

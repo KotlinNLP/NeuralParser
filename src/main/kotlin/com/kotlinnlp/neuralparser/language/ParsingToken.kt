@@ -17,7 +17,6 @@ import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Pronou
 import com.kotlinnlp.linguisticdescription.sentence.token.*
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 import kotlin.reflect.KClass
 
 /**
@@ -38,30 +37,19 @@ data class ParsingToken(
 ) : MorphoToken, FormToken, TokenIdentificable {
 
   /**
-   * @param sentence the sentence this token is part of
-   * @param tokenIndex the index of this token within the sentence tokens list
    * @param nextAvailableId the next id that can be assigned to a new token of the sentence (as component)
    * @param governorId the governor id
    * @param attachmentScore the attachment score
    * @param config the grammatical configuration of this token
-   * @param labelerSelector a labeler prediction selector
+   * @param morphologies the possible morphologies of this token
    *
    * @return a new morpho syntactic token
    */
-  internal fun toMorphoSynToken(sentence: ParsingSentence,
-                                tokenIndex: Int,
-                                nextAvailableId: Int,
+  internal fun toMorphoSynToken(nextAvailableId: Int,
                                 governorId: Int?,
                                 attachmentScore: Double,
                                 config: GrammaticalConfiguration,
-                                labelerSelector: LabelerSelector): MorphoSynToken {
-
-    // TODO: set the score adding the labeler prediction scores of configurations with the same pos
-    val morphologies: List<ScoredMorphology> = labelerSelector.getValidMorphologies(
-      sentence = sentence,
-      tokenIndex = tokenIndex,
-      configuration = config
-    ).map { ScoredMorphology(components = it.components, score = 1.0) }
+                                morphologies: List<ScoredMorphology>): MorphoSynToken {
 
     require(morphologies.all { it.components.size == config.components.size }) {
       "The selected morphologies must have the same number of components of the given grammatical configuration."
