@@ -103,7 +103,7 @@ internal fun getCoNLLTokenId(token: MorphoSynToken.Single, tokens: List<MorphoSy
     if (focusToken.id != nextToken.id - 1) return focusToken.id + 1
   }
 
-  return 0
+  return token.id
 }
 
 /**
