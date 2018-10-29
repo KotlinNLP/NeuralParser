@@ -14,6 +14,7 @@ import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.morphology.POS
+import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
 import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
 import com.kotlinnlp.linguisticdescription.morphology.properties.Gender
 import com.kotlinnlp.linguisticdescription.morphology.properties.Number
@@ -130,21 +131,27 @@ internal class ConstraintsValidator(
 
     val parsingSentence: ParsingSentence = this.morphoPreprocessor.convert(BaseSentence.fromCoNLL(sentence, index = 0))
 
-    val morphoSynTokens: List<MorphoSynToken> = sentence.tokens.mapIndexed { i, conllToken ->
+    val morphoSynTokens: List<MorphoSynToken> =
+      parsingSentence.tokens.zip(sentence.tokens).mapIndexed { i, (parsingToken, conllToken) ->
 
-      val morphoSynToken = conllToken.toMorphoSyntactic(
-        tree = sentenceTree,
-        nextAvailableId = nextAvailableId,
-        morphologies = this.getValidMorphologies(
-          configuration = sentenceTree.getConfiguration(conllToken.id)!!,
+        val morphologies = this.getValidMorphologies(
+          configuration = sentenceTree.getConfiguration(parsingToken.id)!!,
           conllToken = conllToken,
           tokenIndex = i,
-          parsingSentence = parsingSentence))
+          parsingSentence = parsingSentence
+        ).map { ScoredMorphology(components = it.components, score = 1.0) }
 
-      if (morphoSynToken is MorphoSynToken.Composite) nextAvailableId += morphoSynToken.components.size
+        val morphoSynToken = parsingToken.toMorphoSynToken(
+          nextAvailableId = nextAvailableId,
+          governorId = sentenceTree.getHead(parsingToken.id),
+          attachmentScore = 1.0,
+          config = sentenceTree.getConfiguration(parsingToken.id)!!,
+          morphologies = morphologies)
 
-      morphoSynToken
-    }
+        if (morphoSynToken is MorphoSynToken.Composite) nextAvailableId += morphoSynToken.components.size
+
+        morphoSynToken
+      }
 
     return explodeTokens(morphoSynTokens)
   }
