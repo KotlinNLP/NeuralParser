@@ -23,6 +23,7 @@ import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.neuralparser.constraints.SingleConstraint
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.language.BaseSentence
+import com.kotlinnlp.neuralparser.language.MorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.CompositeSelector
 import com.kotlinnlp.utils.notEmptyOr
@@ -130,23 +131,19 @@ internal class ConstraintsValidator(
     var nextAvailableId: Int = sentence.tokens.last().id + 1
 
     val parsingSentence: ParsingSentence = this.morphoPreprocessor.convert(BaseSentence.fromCoNLL(sentence, index = 0))
+    val converter = MorphoSynBuilder(parsingSentence = parsingSentence, dependencyTree = sentenceTree)
 
     val morphoSynTokens: List<MorphoSynToken> =
       parsingSentence.tokens.zip(sentence.tokens).mapIndexed { i, (parsingToken, conllToken) ->
 
-        val morphologies = this.getValidMorphologies(
-          configuration = sentenceTree.getConfiguration(parsingToken.id)!!,
-          conllToken = conllToken,
-          tokenIndex = i,
-          parsingSentence = parsingSentence
-        ).map { ScoredMorphology(components = it.components, score = 1.0) }
-
-        val morphoSynToken = parsingToken.toMorphoSynToken(
-          nextAvailableId = nextAvailableId,
-          governorId = sentenceTree.getHead(parsingToken.id),
-          attachmentScore = 1.0,
-          config = sentenceTree.getConfiguration(parsingToken.id)!!,
-          morphologies = morphologies)
+        val morphoSynToken = converter.buildToken(
+          tokenId = parsingToken.id,
+          morphologies = this.getValidMorphologies(
+            configuration = sentenceTree.getConfiguration(parsingToken.id)!!,
+            conllToken = conllToken,
+            tokenIndex = i,
+            parsingSentence = parsingSentence
+          ).map { ScoredMorphology(components = it.components, score = 1.0) })
 
         if (morphoSynToken is MorphoSynToken.Composite) nextAvailableId += morphoSynToken.components.size
 
