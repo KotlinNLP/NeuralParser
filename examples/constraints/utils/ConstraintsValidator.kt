@@ -8,7 +8,6 @@
 package constraints.utils
 
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
-import com.kotlinnlp.conllio.Token
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.POSTag
@@ -16,8 +15,6 @@ import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.morphology.POS
 import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
 import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
-import com.kotlinnlp.linguisticdescription.morphology.properties.Gender
-import com.kotlinnlp.linguisticdescription.morphology.properties.Number
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.neuralparser.constraints.SingleConstraint
@@ -25,10 +22,9 @@ import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.language.BaseSentence
 import com.kotlinnlp.neuralparser.helpers.MorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.CompositeSelector
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.utils.notEmptyOr
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
-import java.lang.IllegalArgumentException
 
 /**
  * A helper that verifies constraints on sentences.
@@ -133,22 +129,20 @@ internal class ConstraintsValidator(
     val parsingSentence: ParsingSentence = this.morphoPreprocessor.convert(BaseSentence.fromCoNLL(sentence, index = 0))
     val converter = MorphoSynBuilder(parsingSentence = parsingSentence, dependencyTree = sentenceTree)
 
-    val morphoSynTokens: List<MorphoSynToken> =
-      parsingSentence.tokens.zip(sentence.tokens).mapIndexed { i, (parsingToken, conllToken) ->
+    val morphoSynTokens: List<MorphoSynToken> = parsingSentence.tokens.mapIndexed { i, parsingToken ->
 
-        val morphoSynToken = converter.buildToken(
-          tokenId = parsingToken.id,
-          morphologies = this.getValidMorphologies(
-            configuration = sentenceTree.getConfiguration(parsingToken.id)!!,
-            conllToken = conllToken,
-            tokenIndex = i,
-            parsingSentence = parsingSentence
-          ).map { ScoredMorphology(components = it.components, score = 1.0) })
+      val morphoSynToken = converter.buildToken(
+        tokenId = parsingToken.id,
+        morphologies = this.getValidMorphologies(
+          configuration = sentenceTree.getConfiguration(parsingToken.id)!!,
+          tokenIndex = i,
+          parsingSentence = parsingSentence
+        ).map { ScoredMorphology(components = it.components, score = 1.0) })
 
-        if (morphoSynToken is MorphoSynToken.Composite) nextAvailableId += morphoSynToken.components.size
+      if (morphoSynToken is MorphoSynToken.Composite) nextAvailableId += morphoSynToken.components.size
 
-        morphoSynToken
-      }
+      morphoSynToken
+    }
 
     return explodeTokens(morphoSynTokens)
   }
@@ -157,40 +151,34 @@ internal class ConstraintsValidator(
    * Get the valid morphologies of a token respect to a given grammatical configuration.
    *
    * @param configuration a grammatical configuration of a token
-   * @param conllToken the token
    * @param tokenIndex the index of the token within the sentence tokens
    * @param parsingSentence the parsing sentence of the token
    *
    * @return the list of valid morphologies of the token
    */
   private fun getValidMorphologies(configuration: GrammaticalConfiguration,
-                                   conllToken: Token,
                                    tokenIndex: Int,
-                                   parsingSentence: ParsingSentence): List<Morphology> = try {
+                                   parsingSentence: ParsingSentence): List<Morphology> {
 
-    CompositeSelector.getValidMorphologies(configuration = configuration, sentence = parsingSentence, tokenIndex = tokenIndex)
+    val token: ParsingToken = parsingSentence.tokens[tokenIndex]
+    val tokenMorphologies: List<Morphology> =
+      token.morphologies +
+        parsingSentence.multiWords.filter { tokenIndex in it.startToken..it.endToken }.flatMap { it.morphologies }
+
+    return tokenMorphologies
+      .filter { configuration.isCompatible(it) }
       .notEmptyOr {
-        listOf(
-          Morphology(components = configuration.components.map {
-            SingleMorphology(
-              lemma = conllToken.form,
-              pos = (it.pos as POSTag.Base).type,
-              allowIncompleteProperties = true)
-          }))
+
+        val posTypes: List<POS> = configuration.components.map { (it.pos as POSTag.Base).type }
+
+        if (!posTypes.first().isComposedBy(POS.Noun))
+          println("\n[WARNING] No morphology found for token \"${token.form}\" with pos ${posTypes.joinToString("+")}.")
+
+        // A generic morphology is created when the morphological analyzer did not find it
+        listOf(Morphology(
+          components = posTypes.map { SingleMorphology(lemma = token.form, pos = it, allowIncompleteProperties = true) }
+        ))
       }
-
-  } catch (e: IllegalArgumentException) {
-
-    val pos: POS = (conllToken.posList.single() as POSTag.Base).type
-
-    if (pos == POS.Num) // force numbers in case the morphological analyzer did not find them
-      listOf(Morphology(com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Number(
-        lemma = conllToken.form,
-        numericForm = 0,
-        gender = Gender.Undefined,
-        number = Number.Undefined)))
-    else
-      throw e
   }
 
   /**
