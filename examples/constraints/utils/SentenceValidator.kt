@@ -73,7 +73,9 @@ internal class SentenceValidator(
 
       // Attention: do not modify the order of the operations.
       this.applyMorphologies()
-      this.applyConstraints()
+      this.applyConstraints(simpleConstraints)
+      this.applyPercolation()
+      this.applyConstraints(contextConstraints)
     }
 
     /**
@@ -91,9 +93,18 @@ internal class SentenceValidator(
     }
 
     /**
-     * Apply the [constraints] to this state.
+     * Apply the features percolation to the tokens.
      */
-    private fun applyConstraints() {
+    private fun applyPercolation() {
+      TODO("not implemented")
+    }
+
+    /**
+     * Apply the given [constraints] to this state.
+     *
+     * @param constraints a list of constraints to apply to the [tokens]
+     */
+    private fun applyConstraints(constraints: List<Constraint>) {
 
       constraints.forEach { constraint ->
         tokens.forEachIndexed { i, token ->
@@ -114,6 +125,16 @@ internal class SentenceValidator(
    * The dependency tree that represents the dependencies of the tokens.
    */
   private val dependencyTree = DependencyTree(this.tokens)
+
+  /**
+   * A list of constraints that do not check the context morphology.
+   */
+  private val simpleConstraints: List<Constraint> = this.constraints.filter { !it.checkContext }
+
+  /**
+   * A list of constraints that check the context morphology.
+   */
+  private val contextConstraints: List<Constraint> = this.constraints.filter { it.checkContext }
 
   /**
    * Find all the constraints violated by each token.
