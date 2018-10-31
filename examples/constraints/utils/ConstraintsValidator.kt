@@ -226,14 +226,14 @@ internal class ConstraintsValidator(
   private fun buildPrintSentence(constraint: Constraint, tokenInfo: TokenInfo): String {
 
     val governorId: Int? = tokenInfo.token.syntacticRelation.governor
-    val conllSentences: List<String> = tokenInfo.conllSentence.toCoNLLString(writeComments = false).split("\n")
+    val conllLines: List<String> = tokenInfo.conllSentence.toCoNLLString(writeComments = false).split("\n")
 
     return if (constraint is SingleConstraint || governorId == null)
-      conllSentences.joinToString("\n") {
+      conllLines.joinToString("\n") {
         if (Regex("^${tokenInfo.conllTokenId}\t.*").matches(it)) "$it\t<===== X" else it
       }
     else
-      conllSentences.joinToString("\n") {
+      conllLines.joinToString("\n") {
         when {
           Regex("^${tokenInfo.conllTokenId}\t.*").matches(it) -> "$it\t<===== DEP"
           Regex("^$governorId\t.*").matches(it) -> "$it\t<===== GOV"
