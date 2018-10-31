@@ -43,6 +43,11 @@ class SingleConstraint(
   )
 
   /**
+   * Whether this constraint needs to look at the context morphology of a token.
+   */
+  override val checkContext: Boolean = this.premise.checkContext || this.condition.checkContext
+
+  /**
    * Check if this constraint is verified for a given [token].
    *
    * @param token a token

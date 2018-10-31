@@ -121,6 +121,11 @@ abstract class Constraint(
   val isHard: Boolean = this.penalty == 0.0
 
   /**
+   * Whether this constraint needs to look at the context morphology of a token.
+   */
+  abstract val checkContext: Boolean
+
+  /**
    * Check requirements.
    */
   init {

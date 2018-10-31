@@ -45,7 +45,17 @@ class DoubleConstraint(
         "In a DoubleCondition at least one condition between the dependent and the governor must be not null."
       }
     }
+
+    /**
+     * Whether this constraint needs to look at the context morphology of a token.
+     */
+    val checkContext: Boolean = this.dependent?.checkContext ?: false || this.governor?.checkContext ?: false
   }
+
+  /**
+   * Whether this constraint needs to look at the context morphology of a token.
+   */
+  override val checkContext: Boolean = this.premise.checkContext || this.condition.checkContext
 
   /**
    * Build a [DoubleConstraint] from a JSON string object.
