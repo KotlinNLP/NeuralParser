@@ -74,7 +74,9 @@ internal class MorphologySolver(
 
       // Attention: do not modify the order of the operations.
       this.applyMorphologies()
-      this.applyConstraints()
+      this.applyConstraints(simpleConstraints)
+      this.applyPercolation()
+      this.applyConstraints(contextConstraints)
 
       this.score = this.elements.sumByDouble { it.value.score }
     }
@@ -91,9 +93,18 @@ internal class MorphologySolver(
     }
 
     /**
-     * Apply the [constraints] to this state.
+     * Apply the features percolation to the tokens.
      */
-    private fun applyConstraints() {
+    private fun applyPercolation() {
+      TODO("not implemented")
+    }
+
+    /**
+     * Apply the given [constraints] to this state.
+     *
+     * @param constraints a list of constraints to apply to the [tokens]
+     */
+    private fun applyConstraints(constraints: List<Constraint>) {
 
       constraints.forEach { constraint ->
         tokens.forEach { token ->
@@ -121,6 +132,16 @@ internal class MorphologySolver(
    * The dependency tree that represents the dependencies of the tokens.
    */
   private val dependencyTree = DependencyTree(this.tokens)
+
+  /**
+   * A list of constraints that do not check the context morphology.
+   */
+  private val simpleConstraints: List<Constraint> = this.constraints.filter { !it.checkContext }
+
+  /**
+   * A list of constraints that check the context morphology.
+   */
+  private val contextConstraints: List<Constraint> = this.constraints.filter { it.checkContext }
 
   /**
    * Find all the valid configurations of morphologies for the given [tokens] that do not violate any hard constraint.
