@@ -91,30 +91,28 @@ internal class LabelsSolver(
       // Attention: the configuration must be applied before the constraints
       applyConfiguration(this)
 
-      this.applyConstraints()
+      this.verifyConstraints()
 
       // Attention: the score must be set after the constraints have been applied.
       this.score = this.elements.sumByDouble { it.value.score * dependencyTree.getAttachmentScore(it.id) }
     }
 
     /**
-     * Apply the [constraints] to this state.
+     * Verify the [constraints] for this state.
      */
-    private fun applyConstraints() {
+    private fun verifyConstraints() {
 
       val morphoSynSentence: MorphoSynSentence = sentence.toMorphoSynSentence(
         dependencyTree = this@LabelsSolver.dependencyTree,
         labelerSelector = labelerSelector)
-
-      val explodedTokensPairs: List<Pair<Int, MorphoSynToken.Single>> = this.explodeTokens(morphoSynSentence.tokens)
-      val explodedTokens: List<MorphoSynToken.Single> = explodedTokensPairs.map { it.second }
-
-      val validMorphologiesMap: Map<Int, List<ScoredSingleMorphology>> =
-        MorphologySolver(tokens = explodedTokens, constraints = constraints).solve()
-
+      val flatIdsAndTokens: List<Pair<Int, MorphoSynToken.Single>> = this.flatTokens(morphoSynSentence.tokens)
+      val flatTokens: List<MorphoSynToken.Single> = flatIdsAndTokens.map { it.second }
       val elementsById: Map<Int, StateElement<GrammarValue>> = this.elements.associateBy { it.id }
 
-      explodedTokensPairs.forEach { (originalId, token) ->
+      val validMorphologiesMap: Map<Int, List<ScoredSingleMorphology>> =
+        MorphologySolver(tokens = flatTokens.toList(), constraints = constraints).solve()
+
+      flatIdsAndTokens.forEach { (originalId, token) ->
 
         val element: StateElement<GrammarValue> = elementsById.getValue(originalId)
         val validMorphologies: List<ScoredSingleMorphology> = validMorphologiesMap.getValue(token.id)
@@ -122,41 +120,40 @@ internal class LabelsSolver(
         if (validMorphologies.isNotEmpty()) {
           element.value.score *= element.value.score * validMorphologies.asSequence().map { it.score }.average()
         } else {
+          element.value.score = 0.0
           element.value.isValid = false
           this.isValid = false
-          element.value.score = 0.0
         }
       }
     }
 
     /**
-     * Explode a list of morpho-syntactic tokens into a list of Single tokens, adding all the components of the
-     * Composite ones.
+     * Flat a list of morpho-syntactic tokens into single tokens, flatting all the components of the Composite ones.
      *
      * @param tokens a list of morpho-syntactic tokens
      *
-     * @return a new list with all the Single tokens of the given list, in pairs with the original token id
+     * @return a new flat list of all the single tokens of the given list, in pairs with the original token id
      */
-    private fun explodeTokens(tokens: List<MorphoSynToken>): List<Pair<Int, MorphoSynToken.Single>> {
+    private fun flatTokens(tokens: List<MorphoSynToken>): List<Pair<Int, MorphoSynToken.Single>> {
 
-      val pairs: MutableList<Pair<Int, MorphoSynToken.Single>> = mutableListOf()
+      val flatIdsAndTokens: MutableList<Pair<Int, MorphoSynToken.Single>> = mutableListOf()
       var index = 0
       val dependencies: Map<Int, Int?> = this.getDependenciesByComponents(tokens)
 
       tokens.forEach { token ->
         when (token) {
-          is MorphoSynToken.Single -> pairs.add(Pair(token.id, token.copyPositionIndex(index)))
+          is MorphoSynToken.Single -> flatIdsAndTokens.add(token.id to token.copyPositionIndex(index))
           is MorphoSynToken.Composite -> token.components.forEach { c ->
-            pairs.add(Pair(token.id, c.copyPositionIndex(index++)))
+            flatIdsAndTokens.add(token.id to c.copyPositionIndex(index++))
           }
         }
       }
 
-      pairs.forEach { (_, token) ->
+      flatIdsAndTokens.forEach { (_, token) ->
         token.updateSyntacticRelation(token.syntacticRelation.copy(governor = dependencies.getValue(token.id)))
       }
 
-      return pairs
+      return flatIdsAndTokens
     }
 
     /**
