@@ -119,7 +119,7 @@ internal class ConstraintsValidator(
   /**
    * @param sentence a CoNLL sentence
    *
-   * @return a list of morpho-syntactic tokens built from the given sentence
+   * @return a list of flat single morpho-syntactic tokens built from the given sentence
    */
   private fun buildMorphoSynTokens(sentence: CoNLLSentence): List<MorphoSynToken.Single> {
 
@@ -144,7 +144,7 @@ internal class ConstraintsValidator(
       morphoSynToken
     }
 
-    return explodeTokens(morphoSynTokens)
+    return flatTokens(morphoSynTokens)
   }
 
   /**

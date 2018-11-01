@@ -54,33 +54,32 @@ internal fun loadSentences(filename: String): List<Sentence> {
 }
 
 /**
- * Explode a list of morpho-syntactic tokens into a list of Single tokens, adding all the components of the
- * Composite ones.
+ * Flat a list of morpho-syntactic tokens into single tokens, flatting all the components of the Composite ones.
  *
  * @param tokens a list of morpho-syntactic tokens
  *
- * @return a new list with all the Single tokens of the given list
+ * @return a list of all the single tokens
  */
-internal fun explodeTokens(tokens: List<MorphoSynToken>): List<MorphoSynToken.Single> {
+internal fun flatTokens(tokens: List<MorphoSynToken>): List<MorphoSynToken.Single> {
 
-  val explodedTokens: MutableList<MorphoSynToken.Single> = mutableListOf()
+  val flatTokens: MutableList<MorphoSynToken.Single> = mutableListOf()
   var index = 0
   val dependencies: Map<Int, Int?> = getDependenciesByComponents(tokens)
 
   tokens.forEach { token ->
     when (token) {
-      is MorphoSynToken.Single -> explodedTokens.add(token.copyPositionIndex(index))
+      is MorphoSynToken.Single -> flatTokens.add(token.copyPositionIndex(index))
       is MorphoSynToken.Composite -> token.components.forEach { c ->
-        explodedTokens.add(c.copyPositionIndex(index++))
+        flatTokens.add(c.copyPositionIndex(index++))
       }
     }
   }
 
-  explodedTokens.forEach { token ->
+  flatTokens.forEach { token ->
     token.updateSyntacticRelation(token.syntacticRelation.copy(governor = dependencies.getValue(token.id)))
   }
 
-  return explodedTokens
+  return flatTokens
 }
 
 /**
