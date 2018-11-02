@@ -90,16 +90,15 @@ abstract class MorphoPercolator {
   /**
    * Copy this morphology replacing a given property with a new value.
    *
-   * @param propertyName the name of the property to replace
-   * @param property the new property value
+   * @param replacingProperties the properties to replace as pairs of <name, replacing_value>
    *
    * @return a copy of this morphology with the replaced property
    */
-  protected fun SingleMorphology.copy(propertyName: String, property: MorphologyProperty): SingleMorphology {
+  protected fun SingleMorphology.copy(vararg replacingProperties: Pair<String, MorphologyProperty>): SingleMorphology {
 
     val properties: MutableMap<String, MorphologyProperty> = this.getProperties().toMutableMap()
 
-    properties.replace(propertyName, property)
+    replacingProperties.forEach { (name, value) -> properties.replace(name, value) }
 
     return SingleMorphology(
       lemma = this.lemma,

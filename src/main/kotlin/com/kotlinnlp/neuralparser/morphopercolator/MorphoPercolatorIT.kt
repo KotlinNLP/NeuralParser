@@ -86,14 +86,14 @@ class MorphoPercolatorIT : MorphoPercolator() {
 
       if (dependentWeight > governorWeight)
         return governorContextMorphologies.map {
-          it.copy(propertyName = "person", property = dependentContextMorpho.person)
+          it.copy("person" to dependentContextMorpho.person)
         }
     }
 
     if (dependentContextMorpho is Genderable && governorMorpho is Genderable)
       if (dependentContextMorpho.gender != governorMorpho.gender)
         return governorContextMorphologies.map {
-          it.copy(propertyName = "gender", property = Gender.Masculine)
+          it.copy("gender" to Gender.Masculine)
         }
 
     return governorContextMorphologies
