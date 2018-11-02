@@ -11,9 +11,11 @@ import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
 import com.kotlinnlp.linguisticdescription.morphology.properties.Gender
 import com.kotlinnlp.linguisticdescription.morphology.properties.Person
+import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.Conjugable
 import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.Genderable
 import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.PersonDeclinable
 import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
+import com.kotlinnlp.linguisticdescription.syntax.dependencies.Auxiliary
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Coordinated
 
 /**
@@ -61,6 +63,10 @@ class MorphoPercolatorIT : MorphoPercolator() {
         governorContextMorphologies = contextMorphologies,
         dependentContextMorpho = dependentContextMorpho,
         governorMorpho = governorMorpho)
+
+      is Auxiliary -> contextMorphologies = this.getCompositeVerbMorphologies(
+        governorContextMorphologies = contextMorphologies,
+        dependentContextMorpho = dependentContextMorpho as Conjugable)
     }
 
     return contextMorphologies
@@ -98,4 +104,18 @@ class MorphoPercolatorIT : MorphoPercolator() {
 
     return governorContextMorphologies
   }
+
+  /**
+   * Update the context morphologies of a governor in case of a composite verb.
+   *
+   * @param governorContextMorphologies the current context morphologies of the governor
+   * @param dependentContextMorpho the context morphology of the dependent
+   *
+   * @return the context morphologies of the governor updated with the given dependency
+   */
+  private fun getCompositeVerbMorphologies(governorContextMorphologies: List<SingleMorphology>,
+                                           dependentContextMorpho: Conjugable): List<SingleMorphology> =
+    governorContextMorphologies.map {
+      it.copy("mmood" to dependentContextMorpho.mood, "tense" to dependentContextMorpho.tense)
+    }
 }
