@@ -85,24 +85,26 @@ class MorphoPercolatorIT : MorphoPercolator() {
                                          dependentContextMorpho: SingleMorphology,
                                          governorMorpho: SingleMorphology): List<SingleMorphology> {
 
+    var updatedMorphologies: List<SingleMorphology> = governorContextMorphologies
+
     if (dependentContextMorpho is PersonDeclinable && governorMorpho is PersonDeclinable) {
 
       val dependentWeight: Int = personToWeight.getValue(dependentContextMorpho.person)
       val governorWeight: Int = personToWeight.getValue(governorMorpho.person)
 
       if (dependentWeight > governorWeight)
-        return governorContextMorphologies.map {
+        updatedMorphologies = updatedMorphologies.map {
           it.copy("person" to dependentContextMorpho.person)
         }
     }
 
     if (dependentContextMorpho is Genderable && governorMorpho is Genderable)
       if (dependentContextMorpho.gender != governorMorpho.gender)
-        return governorContextMorphologies.map {
+        updatedMorphologies = updatedMorphologies.map {
           it.copy("gender" to Gender.Masculine)
         }
 
-    return governorContextMorphologies
+    return updatedMorphologies
   }
 
   /**
