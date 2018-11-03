@@ -41,14 +41,14 @@ abstract class MorphoPercolator {
       listOf(tokens.associate { it.id to it.morphologies.single() }.toMutableMap())
 
     val inDepthIds: List<Int> = dependencyTree.inDepthPostOrder()
-    var curIndex = 0
+    var curIndex = 1
 
     while (curIndex < inDepthIds.size) {
 
-      val dependentId: Int = inDepthIds[curIndex]
-      val governorId: Int? = dependencyTree.getHead(dependentId)
+      val governorId: Int = inDepthIds[curIndex]
+      val dependentsIds: List<Int> = dependencyTree.getDependents(governorId)
 
-      if (governorId != null) {
+      dependentsIds.forEach { dependentId ->
 
         contextConfigurations = contextConfigurations.flatMap { configuration ->
 
