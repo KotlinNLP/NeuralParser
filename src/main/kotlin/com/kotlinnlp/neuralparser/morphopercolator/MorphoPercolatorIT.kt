@@ -116,6 +116,6 @@ class MorphoPercolatorIT : MorphoPercolator() {
   private fun getCompositeVerbMorphologies(governorContextMorphologies: List<SingleMorphology>,
                                            dependentContextMorpho: Conjugable): List<SingleMorphology> =
     governorContextMorphologies.map {
-      it.copy("mmood" to dependentContextMorpho.mood, "tense" to dependentContextMorpho.tense)
+      it.copy("mood" to dependentContextMorpho.mood, "tense" to dependentContextMorpho.tense)
     }
 }
