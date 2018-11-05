@@ -66,11 +66,6 @@ internal class MorphologySolver(
     override var isValid: Boolean = true
 
     /**
-     * The elements of this state associated by id.
-     */
-    private val elementsById: Map<Int, StateElement<MorphologyValue>> = this.elements.associateBy { it.id }
-
-    /**
      * Apply the linguistic constraints to this state and set its score.
      */
     init {
@@ -93,7 +88,7 @@ internal class MorphologySolver(
 
       tokens.forEach { token ->
         token.removeAllMorphologies()
-        token.addMorphology(this.elementsById.getValue(token.id).value.morphology)
+        token.addMorphology(this.getElement(token.id).value.morphology)
       }
     }
 
@@ -123,7 +118,7 @@ internal class MorphologySolver(
           val isVerified: Boolean =
             constraint.isVerified(token = token, tokens = tokens, dependencyTree = dependencyTree)
 
-          val element: StateElement<MorphologyValue> = this.elementsById.getValue(token.id)
+          val element: StateElement<MorphologyValue> = this.getElement(token.id)
 
           if (!isVerified) {
 
