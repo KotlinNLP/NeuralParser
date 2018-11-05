@@ -14,7 +14,6 @@ import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
 import com.kotlinnlp.linguisticdescription.morphology.properties.MorphologyProperty
 import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Number
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
-import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 
 /**
  * A helper that performs the percolation of morphological properties from a dependent to its governor.
@@ -76,7 +75,7 @@ abstract class MorphoPercolator {
             dependent = dependent,
             dependentContextMorpho = configuration.getValue(dependentId).value,
             governor = governor,
-            dependency = dependent.syntacticRelation.dependency)
+            dependencyTree = dependencyTree)
 
           contextMorphologies.map {
             val scoredMorpho = ScoredSingleMorphology(value = it, score = governor.morphologies.single().score)
@@ -95,16 +94,16 @@ abstract class MorphoPercolator {
    * Perform the percolation of morphological features from a dependent to a governor.
    *
    * @param dependent the dependent token
-   * @param dependentContextMorpho the context morphology of the dependent
    * @param governor the governor token
-   * @param dependency the dependency between the dependent and the governor
+   * @param dependentContextMorpho the context morphology of the dependent
+   * @param dependencyTree the dependency tree
    *
    * @return the list of morphologies that are propagated to the governor
    */
   protected abstract fun getContextMorphologies(dependent: MorphoSynToken.Single,
-                                                dependentContextMorpho: SingleMorphology,
                                                 governor: MorphoSynToken.Single,
-                                                dependency: SyntacticDependency): List<SingleMorphology>
+                                                dependentContextMorpho: SingleMorphology,
+                                                dependencyTree: DependencyTree): List<SingleMorphology>
 
   /**
    * Copy this morphology replacing a given property with a new value.

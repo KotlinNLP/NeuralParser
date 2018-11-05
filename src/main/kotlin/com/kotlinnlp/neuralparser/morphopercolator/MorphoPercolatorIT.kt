@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.neuralparser.morphopercolator
 
+import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.morphology.ScoredSingleMorphology
 import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
@@ -48,21 +49,21 @@ class MorphoPercolatorIT : MorphoPercolator() {
    * Perform the features percolation from a dependent to a governor given their morphologies and dependency.
    *
    * @param dependent the dependent token
-   * @param dependentContextMorpho the context morphology of the dependent
    * @param governor the governor token
-   * @param dependency the dependency between the dependent and the governor
+   * @param dependentContextMorpho the context morphology of the dependent
+   * @param dependencyTree the dependency tree
    *
    * @return the list of morphologies that are propagated to the governor
    */
   override fun getContextMorphologies(dependent: MorphoSynToken.Single,
-                                      dependentContextMorpho: SingleMorphology,
                                       governor: MorphoSynToken.Single,
-                                      dependency: SyntacticDependency): List<SingleMorphology> {
+                                      dependentContextMorpho: SingleMorphology,
+                                      dependencyTree: DependencyTree): List<SingleMorphology> {
 
     val governorScoredMorpho: ScoredSingleMorphology = governor.morphologies.single()
     var contextMorphologies: List<SingleMorphology> = listOf(governorScoredMorpho.value)
 
-    when (dependency) {
+    when (dependent.syntacticRelation.dependency) {
 
       is Coordinated -> contextMorphologies = this.getCoordinatedMorphologies(
         governorContextMorphologies = contextMorphologies,
