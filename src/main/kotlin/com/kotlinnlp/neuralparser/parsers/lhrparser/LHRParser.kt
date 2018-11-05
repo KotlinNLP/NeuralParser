@@ -59,7 +59,8 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
       labeler = this.labeler,
       constraints = this.constraints,
       labelerSelector = this.model.labelerSelector,
-      labelerScoreThreshold = this.model.labelerScoreThreshold
+      labelerScoreThreshold = this.model.labelerScoreThreshold,
+      morphoPercolator = this.model.morphoPercolator
     ).build()
 
     return sentence.toMorphoSynSentence(dependencyTree = dependencyTree, labelerSelector = this.model.labelerSelector)

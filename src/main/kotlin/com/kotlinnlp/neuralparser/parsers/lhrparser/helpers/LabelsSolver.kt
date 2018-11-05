@@ -17,6 +17,7 @@ import com.kotlinnlp.linguisticdescription.sentence.token.Word
 import com.kotlinnlp.linguisticdescription.sentence.token.WordTrace
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Unknown
 import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 import com.kotlinnlp.utils.BeamManager
@@ -29,6 +30,7 @@ import com.kotlinnlp.utils.BeamManager
  * @param dependencyTree the dependency tree of the given sentence
  * @param constraints a list of linguistic constraints
  * @param labelerSelector a labeler selector used to build a [MorphoSynToken]
+ * @param morphoPercolator a percolator of morphology properties
  * @param scoresMap a map of valid deprels (sorted by descending score) associated to each token id
  * @param maxBeamSize the max number of parallel states that the beam supports (-1 = infinite)
  * @param maxForkSize the max number of forks that can be generated from a state (-1 = infinite)
@@ -39,6 +41,7 @@ internal class LabelsSolver(
   private val dependencyTree: DependencyTree,
   private val constraints: List<Constraint>,
   private val labelerSelector: LabelerSelector,
+  private val morphoPercolator: MorphoPercolator,
   scoresMap: Map<Int, List<ScoredGrammar>>,
   maxBeamSize: Int = 5,
   maxForkSize: Int = 3,
@@ -133,8 +136,11 @@ internal class LabelsSolver(
      */
     private fun verifyConstraints(flatIdsAndTokens: List<Pair<Int, MorphoSynToken.Single>>) {
 
-      val validMorphologiesMap: Map<Int, List<ScoredSingleMorphology>> =
-        MorphologySolver(tokens = flatIdsAndTokens.map { it.second }, constraints = constraints).solve()
+      val validMorphologiesMap: Map<Int, List<ScoredSingleMorphology>> = MorphologySolver(
+        tokens = flatIdsAndTokens.map { it.second },
+        constraints = constraints,
+        morphoPercolator = morphoPercolator
+      ).solve()
 
       flatIdsAndTokens.forEach { (originalId, token) ->
 

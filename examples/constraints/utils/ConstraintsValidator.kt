@@ -23,6 +23,7 @@ import com.kotlinnlp.neuralparser.language.BaseSentence
 import com.kotlinnlp.neuralparser.helpers.MorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
 import com.kotlinnlp.utils.notEmptyOr
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 
@@ -32,11 +33,13 @@ import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
  * @param constraints the list of constraints to verify
  * @param sentences the list of sentence to validate
  * @param morphoPreprocessor a morphological sentence preprocessor
+ * @param morphoPercolator a percolator of morphology properties
  */
 internal class ConstraintsValidator(
   private val constraints: List<Constraint>,
   private val sentences: List<CoNLLSentence>,
-  private val morphoPreprocessor: MorphoPreprocessor
+  private val morphoPreprocessor: MorphoPreprocessor,
+  private val morphoPercolator: MorphoPercolator
 ) {
 
   /**
@@ -96,7 +99,8 @@ internal class ConstraintsValidator(
   private fun processSentence(sentence: CoNLLSentence) {
 
     val tokens: List<MorphoSynToken.Single> = this.buildMorphoSynTokens(sentence)
-    val validator = SentenceValidator(constraints = this.constraints, tokens = tokens)
+    val validator =
+      SentenceValidator(constraints = this.constraints, tokens = tokens, morphoPercolator = morphoPercolator)
     val violated: Map<MorphoSynToken.Single, Set<Constraint>> = validator.validate()
 
     if (violated.isEmpty()) this.correct++

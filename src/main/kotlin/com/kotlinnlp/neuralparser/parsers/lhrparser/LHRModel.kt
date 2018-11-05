@@ -14,6 +14,7 @@ import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.NoFilterSelector
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
@@ -32,6 +33,7 @@ import java.io.InputStream
  * @property lossCriterionType the training mode of the labeler
  * @property predictPosTags whether to predict the POS tags together with the Deprels
  * @property labelerSelector the labeler prediction selector (no filter by default)
+ * @property morphoPercolator a percolator of morphology properties
  */
 class LHRModel(
   corpusDictionary: CorpusDictionary,
@@ -39,7 +41,8 @@ class LHRModel(
   val useLabeler: Boolean,
   val lossCriterionType: LossCriterionType,
   val predictPosTags: Boolean,
-  val labelerSelector: LabelerSelector = NoFilterSelector
+  val labelerSelector: LabelerSelector = NoFilterSelector,
+  val morphoPercolator: MorphoPercolator
 ) : NeuralParserModel(lssModel.language) {
 
   companion object {

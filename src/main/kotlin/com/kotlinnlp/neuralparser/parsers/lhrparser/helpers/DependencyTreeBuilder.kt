@@ -15,6 +15,7 @@ import com.kotlinnlp.lssencoder.LatentSyntacticStructure
 import com.kotlinnlp.lssencoder.decoder.ScoredArcs
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
@@ -30,6 +31,7 @@ import com.kotlinnlp.utils.notEmptyOr
  * @param constraints a list of linguistic constraints (can be null)
  * @param labelerSelector a labeler selector used to build a [MorphoSynToken]
  * @param labelerScoreThreshold the score threshold above which to consider a labeler output valid
+ * @param morphoPercolator a percolator of morphology properties
  * @param maxBeamSize the max number of parallel states that the beam supports (-1 = infinite)
  * @param maxForkSize the max number of forks that can be generated from a state (-1 = infinite)
  * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion, -1 = infinite)
@@ -41,6 +43,7 @@ internal class DependencyTreeBuilder(
   private val constraints: List<Constraint>?,
   private val labelerSelector: LabelerSelector,
   private val labelerScoreThreshold: Double,
+  private val morphoPercolator: MorphoPercolator,
   maxBeamSize: Int = 5,
   maxForkSize: Int = 3,
   maxIterations: Int = 10
@@ -183,6 +186,7 @@ internal class DependencyTreeBuilder(
         dependencyTree = this,
         constraints = constraints,
         labelerSelector = labelerSelector,
+        morphoPercolator = morphoPercolator,
         scoresMap = configMap
       ).solve()
     else
