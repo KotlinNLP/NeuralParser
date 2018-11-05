@@ -22,6 +22,24 @@ import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 abstract class MorphoPercolator {
 
   /**
+   * A factory of [MorphoPercolator] by language.
+   */
+  companion object Factory {
+
+    /**
+     * Build a [MorphoPercolator] given the working language.
+     *
+     * @param language the working language of the percolator
+     *
+     * @return a new morpho-percolator working on the given language
+     */
+    operator fun invoke(language: Language): MorphoPercolator = when (language) {
+      Language.Italian -> MorphoPercolatorIT()
+      else -> MorphoPercolatorSimple()
+    }
+  }
+
+  /**
    * The language for which the percolator works.
    */
   abstract val language: Language
