@@ -88,33 +88,57 @@ internal class LabelsSolver(
      */
     init {
 
-      // Attention: the configuration must be applied before the constraints
+      // Attention: the configuration must be applied before solving the morphology.
       applyConfiguration(this)
 
-      this.verifyConstraints()
+      this.solveMorphology()
 
       // Attention: the score must be set after the constraints have been applied.
       this.score = this.elements.sumByDouble { it.value.score * dependencyTree.getAttachmentScore(it.id) }
     }
 
     /**
-     * Verify the [constraints] for this state.
+     * Solve the morphology of this state and verify the [constraints].
      */
-    private fun verifyConstraints() {
+    private fun solveMorphology() {
 
-      val morphoSynSentence: MorphoSynSentence = sentence.toMorphoSynSentence(
-        dependencyTree = this@LabelsSolver.dependencyTree,
-        labelerSelector = labelerSelector)
+      val morphoSynSentence: MorphoSynSentence =
+        sentence.toMorphoSynSentence(dependencyTree = dependencyTree, labelerSelector = labelerSelector)
       val flatIdsAndTokens: List<Pair<Int, MorphoSynToken.Single>> = this.flatTokens(morphoSynSentence.tokens)
       val flatTokens: List<MorphoSynToken.Single> = flatIdsAndTokens.map { it.second }
-      val elementsById: Map<Int, StateElement<GrammarValue>> = this.elements.associateBy { it.id }
+
+      if (flatTokens.all { it.morphologies.isNotEmpty() }) {
+
+        this.verifyConstraints(flatIdsAndTokens)
+
+      } else {
+
+        flatIdsAndTokens.forEach { (originalId, token) ->
+          if (token.morphologies.isEmpty()) {
+            this.getElement(originalId).let { element ->
+              element.value.score = 0.0
+              element.value.isValid = false
+            }
+          }
+        }
+
+        this.isValid = false
+      }
+    }
+
+    /**
+     * Verify the constraints for the valid morphologies of given tokens.
+     *
+     * @param flatIdsAndTokens the list of flat tokens associated to their original id
+     */
+    private fun verifyConstraints(flatIdsAndTokens: List<Pair<Int, MorphoSynToken.Single>>) {
 
       val validMorphologiesMap: Map<Int, List<ScoredSingleMorphology>> =
-        MorphologySolver(tokens = flatTokens.toList(), constraints = constraints).solve()
+        MorphologySolver(tokens = flatIdsAndTokens.map { it.second }, constraints = constraints).solve()
 
       flatIdsAndTokens.forEach { (originalId, token) ->
 
-        val element: StateElement<GrammarValue> = elementsById.getValue(originalId)
+        val element: StateElement<GrammarValue> = this.getElement(originalId)
         val validMorphologies: List<ScoredSingleMorphology> = validMorphologiesMap.getValue(token.id)
 
         if (validMorphologies.isNotEmpty()) {
