@@ -11,15 +11,18 @@ import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.morphology.ScoredSingleMorphology
 import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
+import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Noun
 import com.kotlinnlp.linguisticdescription.morphology.properties.Gender
+import com.kotlinnlp.linguisticdescription.morphology.properties.Number
 import com.kotlinnlp.linguisticdescription.morphology.properties.Person
 import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.Conjugable
 import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.Genderable
+import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.Numerable
 import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.PersonDeclinable
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
-import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Auxiliary
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Coordinated
+import com.kotlinnlp.linguisticdescription.syntax.dependencies.Determiner
 
 /**
  * A helper that performs the percolation of morphological properties from a dependent to its governor for the Italian
@@ -66,9 +69,11 @@ class MorphoPercolatorIT : MorphoPercolator() {
     when (dependent.syntacticRelation.dependency) {
 
       is Coordinated -> contextMorphologies = this.getCoordinatedMorphologies(
-        governorContextMorphologies = contextMorphologies,
+        dependent = dependent,
         dependentContextMorpho = dependentContextMorpho,
-        governorMorpho = governorScoredMorpho.value)
+        governorMorpho = governorScoredMorpho.value,
+        governorContextMorphologies = contextMorphologies,
+        dependencyTree = dependencyTree)
 
       is Auxiliary -> contextMorphologies = this.getCompositeVerbMorphologies(
         governorContextMorphologies = contextMorphologies,
@@ -81,15 +86,19 @@ class MorphoPercolatorIT : MorphoPercolator() {
   /**
    * Update the context morphologies of a governor in case of coordination with a dependent of it.
    *
-   * @param governorContextMorphologies the current context morphologies of the governor
+   * @param dependent the dependent token
    * @param dependentContextMorpho the context morphology of the dependent
    * @param governorMorpho the morphology of the governor
+   * @param governorContextMorphologies the current context morphologies of the governor
+   * @param dependencyTree the dependency tree
    *
    * @return the context morphologies of the governor updated with the given dependency
    */
-  private fun getCoordinatedMorphologies(governorContextMorphologies: List<SingleMorphology>,
+  private fun getCoordinatedMorphologies(dependent: MorphoSynToken.Single,
                                          dependentContextMorpho: SingleMorphology,
-                                         governorMorpho: SingleMorphology): List<SingleMorphology> {
+                                         governorMorpho: SingleMorphology,
+                                         governorContextMorphologies: List<SingleMorphology>,
+                                         dependencyTree: DependencyTree): List<SingleMorphology> {
 
     var updatedMorphologies: List<SingleMorphology> = governorContextMorphologies
 
@@ -99,16 +108,21 @@ class MorphoPercolatorIT : MorphoPercolator() {
       val governorWeight: Int = personToWeight.getValue(governorMorpho.person)
 
       if (dependentWeight > governorWeight)
-        updatedMorphologies = updatedMorphologies.map {
-          it.copy("person" to dependentContextMorpho.person)
-        }
+        updatedMorphologies = updatedMorphologies.map { it.copy("person" to dependentContextMorpho.person) }
     }
 
     if (dependentContextMorpho is Genderable && governorMorpho is Genderable)
       if (dependentContextMorpho.gender != governorMorpho.gender)
-        updatedMorphologies = updatedMorphologies.map {
-          it.copy("gender" to Gender.Masculine)
-        }
+        updatedMorphologies = updatedMorphologies.map { it.copy("gender" to Gender.Masculine) }
+
+    if (dependentContextMorpho is Numerable && governorMorpho is Numerable) {
+
+      if (governorMorpho.number != Number.Plural)
+        updatedMorphologies = updatedMorphologies.map { it.copy("number" to Number.Plural) }
+
+      if (dependent.isDetermined(dependencyTree))
+        updatedMorphologies += updatedMorphologies.map { it.copy("number" to Number.Singular) }
+    }
 
     return updatedMorphologies
   }
@@ -126,4 +140,15 @@ class MorphoPercolatorIT : MorphoPercolator() {
     governorContextMorphologies.map {
       it.copy("mood" to dependentContextMorpho.mood, "tense" to dependentContextMorpho.tense)
     }
+
+  /**
+   * @param dependencyTree the dependency tree in which this token is represented
+   *
+   * @return true if this token is determined, otherwise false
+   */
+  private fun MorphoSynToken.Single.isDetermined(dependencyTree: DependencyTree): Boolean =
+    this.morphologies.single().value is Noun.Proper &&
+      dependencyTree.getDependents(this.id).any { dependentId ->
+        dependencyTree.getConfiguration(dependentId)!!.components.single().syntacticDependency is Determiner
+      }
 }
