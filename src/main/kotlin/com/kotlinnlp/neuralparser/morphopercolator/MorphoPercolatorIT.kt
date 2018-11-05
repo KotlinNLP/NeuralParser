@@ -147,7 +147,7 @@ class MorphoPercolatorIT : MorphoPercolator() {
    * @return true if this token is determined, otherwise false
    */
   private fun MorphoSynToken.Single.isDetermined(dependencyTree: DependencyTree): Boolean =
-    this.morphologies.single().value is Noun.Proper &&
+    this.morphologies.single().value is Noun.Proper ||
       dependencyTree.getDependents(this.id).any { dependentId ->
         dependencyTree.getConfiguration(dependentId)!!.components.single().syntacticDependency is Determiner
       }
