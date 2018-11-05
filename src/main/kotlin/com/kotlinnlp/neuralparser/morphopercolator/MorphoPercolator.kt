@@ -71,16 +71,21 @@ abstract class MorphoPercolator {
 
           val governor: MorphoSynToken.Single = tokens[dependencyTree.getPosition(governorId)]
           val dependent: MorphoSynToken.Single = tokens[dependencyTree.getPosition(dependentId)]
+          val governorContextMorpho: SingleMorphology = configuration.getValue(governorId).value
           val contextMorphologies: List<SingleMorphology> = this.getContextMorphologies(
             dependent = dependent,
-            dependentContextMorpho = configuration.getValue(dependentId).value,
             governor = governor,
+            dependentContextMorpho = configuration.getValue(dependentId).value,
+            governorContextMorpho = governorContextMorpho,
             dependencyTree = dependencyTree)
 
-          contextMorphologies.map {
-            val scoredMorpho = ScoredSingleMorphology(value = it, score = governor.morphologies.single().score)
-            configuration.copyAndReplace(governorId, scoredMorpho)
-          }
+          if (contextMorphologies.size > 1 || contextMorphologies.single() != governorContextMorpho)
+            contextMorphologies.map {
+              val scoredMorpho = ScoredSingleMorphology(value = it, score = governor.morphologies.single().score)
+              configuration.copyAndReplace(governorId, scoredMorpho)
+            }
+          else
+            listOf(configuration)
         }
       }
 
@@ -96,6 +101,7 @@ abstract class MorphoPercolator {
    * @param dependent the dependent token
    * @param governor the governor token
    * @param dependentContextMorpho the context morphology of the dependent
+   * @param governorContextMorpho the context morphology of the governor
    * @param dependencyTree the dependency tree
    *
    * @return the list of morphologies that are propagated to the governor
@@ -103,6 +109,7 @@ abstract class MorphoPercolator {
   protected abstract fun getContextMorphologies(dependent: MorphoSynToken.Single,
                                                 governor: MorphoSynToken.Single,
                                                 dependentContextMorpho: SingleMorphology,
+                                                governorContextMorpho: SingleMorphology,
                                                 dependencyTree: DependencyTree): List<SingleMorphology>
 
   /**

@@ -54,6 +54,7 @@ class MorphoPercolatorIT : MorphoPercolator() {
    * @param dependent the dependent token
    * @param governor the governor token
    * @param dependentContextMorpho the context morphology of the dependent
+   * @param governorContextMorpho the context morphology of the governor
    * @param dependencyTree the dependency tree
    *
    * @return the list of morphologies that are propagated to the governor
@@ -61,10 +62,11 @@ class MorphoPercolatorIT : MorphoPercolator() {
   override fun getContextMorphologies(dependent: MorphoSynToken.Single,
                                       governor: MorphoSynToken.Single,
                                       dependentContextMorpho: SingleMorphology,
+                                      governorContextMorpho: SingleMorphology,
                                       dependencyTree: DependencyTree): List<SingleMorphology> {
 
     val governorScoredMorpho: ScoredSingleMorphology = governor.morphologies.single()
-    var contextMorphologies: List<SingleMorphology> = listOf(governorScoredMorpho.value)
+    var contextMorphologies: List<SingleMorphology> = listOf(governorContextMorpho)
 
     when (dependent.syntacticRelation.dependency) {
 

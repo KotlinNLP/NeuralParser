@@ -14,7 +14,7 @@ import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 
 /**
  * A helper that performs the percolation of morphological properties from a dependent to its governor simply copying
- * the context morphology of the dependent.
+ * the context morphologies of the governor.
  */
 class MorphoPercolatorSimple : MorphoPercolator() {
 
@@ -24,18 +24,20 @@ class MorphoPercolatorSimple : MorphoPercolator() {
   override val language: Language = Language.Unknown
 
   /**
-   * Perform the features percolation returning the context morphology of the dependent.
+   * Perform the features percolation returning the context morphologies of the governor.
    *
    * @param dependent the dependent token
    * @param governor the governor token
    * @param dependentContextMorpho the context morphology of the dependent
+   * @param governorContextMorpho the context morphology of the governor
    * @param dependencyTree the dependency tree
    *
-   * @return the list of morphologies that are propagated to the governor
+   * @return the same list of context morphologies of the governor given as input
    */
   override fun getContextMorphologies(dependent: MorphoSynToken.Single,
                                       governor: MorphoSynToken.Single,
                                       dependentContextMorpho: SingleMorphology,
+                                      governorContextMorpho: SingleMorphology,
                                       dependencyTree: DependencyTree): List<SingleMorphology> =
-    listOf(dependentContextMorpho)
+    listOf(governorContextMorpho)
 }
