@@ -8,12 +8,14 @@
 package com.kotlinnlp.neuralparser.morphopercolator
 
 import com.kotlinnlp.linguisticdescription.language.Language
+import com.kotlinnlp.linguisticdescription.morphology.ScoredSingleMorphology
 import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
 import com.kotlinnlp.linguisticdescription.morphology.properties.Gender
 import com.kotlinnlp.linguisticdescription.morphology.properties.Person
 import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.Conjugable
 import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.Genderable
 import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.PersonDeclinable
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Auxiliary
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Coordinated
@@ -45,24 +47,27 @@ class MorphoPercolatorIT : MorphoPercolator() {
   /**
    * Perform the features percolation from a dependent to a governor given their morphologies and dependency.
    *
+   * @param dependent the dependent token
    * @param dependentContextMorpho the context morphology of the dependent
-   * @param governorMorpho the morphology of the governor
+   * @param governor the governor token
    * @param dependency the dependency between the dependent and the governor
    *
    * @return the list of morphologies that are propagated to the governor
    */
-  override fun getContextMorphologies(dependentContextMorpho: SingleMorphology,
-                                      governorMorpho: SingleMorphology,
+  override fun getContextMorphologies(dependent: MorphoSynToken.Single,
+                                      dependentContextMorpho: SingleMorphology,
+                                      governor: MorphoSynToken.Single,
                                       dependency: SyntacticDependency): List<SingleMorphology> {
 
-    var contextMorphologies: List<SingleMorphology> = listOf(governorMorpho)
+    val governorScoredMorpho: ScoredSingleMorphology = governor.morphologies.single()
+    var contextMorphologies: List<SingleMorphology> = listOf(governorScoredMorpho.value)
 
     when (dependency) {
 
       is Coordinated -> contextMorphologies = this.getCoordinatedMorphologies(
         governorContextMorphologies = contextMorphologies,
         dependentContextMorpho = dependentContextMorpho,
-        governorMorpho = governorMorpho)
+        governorMorpho = governorScoredMorpho.value)
 
       is Auxiliary -> contextMorphologies = this.getCompositeVerbMorphologies(
         governorContextMorphologies = contextMorphologies,

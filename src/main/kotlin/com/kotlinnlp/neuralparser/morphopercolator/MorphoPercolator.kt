@@ -52,17 +52,16 @@ abstract class MorphoPercolator {
 
         contextConfigurations = contextConfigurations.flatMap { configuration ->
 
-          val dependent: MorphoSynToken.Single = tokens[dependencyTree.getPosition(dependentId)]
           val governor: MorphoSynToken.Single = tokens[dependencyTree.getPosition(governorId)]
-          val governorScoredMorpho: ScoredSingleMorphology = governor.morphologies.single()
-
+          val dependent: MorphoSynToken.Single = tokens[dependencyTree.getPosition(dependentId)]
           val contextMorphologies: List<SingleMorphology> = this.getContextMorphologies(
+            dependent = dependent,
             dependentContextMorpho = configuration.getValue(dependentId).value,
-            governorMorpho = governorScoredMorpho.value,
+            governor = governor,
             dependency = dependent.syntacticRelation.dependency)
 
           contextMorphologies.map {
-            val scoredMorpho = ScoredSingleMorphology(value = it, score = governorScoredMorpho.score)
+            val scoredMorpho = ScoredSingleMorphology(value = it, score = governor.morphologies.single().score)
             configuration.copyAndReplace(governorId, scoredMorpho)
           }
         }
@@ -75,16 +74,18 @@ abstract class MorphoPercolator {
   }
 
   /**
-   * Perform the features percolation from a dependent to a governor given their morphologies and dependency.
+   * Perform the percolation of morphological features from a dependent to a governor.
    *
+   * @param dependent the dependent token
    * @param dependentContextMorpho the context morphology of the dependent
-   * @param governorMorpho the morphology of the governor
+   * @param governor the governor token
    * @param dependency the dependency between the dependent and the governor
    *
    * @return the list of morphologies that are propagated to the governor
    */
-  protected abstract fun getContextMorphologies(dependentContextMorpho: SingleMorphology,
-                                                governorMorpho: SingleMorphology,
+  protected abstract fun getContextMorphologies(dependent: MorphoSynToken.Single,
+                                                dependentContextMorpho: SingleMorphology,
+                                                governor: MorphoSynToken.Single,
                                                 dependency: SyntacticDependency): List<SingleMorphology>
 
   /**

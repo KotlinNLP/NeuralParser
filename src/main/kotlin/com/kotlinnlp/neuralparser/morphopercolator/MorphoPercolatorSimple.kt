@@ -9,6 +9,7 @@ package com.kotlinnlp.neuralparser.morphopercolator
 
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 
 /**
@@ -25,14 +26,16 @@ class MorphoPercolatorSimple : MorphoPercolator() {
   /**
    * Perform the features percolation returning the context morphology of the dependent.
    *
+   * @param dependent the dependent token
    * @param dependentContextMorpho the context morphology of the dependent
-   * @param governorMorpho the morphology of the governor
+   * @param governor the governor token
    * @param dependency the dependency between the dependent and the governor
    *
    * @return the list of morphologies that are propagated to the governor
    */
-  override fun getContextMorphologies(dependentContextMorpho: SingleMorphology,
-                                      governorMorpho: SingleMorphology,
+  override fun getContextMorphologies(dependent: MorphoSynToken.Single,
+                                      dependentContextMorpho: SingleMorphology,
+                                      governor: MorphoSynToken.Single,
                                       dependency: SyntacticDependency): List<SingleMorphology> =
     listOf(dependentContextMorpho)
 }
