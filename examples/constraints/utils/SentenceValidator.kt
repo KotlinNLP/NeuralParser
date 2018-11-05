@@ -11,6 +11,7 @@ import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.morphology.ScoredSingleMorphology
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
+import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
 import com.kotlinnlp.utils.BeamManager
 
 /**
@@ -18,10 +19,12 @@ import com.kotlinnlp.utils.BeamManager
  *
  * @param tokens a list of single morpho-syntactic tokens
  * @param constraints a list of linguistic constraints
+ * @param morphoPercolator a percolator of morphology properties
  */
 internal class SentenceValidator(
   private val tokens: List<MorphoSynToken.Single>,
-  private val constraints: List<Constraint>
+  private val constraints: List<Constraint>,
+  private val morphoPercolator: MorphoPercolator
 ) : BeamManager<SentenceValidator.MorphologyValue, SentenceValidator.MorphoState>(
   valuesMap = tokens.associate { token ->
     token.id to token.morphologies.asSequence().map { MorphologyValue(it) }.sortedByDescending { it.score }.toList()
@@ -74,8 +77,10 @@ internal class SentenceValidator(
       // Attention: do not modify the order of the operations.
       this.applyMorphologies()
       this.applyConstraints(simpleConstraints)
-      this.applyPercolation()
-      this.applyConstraints(contextConstraints)
+      morphoPercolator.applyPercolation(tokens = tokens, dependencyTree = dependencyTree).forEach { contextConfig ->
+        this.applyContextMorphologies(contextConfig)
+        this.applyConstraints(contextConstraints)
+      }
     }
 
     /**
@@ -93,10 +98,16 @@ internal class SentenceValidator(
     }
 
     /**
-     * Apply the features percolation to the tokens.
+     * Apply the given context morphologies to the tokens.
+     *
+     * @param morphologiesPerToken a map of context morphologies associated by token id
      */
-    private fun applyPercolation() {
-      TODO("not implemented")
+    private fun applyContextMorphologies(morphologiesPerToken: Map<Int, ScoredSingleMorphology>) {
+
+      tokens.forEach { token ->
+        token.removeAllContextMorphologies()
+        token.addContextMorphology(morphologiesPerToken.getValue(token.id))
+      }
     }
 
     /**
