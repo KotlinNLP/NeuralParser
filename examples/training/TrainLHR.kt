@@ -28,6 +28,7 @@ import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.*
+import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
@@ -132,7 +133,8 @@ private fun buildParser(
   labelerSelector = when (parsedArgs.labelerSelectorType) {
     CommandLineArguments.LabelerSelectorType.NO_FILTER -> NoFilterSelector
     CommandLineArguments.LabelerSelectorType.COMPOSITE -> CompositeSelector
-  }))
+  },
+  morphoPercolator = MorphoPercolator(language = getLanguageByIso(parsedArgs.langCode))))
 
 /**
  * Build a tokens-encoder wrapper model.

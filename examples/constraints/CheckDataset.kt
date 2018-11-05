@@ -13,6 +13,7 @@ import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Number
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
+import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
 import constraints.utils.ConstraintsValidator
 import constraints.utils.loadConstraints
 import constraints.utils.loadSentences
@@ -38,7 +39,8 @@ fun main(args: Array<String>) {
     constraints = loadConstraints(args[0]),
     sentences = loadSentences(filename = args[1]),
     morphoPreprocessor = MorphoPreprocessor(
-      MorphologicalAnalyzer(language = dictionary.language, dictionary = dictionary))
+      MorphologicalAnalyzer(language = dictionary.language, dictionary = dictionary)),
+    morphoPercolator = MorphoPercolator(language = dictionary.language)
   ).validate()
 }
 
