@@ -15,8 +15,8 @@ import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.statistics.Statistics
 import com.kotlinnlp.neuralparser.language.BaseSentence
 import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.simplednn.dataset.Shuffler
-import com.kotlinnlp.simplednn.helpers.training.utils.ExamplesIndices
+import com.kotlinnlp.utils.ExamplesIndices
+import com.kotlinnlp.utils.Shuffler
 import com.kotlinnlp.utils.Timer
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 import java.io.File
