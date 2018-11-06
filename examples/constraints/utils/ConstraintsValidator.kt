@@ -17,7 +17,6 @@ import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
 import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.neuralparser.constraints.Constraint
-import com.kotlinnlp.neuralparser.constraints.SingleConstraint
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.language.BaseSentence
 import com.kotlinnlp.neuralparser.helpers.MorphoSynBuilder
@@ -43,15 +42,33 @@ internal class ConstraintsValidator(
 ) {
 
   /**
+   * Validation info returned from the validator.
+   *
+   * @property violations the violated constraint associated to the related info
+   * @property correctSentences the number of totally correct sentence
+   * @property totalSentences the total number of validated sentences
+   */
+  data class ValidationInfo(
+    val violations: Map<Constraint, ViolationInfo>,
+    val correctSentences: Int,
+    val totalSentences: Int
+  ) {
+
+    /**
+     * The percentage of correct sentences.
+     */
+    val correctPerc: Double = 100.0 * this.correctSentences / this.totalSentences
+  }
+
+  /**
    * Information about a constraint that has been violated.
    *
    * @property violations the list of violation tokens info
    * @property violatedSentences the count of sentences in which the constraint has been violated
    */
-  private data class ViolationInfo(
+  data class ViolationInfo(
     val violations: MutableList<TokenInfo> = mutableListOf(),
-    var violatedSentences: Int = 0
-  )
+    var violatedSentences: Int = 0)
 
   /**
    * Information about the token that caused a violation.
@@ -60,13 +77,13 @@ internal class ConstraintsValidator(
    * @property conllTokenId the id of the CoNLL token that generated the morpho-syntactic token
    * @property conllSentence the related CoNLL sentence
    */
-  private data class TokenInfo(
+  data class TokenInfo(
     val token: MorphoSynToken.Single,
     val conllTokenId: Int,
     val conllSentence: CoNLLSentence)
 
   /**
-   * The map of violated constraint to the related info.
+   * The map of violated constraint associated to the related info.
    */
   private val violationsByConstraint = mutableMapOf<Constraint, ViolationInfo>()
 
@@ -77,20 +94,22 @@ internal class ConstraintsValidator(
 
   /**
    * Verify the [constraints] on the [sentences].
+   *
+   * @return the validation info
    */
-  fun validate() {
+  fun validate(): ValidationInfo {
 
     val progress = ProgressIndicatorBar(this.sentences.size)
-
-    println("Verifying constraints...")
 
     this.sentences.forEach {
       progress.tick()
       this.processSentence(it)
     }
 
-    println("\nValid sentences: %d / %d (%.1f%%).".format(correct, sentences.size, 100.0 * correct / sentences.size))
-    this.printConstraintsViolated()
+    return ValidationInfo(
+      violations = this.violationsByConstraint,
+      correctSentences = this.correct,
+      totalSentences = this.sentences.size)
   }
 
   /**
@@ -182,67 +201,6 @@ internal class ConstraintsValidator(
         listOf(Morphology(
           components = posTypes.map { SingleMorphology(lemma = token.form, pos = it, allowIncompleteProperties = true) }
         ))
-      }
-  }
-
-  /**
-   * Print the constraints that have been violated.
-   */
-  private fun printConstraintsViolated() {
-
-    if (this.violationsByConstraint.isNotEmpty()) {
-
-      println("\nConstraints violated:")
-      println(this.violationsByConstraint.keys
-        .asSequence()
-        .map { it.description }
-        .sorted()
-        .joinToString("\n") { it.prependIndent("- ") })
-
-      println("\nPer sentence:")
-
-      this.violationsByConstraint.forEach { constraint, info ->
-
-        val perc: Double = 100.0 * info.violatedSentences / this.sentences.size
-
-        println()
-        println("------------------------------------------------------------------------------------------")
-        println("'$constraint' (violated in ${info.violatedSentences} sentences of ${this.sentences.size} [%.1f%%])"
-          .format(perc))
-        println("------------------------------------------------------------------------------------------")
-
-        info.violations.forEach { tokenInfo ->
-          println("\n" + buildPrintSentence(constraint = constraint, tokenInfo = tokenInfo))
-        }
-      }
-
-    } else {
-      println("\nNo constraints violated.")
-    }
-  }
-
-  /**
-   * @param constraint a constraint violated
-   * @param tokenInfo info of the token of the violation
-   *
-   * @return a string containing info of the violated sentence
-   */
-  private fun buildPrintSentence(constraint: Constraint, tokenInfo: TokenInfo): String {
-
-    val governorId: Int? = tokenInfo.token.syntacticRelation.governor
-    val conllLines: List<String> = tokenInfo.conllSentence.toCoNLLString(writeComments = false).split("\n")
-
-    return if (constraint is SingleConstraint || governorId == null)
-      conllLines.joinToString("\n") {
-        if (Regex("^${tokenInfo.conllTokenId}\t.*").matches(it)) "$it\t<===== X" else it
-      }
-    else
-      conllLines.joinToString("\n") {
-        when {
-          Regex("^${tokenInfo.conllTokenId}\t.*").matches(it) -> "$it\t<===== DEP"
-          Regex("^$governorId\t.*").matches(it) -> "$it\t<===== GOV"
-          else -> it
-        }
       }
   }
 }
