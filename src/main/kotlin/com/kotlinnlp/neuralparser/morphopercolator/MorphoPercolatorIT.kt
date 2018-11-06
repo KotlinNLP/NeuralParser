@@ -12,14 +12,14 @@ import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.morphology.ScoredSingleMorphology
 import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
 import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Noun
-import com.kotlinnlp.linguisticdescription.morphology.properties.Gender
+import com.kotlinnlp.linguisticdescription.morphology.properties.*
 import com.kotlinnlp.linguisticdescription.morphology.properties.Number
-import com.kotlinnlp.linguisticdescription.morphology.properties.Person
 import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.Conjugable
 import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.Genderable
 import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.Numerable
 import com.kotlinnlp.linguisticdescription.morphology.properties.interfaces.PersonDeclinable
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
+import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Auxiliary
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Coordinated
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Determiner
@@ -67,8 +67,9 @@ class MorphoPercolatorIT : MorphoPercolator() {
 
     val governorScoredMorpho: ScoredSingleMorphology = governor.morphologies.single()
     var contextMorphologies: List<SingleMorphology> = listOf(governorContextMorpho)
+    val dependency: SyntacticDependency = dependent.syntacticRelation.dependency
 
-    when (dependent.syntacticRelation.dependency) {
+    when (dependency) {
 
       is Coordinated -> contextMorphologies = this.getCoordinatedMorphologies(
         dependent = dependent,
@@ -79,7 +80,9 @@ class MorphoPercolatorIT : MorphoPercolator() {
 
       is Auxiliary -> contextMorphologies = this.getCompositeVerbMorphologies(
         governorContextMorphologies = contextMorphologies,
-        dependentContextMorpho = dependentContextMorpho as Conjugable)
+        dependentContextMorpho = dependentContextMorpho as Conjugable,
+        dependentDependency = dependency,
+        governorDependency = governor.syntacticRelation.dependency)
     }
 
     return contextMorphologies
@@ -134,14 +137,35 @@ class MorphoPercolatorIT : MorphoPercolator() {
    *
    * @param governorContextMorphologies the current context morphologies of the governor
    * @param dependentContextMorpho the context morphology of the dependent
+   * @param dependentDependency the syntactic dependency between the dependent and the governor
+   * @param governorDependency the syntactic dependency between the governor and its governor
    *
    * @return the context morphologies of the governor updated with the given dependency
    */
   private fun getCompositeVerbMorphologies(governorContextMorphologies: List<SingleMorphology>,
-                                           dependentContextMorpho: Conjugable): List<SingleMorphology> =
-    governorContextMorphologies.map {
-      it.copy("mood" to dependentContextMorpho.mood, "tense" to dependentContextMorpho.tense)
+                                           dependentContextMorpho: Conjugable,
+                                           dependentDependency: SyntacticDependency,
+                                           governorDependency: SyntacticDependency): List<SingleMorphology> {
+
+    dependentContextMorpho as Numerable
+    dependentContextMorpho as PersonDeclinable
+
+    val propagatingProperties: MutableList<Pair<String, MorphologyProperty>> = mutableListOf(
+      "mood" to dependentContextMorpho.mood,
+      "number" to dependentContextMorpho.number,
+      "person" to dependentContextMorpho.person)
+
+    when {
+      dependentDependency is Auxiliary.Passive && governorDependency !is Auxiliary ->
+        propagatingProperties.add("tense" to dependentContextMorpho.tense)
+      dependentContextMorpho.mood == Mood.Indicative && dependentContextMorpho.tense == Tense.Future ->
+        propagatingProperties.add("tense" to Tense.Future)
+      else ->
+        propagatingProperties.add("tense" to Tense.Past)
     }
+
+    return governorContextMorphologies.map { it.copy(propagatingProperties) }
+  }
 
   /**
    * @param dependencyTree the dependency tree in which this token is represented
