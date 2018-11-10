@@ -210,7 +210,7 @@ class MorphoSynBuilder(
     var multiWordStartId: Int = this.dependencyTree.getHead(tokenId)!!
 
     while (this.dependencyTree.getConfiguration(multiWordStartId)!!.isContin())
-      multiWordStartId = this.dependencyTree.getHead(tokenId)!!
+      multiWordStartId = this.dependencyTree.getHead(multiWordStartId)!!
 
     return this.dependencyTree.getHead(multiWordStartId)
   }
