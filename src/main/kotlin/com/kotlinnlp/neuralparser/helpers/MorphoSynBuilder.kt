@@ -218,8 +218,9 @@ class MorphoSynBuilder(
   /**
    * @return true if this configuration defines the continuation of a multi-word, otherwise false
    */
-  private fun GrammaticalConfiguration.isContin(): Boolean =
-    this.components.size > 1 && this.components.any { it.syntacticDependency.isSubTypeOf(SyntacticType.Contin) }
+  private fun GrammaticalConfiguration.isContin(): Boolean = this.components.any {
+    it.syntacticDependency.isSubTypeOf(SyntacticType.Contin)
+  }
 
   /**
    * @return true if this configuration defines a composite PREP + ART, otherwise false
