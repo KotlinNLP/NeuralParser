@@ -152,19 +152,20 @@ internal class SentenceValidator(
    *
    * @return a map of tokens to the list of constraints that they violate
    */
-  fun validate(): Map<MorphoSynToken.Single, Set<Constraint>> =
+  fun validate(): Map<MorphoSynToken.Single, Set<Constraint>> {
 
-    this.findConfigurations(onlyValid = false).fold(mutableMapOf()) { retMap, state ->
+    val states: List<MorphoState> = this.findConfigurations(onlyValid = false)
+    val consideredStates: List<MorphoState> = if (states.first().isValid) listOf(states.first()) else states
+
+    return consideredStates.fold(mutableMapOf()) { violationsMap, state ->
 
       state.violatedConstraints.forEach { tokenIndex, constraint ->
-
-        val token: MorphoSynToken.Single = this.tokens[tokenIndex]
-
-        retMap.merge(token, constraint.toSet()) { t, u -> t + u }
+        violationsMap.merge(this.tokens[tokenIndex], constraint.toSet()) { t, u -> t + u }
       }
 
-      retMap
+      violationsMap
     }
+  }
 
   /**
    * Build a new state with the given elements.
