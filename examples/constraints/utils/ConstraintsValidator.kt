@@ -117,10 +117,12 @@ internal class ConstraintsValidator(
    */
   private fun processSentence(sentence: CoNLLSentence) {
 
-    val tokens: List<MorphoSynToken.Single> = this.buildMorphoSynTokens(sentence)
-    val validator =
-      SentenceValidator(constraints = this.constraints, tokens = tokens, morphoPercolator = morphoPercolator)
-    val violated: Map<MorphoSynToken.Single, Set<Constraint>> = validator.validate()
+    val tokensToCoNLLId: Map<MorphoSynToken.Single, Int> = this.buildMorphoSynTokens(sentence)
+    val tokens: List<MorphoSynToken.Single> = tokensToCoNLLId.keys.toList()
+    val validator = SentenceValidator(
+      constraints = this.constraints,
+      tokens = tokens,
+      morphoPercolator = morphoPercolator)
 
     if (violated.isEmpty()) this.correct++
 

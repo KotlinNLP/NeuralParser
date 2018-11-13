@@ -58,51 +58,28 @@ internal fun loadSentences(filename: String): List<Sentence> {
  *
  * @param tokens a list of morpho-syntactic tokens
  *
- * @return a list of all the single tokens
+ * @return all the single tokens associated to their container ID
  */
-internal fun flatTokens(tokens: List<MorphoSynToken>): List<MorphoSynToken.Single> {
+internal fun flatTokens(tokens: List<MorphoSynToken>): Map<MorphoSynToken.Single, Int> {
 
-  val flatTokens: MutableList<MorphoSynToken.Single> = mutableListOf()
+  val flatTokens: MutableMap<MorphoSynToken.Single, Int> = mutableMapOf()
   var index = 0
   val dependencies: Map<Int, Int?> = getDependenciesByComponents(tokens)
 
   tokens.forEach { token ->
     when (token) {
-      is MorphoSynToken.Single -> flatTokens.add(token.copyPositionIndex(index))
+      is MorphoSynToken.Single -> flatTokens[token.copyPositionIndex(index)] = token.id
       is MorphoSynToken.Composite -> token.components.forEach { c ->
-        flatTokens.add(c.copyPositionIndex(index++))
+        flatTokens[c.copyPositionIndex(index++)] = token.id
       }
     }
   }
 
-  flatTokens.forEach { token ->
+  flatTokens.keys.forEach { token ->
     token.updateSyntacticRelation(token.syntacticRelation.copy(governor = dependencies.getValue(token.id)))
   }
 
   return flatTokens
-}
-
-/**
- * Get the id of the CoNLL token that generated a given exploded token.
- * This is done considering that the [tokens] list has been built replacing the composite tokens with groups of single
- * tokens with new ids. This new ids are not sequential respect the sequence of original CoNLL token ids.
- *
- * @param token a morpho-syntactic token
- * @param tokens the list of tokens that compose the sentence of the [token]
- *
- * @return the id of the CoNLL token that generated the given [token]
- */
-internal fun getCoNLLTokenId(token: MorphoSynToken.Single, tokens: List<MorphoSynToken.Single>): Int {
-
-  (0 until tokens.indexOf(token)).reversed().forEach { tokenIndex ->
-
-    val focusToken: MorphoSynToken.Single = tokens[tokenIndex]
-    val nextToken: MorphoSynToken.Single = tokens[tokenIndex + 1]
-
-    if (focusToken.id < nextToken.id - 1 && nextToken.id < token.id) return focusToken.id + 1
-  }
-
-  return token.id
 }
 
 /**
