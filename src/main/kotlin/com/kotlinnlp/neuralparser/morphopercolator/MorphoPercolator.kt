@@ -14,11 +14,12 @@ import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
 import com.kotlinnlp.linguisticdescription.morphology.properties.MorphologyProperty
 import com.kotlinnlp.linguisticdescription.morphology.morphologies.things.Number
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
+import java.io.Serializable
 
 /**
  * A helper that performs the percolation of morphological properties from a dependent to its governor.
  */
-abstract class MorphoPercolator {
+abstract class MorphoPercolator : Serializable {
 
   /**
    * A factory of [MorphoPercolator] by language.

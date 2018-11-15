@@ -33,6 +33,12 @@ class MorphoPercolatorIT : MorphoPercolator() {
   companion object {
 
     /**
+     * Private val used to serialize the class (needed by Serializable).
+     */
+    @Suppress("unused")
+    private const val serialVersionUID: Long = 1L
+
+    /**
      * The map of Person property values to their weight when they have to be compared.
      */
     private val personToWeight: Map<Person, Int> = mapOf(
