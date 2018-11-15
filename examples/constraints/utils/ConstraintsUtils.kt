@@ -12,12 +12,18 @@ import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
 import com.kotlinnlp.conllio.CoNLLReader
 import com.kotlinnlp.conllio.Sentence
+import com.kotlinnlp.linguisticdescription.morphology.ScoredSingleMorphology
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Word
 import com.kotlinnlp.linguisticdescription.sentence.token.WordTrace
 import com.kotlinnlp.neuralparser.constraints.Constraint
 import java.io.File
+
+/**
+ * The morphological configuration of a sentence, that associates a single morphology to each token id.
+ */
+internal typealias MorphoConfiguration = Map<Int, ScoredSingleMorphology>
 
 /**
  * A map of token ids to the list of related linguistic constraints violated.
