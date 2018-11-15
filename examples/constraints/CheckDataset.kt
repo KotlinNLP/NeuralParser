@@ -41,7 +41,7 @@ fun main(args: Array<String>) {
   println("Verifying constraints...")
 
   val validationInfo: DatasetValidator.ValidationInfo = DatasetValidator(
-    constraints = loadConstraints(args[0]),
+    constraints = loadConstraints(args[0]).filter { it.isHard },
     sentences = sentences,
     morphoPreprocessor = MorphoPreprocessor(
       MorphologicalAnalyzer(language = dictionary.language, dictionary = dictionary)),
