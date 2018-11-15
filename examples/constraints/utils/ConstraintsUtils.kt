@@ -20,6 +20,16 @@ import com.kotlinnlp.neuralparser.constraints.Constraint
 import java.io.File
 
 /**
+ * A map of token ids to the list of related linguistic constraints violated.
+ */
+internal typealias ViolationsMap = Map<Int, List<Constraint>>
+
+/**
+ * A mutable [ViolationsMap].
+ */
+private typealias MutableViolationsMap = MutableMap<Int, List<Constraint>>
+
+/**
  * @param filename the path of the JSON file with the constraints
  *
  * @return the list of constraints read
@@ -80,6 +90,56 @@ internal fun flatTokens(tokens: List<MorphoSynToken>): Map<MorphoSynToken.Single
   }
 
   return flatTokens
+}
+
+/**
+ * Collect all the violations returned for each element of this sequence.
+ *
+ * @param callback a callback called on each element of this sequence, that must return a violations map
+ *
+ * @return all the violations made during the iteration of this sequence
+ */
+internal fun <T, I : Sequence<T>> I.collectViolations(callback: (T) -> ViolationsMap): ViolationsMap {
+
+  val allViolationsMap: MutableViolationsMap = mutableMapOf()
+  val collectedViolations: MutableList<ViolationsMap> = mutableListOf()
+
+  run loop@ {
+    this.forEach {
+
+      val violations: ViolationsMap = callback(it)
+
+      if (violations.isEmpty()) {
+
+        collectedViolations.clear()
+
+        return@loop
+
+      } else {
+        collectedViolations.add(violations)
+      }
+    }
+  }
+
+  collectedViolations.forEach { allViolationsMap.mergeViolations(it) }
+
+  return allViolationsMap
+}
+
+/**
+ * Merge this violations map with another.
+ *
+ * @param other another violations map
+ *
+ * @return this violations map
+ */
+private fun MutableViolationsMap.mergeViolations(other: ViolationsMap): MutableViolationsMap {
+
+  other.forEach { tokenIndex, violations ->
+    this.merge(tokenIndex, violations) { t, u -> t + u }
+  }
+
+  return this
 }
 
 /**
