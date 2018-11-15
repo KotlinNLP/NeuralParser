@@ -11,10 +11,7 @@ import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.POSTag
-import com.kotlinnlp.linguisticdescription.morphology.Morphology
-import com.kotlinnlp.linguisticdescription.morphology.POS
-import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
-import com.kotlinnlp.linguisticdescription.morphology.SingleMorphology
+import com.kotlinnlp.linguisticdescription.morphology.*
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
@@ -113,30 +110,31 @@ internal class DatasetValidator(
   }
 
   /**
+   * Verify the linguistic [constraints] for a given sentence.
+   *
    * @param sentence a CoNLL sentence to process
    */
   private fun processSentence(sentence: CoNLLSentence) {
 
     val tokensToCoNLLId: Map<MorphoSynToken.Single, Int> = this.buildMorphoSynTokens(sentence)
-    val tokens: List<MorphoSynToken.Single> = tokensToCoNLLId.keys.toList()
+    val tokensById: Map<Int, MorphoSynToken.Single> = tokensToCoNLLId.keys.associateBy { it.id }
     val validator = SentenceValidator(
       constraints = this.constraints,
-      tokens = tokens,
-      morphoPercolator = morphoPercolator)
+      tokens = tokensToCoNLLId.keys.toList(),
+      morphoPercolator = this.morphoPercolator)
+    val violationsMap: ViolationsMap = validator.validate()
 
-    if (violated.isEmpty()) this.correct++
+    if (violationsMap.isEmpty()) this.correct++
 
-    violated.values.flatMap { it }.toSet().forEach {
+    violationsMap.values.flatten().toSet().forEach {
       this.violationsByConstraint.getOrPut(it) { ViolationInfo() }.violatedSentences++
     }
 
-    violated.forEach { token, constraints ->
-      constraints.forEach { constraint ->
-        this.violationsByConstraint.getValue(constraint).violations.add(
-          TokenInfo(
-            token = token,
-            conllTokenId = getCoNLLTokenId(token = token, tokens = tokens),
-            conllSentence = sentence))
+    violationsMap.forEach { tokenId, violations ->
+      violations.forEach { constraint ->
+        val token: MorphoSynToken.Single = tokensById.getValue(tokenId)
+        this.violationsByConstraint.getValue(constraint).violations
+          .add(TokenInfo(token = token, conllTokenId = tokensToCoNLLId.getValue(token), conllSentence = sentence))
       }
     }
   }
@@ -144,9 +142,9 @@ internal class DatasetValidator(
   /**
    * @param sentence a CoNLL sentence
    *
-   * @return a list of flat single morpho-syntactic tokens built from the given sentence
+   * @return the flat single morpho-syntactic tokens built from the given sentence, associated to the original CoNLL ID
    */
-  private fun buildMorphoSynTokens(sentence: CoNLLSentence): List<MorphoSynToken.Single> {
+  private fun buildMorphoSynTokens(sentence: CoNLLSentence): Map<MorphoSynToken.Single, Int> {
 
     val sentenceTree = DependencyTree(sentence)
     var nextAvailableId: Int = sentence.tokens.last().id + 1
