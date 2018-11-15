@@ -16,7 +16,7 @@ import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.neuralparser.constraints.SingleConstraint
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
-import constraints.utils.ConstraintsValidator
+import constraints.utils.DatasetValidator
 import constraints.utils.loadConstraints
 import constraints.utils.loadSentences
 import java.io.File
@@ -40,7 +40,7 @@ fun main(args: Array<String>) {
 
   println("Verifying constraints...")
 
-  val validationInfo: ConstraintsValidator.ValidationInfo = ConstraintsValidator(
+  val validationInfo: DatasetValidator.ValidationInfo = DatasetValidator(
     constraints = loadConstraints(args[0]),
     sentences = sentences,
     morphoPreprocessor = MorphoPreprocessor(
@@ -58,7 +58,7 @@ fun main(args: Array<String>) {
  *
  * @param validationInfo info of validation
  */
-private fun printConstraintsViolated(validationInfo: ConstraintsValidator.ValidationInfo) {
+private fun printConstraintsViolated(validationInfo: DatasetValidator.ValidationInfo) {
 
   if (validationInfo.violations.isNotEmpty()) {
 
@@ -98,7 +98,7 @@ private fun printConstraintsViolated(validationInfo: ConstraintsValidator.Valida
  *
  * @return a string containing info of the violated sentence
  */
-private fun buildPrintSentence(constraint: Constraint, tokenInfo: ConstraintsValidator.TokenInfo): String {
+private fun buildPrintSentence(constraint: Constraint, tokenInfo: DatasetValidator.TokenInfo): String {
 
   val governorId: Int? = tokenInfo.token.syntacticRelation.governor
   val conllLines: List<String> = tokenInfo.conllSentence.toCoNLLString(writeComments = false).split("\n")

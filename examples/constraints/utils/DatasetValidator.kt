@@ -27,14 +27,14 @@ import com.kotlinnlp.utils.notEmptyOr
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 
 /**
- * A helper that verifies constraints on sentences.
+ * A helper that verifies constraints on the sentences of a CoNLL dataset.
  *
  * @param constraints the list of constraints to verify
- * @param sentences the list of sentence to validate
+ * @param sentences the list of sentences that compose the dataset
  * @param morphoPreprocessor a morphological sentence preprocessor
  * @param morphoPercolator a percolator of morphology properties
  */
-internal class ConstraintsValidator(
+internal class DatasetValidator(
   private val constraints: List<Constraint>,
   private val sentences: List<CoNLLSentence>,
   private val morphoPreprocessor: MorphoPreprocessor,
