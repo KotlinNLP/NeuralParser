@@ -121,6 +121,16 @@ abstract class Constraint(
   val isHard: Boolean = this.penalty == 0.0
 
   /**
+   * Whether this constraint looks at a single token, without requiring to check other tokens properties.
+   */
+  abstract val isUnary: Boolean
+
+  /**
+   * Whether this constraint needs to look at the morphological properties of a token.
+   */
+  abstract val checkMorpho: Boolean
+
+  /**
    * Whether this constraint needs to look at the context morphology of a token.
    */
   abstract val checkContext: Boolean

@@ -43,6 +43,16 @@ class SingleConstraint(
   )
 
   /**
+   * Whether this constraint looks at a single token, without requiring to check other tokens properties.
+   */
+  override val isUnary: Boolean = this.premise.isUnary && this.condition.isUnary
+
+  /**
+   * Whether this constraint needs to look at the morphological properties of a token.
+   */
+  override val checkMorpho: Boolean = this.premise.checkMorpho || this.condition.checkMorpho
+
+  /**
    * Whether this constraint needs to look at the context morphology of a token.
    */
   override val checkContext: Boolean = this.premise.checkContext || this.condition.checkContext
