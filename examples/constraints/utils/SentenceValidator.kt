@@ -100,8 +100,7 @@ internal class SentenceValidator(
 
     val violations: ViolationsMap = morphologies.asSequence().collectViolations { morphology ->
 
-      token.removeAllMorphologies()
-      token.addMorphology(morphology) // set one morphology per iteration
+      token.setMorphology(morphology) // set a single morphology per iteration
 
       val violations: List<Constraint> = this.morphoUnaryConstraints.filter {
         !it.isVerified(token = token, tokens = this.tokens, dependencyTree = this.dependencyTree)
@@ -110,8 +109,7 @@ internal class SentenceValidator(
       if (violations.isNotEmpty()) mapOf(token.id to violations) else mapOf()
     }
 
-    token.removeAllMorphologies()
-    morphologies.forEach { token.addMorphology(it) } // restore all morphologies
+    token.setMorphologies(morphologies) // restore all morphologies
 
     return violations
   }

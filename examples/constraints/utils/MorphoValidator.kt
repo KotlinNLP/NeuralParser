@@ -47,10 +47,7 @@ internal class MorphoValidator(
    */
   private fun applyMorphologies(morphoConfig: MorphoConfiguration) {
 
-    this.tokens.forEach {
-      it.removeAllMorphologies()
-      it.addMorphology(morphoConfig.getValue(it.id))
-    }
+    this.tokens.forEach { it.setMorphology(morphoConfig.getValue(it.id)) }
   }
 
   /**
