@@ -126,6 +126,11 @@ abstract class Constraint(
   abstract val isUnary: Boolean
 
   /**
+   * Whether this constraint needs to look at the morphology of a token.
+   */
+  abstract val checkMorpho: Boolean
+
+  /**
    * Whether this constraint needs to look at the morphological properties of a token.
    */
   abstract val checkMorphoProp: Boolean

@@ -53,12 +53,17 @@ class DoubleConstraint(
     val isUnary: Boolean = this.dependent?.isUnary ?: true && this.governor?.isUnary ?: true
 
     /**
-     * Whether this constraint needs to look at the morphological properties of a token.
+     * Whether this condition needs to look at the morphology of a token.
+     */
+    val checkMorpho: Boolean = this.dependent?.checkMorpho ?: false || this.governor?.checkMorpho ?: false
+
+    /**
+     * Whether this condition needs to look at the morphological properties of a token.
      */
     val checkMorphoProp: Boolean = this.dependent?.checkMorphoProp ?: false || this.governor?.checkMorphoProp ?: false
 
     /**
-     * Whether this constraint needs to look at the context morphology of a token.
+     * Whether this condition needs to look at the context morphology of a token.
      */
     val checkContext: Boolean = this.dependent?.checkContext ?: false || this.governor?.checkContext ?: false
   }
@@ -67,6 +72,11 @@ class DoubleConstraint(
    * Whether this constraint conditions look at a single token, without requiring to check other tokens properties.
    */
   override val isUnary: Boolean = this.premise.isUnary && this.condition.isUnary
+
+  /**
+   * Whether this constraint needs to look at the morphology of a token.
+   */
+  override val checkMorpho: Boolean = this.premise.checkMorpho || this.condition.checkMorpho
 
   /**
    * Whether this constraint needs to look at the morphological properties of a token.

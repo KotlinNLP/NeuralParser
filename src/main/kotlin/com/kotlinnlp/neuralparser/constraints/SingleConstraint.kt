@@ -48,6 +48,11 @@ class SingleConstraint(
   override val isUnary: Boolean = this.premise.isUnary && this.condition.isUnary
 
   /**
+   * Whether this constraint needs to look at the morphology of a token.
+   */
+  override val checkMorpho: Boolean = this.premise.checkMorpho || this.condition.checkMorpho
+
+  /**
    * Whether this constraint needs to look at the morphological properties of a token.
    */
   override val checkMorphoProp: Boolean = this.premise.checkMorphoProp || this.condition.checkMorphoProp
