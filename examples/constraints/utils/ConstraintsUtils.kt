@@ -99,6 +99,28 @@ internal fun flatTokens(tokens: List<MorphoSynToken>): Map<MorphoSynToken.Single
 }
 
 /**
+ * Set a single morphology in this token.
+ *
+ * @param morphology the morphology to set
+ */
+internal fun MorphoSynToken.Single.setMorphology(morphology: ScoredSingleMorphology) {
+
+  this.removeAllMorphologies()
+  this.addMorphology(morphology)
+}
+
+/**
+ * Set a list of given morphologies in this token.
+ *
+ * @param morphologies the morphologies to set
+ */
+internal fun MorphoSynToken.Single.setMorphologies(morphologies: List<ScoredSingleMorphology>) {
+
+  this.removeAllMorphologies()
+  morphologies.forEach { this.addMorphology(it) }
+}
+
+/**
  * Collect all the violations returned for each element of this sequence.
  *
  * @param callback a callback called on each element of this sequence, that must return a violations map
