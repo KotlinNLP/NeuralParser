@@ -17,12 +17,18 @@ import com.kotlinnlp.utils.notEmptyOr
  * A helper that validate constraints on all the morphologies combinations of a list of tokens.
  *
  * @param tokens a list of single morpho-syntactic tokens
- * @param constraints a list of linguistic constraints
+ * @param simpleConstraints A list of constraints that do not check any morphology
+ * @param morphoUnaryConstraints A list of constraints that check the base morphology of a single token
+ * @param morphoConstraints A list of constraints that check the base morphology
+ * @param contextConstraints A list of constraints that check the context morphology
  * @param morphoPercolator a percolator of morphology properties
  */
 internal class SentenceValidator(
   tokens: List<MorphoSynToken.Single>,
-  private val constraints: List<Constraint>,
+  private val simpleConstraints: List<Constraint>,
+  private val morphoUnaryConstraints: List<Constraint>,
+  private val morphoConstraints: List<Constraint>,
+  private val contextConstraints: List<Constraint>,
   private val morphoPercolator: MorphoPercolator
 ) : ConstraintsValidator(tokens) {
 
@@ -30,17 +36,6 @@ internal class SentenceValidator(
    * The input tokens associated to their list index.
    */
   private val indexedTokens: Iterable<IndexedValue<MorphoSynToken.Single>> = tokens.withIndex()
-
-  /**
-   * A list of constraints that do not check any morphology.
-   */
-  private val simpleConstraints: List<Constraint> = this.constraints.filter { !it.checkMorpho }
-
-  /**
-   * A list of constraints that check the base morphology of a single token.
-   */
-  private val morphoUnaryConstraints: List<Constraint> =
-    this.constraints.filter { it.checkMorpho && !it.checkContext && it.isUnary }
 
   /**
    * A list of constraints that check the base morphology.

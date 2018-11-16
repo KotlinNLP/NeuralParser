@@ -80,6 +80,28 @@ internal class DatasetValidator(
     val conllSentence: CoNLLSentence)
 
   /**
+   * A list of constraints that do not check any morphology.
+   */
+  private val simpleConstraints: List<Constraint> = this.constraints.filter { !it.checkMorpho }
+
+  /**
+   * A list of constraints that check the base morphology of a single token.
+   */
+  private val morphoUnaryConstraints: List<Constraint> =
+    this.constraints.filter { it.checkMorpho && !it.checkContext && it.isUnary }
+
+  /**
+   * A list of constraints that check the base morphology.
+   */
+  private val morphoConstraints: List<Constraint> =
+    this.constraints.filter { it.checkMorpho && !it.checkContext && !it.isUnary }
+
+  /**
+   * A list of constraints that check the context morphology.
+   */
+  private val contextConstraints: List<Constraint> = this.constraints.filter { it.checkContext }
+
+  /**
    * The map of violated constraint associated to the related info.
    */
   private val violationsByConstraint = mutableMapOf<Constraint, ViolationInfo>()
@@ -119,7 +141,10 @@ internal class DatasetValidator(
     val tokensToCoNLLId: Map<MorphoSynToken.Single, Int> = this.buildMorphoSynTokens(sentence)
     val tokensById: Map<Int, MorphoSynToken.Single> = tokensToCoNLLId.keys.associateBy { it.id }
     val validator = SentenceValidator(
-      constraints = this.constraints,
+      simpleConstraints = this.simpleConstraints,
+      morphoUnaryConstraints = this.morphoUnaryConstraints,
+      morphoConstraints = this.morphoConstraints,
+      contextConstraints = this.contextConstraints,
       tokens = tokensToCoNLLId.keys.toList(),
       morphoPercolator = this.morphoPercolator)
     val violationsMap: ViolationsMap = validator.validate()
