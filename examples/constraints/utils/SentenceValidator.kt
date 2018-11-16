@@ -90,7 +90,7 @@ internal class SentenceValidator(
    */
   private fun getBaseMorphoUnaryViolations(token: MorphoSynToken.Single): ViolationsMap =
 
-    this.validPOSMorphoMap.getValue(token.id).asSequence().collectViolations { morphology ->
+    this.validPOSMorphoMap.getValue(token.id).toList().asSequence().collectViolations { morphology ->
 
       token.setMorphology(morphology) // set a single morphology per iteration
 
