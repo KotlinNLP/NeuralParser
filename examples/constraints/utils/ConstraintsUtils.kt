@@ -120,11 +120,11 @@ internal fun MorphoSynToken.Single.setMorphology(morphology: ScoredSingleMorphol
 }
 
 /**
- * Set a list of given morphologies in this token.
+ * Set the given morphologies in this token.
  *
  * @param morphologies the morphologies to set
  */
-internal fun MorphoSynToken.Single.setMorphologies(morphologies: List<ScoredSingleMorphology>) {
+internal fun MorphoSynToken.Single.setMorphologies(morphologies: Sequence<ScoredSingleMorphology>) {
 
   this.removeAllMorphologies()
   morphologies.forEach { this.addMorphology(it) }

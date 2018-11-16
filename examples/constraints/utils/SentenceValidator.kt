@@ -73,9 +73,9 @@ internal class SentenceValidator(
    */
   private fun getBaseMorphoUnaryViolations(token: MorphoSynToken.Single): ViolationsMap {
 
-    val morphologies: List<ScoredSingleMorphology> = token.morphologies
+    val morphologies: Sequence<ScoredSingleMorphology> = token.morphologies.asSequence()
 
-    val violations: ViolationsMap = morphologies.asSequence().collectViolations { morphology ->
+    val violations: ViolationsMap = morphologies.collectViolations { morphology ->
 
       token.setMorphology(morphology) // set a single morphology per iteration
 
