@@ -128,7 +128,7 @@ abstract class Constraint(
   /**
    * Whether this constraint needs to look at the morphological properties of a token.
    */
-  abstract val checkMorpho: Boolean
+  abstract val checkMorphoProp: Boolean
 
   /**
    * Whether this constraint needs to look at the context morphology of a token.

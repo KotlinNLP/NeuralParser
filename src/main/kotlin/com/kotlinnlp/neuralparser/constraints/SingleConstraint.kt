@@ -50,7 +50,7 @@ class SingleConstraint(
   /**
    * Whether this constraint needs to look at the morphological properties of a token.
    */
-  override val checkMorpho: Boolean = this.premise.checkMorpho || this.condition.checkMorpho
+  override val checkMorphoProp: Boolean = this.premise.checkMorphoProp || this.condition.checkMorphoProp
 
   /**
    * Whether this constraint needs to look at the context morphology of a token.
