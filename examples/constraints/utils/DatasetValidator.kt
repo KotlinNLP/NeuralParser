@@ -87,7 +87,7 @@ internal class DatasetValidator(
   /**
    * A set of constraints that check the base morphology of a single token.
    */
-  private val morphoUnaryConstraints: Set<Constraint> =
+  private val baseMorphoUnaryConstraints: Set<Constraint> =
     this.constraints
       .asSequence()
       .filter { it !is DoubleConstraint && it.checkMorphoProp && !it.checkContext && it.isUnary }
@@ -173,7 +173,7 @@ internal class DatasetValidator(
    */
   private fun buildSentenceValidator(tokens: List<MorphoSynToken.Single>) = SentenceValidator(
     simpleConstraints = this.simpleConstraints,
-    morphoUnaryConstraints = this.morphoUnaryConstraints,
+    baseMorphoUnaryConstraints = this.baseMorphoUnaryConstraints,
     morphoConstraints = this.morphoConstraints,
     contextConstraints = this.contextConstraints,
     tokens = tokens,

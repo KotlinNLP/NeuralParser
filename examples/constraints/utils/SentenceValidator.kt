@@ -26,7 +26,7 @@ import com.kotlinnlp.utils.notEmptyOr
 internal class SentenceValidator(
   tokens: List<MorphoSynToken.Single>,
   private val simpleConstraints: Set<Constraint>,
-  private val morphoUnaryConstraints: Set<Constraint>,
+  private val baseMorphoUnaryConstraints: Set<Constraint>,
   private val morphoConstraints: Set<Constraint>,
   private val contextConstraints: Set<Constraint>,
   private val morphoPercolator: MorphoPercolator
@@ -59,7 +59,7 @@ internal class SentenceValidator(
   fun validate(): ViolationsMap {
 
     val violationsMap: ViolationsMap = this.verifyConstraints(this.simpleConstraints).notEmptyOr {
-      this.getUnaryMorphoViolations().notEmptyOr {
+      this.getBaseMorphoUnaryViolations().notEmptyOr {
         this.getMorphoViolations()
       }
     }
@@ -70,15 +70,15 @@ internal class SentenceValidator(
   /**
    * @return the map of all the unary linguistic constraints violated by the input sentence
    */
-  private fun getUnaryMorphoViolations(): ViolationsMap =
-    this.tokens.asSequence().collectViolations { this.getUnaryMorphoViolations(it) }
+  private fun getBaseMorphoUnaryViolations(): ViolationsMap =
+    this.tokens.asSequence().collectViolations { this.getBaseMorphoUnaryViolations(it) }
 
   /**
    * @param token an input token
    *
    * @return the map of all the unary linguistic constraints violated by the given token
    */
-  private fun getUnaryMorphoViolations(token: MorphoSynToken.Single): ViolationsMap {
+  private fun getBaseMorphoUnaryViolations(token: MorphoSynToken.Single): ViolationsMap {
 
     val morphologies: List<ScoredSingleMorphology> = token.morphologies
 
@@ -86,7 +86,7 @@ internal class SentenceValidator(
 
       token.setMorphology(morphology) // set a single morphology per iteration
 
-      val violations: List<Constraint> = this.morphoUnaryConstraints.filter {
+      val violations: List<Constraint> = this.baseMorphoUnaryConstraints.filter {
         !it.isVerified(token = token, tokens = this.tokens, dependencyTree = this.dependencyTree)
       }
 
