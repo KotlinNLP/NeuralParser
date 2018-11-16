@@ -140,14 +140,7 @@ internal class DatasetValidator(
 
     val tokensToCoNLLId: Map<MorphoSynToken.Single, Int> = this.buildMorphoSynTokens(sentence)
     val tokensById: Map<Int, MorphoSynToken.Single> = tokensToCoNLLId.keys.associateBy { it.id }
-    val validator = SentenceValidator(
-      simpleConstraints = this.simpleConstraints,
-      morphoUnaryConstraints = this.morphoUnaryConstraints,
-      morphoConstraints = this.morphoConstraints,
-      contextConstraints = this.contextConstraints,
-      tokens = tokensToCoNLLId.keys.toList(),
-      morphoPercolator = this.morphoPercolator)
-    val violationsMap: ViolationsMap = validator.validate()
+    val violationsMap: ViolationsMap = this.buildSentenceValidator(tokens = tokensToCoNLLId.keys.toList()).validate()
 
     if (violationsMap.isEmpty()) this.correct++
 
@@ -163,6 +156,19 @@ internal class DatasetValidator(
       }
     }
   }
+
+  /**
+   * @param tokens the input tokens
+   *
+   * @return a sentence validator for the given sentence
+   */
+  private fun buildSentenceValidator(tokens: List<MorphoSynToken.Single>) = SentenceValidator(
+    simpleConstraints = this.simpleConstraints,
+    morphoUnaryConstraints = this.morphoUnaryConstraints,
+    morphoConstraints = this.morphoConstraints,
+    contextConstraints = this.contextConstraints,
+    tokens = tokens,
+    morphoPercolator = this.morphoPercolator)
 
   /**
    * @param sentence a CoNLL sentence
