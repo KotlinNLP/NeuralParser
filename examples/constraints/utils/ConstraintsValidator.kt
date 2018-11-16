@@ -28,19 +28,18 @@ internal abstract class ConstraintsValidator(protected val tokens: List<MorphoSy
    *
    * @param constraints a set of linguistic constraints to verify
    *
-   * @return the map of the linguistic constraints violated by the input sentence, within the given ones
+   * @return the map of token ids to the linguistic constraints violated
    */
-  protected fun verifyConstraints(constraints: Set<Constraint>): ViolationsMap {
+  protected fun verifyConstraints(constraints: Set<Constraint>): ViolationsMap =
+    this.tokens.associate { it.id to this.verifyConstraints(token = it, constraints = constraints) }
 
-    val violatedConstraints: MutableMap<Int, MutableList<Constraint>> = mutableMapOf()
-
-    constraints.forEach { constraint ->
-      this.tokens.forEach { token ->
-        if (!constraint.isVerified(token = token, tokens = this.tokens, dependencyTree = this.dependencyTree))
-          violatedConstraints.getOrPut(token.id) { mutableListOf() }.add(constraint)
-      }
-    }
-
-    return violatedConstraints
-  }
+  /**
+   * Apply the given [constraints] to the given token.
+   *
+   * @param constraints a set of linguistic constraints to verify
+   *
+   * @return the linguistic constraints violated by the given token
+   */
+  protected fun verifyConstraints(token: MorphoSynToken.Single, constraints: Set<Constraint>): List<Constraint> =
+    constraints.filterNot { it.isVerified(token = token, tokens = this.tokens, dependencyTree = this.dependencyTree) }
 }
