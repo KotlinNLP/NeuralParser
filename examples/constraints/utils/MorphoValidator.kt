@@ -35,19 +35,9 @@ internal class MorphoValidator(
    */
   fun getViolations(morphoConfig: MorphoConfiguration): ViolationsMap {
 
-    this.applyMorphologies(morphoConfig)
+    this.tokens.applyMorphologies(morphoConfig)
 
     return this.verifyConstraints(this.morphoConstraints).notEmptyOr { this.getContextViolations() }
-  }
-
-  /**
-   * Apply a given morphological configuration to the input [tokens].
-   *
-   * @param morphoConfig a morphological configuration of the input [tokens]
-   */
-  private fun applyMorphologies(morphoConfig: MorphoConfiguration) {
-
-    this.tokens.forEach { it.setMorphology(morphoConfig.getValue(it.id)) }
   }
 
   /**

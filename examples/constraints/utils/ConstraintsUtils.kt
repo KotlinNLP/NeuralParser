@@ -99,6 +99,16 @@ internal fun flatTokens(tokens: List<MorphoSynToken>): Map<MorphoSynToken.Single
 }
 
 /**
+ * Apply a given morphological configuration to this tokens.
+ *
+ * @param morphoConfig a morphological configuration of this tokens
+ */
+internal fun List<MorphoSynToken.Single>.applyMorphologies(morphoConfig: MorphoConfiguration) {
+
+  this.forEach { token -> morphoConfig[token.id]?.let { token.setMorphology(it) } }
+}
+
+/**
  * Set a single morphology in this token.
  *
  * @param morphology the morphology to set
