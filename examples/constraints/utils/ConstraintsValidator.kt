@@ -31,7 +31,14 @@ internal abstract class ConstraintsValidator(protected val tokens: List<MorphoSy
    * @return the map of token ids to the linguistic constraints violated
    */
   protected fun verifyConstraints(constraints: Set<Constraint>): ViolationsMap =
-    this.tokens.associate { it.id to this.verifyConstraints(token = it, constraints = constraints) }
+    this.tokens
+      .asSequence()
+      .mapNotNull { token ->
+        this.verifyConstraints(token = token, constraints = constraints).let {
+          if (it.isNotEmpty()) token.id to it else null
+        }
+      }
+      .associate { it.first to it.second }
 
   /**
    * Apply the given [constraints] to the given token.
