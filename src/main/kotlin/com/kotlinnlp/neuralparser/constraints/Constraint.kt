@@ -126,6 +126,12 @@ abstract class Constraint(
   abstract val isUnary: Boolean
 
   /**
+   * Whether this constraint looks at a dependent-governor tokens pair, without requiring to check other tokens
+   * properties.
+   */
+  abstract val isBinary: Boolean
+
+  /**
    * Whether this constraint needs to look at the morphology of a token.
    */
   abstract val checkMorpho: Boolean

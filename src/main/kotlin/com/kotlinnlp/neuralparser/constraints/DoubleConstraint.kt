@@ -47,10 +47,16 @@ class DoubleConstraint(
     }
 
     /**
+     * Whether this condition looks only at the [dependent], without requiring to check other tokens properties.
+     */
+    val isUnary: Boolean = this.governor == null && this.dependent!!.isUnary
+
+    /**
      * Whether this condition looks only at the [dependent] and the [governor], without requiring to check other tokens
      * properties.
      */
-    val isUnary: Boolean = this.dependent?.isUnary ?: true && this.governor?.isUnary ?: true
+    val isBinary: Boolean = (this.governor == null && this.dependent!!.isBinary) ||
+      (this.dependent?.isUnary ?: false && this.governor?.isUnary ?: false)
 
     /**
      * Whether this condition needs to look at the morphology of a token.
@@ -71,7 +77,15 @@ class DoubleConstraint(
   /**
    * Whether this constraint conditions look at a single token, without requiring to check other tokens properties.
    */
-  override val isUnary: Boolean = this.premise.isUnary && this.condition.isUnary
+  override val isUnary: Boolean = false
+
+  /**
+   * Whether this constraint looks at a dependent-governor tokens pair, without requiring to check other tokens
+   * properties.
+   */
+  override val isBinary: Boolean = (this.premise.isBinary && this.condition.isBinary) ||
+    (this.premise.isUnary && this.condition.isBinary) ||
+    (this.premise.isBinary && this.condition.isUnary)
 
   /**
    * Whether this constraint needs to look at the morphology of a token.

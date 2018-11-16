@@ -48,6 +48,12 @@ class SingleConstraint(
   override val isUnary: Boolean = this.premise.isUnary && this.condition.isUnary
 
   /**
+   * Whether this constraint looks at a dependent-governor tokens pair, without requiring to check other tokens
+   * properties.
+   */
+  override val isBinary: Boolean = this.premise.isBinary && this.condition.isBinary
+
+  /**
    * Whether this constraint needs to look at the morphology of a token.
    */
   override val checkMorpho: Boolean = this.premise.checkMorpho || this.condition.checkMorpho
