@@ -26,7 +26,7 @@ internal class GroupedConstraints(constraints: List<Constraint>) {
    * A set of constraints that check the base morphology of a single token.
    */
   val baseMorphoUnary: Set<Constraint> =
-    (constraints - this.simple)
+    (constraints - simple)
       .asSequence()
       .filter { it !is DoubleConstraint && !it.checkMorphoProp && it.isUnary }
       .toSet()
@@ -35,17 +35,26 @@ internal class GroupedConstraints(constraints: List<Constraint>) {
    * A set of constraints that check the base morphology of a dependent-governor tokens pair.
    */
   val baseMorphoBinary: Set<DoubleConstraint> =
-    (constraints - this.simple - this.baseMorphoUnary)
+    (constraints - simple - baseMorphoUnary)
       .asSequence()
       .mapNotNull { it as? DoubleConstraint }
       .filter { !it.checkMorphoProp && it.isUnary }
       .toSet()
 
   /**
+   * A set of constraints that check the base morphology of tokens at major distance.
+   */
+  val baseMorphoOthers: Set<Constraint> =
+    (constraints - simple - baseMorphoUnary - baseMorphoBinary)
+      .asSequence()
+      .filter { !it.checkMorphoProp }
+      .toSet()
+
+  /**
    * A set of constraints that check the morphological properties but not the context ones.
    */
   val morphoPropSimple: Set<Constraint> =
-    (constraints - this.simple - this.baseMorphoUnary)
+    (constraints - simple - baseMorphoUnary - baseMorphoBinary - baseMorphoOthers)
       .asSequence()
       .filter { it.checkMorphoProp && !it.checkContext }
       .toSet()
@@ -54,7 +63,7 @@ internal class GroupedConstraints(constraints: List<Constraint>) {
    * A set of constraints that check the context morphological properties.
    */
   val morphoPropContext: Set<Constraint> =
-    (constraints - this.simple - this.baseMorphoUnary)
+    (constraints - simple - baseMorphoUnary - baseMorphoBinary - baseMorphoOthers - morphoPropSimple)
     .asSequence()
     .filter { it.checkContext }
     .toSet()
@@ -64,7 +73,8 @@ internal class GroupedConstraints(constraints: List<Constraint>) {
    */
   init {
 
-    val allGroups: Sequence<Set<Constraint>> = sequenceOf(simple, baseMorphoUnary, morphoPropSimple, morphoPropContext)
+    val allGroups: Sequence<Set<Constraint>> =
+      sequenceOf(simple, baseMorphoUnary, baseMorphoBinary, baseMorphoOthers, morphoPropSimple, morphoPropContext)
 
     require(allGroups.sumBy { it.size } == constraints.size) { "The constraints groups must be complementary." }
   }
