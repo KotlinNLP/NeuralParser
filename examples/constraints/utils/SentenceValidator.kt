@@ -53,7 +53,7 @@ internal class SentenceValidator(
 
     val violationsMap: ViolationsMap = this.verifyConstraints(this.groupedConstraint.simple).notEmptyOr {
       this.getBaseMorphoUnaryViolations().notEmptyOr {
-        this.getMorphoViolations()
+        this.getMorphoPropertiesViolations()
       }
     }
 
@@ -92,9 +92,10 @@ internal class SentenceValidator(
   }
 
   /**
-   * @return the map of all the morphological linguistic constraints violated by the input sentence
+   * @return the map of all the linguistic constraints that check morphological properties violated by the input
+   *         sentence
    */
-  private fun getMorphoViolations(): ViolationsMap =
+  private fun getMorphoPropertiesViolations(): ViolationsMap =
     this.getAllMorphoConfigurations().collectViolations { this.morphoValidator.getViolations(it) }
 
   /**
