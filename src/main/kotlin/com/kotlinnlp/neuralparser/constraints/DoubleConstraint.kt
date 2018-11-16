@@ -129,7 +129,8 @@ class DoubleConstraint(
     require(
       sequenceOf(premise.dependent, condition.governor).all { it == null } ||
         sequenceOf(premise.governor, condition.dependent).all { it == null } ||
-        sequenceOf(premise.dependent, premise.governor, condition.dependent, condition.governor).all { it != null }
+        sequenceOf(premise.dependent, premise.governor, condition.dependent, condition.governor)
+          .count { it == null } <= 1
     ) {
       "This constraint should be single."
     }
