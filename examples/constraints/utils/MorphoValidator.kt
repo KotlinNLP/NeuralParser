@@ -8,7 +8,6 @@
 package constraints.utils
 
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
-import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
 import com.kotlinnlp.utils.notEmptyOr
 
@@ -16,14 +15,12 @@ import com.kotlinnlp.utils.notEmptyOr
  * The validator of a morphological configuration of a sentence.
  *
  * @param tokens the list of single morpho-syntactic tokens that compose a sentence
- * @param morphoConstraints a set of constraints that check the base morphological properties
- * @param contextConstraints a set of constraints that check the context morphology
+ * @param groupedConstraint linguistic constraints grouped by different types
  * @param morphoPercolator a morphological properties percolator
  */
 internal class MorphoValidator(
   tokens: List<MorphoSynToken.Single>,
-  private val morphoConstraints: Set<Constraint>,
-  private val contextConstraints: Set<Constraint>,
+  private val groupedConstraint: GroupedConstraints,
   private val morphoPercolator: MorphoPercolator
 ) : ConstraintsValidator(tokens) {
 
@@ -37,7 +34,7 @@ internal class MorphoValidator(
 
     this.tokens.applyMorphologies(morphoConfig)
 
-    return this.verifyConstraints(this.morphoConstraints).notEmptyOr { this.getContextViolations() }
+    return this.verifyConstraints(this.groupedConstraint.morphoPropSimple).notEmptyOr { this.getContextViolations() }
   }
 
   /**
@@ -52,7 +49,7 @@ internal class MorphoValidator(
 
       this.applyContextMorphologies(contextConfig)
 
-      this.verifyConstraints(this.contextConstraints)
+      this.verifyConstraints(this.groupedConstraint.morphoPropContext)
     }
   }
 

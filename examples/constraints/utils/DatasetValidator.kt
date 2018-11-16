@@ -32,7 +32,7 @@ import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
  * @param morphoPercolator a percolator of morphology properties
  */
 internal class DatasetValidator(
-  private val constraints: List<Constraint>,
+  constraints: List<Constraint>,
   private val sentences: List<CoNLLSentence>,
   private val morphoPreprocessor: MorphoPreprocessor,
   private val morphoPercolator: MorphoPercolator
@@ -80,35 +80,9 @@ internal class DatasetValidator(
     val conllSentence: CoNLLSentence)
 
   /**
-   * A set of constraints that do not check any morphology.
+   * Constraints grouped by different types.
    */
-  private val simpleConstraints: Set<Constraint> = this.constraints.asSequence().filter { !it.checkMorpho }.toSet()
-
-  /**
-   * A set of constraints that check the base morphology of a single token.
-   */
-  private val baseMorphoUnaryConstraints: Set<Constraint> =
-    this.constraints
-      .asSequence()
-      .filter { it !is DoubleConstraint && it.checkMorphoProp && !it.checkContext && it.isUnary }
-      .toSet()
-
-  /**
-   * A set of constraints that check the base morphology.
-   */
-  private val morphoConstraints: Set<Constraint> =
-    this.constraints
-      .asSequence()
-      .filter { it.checkMorphoProp && !it.checkContext && !it.isUnary }
-      .toSet()
-
-  /**
-   * A set of constraints that check the context morphology.
-   */
-  private val contextConstraints: Set<Constraint> = this.constraints
-    .asSequence()
-    .filter { it.checkContext }
-    .toSet()
+  private val groupedConstraint = GroupedConstraints(constraints)
 
   /**
    * The map of violated constraint associated to the related info.
@@ -121,7 +95,7 @@ internal class DatasetValidator(
   private var correct = 0
 
   /**
-   * Verify the [constraints] on the [sentences].
+   * Verify the linguistic constraints on the [sentences].
    *
    * @return the validation info
    */
@@ -141,7 +115,7 @@ internal class DatasetValidator(
   }
 
   /**
-   * Verify the linguistic [constraints] for a given sentence.
+   * Verify the linguistic constraints for a given sentence.
    *
    * @param sentence a CoNLL sentence to process
    */
@@ -172,10 +146,7 @@ internal class DatasetValidator(
    * @return a sentence validator for the given sentence
    */
   private fun buildSentenceValidator(tokens: List<MorphoSynToken.Single>) = SentenceValidator(
-    simpleConstraints = this.simpleConstraints,
-    baseMorphoUnaryConstraints = this.baseMorphoUnaryConstraints,
-    morphoConstraints = this.morphoConstraints,
-    contextConstraints = this.contextConstraints,
+    groupedConstraint = this.groupedConstraint,
     tokens = tokens,
     morphoPercolator = this.morphoPercolator)
 

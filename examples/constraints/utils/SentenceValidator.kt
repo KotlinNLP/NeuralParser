@@ -17,18 +17,12 @@ import com.kotlinnlp.utils.notEmptyOr
  * A helper that validate constraints on all the morphologies combinations of a list of tokens.
  *
  * @param tokens a list of single morpho-syntactic tokens
- * @param simpleConstraints a set of constraints that do not check any morphology
- * @param morphoUnaryConstraints a set of constraints that check the base morphology of a single token
- * @param morphoConstraints a set of constraints that check the base morphology
- * @param contextConstraints a set of constraints that check the context morphology
+ * @param groupedConstraint linguistic constraints grouped by different types
  * @param morphoPercolator a percolator of morphology properties
  */
 internal class SentenceValidator(
   tokens: List<MorphoSynToken.Single>,
-  private val simpleConstraints: Set<Constraint>,
-  private val baseMorphoUnaryConstraints: Set<Constraint>,
-  private val morphoConstraints: Set<Constraint>,
-  private val contextConstraints: Set<Constraint>,
+  private val groupedConstraint: GroupedConstraints,
   private val morphoPercolator: MorphoPercolator
 ) : ConstraintsValidator(tokens) {
 
@@ -47,8 +41,7 @@ internal class SentenceValidator(
    */
   private val morphoValidator = MorphoValidator(
     tokens = this.tokens,
-    morphoConstraints = this.morphoConstraints,
-    contextConstraints = this.contextConstraints,
+    groupedConstraint = this.groupedConstraint,
     morphoPercolator = this.morphoPercolator)
 
   /**
@@ -58,7 +51,7 @@ internal class SentenceValidator(
    */
   fun validate(): ViolationsMap {
 
-    val violationsMap: ViolationsMap = this.verifyConstraints(this.simpleConstraints).notEmptyOr {
+    val violationsMap: ViolationsMap = this.verifyConstraints(this.groupedConstraint.simple).notEmptyOr {
       this.getBaseMorphoUnaryViolations().notEmptyOr {
         this.getMorphoViolations()
       }
@@ -86,7 +79,7 @@ internal class SentenceValidator(
 
       token.setMorphology(morphology) // set a single morphology per iteration
 
-      val violations: List<Constraint> = this.baseMorphoUnaryConstraints.filter {
+      val violations: List<Constraint> = this.groupedConstraint.baseMorphoUnary.filter {
         !it.isVerified(token = token, tokens = this.tokens, dependencyTree = this.dependencyTree)
       }
 
