@@ -122,6 +122,20 @@ class DoubleConstraint(
   )
 
   /**
+   * Check requirements.
+   */
+  init {
+
+    require(
+      sequenceOf(premise.dependent, condition.governor).all { it == null } ||
+        sequenceOf(premise.governor, condition.dependent).all { it == null } ||
+        sequenceOf(premise.dependent, premise.governor, condition.dependent, condition.governor).all { it != null }
+    ) {
+      "This constraint should be single."
+    }
+  }
+
+  /**
    * Check if this constraint is verified for a given [token].
    *
    * @param token a token
