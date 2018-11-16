@@ -80,26 +80,35 @@ internal class DatasetValidator(
     val conllSentence: CoNLLSentence)
 
   /**
-   * A list of constraints that do not check any morphology.
+   * A set of constraints that do not check any morphology.
    */
-  private val simpleConstraints: List<Constraint> = this.constraints.filter { !it.checkMorpho }
+  private val simpleConstraints: Set<Constraint> = this.constraints.asSequence().filter { !it.checkMorpho }.toSet()
 
   /**
-   * A list of constraints that check the base morphology of a single token.
+   * A set of constraints that check the base morphology of a single token.
    */
-  private val morphoUnaryConstraints: List<Constraint> =
-    this.constraints.filter { it.checkMorpho && !it.checkContext && it.isUnary }
+  private val morphoUnaryConstraints: Set<Constraint> =
+    this.constraints
+      .asSequence()
+      .filter { it !is DoubleConstraint && it.checkMorphoProp && !it.checkContext && it.isUnary }
+      .toSet()
 
   /**
-   * A list of constraints that check the base morphology.
+   * A set of constraints that check the base morphology.
    */
-  private val morphoConstraints: List<Constraint> =
-    this.constraints.filter { it.checkMorpho && !it.checkContext && !it.isUnary }
+  private val morphoConstraints: Set<Constraint> =
+    this.constraints
+      .asSequence()
+      .filter { it.checkMorphoProp && !it.checkContext && !it.isUnary }
+      .toSet()
 
   /**
-   * A list of constraints that check the context morphology.
+   * A set of constraints that check the context morphology.
    */
-  private val contextConstraints: List<Constraint> = this.constraints.filter { it.checkContext }
+  private val contextConstraints: Set<Constraint> = this.constraints
+    .asSequence()
+    .filter { it.checkContext }
+    .toSet()
 
   /**
    * The map of violated constraint associated to the related info.

@@ -26,11 +26,11 @@ internal abstract class ConstraintsValidator(protected val tokens: List<MorphoSy
   /**
    * Apply the given [constraints] to the input sentence.
    *
-   * @param constraints a list of linguistic constraints to verify
+   * @param constraints a set of linguistic constraints to verify
    *
    * @return the map of the linguistic constraints violated by the input sentence, within the given ones
    */
-  protected fun verifyConstraints(constraints: List<Constraint>): ViolationsMap {
+  protected fun verifyConstraints(constraints: Set<Constraint>): ViolationsMap {
 
     val violatedConstraints: MutableMap<Int, MutableList<Constraint>> = mutableMapOf()
 

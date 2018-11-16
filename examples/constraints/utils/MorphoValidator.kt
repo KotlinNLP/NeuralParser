@@ -16,14 +16,14 @@ import com.kotlinnlp.utils.notEmptyOr
  * The validator of a morphological configuration of a sentence.
  *
  * @param tokens the list of single morpho-syntactic tokens that compose a sentence
- * @param morphoConstraints a list of constraints that check the base morphological properties
- * @param contextConstraints a list of constraints that check the context morphology
+ * @param morphoConstraints a set of constraints that check the base morphological properties
+ * @param contextConstraints a set of constraints that check the context morphology
  * @param morphoPercolator a morphological properties percolator
  */
 internal class MorphoValidator(
   tokens: List<MorphoSynToken.Single>,
-  private val morphoConstraints: List<Constraint>,
-  private val contextConstraints: List<Constraint>,
+  private val morphoConstraints: Set<Constraint>,
+  private val contextConstraints: Set<Constraint>,
   private val morphoPercolator: MorphoPercolator
 ) : ConstraintsValidator(tokens) {
 
