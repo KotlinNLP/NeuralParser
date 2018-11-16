@@ -133,11 +133,13 @@ internal fun MorphoSynToken.Single.setMorphologies(morphologies: Sequence<Scored
 /**
  * Collect all the violations returned for each element of this sequence.
  *
+ * @param clearOnValid clear the collected violations the first time the callback returns an empty map (default = true)
  * @param callback a callback called on each element of this sequence, that must return a violations map
  *
  * @return all the violations made during the iteration of this sequence
  */
-internal fun <T, I : Sequence<T>> I.collectViolations(callback: (T) -> ViolationsMap): ViolationsMap {
+internal fun <T, I : Sequence<T>> I.collectViolations(clearOnValid: Boolean = true,
+                                                      callback: (T) -> ViolationsMap): ViolationsMap {
 
   val allViolationsMap: MutableViolationsMap = mutableMapOf()
   val collectedViolations: MutableList<ViolationsMap> = mutableListOf()
@@ -147,7 +149,7 @@ internal fun <T, I : Sequence<T>> I.collectViolations(callback: (T) -> Violation
 
       val violations: ViolationsMap = callback(it)
 
-      if (violations.isEmpty()) {
+      if (violations.isEmpty() && clearOnValid) {
 
         collectedViolations.clear()
 
