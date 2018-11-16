@@ -12,13 +12,13 @@ import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
 import com.kotlinnlp.utils.notEmptyOr
 
 /**
- * The validator of a morphological configuration of a sentence.
+ * The validator of a morphological configuration of a sentence, based on constraints about morphological properties.
  *
  * @param tokens the list of single morpho-syntactic tokens that compose a sentence
  * @param groupedConstraint linguistic constraints grouped by different types
  * @param morphoPercolator a morphological properties percolator
  */
-internal class MorphoValidator(
+internal class MorphoPropertiesValidator(
   tokens: List<MorphoSynToken.Single>,
   private val groupedConstraint: GroupedConstraints,
   private val morphoPercolator: MorphoPercolator

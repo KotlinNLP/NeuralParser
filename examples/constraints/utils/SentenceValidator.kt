@@ -52,7 +52,7 @@ internal class SentenceValidator(
   /**
    * A validator of the morphological configuration of a sentence.
    */
-  private val morphoValidator = MorphoValidator(
+  private val morphoPropertiesValidator = MorphoPropertiesValidator(
     tokens = this.tokens,
     groupedConstraint = this.groupedConstraint,
     morphoPercolator = this.morphoPercolator)
@@ -202,7 +202,7 @@ internal class SentenceValidator(
       }
 
     return this.getAllMorphoConfigurations(validMorphologies).collectViolations {
-      this.morphoValidator.getViolations(it)
+      this.morphoPropertiesValidator.getViolations(it)
     }
   }
 
