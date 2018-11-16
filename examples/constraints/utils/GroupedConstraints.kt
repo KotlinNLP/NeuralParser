@@ -28,7 +28,7 @@ internal class GroupedConstraints(constraints: List<Constraint>) {
   val baseMorphoUnary: Set<Constraint> =
     (constraints - simple)
       .asSequence()
-      .filter { it !is DoubleConstraint && !it.checkMorphoProp && it.isUnary }
+      .filter { !it.checkMorphoProp && it.isUnary }
       .toSet()
 
   /**
@@ -37,8 +37,8 @@ internal class GroupedConstraints(constraints: List<Constraint>) {
   val baseMorphoBinary: Set<DoubleConstraint> =
     (constraints - simple - baseMorphoUnary)
       .asSequence()
-      .mapNotNull { it as? DoubleConstraint }
-      .filter { !it.checkMorphoProp && it.isUnary }
+      .filter { !it.checkMorphoProp && it.isBinary }
+      .map { it as DoubleConstraint }
       .toSet()
 
   /**
