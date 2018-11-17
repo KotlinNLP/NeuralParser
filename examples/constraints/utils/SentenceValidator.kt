@@ -129,51 +129,14 @@ internal class SentenceValidator(
    * @return the map of all the binary linguistic constraints of base morphology violated by the given tokens
    */
   private fun getBaseMorphoBinaryViolations(dependent: MorphoSynToken.Single,
-                                            governor: MorphoSynToken.Single): ViolationsMap {
-
-    val depValidMorphologies: MutableSet<ScoredSingleMorphology> = mutableSetOf()
-    val govValidMorphologies: MutableSet<ScoredSingleMorphology> = mutableSetOf()
-
-    val violations: ViolationsMap = this.getPOSMorphoCombinations(dependent = dependent, governor = governor)
-      .collectViolations { (depMorpho, govMorpho) ->
-
-        dependent.setMorphology(depMorpho) // set a single morphology per iteration
-        governor.setMorphology(govMorpho) // set a single morphology per iteration
-
-        val violatedConstraints: List<Constraint> =
-          this.verifyConstraints(token = dependent, constraints = this.groupedConstraint.baseMorphoBinary)
-
-        if (violatedConstraints.isNotEmpty()) {
-          mapOf(dependent.id to violatedConstraints)
-        } else {
-          depValidMorphologies.add(depMorpho)
-          govValidMorphologies.add(govMorpho)
-          mapOf()
-        }
-      }
-
-    this.validPOSMorphoMap.getValue(dependent.id).retainAll(depValidMorphologies)
-    this.validPOSMorphoMap.getValue(governor.id).retainAll(govValidMorphologies)
-
-    return violations
-  }
-
-  /**
-   * @param dependent a dependent token
-   * @param governor a governor token
-   *
-   * @return the sequence of all the valid POS representative morphologies combinations for the given tokens
-   */
-  private fun getPOSMorphoCombinations(
-    dependent: MorphoSynToken.Single,
-    governor: MorphoSynToken.Single
-  ): Sequence<Pair<ScoredSingleMorphology, ScoredSingleMorphology>> {
-
-    val depMorphologies: Sequence<ScoredSingleMorphology> = this.validPOSMorphoMap.getValue(dependent.id).asSequence()
-    val govMorphologies: Sequence<ScoredSingleMorphology> = this.validPOSMorphoMap.getValue(governor.id).asSequence()
-
-    return depMorphologies.flatMap { depMorpho -> govMorphologies.map { govMorpho -> Pair(depMorpho, govMorpho) } }
-  }
+                                            governor: MorphoSynToken.Single): ViolationsMap =
+    BaseMorphoBinaryValidator(
+      tokens = this.tokens,
+      dependent = dependent,
+      governor = governor,
+      groupedConstraint = this.groupedConstraint,
+      validPOSMorphoMap = this.validPOSMorphoMap
+    ).getViolations()
 
   /**
    * @return the map of all the other linguistic constraints of base morphology violated by the input sentence

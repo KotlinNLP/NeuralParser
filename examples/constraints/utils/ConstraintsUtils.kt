@@ -26,6 +26,11 @@ import java.io.File
 internal typealias MorphoConfiguration = Map<Int, ScoredSingleMorphology>
 
 /**
+ * A pair of two morphologies.
+ */
+internal typealias MorphoPair = Pair<ScoredSingleMorphology, ScoredSingleMorphology>
+
+/**
  * A map of token ids to the list of related linguistic constraints violated.
  */
 internal typealias ViolationsMap = Map<Int, List<Constraint>>
