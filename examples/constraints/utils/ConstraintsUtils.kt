@@ -120,17 +120,6 @@ internal fun MorphoSynToken.Single.setMorphology(morphology: ScoredSingleMorphol
 }
 
 /**
- * Set the given morphologies in this token.
- *
- * @param morphologies the morphologies to set
- */
-internal fun MorphoSynToken.Single.setMorphologies(morphologies: Sequence<ScoredSingleMorphology>) {
-
-  this.removeAllMorphologies()
-  morphologies.forEach { this.addMorphology(it) }
-}
-
-/**
  * Collect all the violations returned for each element of this sequence.
  *
  * @param clearOnValid clear the collected violations the first time the callback returns an empty map (default = true)
