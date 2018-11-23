@@ -51,7 +51,9 @@ class SingleConstraint(
    * Whether this constraint looks at a dependent-governor tokens pair, without requiring to check other tokens
    * properties.
    */
-  override val isBinary: Boolean = this.premise.isBinary && this.condition.isBinary
+  override val isBinary: Boolean = sequenceOf(this.premise, this.condition).let { c ->
+    c.all { it.isUnary || it.isBinary } && c.any { it.isBinary }
+  }
 
   /**
    * Whether this constraint needs to look at the morphology of a token.

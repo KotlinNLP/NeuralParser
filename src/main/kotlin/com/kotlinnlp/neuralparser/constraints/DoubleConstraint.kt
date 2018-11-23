@@ -85,9 +85,7 @@ class DoubleConstraint(
    * Whether this constraint looks at a dependent-governor tokens pair, without requiring to check other tokens
    * properties.
    */
-  override val isBinary: Boolean = (this.premise.isUnary && this.condition.isUnary) ||
-    (this.premise.isUnary && this.condition.isBinary) ||
-    (this.premise.isBinary && this.condition.isUnary)
+  override val isBinary: Boolean = sequenceOf(this.premise, this.condition).all { it.isUnary || it.isBinary }
 
   /**
    * Whether this constraint needs to look at the morphology of a token.
