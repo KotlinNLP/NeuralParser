@@ -8,7 +8,6 @@
 package constraints.utils
 
 import com.kotlinnlp.neuralparser.constraints.Constraint
-import com.kotlinnlp.neuralparser.constraints.DoubleConstraint
 
 /**
  * Constraints grouped by different types.
@@ -34,11 +33,10 @@ internal class GroupedConstraints(constraints: List<Constraint>) {
   /**
    * A set of constraints that check the base morphology of a dependent-governor tokens pair.
    */
-  val baseMorphoBinary: Set<DoubleConstraint> =
+  val baseMorphoBinary: Set<Constraint> =
     (constraints - simple - baseMorphoUnary)
       .asSequence()
       .filter { !it.checkMorphoProp && it.isBinary }
-      .map { it as DoubleConstraint }
       .toSet()
 
   /**
