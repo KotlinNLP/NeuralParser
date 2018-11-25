@@ -10,6 +10,7 @@ package com.kotlinnlp.neuralparser.helpers.preprocessors
 import com.kotlinnlp.neuralparser.language.BaseSentence
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.helpers.labelerselector.NoFilterSelector
 
 /**
  * Pre-process a sentence before the parsing starts.
@@ -35,7 +36,8 @@ class BasePreprocessor : SentencePreprocessor {
   override fun convert(sentence: BaseSentence) = ParsingSentence(
     tokens = sentence.tokens.map {
       ParsingToken(id = it.id, form = it.form, position = it.position)
-    }
+    },
+    labelerSelector = NoFilterSelector
   )
 }
 

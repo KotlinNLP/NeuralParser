@@ -12,6 +12,7 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.neuralparser.language.BaseSentence
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.helpers.labelerselector.NoFilterSelector
 
 /**
  * Pre-process a sentence that has been built from a [CoNLLSentence].
@@ -40,13 +41,16 @@ class CoNLLPreprocessor(private val conllSentences: List<CoNLLSentence>) : Sente
 
     val conllTokens: List<CoNLLToken> = this.conllSentences[sentence.position.index].tokens
 
-    return ParsingSentence(tokens = sentence.tokens.mapIndexed { i, it ->
-      ParsingToken(
-        id = it.id,
-        form = it.form,
-        position = it.position,
-        pos = conllTokens[i].posList
-      )
-    })
+    return ParsingSentence(
+      tokens = sentence.tokens.mapIndexed { i, it ->
+        ParsingToken(
+          id = it.id,
+          form = it.form,
+          position = it.position,
+          pos = conllTokens[i].posList
+        )
+      },
+      labelerSelector = NoFilterSelector
+    )
   }
 }

@@ -14,6 +14,7 @@ import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.neuralparser.language.BaseSentence
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.helpers.labelerselector.MorphoSelector
 
 /**
  * Pre-process a sentence with a morphological analyzer, before the parsing starts.
@@ -51,7 +52,8 @@ class MorphoPreprocessor(private val morphologicalAnalyzer: MorphologicalAnalyze
           position = it.position
         )
       },
-      morphoAnalysis = morphoAnalysis
+      morphoAnalysis = morphoAnalysis,
+      labelerSelector = MorphoSelector
     )
   }
 }
