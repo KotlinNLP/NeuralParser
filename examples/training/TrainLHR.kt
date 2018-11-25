@@ -35,8 +35,6 @@ import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRTrainer
-import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.selector.CompositeSelector
-import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.selector.NoFilterSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.LossCriterionType
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.BaseConverter
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
@@ -130,10 +128,6 @@ private fun buildParser(
   useLabeler = !parsedArgs.noLabeler,
   lossCriterionType = LossCriterionType.Softmax,
   predictPosTags = !parsedArgs.noPosPrediction,
-  labelerSelector = when (parsedArgs.labelerSelectorType) {
-    CommandLineArguments.LabelerSelectorType.NO_FILTER -> NoFilterSelector
-    CommandLineArguments.LabelerSelectorType.COMPOSITE -> CompositeSelector
-  },
   morphoPercolator = MorphoPercolator(language = getLanguageByIso(parsedArgs.langCode))))
 
 /**
