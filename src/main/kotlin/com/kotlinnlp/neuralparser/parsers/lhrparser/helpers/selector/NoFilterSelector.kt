@@ -9,6 +9,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.selector
 
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
+import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 
@@ -36,7 +37,12 @@ object NoFilterSelector : LabelerSelector {
   override fun getValidConfigurations(configurations: List<ScoredGrammar>,
                                       sentence: ParsingSentence,
                                       tokenIndex: Int,
-                                      headIndex: Int?): List<ScoredGrammar> = configurations
+                                      headIndex: Int?): List<ScoredGrammar> {
+
+    val correctDirection = SyntacticDependency.Direction(tokenIndex = tokenIndex, headIndex = headIndex)
+
+    return configurations.filter { it.config.direction == correctDirection }
+  }
 
   /**
    * Return all the morphologies as valid.
@@ -50,5 +56,7 @@ object NoFilterSelector : LabelerSelector {
   override fun getValidMorphologies(sentence: ParsingSentence,
                                     tokenIndex: Int,
                                     configuration: GrammaticalConfiguration): List<Morphology> =
-    sentence.morphoAnalysis!!.allMorphologies[tokenIndex].filter { it.components.size == configuration.components.size }
+    sentence.morphoAnalysis!!.allMorphologies[tokenIndex].filter {
+      it.components.size == configuration.components.size
+    }
 }
