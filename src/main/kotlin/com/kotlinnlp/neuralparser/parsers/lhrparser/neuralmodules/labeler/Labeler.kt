@@ -10,12 +10,14 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.lssencoder.LatentSyntacticStructure
+import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.batchfeedforward.BatchFeedforwardProcessor
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
+import com.kotlinnlp.utils.notEmptyOr
 
 /**
  * The Labeler.
@@ -76,13 +78,29 @@ class Labeler(
    *
    * @param input a [Labeler] input
    *
-   * @return the list of possible grammatical configurations of each input token, sorted by descending score
+   * @return a map of valid grammatical configurations (sorted by descending score) associated to each token id
    */
-  fun predict(input: Input): List<List<ScoredGrammar>> = this.forward(input).map { prediction ->
-    (0 until prediction.length)
-      .map { i -> ScoredGrammar(this.getGrammaticalConfiguration(i), score = prediction[i]) }
-      .sortedWith(compareByDescending { it.score })
+  fun predict(input: Input): Map<Int, List<ScoredGrammar>> {
+
+    return this.forward(input)
+      .asSequence()
+      .map { it.toScoredGrammar() }
+      .withIndex()
+      .associate { (tokenIndex, configurations) ->
+
+        val tokenId: Int = input.dependencyTree.elements[tokenIndex]
+
+        val validConfigurations: List<ScoredGrammar> = (input.lss.sentence as ParsingSentence).getValidConfigurations(
+          tokenIndex = tokenIndex,
+          headIndex = input.dependencyTree.getHead(tokenId)?.let { input.dependencyTree.getPosition(it) },
+          configurations = configurations)
+
+        tokenId to validConfigurations
+          .filter { it.score >= this.model.labelerScoreThreshold }
+          .notEmptyOr { validConfigurations.subList(0, 1) }
+      }
   }
+
 
   /**
    * Return the network outcomes for each token.
@@ -144,6 +162,15 @@ class Labeler(
    * @return the errors of the [Labeler] parameters
    */
   override fun getParamsErrors(copy: Boolean) = LabelerParams(this.processor.getParamsErrors(copy = copy))
+
+  /**
+   * Transform the array resulting from the prediction into a list of [ScoredGrammar].
+   *
+   * @return a list of [ScoredGrammar]
+   */
+  private fun DenseNDArray.toScoredGrammar(): List<ScoredGrammar> = (0 until this.length)
+    .map { i -> ScoredGrammar(getGrammaticalConfiguration(i), score = this[i]) }
+    .sortedWith(compareByDescending { it.score })
 
   /**
    * @param index a prediction index
