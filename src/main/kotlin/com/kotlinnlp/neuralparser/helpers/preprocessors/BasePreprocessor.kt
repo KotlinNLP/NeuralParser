@@ -34,7 +34,7 @@ class BasePreprocessor : SentencePreprocessor {
    */
   override fun convert(sentence: BaseSentence) = ParsingSentence(
     tokens = sentence.tokens.map {
-      ParsingToken(id = it.id, form = it.form, position = it.position, morphologies = emptyList())
+      ParsingToken(id = it.id, form = it.form, position = it.position)
     }
   )
 }

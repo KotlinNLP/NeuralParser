@@ -8,7 +8,7 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters
 
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
-import com.kotlinnlp.linguisticdescription.sentence.token.MorphoToken
+import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.tokensencoder.wrapper.SentenceConverter
@@ -16,7 +16,7 @@ import com.kotlinnlp.tokensencoder.wrapper.SentenceConverter
 /**
  * The sentence converter from a [ParsingSentence] to a [MorphoSentence].
  */
-class MorphoConverter : SentenceConverter<ParsingToken, ParsingSentence, MorphoToken, MorphoSentence<MorphoToken>> {
+class MorphoConverter : SentenceConverter<ParsingToken, ParsingSentence, FormToken, MorphoSentence<FormToken>> {
 
   companion object {
 
@@ -35,5 +35,5 @@ class MorphoConverter : SentenceConverter<ParsingToken, ParsingSentence, MorphoT
    * @return the converted sentence
    */
   @Suppress("UNCHECKED_CAST")
-  override fun convert(sentence: ParsingSentence): MorphoSentence<MorphoToken> = sentence as MorphoSentence<MorphoToken>
+  override fun convert(sentence: ParsingSentence): MorphoSentence<FormToken> = sentence as MorphoSentence<FormToken>
 }

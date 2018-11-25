@@ -45,7 +45,6 @@ class CoNLLPreprocessor(private val conllSentences: List<CoNLLSentence>) : Sente
         id = it.id,
         form = it.form,
         position = it.position,
-        morphologies = emptyList(),
         pos = conllTokens[i].posList
       )
     })
