@@ -9,8 +9,6 @@ package com.kotlinnlp.neuralparser.helpers
 
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
-import com.kotlinnlp.linguisticdescription.POSTag
-import com.kotlinnlp.linguisticdescription.morphology.POS
 import com.kotlinnlp.linguisticdescription.morphology.ScoredMorphology
 import com.kotlinnlp.linguisticdescription.morphology.ScoredSingleMorphology
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
@@ -18,11 +16,9 @@ import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Word
 import com.kotlinnlp.linguisticdescription.sentence.token.WordTrace
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.SyntacticRelation
-import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
-import com.kotlinnlp.linguisticdescription.syntax.SyntacticType
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.selector.LabelerSelector
+import com.kotlinnlp.neuralparser.helpers.labelerselector.LabelerSelector
 
 /**
  * A helper class that builds a [MorphoSynSentence] from a [ParsingSentence] and a [DependencyTree].
@@ -45,11 +41,9 @@ class MorphoSynBuilder(
    * Build the morpho-syntactic sentence using a [LabelerSelector] to select the valid morphologies.
    * TODO: Set missing properties.
    *
-   * @param labelerSelector a labeler prediction selector
-   *
    * @return a new morpho-syntactic sentence built from the given [parsingSentence]
    */
-  fun buildSentence(labelerSelector: LabelerSelector): MorphoSynSentence = MorphoSynSentence(
+  fun buildSentence(): MorphoSynSentence = MorphoSynSentence(
     id = 0,
     confidence = 0.0,
     dateTimes = this.parsingSentence.morphoAnalysis?.dateTimes,
@@ -57,8 +51,7 @@ class MorphoSynBuilder(
     tokens = this.parsingSentence.tokens.mapIndexed { i, it ->
 
       // TODO: set the morphologies scores adding the labeler prediction scores of configurations with the same pos
-      val morphologies: List<ScoredMorphology> = labelerSelector.getValidMorphologies(
-        sentence = this.parsingSentence,
+      val morphologies: List<ScoredMorphology> = this.parsingSentence.getValidMorphologies(
         tokenIndex = i,
         configuration = this.dependencyTree.getConfiguration(it.id)!!
       ).map { ScoredMorphology(components = it.components, score = 1.0) }
@@ -103,6 +96,7 @@ class MorphoSynBuilder(
 
     val parsingToken: ParsingToken = this.parsingSentence.getTokenById(tokenId)
     val config: GrammaticalConfiguration = this.dependencyTree.getConfiguration(tokenId)!!
+    val compositeTokenHandler = CompositeTokenHelper(this.dependencyTree)
 
     val newToken = MorphoSynToken.Composite(
       id = parsingToken.id,
@@ -112,7 +106,10 @@ class MorphoSynBuilder(
         this.buildSingleToken(
           tokenId = tokenId,
           componentId = this.nextAvailableId + i,
-          governorId = this.getComponentGovernorId(tokenId = tokenId, componentIndex = i),
+          governorId = compositeTokenHandler.getComponentGovernorId(
+            tokenId = tokenId,
+            componentIndex = i,
+            prevComponentId = if (i > 0) this.nextAvailableId else null),
           grammaticalComponent = component,
           morphologies = morphologies.map { ScoredSingleMorphology(value = it.components[i], score = it.score) }
         ) as Word
@@ -169,87 +166,4 @@ class MorphoSynBuilder(
         coReferences = null, // TODO: set it
         semanticRelations = null)
   }
-
-  /**
-   * Get the ID of the governor of a component of a composite token.
-   *
-   * @param tokenId the ID of a parsing token
-   * @param componentIndex the index of a component of the token
-   *
-   * @return the ID of the governor of the given component
-   */
-  private fun getComponentGovernorId(tokenId: Int, componentIndex: Int): Int? {
-
-    val governorId: Int? = this.dependencyTree.getHead(tokenId)
-    val config: GrammaticalConfiguration = this.dependencyTree.getConfiguration(tokenId)!!
-
-    val isContin: Boolean = config.isContin()
-    val isPrepArt: Boolean = config.isPrepArt()
-    val isVerbEnclitic: Boolean = config.isVerbEnclitic()
-
-    return when {
-      componentIndex == 0 -> governorId
-      isPrepArt && !isContin -> governorId
-      isPrepArt && isContin -> this.getMultiWordGovernorId(tokenId)
-      isVerbEnclitic -> this.nextAvailableId // the ID of the first component
-      else -> null
-    }
-  }
-
-  /**
-   * Get the governor ID of a multi-word, given one of its tokens and going back through its ancestors in the dependency
-   * tree.
-   * Note: the governor of a multi-word is the governor of it first token.
-   *
-   * @param tokenId the id of a token that is part of a multi-word
-   *
-   * @return the governor id of the multi-word of which the given token is part of
-   */
-  private fun getMultiWordGovernorId(tokenId: Int): Int? {
-
-    var multiWordStartId: Int = this.dependencyTree.getHead(tokenId)!!
-
-    while (this.dependencyTree.getConfiguration(multiWordStartId)!!.isContin())
-      multiWordStartId = this.dependencyTree.getHead(multiWordStartId)!!
-
-    return this.dependencyTree.getHead(multiWordStartId)
-  }
-
-  /**
-   * @return true if this configuration defines the continuation of a multi-word, otherwise false
-   */
-  private fun GrammaticalConfiguration.isContin(): Boolean = this.components.any {
-    it.syntacticDependency.isSubTypeOf(SyntacticType.Contin)
-  }
-
-  /**
-   * @return true if this configuration defines a composite PREP + ART, otherwise false
-   */
-  private fun GrammaticalConfiguration.isPrepArt(): Boolean =
-    this.components.size == 2 &&
-      this.components[0].pos.isSubTypeOf(POS.Prep) &&
-      this.components[1].pos.isSubTypeOf(POS.Art)
-
-  /**
-   * @return true if this configuration defines a composite VERB + PRON, otherwise false
-   */
-  private fun GrammaticalConfiguration.isVerbEnclitic(): Boolean =
-    this.components.size >= 2 &&
-      this.components[0].pos.isSubTypeOf(POS.Verb) &&
-      this.components.subList(1, this.components.size).all { it.pos.isSubTypeOf(POS.Pron) }
-
-  /**
-   * @param syntacticType a syntactic type
-   *
-   * @return true if the type of this dependency is a subtype of the given syntactic type, otherwise false
-   */
-  private fun SyntacticDependency?.isSubTypeOf(syntacticType: SyntacticType): Boolean =
-    this is SyntacticDependency.Base && this.type.isComposedBy(syntacticType)
-
-  /**
-   * @param pos a POS type
-   *
-   * @return true if the type of this POS tag is a subtype of the given POS, otherwise false
-   */
-  private fun POSTag?.isSubTypeOf(pos: POS): Boolean = this is POSTag.Base && this.type.isComposedBy(pos)
 }
