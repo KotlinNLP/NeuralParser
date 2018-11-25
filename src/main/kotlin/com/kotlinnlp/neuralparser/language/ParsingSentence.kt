@@ -7,14 +7,13 @@
 
 package com.kotlinnlp.neuralparser.language
 
+import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
-import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.linguisticdescription.morphology.MorphologicalAnalysis
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
-import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
-import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
 import com.kotlinnlp.neuralparser.helpers.MorphoSynBuilder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 
@@ -22,13 +21,11 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.select
  * The sentence used as input of the [com.kotlinnlp.neuralparser.NeuralParser].
  *
  * @property tokens the list of tokens of the sentence
- * @property multiWords the list of multi-words expressions recognized in the sentence (can be empty)
- * @property dateTimes the list of date-times expressions recognized in the sentence (can be empty)
+ * @property morphoAnalysis the morphological analysis of the tokens (can be null)
  */
 class ParsingSentence(
   override val tokens: List<ParsingToken>,
-  override val multiWords: List<MultiWords> = emptyList(),
-  override val dateTimes: List<DateTime> = emptyList()
+  override val morphoAnalysis: MorphologicalAnalysis? = null
 ) : MorphoSentence<ParsingToken>, SentenceIdentificable<ParsingToken>() {
 
   /**
