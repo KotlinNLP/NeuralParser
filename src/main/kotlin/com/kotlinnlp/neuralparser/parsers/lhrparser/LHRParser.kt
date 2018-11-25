@@ -15,6 +15,7 @@ import com.kotlinnlp.lssencoder.LatentSyntacticStructure
 import com.kotlinnlp.lssencoder.decoder.CosineDecoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
 import com.kotlinnlp.neuralparser.NeuralParser
+import com.kotlinnlp.neuralparser.helpers.MorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.DependencyTreeBuilder
@@ -63,6 +64,9 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
       morphoPercolator = this.model.morphoPercolator
     ).build()
 
-    return sentence.toMorphoSynSentence(dependencyTree = dependencyTree, labelerSelector = this.model.labelerSelector)
+    return MorphoSynBuilder(
+      parsingSentence = sentence,
+      dependencyTree = dependencyTree
+    ).buildSentence(this.model.labelerSelector)
   }
 }
