@@ -22,7 +22,7 @@ import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 import com.kotlinnlp.linguisticdescription.syntax.SyntacticType
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.selector.LabelerSelector
 
 /**
  * A helper class that builds a [MorphoSynSentence] from a [ParsingSentence] and a [DependencyTree].

@@ -35,8 +35,8 @@ import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRTrainer
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.CompositeSelector
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.NoFilterSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.selector.CompositeSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.selector.NoFilterSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.LossCriterionType
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.BaseConverter
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
