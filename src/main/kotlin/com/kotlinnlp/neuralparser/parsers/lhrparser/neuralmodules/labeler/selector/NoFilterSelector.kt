@@ -50,5 +50,5 @@ object NoFilterSelector : LabelerSelector {
   override fun getValidMorphologies(sentence: ParsingSentence,
                                     tokenIndex: Int,
                                     configuration: GrammaticalConfiguration): List<Morphology> =
-    sentence.tokens[tokenIndex].morphologies.filter { it.components.size == configuration.components.size }
+    sentence.morphoAnalysis!!.allMorphologies[tokenIndex].filter { it.components.size == configuration.components.size }
 }

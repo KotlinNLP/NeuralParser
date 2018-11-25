@@ -11,10 +11,8 @@ import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.morphology.*
 import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
-import com.kotlinnlp.linguisticdescription.syntax.dependencies.Top
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Unknown
 import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 import com.kotlinnlp.utils.notEmptyOr
 
@@ -23,80 +21,6 @@ import com.kotlinnlp.utils.notEmptyOr
  * Base format.
  */
 object CompositeSelector : LabelerSelector {
-
-  /**
-   * A helper that manages the morphologies of a [ParsingToken] and checks their compatibilities with a
-   * [GrammaticalConfiguration].
-   *
-   * @param sentence a sentence
-   * @param tokenIndex the index of a token of the sentence
-   */
-  private class TokenMorphologies(sentence: ParsingSentence, tokenIndex: Int) {
-
-    /**
-     * The focus token.
-     */
-    val token: ParsingToken = sentence.tokens[tokenIndex]
-
-    /**
-     * The union of the [token] morphologies and the morphologies of multi-words that the [token] introduces.
-     */
-    val startMorphologies: List<Morphology> = this.token.morphologies + sentence.getTokenStartMWMorphologies(tokenIndex)
-
-    /**
-     * The morphologies of multi-words that involve the [token], but do not start with.
-     */
-    val middleMWMorphologies: List<Morphology> = sentence.getTokenMiddleMWMorphologies(tokenIndex)
-
-    /**
-     * All the possible morphologies of the token (multi-words included).
-     */
-    val possibleMorphologies: List<Morphology> = this.startMorphologies + this.middleMWMorphologies
-
-    /**
-     * Check whether the morphologies of the [token] are compatible with the given configuration.
-     * Middle multi-words morphologies are compared partially (only with the "CONTIN" components.
-     *
-     * @param configuration a grammatical configuration
-     *
-     * @return true if the morphologies of the [token] are compatible with the given configuration, otherwise false
-     */
-    fun areCompatible(configuration: GrammaticalConfiguration): Boolean =
-      this.startMorphologies.any { configuration.isCompatible(it) } ||
-        this.middleMWMorphologies.any { configuration.isPartiallyCompatible(it) }
-
-    /**
-     * @param configuration a grammatical configuration
-     *
-     * @return the [token] morphologies that are compatible with the given configuration
-     */
-    fun getCompatible(configuration: GrammaticalConfiguration): List<Morphology> =
-      this.possibleMorphologies.filter { configuration.isCompatible(it) }
-
-    /**
-     * Return the morphologies of the multi-words that start with a given token.
-     *
-     * @param tokenIndex the index of the token
-     *
-     * @return a list of morphologies
-     */
-    private fun ParsingSentence.getTokenStartMWMorphologies(tokenIndex: Int): List<Morphology> =
-      this.multiWords
-        .filter { tokenIndex == it.startToken }
-        .flatMap { it.morphologies }
-
-    /**
-     * Return the morphologies of the multi-words that involve a given token, but do not start with it.
-     *
-     * @param tokenIndex the index of the token
-     *
-     * @return a list of morphologies
-     */
-    private fun ParsingSentence.getTokenMiddleMWMorphologies(tokenIndex: Int): List<Morphology> =
-      this.multiWords
-        .filter { tokenIndex in (it.startToken + 1)..it.endToken }
-        .flatMap { it.morphologies }
-  }
 
   /**
    * Private val used to serialize the class (needed by Serializable).
@@ -119,22 +43,18 @@ object CompositeSelector : LabelerSelector {
                                       tokenIndex: Int,
                                       headIndex: Int?): List<ScoredGrammar> {
 
-    val tokenMorphologies = TokenMorphologies(sentence = sentence, tokenIndex = tokenIndex)
-
-    val correctDirection: SyntacticDependency.Direction =
-      getDependencyDirection(tokenIndex = tokenIndex, headIndex = headIndex)
-
-    // The grammatical configurations compatible with the current dependency direction.
+    val possibleMorphologies: Morphologies = sentence.morphoAnalysis!!.allMorphologies[tokenIndex]
+    val correctDirection = SyntacticDependency.Direction(tokenIndex = tokenIndex, headIndex = headIndex)
     val possibleConfigurations: List<ScoredGrammar> = configurations.filter { it.config.direction == correctDirection }
     val worstScore: Double = configurations.last().score
 
-    return if (tokenMorphologies.possibleMorphologies.isNotEmpty())
+    return if (possibleMorphologies.isNotEmpty())
       possibleConfigurations
-        .filter { tokenMorphologies.areCompatible(it.config) }
+        .filter { sentence.areConfigurationCompatible(c = it.config, tokenIndex = tokenIndex) }
         .notEmptyOr {
-          listOf(
-            tokenMorphologies.possibleMorphologies.first()
-              .buildUnknownConfig(tokenIndex = tokenIndex, headIndex = headIndex, score = worstScore))
+          listOf(ScoredGrammar(
+            config = possibleMorphologies.first().buildUnknownConfig(correctDirection),
+            score = worstScore))
         }
     else
       possibleConfigurations.filter { it.config.isSingleContentWord() }.notEmptyOr {
@@ -157,74 +77,31 @@ object CompositeSelector : LabelerSelector {
    */
   override fun getValidMorphologies(sentence: ParsingSentence,
                                     tokenIndex: Int,
-                                    configuration: GrammaticalConfiguration): List<Morphology> {
+                                    configuration: GrammaticalConfiguration): Morphologies {
 
-    val possibleMorphologies: List<Morphology> =
-      TokenMorphologies(sentence = sentence, tokenIndex = tokenIndex).getCompatible(configuration)
+    val possibleMorphologies = sentence.getCompatibleMorphologies(c = configuration, tokenIndex = tokenIndex)
 
     return when {
 
       possibleMorphologies.isNotEmpty() -> possibleMorphologies
 
-      configuration.type == GrammaticalConfiguration.Type.Single &&
-        configuration.components.single().pos != null -> {
+      configuration.type == GrammaticalConfiguration.Type.Single -> {
 
-        val pos: POSTag.Base = configuration.components.single().pos as POSTag.Base
+        val pos: POSTag.Base = checkNotNull(configuration.components.single().pos as? POSTag.Base) {
+          "The POS must be not null."
+        }
 
         require(pos.type.isContentWord) {
           "Grammatical configuration for tokens without morphological analysis must define a content word."
         }
 
-        listOf(Morphology(
-          SingleMorphology(lemma = sentence.tokens[tokenIndex].form, pos = pos.type, allowIncompleteProperties = true)))
+        Morphologies(Morphology(SingleMorphology(
+          lemma = sentence.tokens[tokenIndex].form,
+          pos = pos.type,
+          allowIncompleteProperties = true)))
       }
 
-      else -> listOf()
+      else -> Morphologies()
     }
   }
-
-  /**
-   * Build a grammatical configuration from this [Morphology] with TOP or UNKNOWN dependency.
-   *
-   * @param tokenIndex the index of the token to which the deprel must be assigned
-   * @param headIndex the index of the token head (can be null)
-   * @param score the score to assign to the new deprel
-   *
-   * @return a new grammatical configuration built from this morphology
-   */
-  private fun Morphology.buildUnknownConfig(tokenIndex: Int, headIndex: Int?, score: Double): ScoredGrammar {
-
-    val direction: SyntacticDependency.Direction =
-      getDependencyDirection(tokenIndex = tokenIndex, headIndex = headIndex)
-
-    return ScoredGrammar(
-      config = GrammaticalConfiguration(components = this.components.mapIndexed { i, it ->
-        GrammaticalConfiguration.Component(
-          syntacticDependency = if (i == 0) Top(direction) else Unknown(direction),
-          pos = POSTag.Base(POS.byBaseAnnotation(it.pos.baseAnnotation)))
-      }),
-      score = score
-    )
-  }
-
-  /**
-   * Get the direction of a syntactic dependency.
-   *
-   * @param tokenIndex the index of the token to which the deprel must be assigned
-   * @param headIndex the index of the token head (can be null)
-   *
-   * @return the direction of the syntactic dependency between the given token and its head
-   */
-  private fun getDependencyDirection(tokenIndex: Int, headIndex: Int?): SyntacticDependency.Direction = when {
-    headIndex == null -> SyntacticDependency.Direction.ROOT
-    tokenIndex < headIndex -> SyntacticDependency.Direction.LEFT
-    else -> SyntacticDependency.Direction.RIGHT
-  }
-
-  /**
-   * @return whether this deprel defines a content word with a single morphology
-   */
-  private fun GrammaticalConfiguration.isSingleContentWord(): Boolean =
-    this.type == GrammaticalConfiguration.Type.Single
-      && (this.components.single().pos as POSTag.Base).type.isContentWord
 }
