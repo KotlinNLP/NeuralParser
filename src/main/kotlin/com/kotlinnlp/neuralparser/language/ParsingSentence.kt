@@ -9,7 +9,9 @@ package com.kotlinnlp.neuralparser.language
 
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.MorphologicalAnalysis
+import com.kotlinnlp.linguisticdescription.morphology.Morphologies
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
 
@@ -22,4 +24,29 @@ import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
 class ParsingSentence(
   override val tokens: List<ParsingToken>,
   override val morphoAnalysis: MorphologicalAnalysis? = null
-) : MorphoSentence<ParsingToken>, SentenceIdentificable<ParsingToken>()
+) : MorphoSentence<ParsingToken>, SentenceIdentificable<ParsingToken>() {
+
+  /**
+   * Check whether the morphologies of the token are compatible with the given configuration [c].
+   * Middle multi-words morphologies are compared partially (only with the "CONTIN" components).
+   *
+   * @param c the grammatical configuration
+   * @param tokenIndex the index of a token of the sentence
+   *
+   * @return true if the morphologies of the token are compatible with the given configuration, otherwise false
+   */
+  fun areConfigurationCompatible(c: GrammaticalConfiguration, tokenIndex: Int): Boolean =
+    this.morphoAnalysis!!.startMorphologies[tokenIndex].any { c.isCompatible(it) } ||
+      this.morphoAnalysis.middleMWMorphologies[tokenIndex].any { c.isPartiallyCompatible(it) }
+
+  /**
+   * @param c the grammatical configuration
+   * @param tokenIndex the index of a token of the sentence
+   *
+   * @return the token morphologies (including the multi-words) that are compatible with the given configuration
+   */
+  fun getCompatibleMorphologies(c: GrammaticalConfiguration, tokenIndex: Int) = Morphologies(
+    this.morphoAnalysis!!.allMorphologies[tokenIndex].filter {
+      c.isCompatible(it) // TODO: || c.isPartiallyCompatible(it)
+    })
+}
