@@ -52,7 +52,7 @@ class MorphoSynBuilder(
   fun buildSentence(labelerSelector: LabelerSelector): MorphoSynSentence = MorphoSynSentence(
     id = 0,
     confidence = 0.0,
-    dateTimes = if (this.parsingSentence.dateTimes.isNotEmpty()) this.parsingSentence.dateTimes else null,
+    dateTimes = this.parsingSentence.morphoAnalysis?.dateTimes,
     entities = null,
     tokens = this.parsingSentence.tokens.mapIndexed { i, it ->
 
