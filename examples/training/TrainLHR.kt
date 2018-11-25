@@ -9,15 +9,12 @@ package training
 
 import buildSentencePreprocessor
 import com.kotlinnlp.languagemodel.CharLM
-import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
-import com.kotlinnlp.linguisticdescription.morphology.Morphology
+import com.kotlinnlp.linguisticdescription.morphology.MorphologicalAnalysis
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
 import com.kotlinnlp.linguisticdescription.sentence.RealSentence
-import com.kotlinnlp.linguisticdescription.sentence.properties.MultiWords
-import com.kotlinnlp.linguisticdescription.sentence.properties.datetime.DateTime
-import com.kotlinnlp.linguisticdescription.sentence.token.MorphoToken
+import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.lssencoder.LSSModel
@@ -286,21 +283,14 @@ private fun buildTokensEncoderWrapperModel(
     }
   }
 
-/**
- * A concrete [MorphoToken] class.
- */
-private class MorphoTokenClass(override val morphologies: List<Morphology>) : MorphoToken {
-  override val pos: List<POSTag>? = null
-}
 
 /**
  * A concrete [MorphoSentence] class.
  */
 private class MorphoSentenceClass(
-  override val dateTimes: List<DateTime>?,
-  override val multiWords: List<MultiWords>?,
-  override val tokens: List<MorphoToken>
-) : MorphoSentence<MorphoToken>
+  override val tokens: List<FormToken>,
+  override val morphoAnalysis: MorphologicalAnalysis?
+) : MorphoSentence<FormToken>
 
 /**
  * Build a [MorphoSentence] from this [CoNLLSentence].
@@ -322,11 +312,7 @@ private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAn
 
   val analysis = analyzer.analyze(sentence)
 
-  return MorphoSentenceClass(
-    tokens = analysis.tokens.map { MorphoTokenClass(it ?: emptyList()) },
-    dateTimes = analysis.dateTimes,
-    multiWords = analysis.multiWords
-  )
+  return MorphoSentenceClass(tokens = tokens, morphoAnalysis = analysis)
 }
 
 /**
