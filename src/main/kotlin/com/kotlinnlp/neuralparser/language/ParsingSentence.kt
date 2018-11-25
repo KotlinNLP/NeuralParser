@@ -12,18 +12,23 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.MorphologicalAnalysis
 import com.kotlinnlp.linguisticdescription.morphology.Morphologies
+import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
+import com.kotlinnlp.neuralparser.helpers.labelerselector.LabelerSelector
+import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 
 /**
  * The sentence used as input of the [com.kotlinnlp.neuralparser.NeuralParser].
  *
  * @property tokens the list of tokens of the sentence
  * @property morphoAnalysis the morphological analysis of the tokens (can be null)
+ * @param labelerSelector the labeler selector used to select the grammatical configurations compatible with the sentence
  */
 class ParsingSentence(
   override val tokens: List<ParsingToken>,
-  override val morphoAnalysis: MorphologicalAnalysis? = null
+  override val morphoAnalysis: MorphologicalAnalysis? = null,
+  private val labelerSelector: LabelerSelector
 ) : MorphoSentence<ParsingToken>, SentenceIdentificable<ParsingToken>() {
 
   /**
@@ -49,4 +54,37 @@ class ParsingSentence(
     this.morphoAnalysis!!.allMorphologies[tokenIndex].filter {
       c.isCompatible(it) // TODO: || c.isPartiallyCompatible(it)
     })
+
+  /**
+   * Get the list of scored grammatical configurations that are valid for a given attachment.
+   *
+   * @param tokenIndex the index of the token to which one of the [configurations] must be assigned
+   * @param headIndex the index of the token head (can be null)
+   * @param configurations the list of grammatical configurations, sorted by descending score
+   *
+   * @return the valid grammatical configurations for the given attachment
+   */
+  fun getValidConfigurations(tokenIndex: Int,
+                             headIndex: Int?,
+                             configurations: List<ScoredGrammar>): List<ScoredGrammar> =
+    this.labelerSelector.getValidConfigurations(
+      sentence = this,
+      tokenIndex = tokenIndex,
+      headIndex = headIndex,
+      configurations = configurations)
+
+  /**
+   * Get the morphologies of a given token that are compatible with the given grammatical configuration.
+   *
+   * @param tokenIndex the index of a token of the sentence
+   * @param configuration the grammatical configuration of the token
+   *
+   * @return the morphologies compatible with the given grammatical configuration
+   */
+  fun getValidMorphologies(tokenIndex: Int,
+                           configuration: GrammaticalConfiguration): List<Morphology> =
+    this.labelerSelector.getValidMorphologies(
+      sentence = this,
+      tokenIndex = tokenIndex,
+      configuration = configuration)
 }
