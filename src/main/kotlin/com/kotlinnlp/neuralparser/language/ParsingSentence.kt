@@ -7,15 +7,11 @@
 
 package com.kotlinnlp.neuralparser.language
 
-import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.linguisticdescription.morphology.MorphologicalAnalysis
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
-import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
-import com.kotlinnlp.neuralparser.helpers.MorphoSynBuilder
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
 
 /**
  * The sentence used as input of the [com.kotlinnlp.neuralparser.NeuralParser].
@@ -26,14 +22,4 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.select
 class ParsingSentence(
   override val tokens: List<ParsingToken>,
   override val morphoAnalysis: MorphologicalAnalysis? = null
-) : MorphoSentence<ParsingToken>, SentenceIdentificable<ParsingToken>() {
-
-  /**
-   * @param dependencyTree the dependency tree from which to extract the dependency relations
-   * @param labelerSelector a labeler prediction selector
-   *
-   * @return a new [MorphoSynSentence]
-   */
-  fun toMorphoSynSentence(dependencyTree: DependencyTree, labelerSelector: LabelerSelector): MorphoSynSentence =
-    MorphoSynBuilder(parsingSentence = this, dependencyTree = dependencyTree).buildSentence(labelerSelector)
-}
+) : MorphoSentence<ParsingToken>, SentenceIdentificable<ParsingToken>()
