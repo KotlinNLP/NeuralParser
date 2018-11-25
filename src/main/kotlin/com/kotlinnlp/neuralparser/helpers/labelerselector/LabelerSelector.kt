@@ -5,24 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * -----------------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.selector
+package com.kotlinnlp.neuralparser.helpers.labelerselector
 
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.Morphology
-import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
+import java.io.Serializable
 
 /**
- * The selector that does not filter.
+ * The selector of valid configurations of the labeler and compatible morphologies.
  */
-object NoFilterSelector : LabelerSelector {
-
-  /**
-   * Private val used to serialize the class (needed by Serializable).
-   */
-  @Suppress("unused")
-  private const val serialVersionUID: Long = 1L
+interface LabelerSelector : Serializable {
 
   /**
    * Get the list of scored grammatical configurations that are valid for a given attachment.
@@ -34,29 +28,21 @@ object NoFilterSelector : LabelerSelector {
    *
    * @return the valid grammatical configurations for the given attachment
    */
-  override fun getValidConfigurations(configurations: List<ScoredGrammar>,
-                                      sentence: ParsingSentence,
-                                      tokenIndex: Int,
-                                      headIndex: Int?): List<ScoredGrammar> {
-
-    val correctDirection = SyntacticDependency.Direction(tokenIndex = tokenIndex, headIndex = headIndex)
-
-    return configurations.filter { it.config.direction == correctDirection }
-  }
+  fun getValidConfigurations(configurations: List<ScoredGrammar>,
+                             sentence: ParsingSentence,
+                             tokenIndex: Int,
+                             headIndex: Int?): List<ScoredGrammar>
 
   /**
-   * Return all the morphologies as valid.
+   * Get the morphologies of a given token that are compatible with the given grammatical configuration.
    *
    * @param sentence the input sentence
    * @param tokenIndex the index of a token of the sentence
    * @param configuration the grammatical configuration of the token
    *
-   * @return all the given morphologies
+   * @return the morphologies compatible with the given grammatical configuration
    */
-  override fun getValidMorphologies(sentence: ParsingSentence,
-                                    tokenIndex: Int,
-                                    configuration: GrammaticalConfiguration): List<Morphology> =
-    sentence.morphoAnalysis!!.allMorphologies[tokenIndex].filter {
-      it.components.size == configuration.components.size
-    }
+  fun getValidMorphologies(sentence: ParsingSentence,
+                           tokenIndex: Int,
+                           configuration: GrammaticalConfiguration): List<Morphology>
 }

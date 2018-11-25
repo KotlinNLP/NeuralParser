@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * -----------------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.selector
+package com.kotlinnlp.neuralparser.helpers.labelerselector
 
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.POSTag
@@ -20,7 +20,7 @@ import com.kotlinnlp.utils.notEmptyOr
  * The selector to use when the labeler predictions are defined as combinations of POS and syntactic types in the
  * Base format.
  */
-object CompositeSelector : LabelerSelector {
+object MorphoSelector : LabelerSelector {
 
   /**
    * Private val used to serialize the class (needed by Serializable).
