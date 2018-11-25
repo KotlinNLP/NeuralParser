@@ -18,7 +18,6 @@ import com.kotlinnlp.linguisticdescription.syntax.dependencies.Unknown
 import com.kotlinnlp.neuralparser.helpers.MorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
-import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.selector.LabelerSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 import com.kotlinnlp.utils.BeamManager
 
@@ -29,7 +28,6 @@ import com.kotlinnlp.utils.BeamManager
  * @param sentence a parsing sentence
  * @param dependencyTree the dependency tree of the given sentence
  * @param constraints a list of linguistic constraints
- * @param labelerSelector a labeler selector used to build a [MorphoSynToken]
  * @param morphoPercolator a percolator of morphology properties
  * @param scoresMap a map of valid deprels (sorted by descending score) associated to each token id
  * @param maxBeamSize the max number of parallel states that the beam supports (-1 = infinite)
@@ -40,7 +38,6 @@ internal class LabelsSolver(
   private val sentence: ParsingSentence,
   private val dependencyTree: DependencyTree,
   private val constraints: List<Constraint>,
-  private val labelerSelector: LabelerSelector,
   private val morphoPercolator: MorphoPercolator,
   scoresMap: Map<Int, List<ScoredGrammar>>,
   maxBeamSize: Int = 5,
@@ -108,7 +105,7 @@ internal class LabelsSolver(
       val morphoSynSentence = MorphoSynBuilder(
         parsingSentence = sentence,
         dependencyTree = dependencyTree
-      ).buildSentence(labelerSelector)
+      ).buildSentence()
 
       val flatIdsAndTokens: List<Pair<Int, MorphoSynToken.Single>> = this.flatTokens(morphoSynSentence.tokens)
       val flatTokens: List<MorphoSynToken.Single> = flatIdsAndTokens.map { it.second }
