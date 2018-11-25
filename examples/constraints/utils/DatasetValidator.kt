@@ -192,26 +192,20 @@ internal class DatasetValidator(
    */
   private fun getValidMorphologies(configuration: GrammaticalConfiguration,
                                    tokenIndex: Int,
-                                   parsingSentence: ParsingSentence): List<Morphology> {
+                                   parsingSentence: ParsingSentence): Morphologies {
 
-    val token: ParsingToken = parsingSentence.tokens[tokenIndex]
-    val tokenMorphologies: List<Morphology> =
-      token.morphologies +
-        parsingSentence.multiWords.filter { tokenIndex in it.startToken..it.endToken }.flatMap { it.morphologies }
+    return parsingSentence.getCompatibleMorphologies(c = configuration, tokenIndex = tokenIndex).notEmptyOr {
 
-    return tokenMorphologies
-      .filter { configuration.isCompatible(it) }
-      .notEmptyOr {
+      val posTypes: List<POS> = configuration.components.map { (it.pos as POSTag.Base).type }
+      val token: ParsingToken = parsingSentence.tokens[tokenIndex]
 
-        val posTypes: List<POS> = configuration.components.map { (it.pos as POSTag.Base).type }
+      if (!posTypes.first().isComposedBy(POS.Noun))
+        println("\n[WARNING] No morphology found for token \"${token.form}\" with pos ${posTypes.joinToString("+")}.")
 
-        if (!posTypes.first().isComposedBy(POS.Noun))
-          println("\n[WARNING] No morphology found for token \"${token.form}\" with pos ${posTypes.joinToString("+")}.")
-
-        // A generic morphology is created when the morphological analyzer did not find it
-        listOf(Morphology(
-          components = posTypes.map { SingleMorphology(lemma = token.form, pos = it, allowIncompleteProperties = true) }
-        ))
-      }
+      // A generic morphology is created when the morphological analyzer did not find it
+      Morphologies(Morphology(posTypes.map {
+        SingleMorphology(lemma = token.form, pos = it, allowIncompleteProperties = true)
+      }))
+    }
   }
 }
