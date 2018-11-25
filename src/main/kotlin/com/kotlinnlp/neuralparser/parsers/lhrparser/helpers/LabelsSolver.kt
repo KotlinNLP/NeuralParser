@@ -16,6 +16,7 @@ import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.Word
 import com.kotlinnlp.linguisticdescription.sentence.token.WordTrace
 import com.kotlinnlp.linguisticdescription.syntax.dependencies.Unknown
+import com.kotlinnlp.neuralparser.helpers.MorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.selector.LabelerSelector
@@ -105,8 +106,11 @@ internal class LabelsSolver(
      */
     private fun solveMorphology() {
 
-      val morphoSynSentence: MorphoSynSentence =
-        sentence.toMorphoSynSentence(dependencyTree = dependencyTree, labelerSelector = labelerSelector)
+      val morphoSynSentence = MorphoSynBuilder(
+        parsingSentence = sentence,
+        dependencyTree = dependencyTree
+      ).buildSentence(labelerSelector)
+
       val flatIdsAndTokens: List<Pair<Int, MorphoSynToken.Single>> = this.flatTokens(morphoSynSentence.tokens)
       val flatTokens: List<MorphoSynToken.Single> = flatIdsAndTokens.map { it.second }
 
