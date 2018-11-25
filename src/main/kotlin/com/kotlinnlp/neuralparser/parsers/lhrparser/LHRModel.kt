@@ -15,8 +15,6 @@ import com.kotlinnlp.neuralparser.language.CorpusDictionary
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
-import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.selector.LabelerSelector
-import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.selector.NoFilterSelector
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkModel
@@ -32,7 +30,6 @@ import java.io.InputStream
  * @property useLabeler whether to use the labeler
  * @property lossCriterionType the training mode of the labeler
  * @property predictPosTags whether to predict the POS tags together with the Deprels
- * @property labelerSelector the labeler prediction selector (no filter by default)
  * @property morphoPercolator a percolator of morphology properties
  */
 class LHRModel(
@@ -41,7 +38,6 @@ class LHRModel(
   val useLabeler: Boolean,
   val lossCriterionType: LossCriterionType,
   val predictPosTags: Boolean,
-  val labelerSelector: LabelerSelector = NoFilterSelector,
   val morphoPercolator: MorphoPercolator
 ) : NeuralParserModel(lssModel.language) {
 
@@ -64,18 +60,14 @@ class LHRModel(
   }
 
   /**
-   * The score threshold above which to consider a labeler output valid.
-   */
-  val labelerScoreThreshold = 1.0 / corpusDictionary.grammaticalConfigurations.size
-
-  /**
    * The model of the Labeler.
    */
   val labelerModel: LabelerModel? = if (this.useLabeler)
     LabelerModel(
       contextEncodingSize = this.lssModel.contextVectorsSize,
       grammaticalConfigurations = corpusDictionary.grammaticalConfigurations,
-      lossCriterionType = this.lossCriterionType)
+      lossCriterionType = this.lossCriterionType,
+      labelerScoreThreshold = 1.0 / corpusDictionary.grammaticalConfigurations.size)
   else
     null
 
