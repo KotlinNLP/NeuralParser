@@ -26,14 +26,11 @@ import java.io.Serializable
  * @property contextEncodingSize the size of the token encoding vectors
  * @property grammaticalConfigurations the dictionary set of all the possible grammatical configurations
  * @property lossCriterionType the training mode
- * @property labelerScoreThreshold the score threshold above which to consider a labeler output valid
- *                                 (It makes sense with the Softmax activation function)
  */
 class LabelerModel(
   val contextEncodingSize: Int,
   val grammaticalConfigurations: DictionarySet<GrammaticalConfiguration>,
-  val lossCriterionType: LossCriterionType,
-  val labelerScoreThreshold: Double
+  val lossCriterionType: LossCriterionType
 ) : Serializable {
 
   companion object {
@@ -44,6 +41,12 @@ class LabelerModel(
     @Suppress("unused")
     private const val serialVersionUID: Long = 1L
   }
+
+  /**
+   * The score threshold above which to consider a labeler output valid.
+   * It makes sense with the Softmax activation function.
+   */
+  internal val labelerScoreThreshold: Double = 1.0 / this.grammaticalConfigurations.size
 
   /**
    * The Network model that predicts the grammatical configurations.

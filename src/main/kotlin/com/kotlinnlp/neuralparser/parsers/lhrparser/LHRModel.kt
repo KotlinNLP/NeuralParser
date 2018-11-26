@@ -66,8 +66,7 @@ class LHRModel(
     LabelerModel(
       contextEncodingSize = this.lssModel.contextVectorsSize,
       grammaticalConfigurations = corpusDictionary.grammaticalConfigurations,
-      lossCriterionType = this.lossCriterionType,
-      labelerScoreThreshold = 1.0 / corpusDictionary.grammaticalConfigurations.size)
+      lossCriterionType = this.lossCriterionType)
   else
     null
 
