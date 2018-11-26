@@ -12,7 +12,6 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.MorphologicalAnalysis
 import com.kotlinnlp.linguisticdescription.morphology.Morphologies
-import com.kotlinnlp.linguisticdescription.morphology.Morphology
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
 import com.kotlinnlp.neuralparser.helpers.labelerselector.LabelerSelector
@@ -82,7 +81,7 @@ class ParsingSentence(
    * @return the morphologies compatible with the given grammatical configuration
    */
   fun getValidMorphologies(tokenIndex: Int,
-                           configuration: GrammaticalConfiguration): List<Morphology> =
+                           configuration: GrammaticalConfiguration): Morphologies =
     this.labelerSelector.getValidMorphologies(
       sentence = this,
       tokenIndex = tokenIndex,

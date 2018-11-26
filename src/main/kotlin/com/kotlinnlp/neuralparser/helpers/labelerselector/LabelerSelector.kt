@@ -8,7 +8,7 @@
 package com.kotlinnlp.neuralparser.helpers.labelerselector
 
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
-import com.kotlinnlp.linguisticdescription.morphology.Morphology
+import com.kotlinnlp.linguisticdescription.morphology.Morphologies
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 import java.io.Serializable
@@ -44,5 +44,5 @@ interface LabelerSelector : Serializable {
    */
   fun getValidMorphologies(sentence: ParsingSentence,
                            tokenIndex: Int,
-                           configuration: GrammaticalConfiguration): List<Morphology>
+                           configuration: GrammaticalConfiguration): Morphologies
 }

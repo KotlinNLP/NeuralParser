@@ -8,7 +8,7 @@
 package com.kotlinnlp.neuralparser.helpers.labelerselector
 
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
-import com.kotlinnlp.linguisticdescription.morphology.Morphology
+import com.kotlinnlp.linguisticdescription.morphology.Morphologies
 import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
@@ -55,8 +55,9 @@ object NoFilterSelector : LabelerSelector {
    */
   override fun getValidMorphologies(sentence: ParsingSentence,
                                     tokenIndex: Int,
-                                    configuration: GrammaticalConfiguration): List<Morphology> =
-    sentence.morphoAnalysis!!.allMorphologies[tokenIndex].filter {
+                                    configuration: GrammaticalConfiguration) = Morphologies(
+    sentence.morphoAnalysis?.allMorphologies?.get(tokenIndex)?.filter {
       it.components.size == configuration.components.size
-    }
+    } ?: emptyList()
+  )
 }
