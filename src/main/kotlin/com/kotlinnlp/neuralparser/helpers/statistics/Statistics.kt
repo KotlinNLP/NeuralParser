@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.neuralparser.helpers.statistics
 
-import com.kotlinnlp.utils.StatMetric
+import com.kotlinnlp.utils.stats.StatMetric
 
 /**
  * Parsing statistics, including ones calculated without considering the punctuation.
