@@ -21,7 +21,7 @@ data class StatMetric(val count: Int, val total: Int) {
   val perc: Double = count.toDouble() / total
 
   /**
-   * The percentage of [count] against the [total], with a 100x factor.
+   * @return the string representation of this metric
    */
-  val perc100: Double = 100 * this.perc
+  override fun toString(): String = "%5.2f %% (%d / %d)".format(100 * this.perc, this.count, this.total)
 }

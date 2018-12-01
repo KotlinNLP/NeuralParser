@@ -29,21 +29,13 @@ open class BaseStatistics(
    * @return this statistics formatted into a string
    */
   override fun toString(): String = """
-    - Labeled   attachment score:          %5.2f %% (%d / %d)
-    - Unlabeled attachment score:          %5.2f %% (%d / %d)
-    - Deprel  accuracy score:              %5.2f %% (%d / %d)
-    - POS tag accuracy score:              %5.2f %% (%d / %d)
-    - Sentence labeled   attachment score: %5.2f %% (%d / %d)
-    - Sentence unlabeled attachment score: %5.2f %% (%d / %d)
+    - Labeled   attachment score:          $las
+    - Unlabeled attachment score:          $uas
+    - Deprel  accuracy score:              $ds
+    - POS tag accuracy score:              $ps
+    - Sentence labeled   attachment score: $slas
+    - Sentence unlabeled attachment score: $suas
     """
     .removePrefix("\n")
     .trimIndent()
-    .format(
-      this.las.perc100, this.las.count, this.las.total,
-      this.uas.perc100, this.uas.count, this.uas.total,
-      this.ds.perc100, this.ds.count, this.ds.total,
-      this.ps.perc100, this.ps.count, this.ps.total,
-      this.slas.perc100, this.slas.count, this.slas.total,
-      this.suas.perc100, this.suas.count, this.suas.total
-    )
 }
