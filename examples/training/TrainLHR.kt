@@ -258,7 +258,7 @@ private fun buildTokensEncoderWrapperModel(
         language = getLanguageByIso(parsedArgs.langCode),
         dictionary = morphologyDictionary!!)
 
-      val lexiconDictionary = LexiconDictionary.load(parsedArgs.lexiconDictionaryPath!!)
+      val lexiconDictionary = parsedArgs.lexiconDictionaryPath?.let { LexiconDictionary.load(it) }
 
       val featuresDictionary = FeaturesCollector(
         lexicalDictionary = lexiconDictionary,
