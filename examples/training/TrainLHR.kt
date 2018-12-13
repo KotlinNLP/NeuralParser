@@ -36,7 +36,6 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRTrainer
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.LossCriterionType
-import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.BaseConverter
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.MorphoConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.PosTagKeyExtractor
@@ -172,14 +171,14 @@ private fun buildTokensEncoderWrapperModel(
                   embeddingsMap = preEmbeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
                   dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
-                converter = BaseConverter())),
+                converter = FormConverter())),
             EnsembleTokensEncoderModel.ComponentModel(
               TokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel(
                   embeddingsMap = embeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
                   dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
-                converter = BaseConverter())),
+                converter = FormConverter())),
             EnsembleTokensEncoderModel.ComponentModel(
               TokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel(
@@ -213,7 +212,7 @@ private fun buildTokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
                   dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
-                converter = BaseConverter())),
+                converter = FormConverter())),
             EnsembleTokensEncoderModel.ComponentModel(
               TokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
@@ -237,7 +236,7 @@ private fun buildTokensEncoderWrapperModel(
         model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
           embeddingKeyExtractor = NormWordKeyExtractor(),
           dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
-        converter = BaseConverter()
+        converter = FormConverter()
       )
     }
 
