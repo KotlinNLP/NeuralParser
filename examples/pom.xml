@@ -17,13 +17,13 @@
         <argparser.version>2.0.7</argparser.version>
         <klaxon.version>3.0.5</klaxon.version>
         <neuralparser.version>0.5.0</neuralparser.version>
-        <simplednn.version>0.11.1</simplednn.version>
-        <conllio.version>0.2.5</conllio.version>
-        <dependencytree.version>0.4.0</dependencytree.version>
-        <linguisticdescription.version>0.10.0</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.4.0</morphologicalanalyzer.version>
-        <tokensencoder.version>0.4.0</tokensencoder.version>
-        <lssencoder.version>0.1.0</lssencoder.version>
+        <simplednn.version>0.11.2</simplednn.version>
+        <conllio.version>0.2.6</conllio.version>
+        <dependencytree.version>0.4.1</dependencytree.version>
+        <linguisticdescription.version>0.10.1</linguisticdescription.version>
+        <morphologicalanalyzer.version>0.4.1</morphologicalanalyzer.version>
+        <tokensencoder.version>0.4.1</tokensencoder.version>
+        <lssencoder.version>0.1.1</lssencoder.version>
         <utils.version>2.1.1</utils.version>
     </properties>
 

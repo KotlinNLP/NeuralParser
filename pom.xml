@@ -61,13 +61,13 @@
         <klaxon.version>3.0.5</klaxon.version>
         <dokka.version>0.9.16</dokka.version>
         <surfire.version>2.19.1</surfire.version>
-        <conllio.version>0.2.5</conllio.version>
-        <simplednn.version>0.11.1</simplednn.version>
-        <dependencytree.version>0.4.0</dependencytree.version>
-        <tokensencoder.version>0.4.0</tokensencoder.version>
-        <lssencoder.version>0.1.0</lssencoder.version>
-        <linguisticdescription.version>0.10.0</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.4.0</morphologicalanalyzer.version>
+        <conllio.version>0.2.6</conllio.version>
+        <simplednn.version>0.11.2</simplednn.version>
+        <dependencytree.version>0.4.1</dependencytree.version>
+        <tokensencoder.version>0.4.1</tokensencoder.version>
+        <lssencoder.version>0.1.1</lssencoder.version>
+        <linguisticdescription.version>0.10.1</linguisticdescription.version>
+        <morphologicalanalyzer.version>0.4.1</morphologicalanalyzer.version>
         <utils.version>2.1.1</utils.version>
     </properties>
 
