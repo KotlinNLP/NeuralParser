@@ -16,7 +16,7 @@
         <xenocom.version>0.0.5</xenocom.version>
         <argparser.version>2.0.7</argparser.version>
         <klaxon.version>3.0.5</klaxon.version>
-        <neuralparser.version>0.6.0</neuralparser.version>
+        <neuralparser.version>0.6.1</neuralparser.version>
         <simplednn.version>0.11.2</simplednn.version>
         <conllio.version>0.2.6</conllio.version>
         <dependencytree.version>0.4.1</dependencytree.version>
