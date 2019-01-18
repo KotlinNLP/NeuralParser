@@ -7,7 +7,6 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
-import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.lssencoder.LSSEncoder
@@ -28,9 +27,8 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.GreedyDependencyTree
  *   [Non-Projective Dependency Parsing via Latent Heads Representation (LHR)](https://arxiv.org/abs/1802.02116)
  *
  * @property model the parser model
- * @param constraints a list of linguistic constraints (can be null)
  */
-class LHRParser(override val model: LHRModel, val constraints: List<Constraint>? = null) : NeuralParser<LHRModel> {
+class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
 
   /**
    * The Encoder of the Latent Syntactic Structure.
@@ -58,9 +56,7 @@ class LHRParser(override val model: LHRModel, val constraints: List<Constraint>?
     val dependencyTree: DependencyTree = DependencyTreeBuilder(
       lss = lss,
       scoredArcs = CosineDecoder().decode(lss),
-      labeler = this.labeler,
-      constraints = this.constraints,
-      morphoPercolator = this.model.morphoPercolator
+      labeler = this.labeler
     ).build() ?: GreedyDependencyTreeBuilder(
       lss = lss,
       scoresMap = CosineDecoder().decode(lss),

@@ -32,14 +32,6 @@ class CommandLineArguments(args: Array<String>) {
   }
 
   /**
-   * The type of the labeler selector.
-   */
-  enum class LabelerSelectorType {
-    NO_FILTER,
-    COMPOSITE
-  }
-
-  /**
    * The parser of the string arguments.
    */
   private val parser = ArgParser(args)
@@ -230,15 +222,6 @@ class CommandLineArguments(args: Array<String>) {
     "--tokens-charlm" to TokensEncodingType.CHARLM,
     help = "the type of morphology encoding (default --tokens-word-pos-emb)"
   ).default { TokensEncodingType.WORD_AND_POS_EMBEDDINGS }
-
-  /**
-   * The type of the labeler selector.
-   */
-  val labelerSelectorType: LabelerSelectorType by parser.mapping(
-    "--no-filter-selector" to LabelerSelectorType.NO_FILTER,
-    "--composite-selector" to LabelerSelectorType.COMPOSITE,
-    help = "the type of the labeler selector (default --no-filter-selector)"
-  ).default { LabelerSelectorType.NO_FILTER}
 
   /**
    * Whether to do not show details about the training.

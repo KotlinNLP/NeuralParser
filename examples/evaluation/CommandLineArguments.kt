@@ -50,15 +50,6 @@ class CommandLineArguments(args: Array<String>) {
   ).default { null }
 
   /**
-   * The path of a JSON file that defines linguistic constraints.
-   */
-  val constraintsPath: String? by parser.storing(
-    "-c",
-    "--constraints",
-    help="the path of a JSON file that defines linguistic constraints"
-  ).default { null }
-
-  /**
    * Force parsing all arguments (only read ones are parsed by default).
    */
   init {

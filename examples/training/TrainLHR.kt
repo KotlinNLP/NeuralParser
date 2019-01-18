@@ -26,7 +26,6 @@ import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.*
-import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
@@ -126,8 +125,7 @@ private fun buildParser(
   ),
   useLabeler = !parsedArgs.noLabeler,
   lossCriterionType = LossCriterionType.Softmax,
-  predictPosTags = !parsedArgs.noPosPrediction,
-  morphoPercolator = MorphoPercolator(language = getLanguageByIso(parsedArgs.langCode))))
+  predictPosTags = !parsedArgs.noPosPrediction))
 
 /**
  * Build a tokens-encoder wrapper model.

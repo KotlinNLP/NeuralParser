@@ -7,7 +7,6 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.helpers
 
-import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.dependencytree.CycleDetectedError
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.lssencoder.LatentSyntacticStructure
@@ -15,7 +14,6 @@ import com.kotlinnlp.lssencoder.decoder.ScoredArcs
 import com.kotlinnlp.lssencoder.decoder.ScoredArcs.Companion.rootId
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.morphopercolator.MorphoPercolator
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 import com.kotlinnlp.utils.BeamManager
@@ -27,8 +25,6 @@ import com.kotlinnlp.utils.notEmptyOr
  *
  * @param lss the latent syntactic structure of the input sentence
  * @param labeler a classifier of grammatical configurations (can be null)
- * @param constraints a list of linguistic constraints (can be null)
- * @param morphoPercolator a percolator of morphology properties
  * @param maxBeamSize the max number of parallel states that the beam supports (-1 = infinite)
  * @param maxForkSize the max number of forks that can be generated from a state (-1 = infinite)
  * @param maxIterations the max number of iterations of solving steps (it is the depth of beam recursion, -1 = infinite)
@@ -37,8 +33,6 @@ internal class DependencyTreeBuilder(
   private val lss: LatentSyntacticStructure<ParsingToken, ParsingSentence>,
   scoredArcs: ScoredArcs,
   private val labeler: Labeler?,
-  private val constraints: List<Constraint>?,
-  private val morphoPercolator: MorphoPercolator,
   maxBeamSize: Int = 5,
   maxForkSize: Int = 3,
   maxIterations: Int = 10
@@ -150,17 +144,8 @@ internal class DependencyTreeBuilder(
 
     val configMap: Map<Int, List<ScoredGrammar>> = labeler!!.predict(Labeler.Input(lss, this))
 
-    if (constraints != null)
-      LabelsSolver(
-        sentence = lss.sentence,
-        dependencyTree = this,
-        constraints = constraints,
-        morphoPercolator = morphoPercolator,
-        scoresMap = configMap
-      ).solve()
-    else
-      configMap.forEach { tokenId, configurations ->
-        this.setGrammaticalConfiguration(dependent = tokenId, configuration = configurations.first().config)
-      }
+    configMap.forEach { tokenId, configurations ->
+      this.setGrammaticalConfiguration(dependent = tokenId, configuration = configurations.first().config)
+    }
   }
 }
