@@ -262,6 +262,12 @@
 
         <dependency>
             <groupId>com.kotlinnlp</groupId>
+            <artifactId>linguisticconditions</artifactId>
+            <version>${linguisticconditions.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
             <artifactId>linguisticdescription</artifactId>
             <version>${linguisticdescription.version}</version>
         </dependency>

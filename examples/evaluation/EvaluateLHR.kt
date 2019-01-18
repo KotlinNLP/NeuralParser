@@ -8,9 +8,13 @@
 package evaluation
 
 import buildSentencePreprocessor
+import com.beust.klaxon.JsonArray
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Parser
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.NeuralParserModel
+import com.kotlinnlp.neuralparser.constraints.Constraint
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
@@ -32,7 +36,11 @@ fun main(args: Array<String>) = mainBody {
   val parser: NeuralParser<*> = LHRParser(
     model = parsedArgs.modelPath.let {
       println("Loading model from '$it'.")
-      NeuralParserModel.load(FileInputStream(File(it))) as LHRModel
+      NeuralParserModel.load(FileInputStream(File(it)))
+    } as LHRModel,
+    constraints = parsedArgs.constraintsPath?.let {
+      println("Loading linguistic constraints from '$it'")
+      (Parser().parse(it) as JsonArray<*>).map { Constraint(it as JsonObject) }
     })
 
   val validator = Validator(
