@@ -64,8 +64,8 @@
         <conllio.version>0.2.6</conllio.version>
         <simplednn.version>0.11.2</simplednn.version>
         <dependencytree.version>0.4.1</dependencytree.version>
-        <tokensencoder.version>0.4.1</tokensencoder.version>
-        <lssencoder.version>0.1.1</lssencoder.version>
+        <tokensencoder.version>0.5.0</tokensencoder.version>
+        <lssencoder.version>0.1.2</lssencoder.version>
         <linguisticdescription.version>0.10.1</linguisticdescription.version>
         <morphologicalanalyzer.version>0.4.1</morphologicalanalyzer.version>
         <utils.version>2.1.1</utils.version>
