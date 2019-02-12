@@ -165,21 +165,21 @@ private fun buildTokensEncoderWrapperModel(
           components = listOf(
             EnsembleTokensEncoderModel.ComponentModel(
               TokensEncoderWrapperModel(
-                model = EmbeddingsEncoderModel(
+                model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = preEmbeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
                   dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
                 converter = FormConverter())),
             EnsembleTokensEncoderModel.ComponentModel(
               TokensEncoderWrapperModel(
-                model = EmbeddingsEncoderModel(
+                model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = embeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
                   dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
                 converter = FormConverter())),
             EnsembleTokensEncoderModel.ComponentModel(
               TokensEncoderWrapperModel(
-                model = EmbeddingsEncoderModel(
+                model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = posEmbeddingsMap,
                   embeddingKeyExtractor = PosTagKeyExtractor,
                   dropoutCoefficient = parsedArgs.posDropoutCoefficient),
@@ -207,13 +207,15 @@ private fun buildTokensEncoderWrapperModel(
           components = listOf(
             EnsembleTokensEncoderModel.ComponentModel(
               TokensEncoderWrapperModel(
-                model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
+                model = EmbeddingsEncoderModel.Base(
+                  embeddingsMap = embeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
                   dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
                 converter = FormConverter())),
             EnsembleTokensEncoderModel.ComponentModel(
               TokensEncoderWrapperModel(
-                model = EmbeddingsEncoderModel(embeddingsMap = posEmbeddingsMap,
+                model = EmbeddingsEncoderModel.Base(
+                  embeddingsMap = posEmbeddingsMap,
                   embeddingKeyExtractor = PosTagKeyExtractor,
                   dropoutCoefficient = parsedArgs.posDropoutCoefficient),
                 converter = MirrorConverter()))),
@@ -231,7 +233,8 @@ private fun buildTokensEncoderWrapperModel(
         dictionary = corpus.words)
 
       TokensEncoderWrapperModel(
-        model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap,
+        model = EmbeddingsEncoderModel.Base(
+          embeddingsMap = embeddingsMap,
           embeddingKeyExtractor = NormWordKeyExtractor(),
           dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
         converter = FormConverter()
