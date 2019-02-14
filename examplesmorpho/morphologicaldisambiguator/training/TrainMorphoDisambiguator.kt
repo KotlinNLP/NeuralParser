@@ -9,6 +9,7 @@ package morphologicaldisambiguator.training
 
 import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.lssencoder.LSSModel
+import com.kotlinnlp.lssencoder.tokensencoder.LSSTokensEncoderModel
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.Dataset
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
@@ -26,10 +27,11 @@ fun main(args: Array<String>) = mainBody {
       filename = parsedArgs.trainingSetPath
   )
 
-  val lssModel: LSSModel<ParsingToken, ParsingSentence> = parsedArgs.lssModelPath.let {
-    println("Loading the LSSEncoder model from the LHRParser model serialized in '$it'...")
-    LHRModel.load(FileInputStream(File(it))).lssModel
-  }
+  val lssEncoderModel: LSSTokensEncoderModel<ParsingToken, ParsingSentence> = LSSTokensEncoderModel(
+      parsedArgs.lssModelPath.let {
+        println("Loading the LSSEncoder model from the LHRParser model serialized in '$it'...")
+        LHRModel.load(FileInputStream(File(it))).lssModel
+      })
 
   println("\n-- START TRAINING ON %d SENTENCES".format(trainingDataset.examples.size))
 
