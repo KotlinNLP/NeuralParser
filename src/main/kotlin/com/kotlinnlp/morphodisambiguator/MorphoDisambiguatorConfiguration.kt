@@ -5,9 +5,10 @@ import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFuncti
 /**
  * The [MorphoDisambiguator] configuration.
  *
- * @property tokensEncoderParams the parameters of the tokens encoder
- * @property contextEncoderParams the parameters of the context encoder
- * @property headsEncoderParams the parameters of the heads encoder
+ * @property BiRNNHiddenSize the hidden size of the BIRNN encoder
+ * @property BIRNNOutputSize the output size of the BIRNN encoder
+ * @property parallelEncodersHiddenSize the hidden size of the sequence parallel encoder
+ * @property parallelEncodersActivationFunction the activation function of the sequence parallel encoder
  */
 data class MorphoDisambiguatorConfiguration(
     val BiRNNHiddenSize: Int,
