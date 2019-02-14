@@ -16,7 +16,7 @@ import evaluation.CommandLineArguments
 
 
 /**
- * Evaluate the model of an [LHRParser].
+ * Evaluate the model of an [MorpoDisambiguator].
  *
  * Launch with the '-h' option for help about the command line arguments.
  */

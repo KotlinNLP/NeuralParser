@@ -17,6 +17,11 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import java.io.File
 import java.io.FileInputStream
 
+/**
+ * Evaluate the model of an [MorpoDisambiguator].
+ *
+ * Launch with the '-h' option for help about the command line arguments.
+ */
 fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
