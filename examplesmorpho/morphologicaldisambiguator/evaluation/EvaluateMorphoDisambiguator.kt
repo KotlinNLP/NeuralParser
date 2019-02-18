@@ -7,12 +7,23 @@
 
 package morphologicaldisambiguator.evaluation
 
+import com.kotlinnlp.lssencoder.tokensencoder.LSSTokensEncoderModel
+import com.kotlinnlp.morphodisambiguator.MorphoDisambiguator
+import com.kotlinnlp.morphodisambiguator.MorphoDisambiguatorModel
+import com.kotlinnlp.morphodisambiguator.MorphoDisambiguatorValidator
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.Dataset
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.PreprocessedDataset
+import com.kotlinnlp.morphodisambiguator.language.MorphoDictionary
+import com.kotlinnlp.morphodisambiguator.utils.MetricsCounter
+import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.utils.Timer
 import com.xenomachina.argparser.mainBody
 import evaluation.CommandLineArguments
+import java.io.File
+import java.io.FileInputStream
 
 
 /**
@@ -30,8 +41,21 @@ fun main(args: Array<String>) = mainBody {
       filename = parsedArgs.validationSetPath
   ))
 
-  val timer = Timer()
+  val disambiguator = MorphoDisambiguator(
+      model = parsedArgs.modelPath.let {
+        println("Loading model from '$it'.")
+        MorphoDisambiguatorModel.load(FileInputStream(File(it))) as MorphoDisambiguatorModel
+      })
 
-  //println("\n$evaluation")
+  val validator = MorphoDisambiguatorValidator(
+      morphoDisambiguator = disambiguator,
+      inputSentences = validationDataset.parsingExamples,
+      goldSentences = validationDataset.morphoExamples
+      )
+
+  val timer = Timer()
+  val evaluation: MetricsCounter = validator.evaluate()
+
+  println("\n$evaluation")
   println("\nElapsed time: ${timer.formatElapsedTime()}")
 }
