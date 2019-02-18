@@ -7,9 +7,7 @@
 
 package com.kotlinnlp.morphodisambiguator
 
-import com.kotlinnlp.lssencoder.LSSModel
 import com.kotlinnlp.lssencoder.tokensencoder.LSSTokensEncoderModel
-import com.kotlinnlp.morphodisambiguator.helpers.dataset.PreprocessedDataset
 import com.kotlinnlp.morphodisambiguator.language.MorphoDictionary
 import com.kotlinnlp.morphodisambiguator.language.PropertyNames
 import com.kotlinnlp.neuralparser.NeuralParserModel
@@ -24,7 +22,6 @@ import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNN
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.simplednn.deeplearning.sequenceencoder.ParallelEncoderModel
-import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.utils.Serializer
 import java.io.InputStream
 import java.io.OutputStream
@@ -56,7 +53,7 @@ class MorphoDisambiguatorModel (
   }
 
   /**
-   * Serialize this [NeuralParserModel] and write it to an output stream.
+   * Serialize this [MorphoDisambiguatorModel] and write it to an output stream.
    *
    * @param outputStream the [OutputStream] in which to write this serialized [MorphoDisambiguatorModel]
    */
@@ -77,7 +74,7 @@ class MorphoDisambiguatorModel (
   /**
    * The models of the feedforward morphology classifiers
    */
-  val feedforwardMorphoClassifiers: List<NeuralNetwork> = PropertyNames().propertyNames.map {
+  private val feedforwardMorphoClassifiers: List<NeuralNetwork> = PropertyNames().propertyNames.map {
     NeuralNetwork(LayerInterface(size = config.BIRNNOutputSize),
         LayerInterface(
             size = config.parallelEncodersHiddenSize,
@@ -85,7 +82,7 @@ class MorphoDisambiguatorModel (
             activationFunction = config.parallelEncodersActivationFunction),
         LayerInterface(
             type = LayerType.Input.Dense,
-            size = corpusMorphologies.morphologyDictionaryMap.get(it)!!.size,
+            size = corpusMorphologies.morphologyDictionaryMap[it]!!.size,
             dropout = 0.0,
             connectionType = LayerType.Connection.Feedforward,
             activationFunction = Softmax()))
