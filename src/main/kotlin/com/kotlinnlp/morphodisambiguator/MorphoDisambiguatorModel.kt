@@ -10,10 +10,8 @@ package com.kotlinnlp.morphodisambiguator
 import com.kotlinnlp.lssencoder.tokensencoder.LSSTokensEncoderModel
 import com.kotlinnlp.morphodisambiguator.language.MorphoDictionary
 import com.kotlinnlp.morphodisambiguator.language.PropertyNames
-import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.layers.LayerInterface
 import com.kotlinnlp.simplednn.core.layers.LayerType
@@ -49,7 +47,7 @@ class MorphoDisambiguatorModel (
      *
      * @return the [MorphoDisambiguatorModel] read from [inputStream] and decoded
      */
-    fun load(inputStream: InputStream): LHRModel = Serializer.deserialize(inputStream)
+    fun load(inputStream: InputStream): MorphoDisambiguatorModel = Serializer.deserialize(inputStream)
   }
 
   /**
