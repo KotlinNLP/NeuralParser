@@ -48,20 +48,17 @@ class PreprocessedDataset (
           ?: return null
     }
 
-    private fun convertMorphologies(token: Dataset.Sentence.Token): List<List<MorphologyProperty?>> {
+    private fun convertMorphologies(token: Dataset.Sentence.Token): List<MorphologyProperty?> {
 
-      val morphologies = mutableListOf<List<MorphologyProperty?>>()
+      val morphologies = mutableListOf<MorphologyProperty?>()
+      val property = token.properties.last()
 
-      token.properties.forEach {properties ->
-        val morphologyList = mutableListOf<MorphologyProperty?>()
-        morphologyList.add(convertGender(properties))
-        morphologyList.add(convertNumber(properties))
-        morphologyList.add(convertPerson(properties))
-        morphologyList.add(convertTense(properties))
-        morphologyList.add(convertMood(properties))
+      morphologies.add(convertGender(property))
+      morphologies.add(convertNumber(property))
+      morphologies.add(convertPerson(property))
+      morphologies.add(convertMood(property))
+      morphologies.add(convertTense(property))
 
-        morphologies.add(morphologyList)
-      }
 
       return morphologies
     }
@@ -76,7 +73,7 @@ class PreprocessedDataset (
             id = i,
             form = token.form,
             morphoProperties = convertMorphologies(token)))
-            i += 1
+        i += 1
       }
 
       return MorphoSentence(tokens = preprocessedSentence)
@@ -93,7 +90,7 @@ class PreprocessedDataset (
             id = i,
             form = token.form,
             position = null))
-            i += 1
+        i += 1
       }
 
       return ParsingSentence(tokens = preprocessedSentence, labelerSelector = NoFilterSelector)
