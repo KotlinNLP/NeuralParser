@@ -282,14 +282,6 @@ private fun buildTokensEncoderWrapperModel(
 
 
 /**
- * A concrete [MorphoSentence] class.
- */
-private class MorphoSentenceClass(
-  override val tokens: List<FormToken>,
-  override val morphoAnalysis: MorphologicalAnalysis?
-) : MorphoSentence<FormToken>
-
-/**
  * Build a [MorphoSentence] from this [CoNLLSentence].
  *
  * @param index the position index of this sentence
@@ -297,7 +289,7 @@ private class MorphoSentenceClass(
  *
  * @return a new morpho sentence
  */
-private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAnalyzer): MorphoSentenceClass {
+private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAnalyzer): MorphoSentence<FormToken> {
 
   val baseTokens = this.tokens.toBaseTokens()
   val position = Position(
@@ -309,7 +301,10 @@ private fun CoNLLSentence.toMorphoSentence(index: Int, analyzer: MorphologicalAn
 
   val analysis = analyzer.analyze(sentence)
 
-  return MorphoSentenceClass(tokens = tokens, morphoAnalysis = analysis)
+  return object : MorphoSentence<FormToken> {
+    override val tokens: List<FormToken> = this@toMorphoSentence.tokens
+    override val morphoAnalysis: MorphologicalAnalysis? = analysis
+  }
 }
 
 /**
