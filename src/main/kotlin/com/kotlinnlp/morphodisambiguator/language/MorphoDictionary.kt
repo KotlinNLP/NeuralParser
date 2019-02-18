@@ -1,7 +1,9 @@
 package com.kotlinnlp.morphodisambiguator.language
 
 import com.google.common.collect.ArrayListMultimap
+import com.google.common.collect.HashMultimap
 import com.google.common.collect.ListMultimap
+import com.google.common.collect.SetMultimap
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.PreprocessedDataset
 import com.kotlinnlp.utils.DictionarySet
 import java.io.Serializable
@@ -33,6 +35,10 @@ class MorphoDictionary: Serializable {
 
       sentences.forEach { it.tokens.forEach { token -> dictionary.addInfo(token) } }
 
+      dictionary.morphologyPropertiesMap.keys().map{
+        dictionary.morphologyDictionaryMap.put(it, DictionarySet(dictionary.morphologyPropertiesMap.get(it).toList()))
+      }
+
       return dictionary
     }
   }
@@ -40,13 +46,22 @@ class MorphoDictionary: Serializable {
   /**
    * The words.
    */
-  val words = DictionarySet<String>()
+  private val words = DictionarySet<String>()
 
   /**
-   * The map of morphologies to their possible values.
+   * The map of morphology properties to their possible values.
    */
-  val morphologyPropertiesMap: ListMultimap<String, String> = ArrayListMultimap.create()
+  private val morphologyPropertiesMap: HashMultimap<String, String> = HashMultimap.create()
 
+  /**
+   * The map of morphology properties to an indexed dictionary containing their values
+   */
+  val morphologyDictionaryMap: HashMap<String, DictionarySet<String>> = HashMap()
+
+  /**
+   * The list of names of all the possible properties.
+   */
+  val propertyNames = PropertyNames().propertyNames
 
   /**
    * Add the info of a given [token] into this dictionary.
@@ -56,8 +71,8 @@ class MorphoDictionary: Serializable {
   private fun addInfo(token: MorphoToken) {
 
     this.words.add(token.form)
-    token.morphoProperties.forEach{
-      it.forEach{property -> this.morphologyPropertiesMap.put(property.toString(), property?.annotation)}
+    token.morphoProperties.zip(propertyNames).forEach { (property, name) ->
+      this.morphologyPropertiesMap.put(name, property?.annotation)
     }
 
   }
