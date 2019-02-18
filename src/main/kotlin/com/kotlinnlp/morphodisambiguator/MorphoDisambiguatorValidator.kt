@@ -1,6 +1,5 @@
 package com.kotlinnlp.morphodisambiguator
 
-import com.kotlinnlp.linguisticdescription.morphology.properties.MorphologyProperty
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.PreprocessedDataset
 import com.kotlinnlp.morphodisambiguator.language.MorphoToken
 import com.kotlinnlp.morphodisambiguator.language.PropertyNames
