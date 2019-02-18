@@ -10,10 +10,17 @@ package morphologicaldisambiguator.training
 import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.lssencoder.LSSModel
 import com.kotlinnlp.lssencoder.tokensencoder.LSSTokensEncoderModel
+import com.kotlinnlp.morphodisambiguator.*
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.Dataset
+import com.kotlinnlp.morphodisambiguator.helpers.dataset.PreprocessedDataset
+import com.kotlinnlp.morphodisambiguator.language.MorphoDictionary
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
+import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
+import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
+import com.kotlinnlp.simplednn.core.layers.LayerType
+import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import java.io.File
 import java.io.FileInputStream
 
@@ -28,9 +35,15 @@ fun main(args: Array<String>) = mainBody {
 
   println("Loading training dataset from '${parsedArgs.trainingSetPath}'...")
 
-  val trainingDataset: Dataset = Dataset.fromFile(
-      filename = parsedArgs.trainingSetPath
-  )
+  val trainingDataset: PreprocessedDataset = PreprocessedDataset.fromDataset(
+      dataset = Dataset.fromFile(
+          filename = parsedArgs.trainingSetPath
+      ))
+
+  val validationDataset: PreprocessedDataset = PreprocessedDataset.fromDataset(
+      dataset = Dataset.fromFile(
+          filename = parsedArgs.validationSetPath
+      ))
 
   val lssEncoderModel: LSSTokensEncoderModel<ParsingToken, ParsingSentence> = LSSTokensEncoderModel(
       parsedArgs.lssModelPath.let {
@@ -38,6 +51,34 @@ fun main(args: Array<String>) = mainBody {
         LHRModel.load(FileInputStream(File(it))).lssModel
       })
 
-  println("\n-- START TRAINING ON %d SENTENCES".format(trainingDataset.examples.size))
+  val dictionary = MorphoDictionary(trainingDataset.morphoExamples)
 
+  val disambiguator = MorphoDisambiguator(
+      model = MorphoDisambiguatorModel(corpusMorphologies = dictionary,
+          lssModel = lssEncoderModel,
+          biRNNConfig = BiRNNConfig(connectionType = LayerType.Connection.LSTM,
+              hiddenActivation = Tanh(),
+              numberOfLayers = 1),
+          config = MorphoDisambiguatorConfiguration(
+              BiRNNHiddenSize = 100,
+              BIRNNOutputSize = 100,
+              parallelEncodersHiddenSize = 100,
+              parallelEncodersActivationFunction = Tanh())
+      ))
+
+  val trainer = MorphoDisambiguatorTrainer(disambiguator = disambiguator,
+      batchSize = parsedArgs.batchSize,
+      epochs = parsedArgs.epochs,
+      validator = MorphoDisambiguatorValidator(
+          morphoDisambiguator = disambiguator,
+          inputSentences = validationDataset.parsingExamples,
+          goldSentences = validationDataset.morphoExamples
+      ),
+      modelFilename = parsedArgs.modelPath,
+      updateMethod = ADAMMethod()
+  )
+
+
+  println("\n-- START TRAINING ON %d SENTENCES".format(trainingDataset.morphoExamples.size))
+  trainer.train(trainingSentences = trainingDataset.parsingExamples, goldSentences = trainingDataset.morphoExamples)
 }
