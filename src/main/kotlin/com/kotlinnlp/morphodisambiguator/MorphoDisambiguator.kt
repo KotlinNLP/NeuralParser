@@ -7,6 +7,8 @@
 
 package com.kotlinnlp.morphodisambiguator
 
+import com.kotlinnlp.linguisticdescription.morphology.properties.MorphologyProperty
+import com.kotlinnlp.linguisticdescription.morphology.properties.MorphologyPropertyFactory
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.lssencoder.LSSEncoder
 import com.kotlinnlp.lssencoder.tokensencoder.LSSTokensEncoder
@@ -44,14 +46,51 @@ class MorphoDisambiguator (val model: MorphoDisambiguatorModel){
       useDropout = false)
 
   /**
+   * @param parsingToken: The input token to disambiguate
+   * @param networkPredictions: The [DenseNDArray] predicted by the neural network
+   *
+   * @return a [MorphoToken]
+   */
+  private fun getMorphologies(parsingToken: ParsingToken, networkPredictions: List<DenseNDArray>): MorphoToken {
+
+    val properties = mutableListOf<MorphologyProperty?>()
+
+    this.model.corpusMorphologies.propertyNames.zip(networkPredictions).forEach {
+      (propertyName, predictionArray) ->
+      val propertyValue: String? = this.model.corpusMorphologies.morphologyDictionaryMap.get(propertyName)?.getElement(
+          predictionArray.argMaxIndex())
+      if (propertyValue == null)
+        properties.add(null)
+      else
+        properties.add(MorphologyPropertyFactory(propertyName = propertyName, valueAnnotation = propertyValue))
+    }
+
+    return MorphoToken(id = parsingToken.id,
+        form = parsingToken.form,
+        morphoProperties = properties)
+  }
+
+  /**
    * @param sentence: The sentence to disambiguate
    *
    * @return a list of [MorphoToken]
    */
   fun disambiguate(sentence: ParsingSentence) : List<MorphoToken> {
-    val disambiguatedTokens: List<MorphoToken> = mutableListOf()
-    return disambiguatedTokens
-  }
 
+    val predictedMorphologies =  mutableListOf<MorphoToken>()
+
+    val lss: List<DenseNDArray> = this.tokensEncoder.forward(sentence)
+
+    val biRNNEncodedSentence: List<DenseNDArray> = this.biRNNEncoder.forward(lss)
+
+    val parallelOutput: List<List<DenseNDArray>> = this.outputEncoder.forward(biRNNEncodedSentence)
+
+    parallelOutput.zip(sentence.tokens).forEach {
+      (predictions, token) -> predictedMorphologies.add(this.getMorphologies(
+        parsingToken = token, networkPredictions = predictions))
+    }
+
+    return predictedMorphologies
+  }
 
 }
