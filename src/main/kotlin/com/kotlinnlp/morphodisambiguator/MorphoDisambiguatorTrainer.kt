@@ -12,6 +12,7 @@ import com.kotlinnlp.lssencoder.tokensencoder.LSSTokensEncoder
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.PreprocessedDataset
 import com.kotlinnlp.morphodisambiguator.language.MorphoToken
 import com.kotlinnlp.morphodisambiguator.language.PropertyNames
+import com.kotlinnlp.morphodisambiguator.utils.MetricsCounter
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.core.functionalities.losses.SoftmaxCrossEntropyCalculator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
@@ -62,7 +63,7 @@ class MorphoDisambiguatorTrainer(
   /**
    * Train the [MorphoDisambiguator] with the given sentences.
    *
-   * @param trainingSentences the sentences used to train the parser
+   * @param trainingSentences the sentences used to train the disambiguator
    * @param shuffler a shuffle to shuffle the sentences at each epoch (can be null)
    */
   fun train(trainingSentences: List<ParsingSentence>,
@@ -87,7 +88,7 @@ class MorphoDisambiguatorTrainer(
   }
 
   /**
-   * Train the parser for an epoch.
+   * Train the disambiguator for an epoch.
    *
    * @param trainingSentences the training sentences
    * @param shuffler a shuffle to shuffle the sentences at each epoch (can be null)
@@ -126,20 +127,19 @@ class MorphoDisambiguatorTrainer(
   }
 
   /**
-   * Validate the [neuralParser] with the validation helper and save the best model.
+   * Validate the [MorphoDisambiguator] with the validation helper and save the best model.
    * The [validator] is required to be not null.
    */
   private fun validateAndSaveModel() {
 
-    //val stats: Statistics = this.validator!!.evaluate()
+    val stats: MetricsCounter = this.validator!!.evaluate()
 
-    //println("\n$stats")
+    println("\n$stats")
 
     if (true) { // todo condition
 
       this.disambiguator.model.dump(FileOutputStream(File(this.modelFilename)))
       println("\nNEW BEST ACCURACY! Model saved to \"${this.modelFilename}\"")
-
 
     }
   }
@@ -180,7 +180,7 @@ class MorphoDisambiguatorTrainer(
   private val tokensEncoder = LSSTokensEncoder(this.disambiguator.model.lssModel, useDropout = false)
 
   /**
-   * The BIRNN encoder on top of the Lss Encoder
+   * The BIRNN encoder on top of the Lss Tokens Encoder
    */
 
   private val biRNNEncoder = BiRNNEncoder<DenseNDArray>(
@@ -226,11 +226,11 @@ class MorphoDisambiguatorTrainer(
   }
 
   /**
-   * Train the disambiguator with the given [sentence] and [goldMorphologies].
+   * Train the disambiguator with the given [sentence] and gold Morphologies.
    *
    * @param sentence the sentence
    */
-  fun trainSentence(sentence: ParsingSentence, goldSentence: PreprocessedDataset.MorphoSentence) {
+  private fun trainSentence(sentence: ParsingSentence, goldSentence: PreprocessedDataset.MorphoSentence) {
 
     this.beforeSentenceLearning()
 
@@ -248,7 +248,6 @@ class MorphoDisambiguatorTrainer(
     this.propagateErrors(outputErrors)
 
   }
-
 
   /**
    * Propagate the errors through the encoders.
@@ -291,7 +290,7 @@ class MorphoDisambiguatorTrainer(
 
     predictions.forEachIndexed { tokenIndex, tokenPredictions ->
 
-      val tokenGoldMorphologies: MorphoToken = goldMorphologies.tokens.get(tokenIndex)
+      val tokenGoldMorphologies: MorphoToken = goldMorphologies.tokens[tokenIndex]
 
       val outputErrors = mutableListOf<DenseNDArray>()
 
@@ -299,11 +298,12 @@ class MorphoDisambiguatorTrainer(
 
         val goldMorphology: MorphologyProperty? = tokenGoldMorphologies.morphoProperties[propertyIndex]
         val goldMorphologyIndex: Int
-        if (goldMorphology == null)
-          goldMorphologyIndex = 0
+
+        goldMorphologyIndex = if (goldMorphology == null)
+          0
         else
-          goldMorphologyIndex = this.disambiguator.model.corpusMorphologies.morphologyDictionaryMap.get(
-              PropertyNames().propertyNames[propertyIndex])?.getId(goldMorphology.annotation)!!
+          this.disambiguator.model.corpusMorphologies.morphologyDictionaryMap[
+              PropertyNames().propertyNames[propertyIndex]]?.getId(goldMorphology.annotation)!!
 
         val outputError: DenseNDArray = this.getPredictionErrors(
             prediction = propertyPredicion,
