@@ -7,5 +7,5 @@ import com.kotlinnlp.linguisticdescription.sentence.token.TokenIdentificable
 data class MorphoToken (
     override val id: Int,
     override val form: String,
-    val morphoProperties: List<List<MorphologyProperty?>>
+    val morphoProperties: List<MorphologyProperty?>
 ) : FormToken, TokenIdentificable
