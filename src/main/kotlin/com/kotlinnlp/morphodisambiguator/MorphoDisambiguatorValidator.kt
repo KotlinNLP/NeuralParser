@@ -53,7 +53,7 @@ class MorphoDisambiguatorValidator (
 
     val progress: ProgressIndicatorBar? = if (this.verbose) ProgressIndicatorBar(this.inputSentences.size) else null
 
-    if (this.verbose) println("Start parsing of %d sentences:".format(this.inputSentences.size))
+    if (this.verbose) println("Start disambiguation of %d sentences:".format(this.inputSentences.size))
 
     return this.inputSentences.map {sentence ->
 
@@ -83,7 +83,6 @@ class MorphoDisambiguatorValidator (
    */
   private fun addTokenMetrics(disambiguatedToken : MorphoToken, goldToken: MorphoToken) {
 
-    this.counter.totalTokens++
     disambiguatedToken.morphoProperties.zip(goldToken.morphoProperties).forEachIndexed {
       i, (propertyPredicted, propertyGold) -> if (propertyGold == propertyPredicted)
       this.addCorrectMorphology(propertyName = PropertyNames().propertyNames[i])
