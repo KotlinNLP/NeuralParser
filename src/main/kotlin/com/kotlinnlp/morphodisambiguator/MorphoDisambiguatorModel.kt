@@ -13,6 +13,7 @@ import com.kotlinnlp.morphodisambiguator.language.PropertyNames
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
+import com.kotlinnlp.simplednn.core.functionalities.initializers.GlorotInitializer
 import com.kotlinnlp.simplednn.core.layers.LayerInterface
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.ConcatFeedforwardMerge
@@ -70,9 +71,16 @@ class MorphoDisambiguatorModel (
       outputMergeConfiguration = ConcatFeedforwardMerge(outputSize = config.BIRNNOutputSize))
 
   /**
+   * The list of seed to initialize parameters
+   */
+
+  private val randomSeedValues: List<Long> = listOf(617, 499, 383, 181, 887, 113, 911)
+
+  /**
    * The models of the feedforward morphology classifiers
    */
-  private val feedforwardMorphoClassifiers: List<NeuralNetwork> = PropertyNames().propertyNames.map {
+  private val feedforwardMorphoClassifiers: List<NeuralNetwork> = PropertyNames().propertyNames.mapIndexed {
+    i, name ->
     NeuralNetwork(LayerInterface(size = config.BIRNNOutputSize),
         LayerInterface(
             size = config.parallelEncodersHiddenSize,
@@ -80,10 +88,12 @@ class MorphoDisambiguatorModel (
             activationFunction = config.parallelEncodersActivationFunction),
         LayerInterface(
             type = LayerType.Input.Dense,
-            size = corpusMorphologies.morphologyDictionaryMap[it]!!.size,
+            size = corpusMorphologies.morphologyDictionaryMap[name]!!.size,
             dropout = 0.0,
             connectionType = LayerType.Connection.Feedforward,
-            activationFunction = Softmax()))
+            activationFunction = Softmax()),
+        weightsInitializer = GlorotInitializer(seed = randomSeedValues[i]),
+        biasesInitializer = GlorotInitializer(seed = randomSeedValues[i]))
   }
 
   /**
