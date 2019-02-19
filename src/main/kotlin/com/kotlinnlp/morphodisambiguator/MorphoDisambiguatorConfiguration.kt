@@ -1,6 +1,7 @@
 package com.kotlinnlp.morphodisambiguator
 
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
+import java.io.Serializable
 
 /**
  * The [MorphoDisambiguator] configuration.
@@ -15,4 +16,17 @@ data class MorphoDisambiguatorConfiguration(
     val BIRNNOutputSize: Int,
     val parallelEncodersHiddenSize: Int,
     val parallelEncodersActivationFunction: ActivationFunction
-)
+): Serializable {
+  companion object {
+
+
+    /**
+     * Private val used to serialize the class (needed by Serializable).
+     */
+    @Suppress("unused")
+    private const val serialVersionUID: Long = 1L
+
+  }
+
+
+}
