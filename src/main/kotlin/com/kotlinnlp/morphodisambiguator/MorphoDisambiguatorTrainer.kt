@@ -199,8 +199,8 @@ class MorphoDisambiguatorTrainer(
   /**
    * The optimizer of the heads encoder.
    */
-  private val biRNNEncoderOptimizer: ParamsOptimizer<BiRNNParameters> =
-      ParamsOptimizer(params = this.disambiguator.model.biRNNEncoderModel.model, updateMethod = updateMethod)
+  private val biRNNEncoderOptimizer: ParamsOptimizer<BiRNNParameters> = ParamsOptimizer(
+      params = this.disambiguator.model.biRNNEncoderModel.model, updateMethod = this.updateMethod)
 
 
   /**
@@ -260,7 +260,7 @@ class MorphoDisambiguatorTrainer(
 
     this.biRNNEncoder.backward(outputErrors = this.outputEncoder.getInputErrors(copy = false))
 
-    this.outputEncoderOptimizer.accumulate(paramsErrors =  this.outputEncoder.getParamsErrors(copy = false))
+    this.outputEncoderOptimizer.accumulate(paramsErrors = this.outputEncoder.getParamsErrors(copy = false))
 
     this.biRNNEncoderOptimizer.accumulate(paramsErrors = this.biRNNEncoder.getParamsErrors(copy = false))
 
