@@ -67,7 +67,7 @@
         <tokensencoder.version>0.5.0</tokensencoder.version>
         <lssencoder.version>0.1.2</lssencoder.version>
         <linguisticdescription.version>0.10.1</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.4.1</morphologicalanalyzer.version>
+        <morphologicalanalyzer.version>0.4.2</morphologicalanalyzer.version>
         <utils.version>2.1.1</utils.version>
     </properties>
 

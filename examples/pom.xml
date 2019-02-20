@@ -22,7 +22,7 @@
         <conllio.version>0.2.6</conllio.version>
         <dependencytree.version>0.4.1</dependencytree.version>
         <linguisticdescription.version>0.10.1</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.4.1</morphologicalanalyzer.version>
+        <morphologicalanalyzer.version>0.4.2</morphologicalanalyzer.version>
         <tokensencoder.version>0.5.0</tokensencoder.version>
         <lssencoder.version>0.1.2</lssencoder.version>
         <utils.version>2.1.1</utils.version>
