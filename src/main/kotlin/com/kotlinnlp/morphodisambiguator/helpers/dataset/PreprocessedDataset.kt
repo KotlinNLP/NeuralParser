@@ -4,6 +4,7 @@ import com.kotlinnlp.linguisticdescription.morphology.properties.*
 import com.kotlinnlp.linguisticdescription.morphology.properties.Number
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
 import com.kotlinnlp.morphodisambiguator.language.MorphoToken
+import com.kotlinnlp.morphodisambiguator.language.PropertyNames
 import com.kotlinnlp.neuralparser.helpers.labelerselector.LabelerSelector
 import com.kotlinnlp.neuralparser.helpers.labelerselector.NoFilterSelector
 import com.kotlinnlp.neuralparser.language.ParsingSentence
@@ -18,47 +19,14 @@ class PreprocessedDataset (
 
   companion object {
 
-    private fun convertGender (propertyMap: Map<String, String?>): Gender? {
-      val gender: String? = propertyMap.get("gender")
-      gender?.let{return MorphologyPropertyFactory(propertyName = "gender", valueAnnotation = it) as Gender}
-          ?: return null
-    }
+    private fun convertMorphologies(token: Dataset.Sentence.Token): List<String?> {
 
-    private fun convertNumber (propertyMap: Map<String, String?>): Number? {
-      val number: String? = propertyMap.get("number")
-      number?.let{return MorphologyPropertyFactory(propertyName = "number", valueAnnotation = it) as Number}
-          ?: return null
-    }
-
-    private fun convertPerson (propertyMap: Map<String, String?>): Person? {
-      val person: String? = propertyMap.get("person")
-      person?.let{return MorphologyPropertyFactory(propertyName = "person", valueAnnotation = it) as Person}
-          ?: return null
-    }
-
-    private fun convertTense (propertyMap: Map<String, String?>): Tense? {
-      val tense: String? = propertyMap.get("tense")
-      tense?.let{return MorphologyPropertyFactory(propertyName = "tense", valueAnnotation = it) as Tense}
-          ?: return null
-    }
-
-    private fun convertMood (propertyMap: Map<String, String?>): Mood? {
-      val mood: String? = propertyMap.get("mood")
-      mood?.let{return MorphologyPropertyFactory(propertyName = "mood", valueAnnotation = it) as Mood}
-          ?: return null
-    }
-
-    private fun convertMorphologies(token: Dataset.Sentence.Token): List<MorphologyProperty?> {
-
-      val morphologies = mutableListOf<MorphologyProperty?>()
+      val morphologies = mutableListOf<String?>()
       val property = token.properties.last()
 
-      morphologies.add(convertGender(property))
-      morphologies.add(convertNumber(property))
-      morphologies.add(convertPerson(property))
-      morphologies.add(convertMood(property))
-      morphologies.add(convertTense(property))
-
+      PropertyNames().propertyNames.forEach{
+        morphologies.add(property.get(it))
+      }
 
       return morphologies
     }

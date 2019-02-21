@@ -6,7 +6,8 @@ import java.io.Serializable
  * The list of names of all the possible properties.
  */
 data class PropertyNames(
-    val propertyNames: List<String> = listOf("gender", "number", "person", "mood", "tense")
+    val propertyNames: List<String> = listOf("gender", "number", "person", "mood", "tense"),
+    val unknownAnnotation: String = "UNKNOWN"
 ): Serializable {
   companion object {
 

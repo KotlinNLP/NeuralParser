@@ -7,18 +7,12 @@
 
 package morphologicaldisambiguator.evaluation
 
-import com.kotlinnlp.lssencoder.tokensencoder.LSSTokensEncoderModel
 import com.kotlinnlp.morphodisambiguator.MorphoDisambiguator
 import com.kotlinnlp.morphodisambiguator.MorphoDisambiguatorModel
 import com.kotlinnlp.morphodisambiguator.MorphoDisambiguatorValidator
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.Dataset
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.PreprocessedDataset
-import com.kotlinnlp.morphodisambiguator.language.MorphoDictionary
-import com.kotlinnlp.morphodisambiguator.utils.MetricsCounter
-import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
+import com.kotlinnlp.morphodisambiguator.utils.Statistics
 import com.kotlinnlp.utils.Timer
 import com.xenomachina.argparser.mainBody
 import evaluation.CommandLineArguments
@@ -54,7 +48,7 @@ fun main(args: Array<String>) = mainBody {
       )
 
   val timer = Timer()
-  val evaluation: MetricsCounter = validator.evaluate()
+  val evaluation: Statistics = validator.evaluate()
 
   println("\n$evaluation")
   println("\nElapsed time: ${timer.formatElapsedTime()}")

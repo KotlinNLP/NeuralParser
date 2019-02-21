@@ -7,12 +7,11 @@
 
 package com.kotlinnlp.morphodisambiguator
 
-import com.kotlinnlp.linguisticdescription.morphology.properties.MorphologyProperty
 import com.kotlinnlp.lssencoder.tokensencoder.LSSTokensEncoder
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.PreprocessedDataset
 import com.kotlinnlp.morphodisambiguator.language.MorphoToken
 import com.kotlinnlp.morphodisambiguator.language.PropertyNames
-import com.kotlinnlp.morphodisambiguator.utils.MetricsCounter
+import com.kotlinnlp.morphodisambiguator.utils.Statistics
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.core.functionalities.losses.SoftmaxCrossEntropyCalculator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
@@ -132,9 +131,11 @@ class MorphoDisambiguatorTrainer(
    */
   private fun validateAndSaveModel() {
 
-    val stats: MetricsCounter = this.validator!!.evaluate()
+    val stats: Statistics = this.validator!!.evaluate()
 
     println("\n$stats")
+
+    stats.reset()
 
     if (true) { // todo condition
 
@@ -295,21 +296,29 @@ class MorphoDisambiguatorTrainer(
       val outputErrors = mutableListOf<DenseNDArray>()
 
       tokenPredictions.forEachIndexed { propertyIndex, propertyPredicion ->
-
-        val goldMorphology: MorphologyProperty? = tokenGoldMorphologies.morphoProperties[propertyIndex]
+        val outputError: DenseNDArray
+        val goldMorphology: String? = tokenGoldMorphologies.morphoProperties[propertyIndex]
         val goldMorphologyIndex: Int
-
-        goldMorphologyIndex = if (goldMorphology == null)
-          0
-        else
-          this.disambiguator.model.corpusMorphologies.morphologyDictionaryMap[
-              PropertyNames().propertyNames[propertyIndex]]?.getId(goldMorphology.annotation)!!
-
-        val outputError: DenseNDArray = this.getPredictionErrors(
-            prediction = propertyPredicion,
-            goldIndex = goldMorphologyIndex
-        )
-
+        when (goldMorphology) {
+          null -> {
+            goldMorphologyIndex = 0
+            outputError = this.getPredictionErrors(
+                prediction = propertyPredicion,
+                goldIndex = goldMorphologyIndex
+            )
+          }
+          PropertyNames().unknownAnnotation -> {
+            outputError = propertyPredicion.zerosLike()
+          }
+          else -> {
+            goldMorphologyIndex = this.disambiguator.model.corpusMorphologies.morphologyDictionaryMap[
+                PropertyNames().propertyNames[propertyIndex]]?.getId(goldMorphology)!!
+            outputError = this.getPredictionErrors(
+                prediction = propertyPredicion,
+                goldIndex = goldMorphologyIndex
+            )
+          }
+        }
         outputErrors.add(outputError)
       }
 

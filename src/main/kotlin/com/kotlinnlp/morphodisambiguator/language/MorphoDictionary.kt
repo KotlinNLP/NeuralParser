@@ -1,9 +1,6 @@
 package com.kotlinnlp.morphodisambiguator.language
 
-import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.HashMultimap
-import com.google.common.collect.ListMultimap
-import com.google.common.collect.SetMultimap
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.PreprocessedDataset
 import com.kotlinnlp.utils.DictionarySet
 import java.io.Serializable
@@ -72,8 +69,9 @@ class MorphoDictionary: Serializable {
 
     this.words.add(token.form)
     token.morphoProperties.zip(propertyNames).forEach { (property, name) ->
-      this.morphologyPropertiesMap.put(name, property?.annotation)
+      if (property != PropertyNames().unknownAnnotation) this.morphologyPropertiesMap.put(name, property)
     }
 
   }
+
 }

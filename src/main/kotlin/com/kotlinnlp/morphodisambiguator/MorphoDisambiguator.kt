@@ -53,16 +53,14 @@ class MorphoDisambiguator (val model: MorphoDisambiguatorModel){
    */
   private fun getMorphologies(parsingToken: ParsingToken, networkPredictions: List<DenseNDArray>): MorphoToken {
 
-    val properties = mutableListOf<MorphologyProperty?>()
+    val properties = mutableListOf<String?>()
 
     this.model.corpusMorphologies.propertyNames.zip(networkPredictions).forEach {
       (propertyName, predictionArray) ->
       val propertyValue: String? = this.model.corpusMorphologies.morphologyDictionaryMap.get(propertyName)?.getElement(
           predictionArray.argMaxIndex())
-      if (propertyValue == null)
-        properties.add(null)
-      else
-        properties.add(MorphologyPropertyFactory(propertyName = propertyName, valueAnnotation = propertyValue))
+
+        properties.add(propertyValue)
     }
 
     return MorphoToken(id = parsingToken.id,
