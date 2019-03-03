@@ -42,6 +42,7 @@ import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
+import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.ConcatMerge
 import com.kotlinnlp.tokensencoder.charlm.CharLMEncoderModel
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.morpho.FeaturesCollector
@@ -219,9 +220,7 @@ private fun buildTokensEncoderWrapperModel(
                   frequencyDictionary = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }.associate { it to 1 },
                   dropout = parsedArgs.posDropoutCoefficient),
                 converter = MirrorConverter()))),
-          outputMergeConfiguration = AffineMerge(
-            outputSize = 100, // TODO
-            activationFunction = null)),
+          outputMergeConfiguration = ConcatMerge()),
         converter = MirrorConverter()
       )
     }
