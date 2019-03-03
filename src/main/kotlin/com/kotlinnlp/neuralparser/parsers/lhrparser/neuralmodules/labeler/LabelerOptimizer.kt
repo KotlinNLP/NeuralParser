@@ -25,7 +25,7 @@ class LabelerOptimizer(
   /**
    * The optimizer of the network
    */
-  private val optimizer = ParamsOptimizer(this.model.networkModel.model, this.updateMethod)
+  private val optimizer = ParamsOptimizer(this.model.networkModel, this.updateMethod)
 
   /**
    * Update the parameters of the neural element associated to this optimizer.

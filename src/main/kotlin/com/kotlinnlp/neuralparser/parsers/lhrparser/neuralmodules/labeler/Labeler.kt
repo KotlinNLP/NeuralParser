@@ -64,7 +64,7 @@ class Labeler(
    * The processor that classify the grammar of a token.
    */
   private val processor = BatchFeedforwardProcessor<DenseNDArray>(
-    neuralNetwork = this.model.networkModel,
+    model = this.model.networkModel,
     useDropout = this.useDropout,
     propagateToInput = true)
 

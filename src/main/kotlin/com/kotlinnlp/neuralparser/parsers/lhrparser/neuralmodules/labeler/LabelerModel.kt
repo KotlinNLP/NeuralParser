@@ -15,7 +15,7 @@ import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerInterface
 import com.kotlinnlp.simplednn.core.layers.LayerType
-import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
+import com.kotlinnlp.simplednn.core.layers.StackedLayersParameters
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.utils.DictionarySet
 import java.io.Serializable
@@ -51,7 +51,7 @@ class LabelerModel(
   /**
    * The Network model that predicts the grammatical configurations.
    */
-  val networkModel: NeuralNetwork = NeuralNetwork(
+  val networkModel = StackedLayersParameters(
     LayerInterface(sizes = listOf(this.contextEncodingSize, this.contextEncodingSize)),
     LayerInterface(
       size = this.contextEncodingSize,

@@ -28,7 +28,6 @@ import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.*
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
-import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
@@ -41,14 +40,13 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.PosTag
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.FormConverter
 import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
 import com.kotlinnlp.neuralparser.utils.loadSentences
-import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
 import com.kotlinnlp.tokensencoder.charlm.CharLMEncoderModel
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.morpho.FeaturesCollector
 import com.kotlinnlp.tokensencoder.morpho.MorphoEncoderModel
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
-import com.kotlinnlp.utils.DictionarySet
 import java.io.File
 import java.io.FileInputStream
 
@@ -146,19 +144,18 @@ private fun buildTokensEncoderWrapperModel(
 
     CommandLineArguments.TokensEncodingType.WORD_AND_EXT_AND_POS_EMBEDDINGS -> { // TODO: separate with a dedicated builder
 
-      val embeddingsMap = EmbeddingsMapByDictionary(
+      val embeddingsMap = EmbeddingsMap.fromSet(
         size = parsedArgs.wordEmbeddingSize,
-        dictionary = corpus.words)
+        elements = corpus.words.getElementsReversedSet())
 
       val preEmbeddingsMap = parsedArgs.embeddingsPath!!.let {
         println("Loading pre-trained word embeddings from '$it'...")
-        EMBDLoader().load(filename = it)
+        EmbeddingsMap.load(filename = it)
       }
 
-      val posEmbeddingsMap = EmbeddingsMapByDictionary(
+      val posEmbeddingsMap = EmbeddingsMap.fromSet(
         size = parsedArgs.posEmbeddingSize,
-        dictionary = DictionarySet(
-          elements = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }))
+        elements = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }.toSet())
 
       TokensEncoderWrapperModel(
         model = EnsembleTokensEncoderModel(
@@ -168,21 +165,23 @@ private fun buildTokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = preEmbeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
-                  dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+                  dropout = parsedArgs.wordDropoutCoefficient),
                 converter = FormConverter())),
             EnsembleTokensEncoderModel.ComponentModel(
               TokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = embeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
-                  dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+                  frequencyDictionary = corpus.words.getElements().associate { it to corpus.words.getCount(it) },
+                  dropout = parsedArgs.wordDropoutCoefficient),
                 converter = FormConverter())),
             EnsembleTokensEncoderModel.ComponentModel(
               TokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = posEmbeddingsMap,
                   embeddingKeyExtractor = PosTagKeyExtractor,
-                  dropoutCoefficient = parsedArgs.posDropoutCoefficient),
+                  frequencyDictionary = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }.associate { it to 1 },
+                  dropout = parsedArgs.posDropoutCoefficient),
                 converter = MirrorConverter()))),
           outputMergeConfiguration = AffineMerge(
             outputSize = 100, // TODO
@@ -193,14 +192,13 @@ private fun buildTokensEncoderWrapperModel(
 
     CommandLineArguments.TokensEncodingType.WORD_AND_POS_EMBEDDINGS -> { // TODO: separate with a dedicated builder
 
-      val embeddingsMap = EmbeddingsMapByDictionary(
+      val embeddingsMap = EmbeddingsMap.fromSet(
         size = parsedArgs.wordEmbeddingSize,
-        dictionary = corpus.words)
+        elements = corpus.words.getElementsReversedSet())
 
-      val posEmbeddingsMap = EmbeddingsMapByDictionary(
+      val posEmbeddingsMap = EmbeddingsMap.fromSet(
         size = parsedArgs.posEmbeddingSize,
-        dictionary = DictionarySet(
-          elements = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }))
+        elements = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }.toSet())
 
       TokensEncoderWrapperModel(
         model = EnsembleTokensEncoderModel(
@@ -210,14 +208,16 @@ private fun buildTokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = embeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
-                  dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+                  frequencyDictionary = corpus.words.getElements().associate { it to corpus.words.getCount(it) },
+                  dropout = parsedArgs.wordDropoutCoefficient),
                 converter = FormConverter())),
             EnsembleTokensEncoderModel.ComponentModel(
               TokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = posEmbeddingsMap,
                   embeddingKeyExtractor = PosTagKeyExtractor,
-                  dropoutCoefficient = parsedArgs.posDropoutCoefficient),
+                  frequencyDictionary = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }.associate { it to 1 },
+                  dropout = parsedArgs.posDropoutCoefficient),
                 converter = MirrorConverter()))),
           outputMergeConfiguration = AffineMerge(
             outputSize = 100, // TODO
@@ -228,15 +228,16 @@ private fun buildTokensEncoderWrapperModel(
 
     CommandLineArguments.TokensEncodingType.WORD_EMBEDDINGS -> { // TODO: separate with a dedicated builder
 
-      val embeddingsMap = EmbeddingsMapByDictionary(
+      val embeddingsMap = EmbeddingsMap.fromSet(
         size = parsedArgs.wordEmbeddingSize,
-        dictionary = corpus.words)
+        elements = corpus.words.getElementsReversedSet())
 
       TokensEncoderWrapperModel(
         model = EmbeddingsEncoderModel.Base(
           embeddingsMap = embeddingsMap,
           embeddingKeyExtractor = NormWordKeyExtractor(),
-          dropoutCoefficient = parsedArgs.wordDropoutCoefficient),
+          frequencyDictionary = corpus.words.getElements().associate { it to corpus.words.getCount(it) },
+          dropout = parsedArgs.wordDropoutCoefficient),
         converter = FormConverter()
       )
     }

@@ -7,11 +7,11 @@
 
 package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler
 
-import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
+import com.kotlinnlp.simplednn.core.layers.StackedLayersParameters
 
 /**
  * The parameters of the [Labeler].
  *
  * @property params the parameters of the classifier network
  */
-data class LabelerParams(val params: NetworkParameters)
+data class LabelerParams(val params: StackedLayersParameters)
