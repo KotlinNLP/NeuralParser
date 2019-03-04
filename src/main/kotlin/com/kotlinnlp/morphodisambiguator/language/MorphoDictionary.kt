@@ -69,7 +69,8 @@ class MorphoDictionary: Serializable {
 
     this.words.add(token.form)
     token.morphoProperties.zip(propertyNames).forEach { (property, name) ->
-      if (property != PropertyNames().unknownAnnotation) this.morphologyPropertiesMap.put(name, property)
+      if (property != PropertyNames().unknownAnnotation)
+        this.morphologyPropertiesMap.put(name, property)
     }
 
   }
