@@ -15,6 +15,7 @@ import com.kotlinnlp.morphodisambiguator.utils.Statistics
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.core.functionalities.losses.SoftmaxCrossEntropyCalculator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
+import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adagrad.AdaGradMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.core.optimizer.Optimizer
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
@@ -38,7 +39,7 @@ class MorphoDisambiguatorTrainer(
     private val epochs: Int,
     private val validator: MorphoDisambiguatorValidator?,
     private val modelFilename: String,
-    private val updateMethod: UpdateMethod<*> = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
+    private val updateMethod: UpdateMethod<*> = AdaGradMethod(learningRate = 0.1),//ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999)
     private val verbose: Boolean = true
 ) {
   /**
@@ -135,8 +136,6 @@ class MorphoDisambiguatorTrainer(
 
     println("\n$stats")
 
-    stats.reset()
-
     if (true) { // todo condition
 
       this.disambiguator.model.dump(FileOutputStream(File(this.modelFilename)))
@@ -198,6 +197,12 @@ class MorphoDisambiguatorTrainer(
       useDropout = false)
 
   /**
+   * The optimizer of the lss tokens encoder.
+   */
+  private val tokensEncoderOptimizer = this.tokensEncoder.model.buildOptimizer(updateMethod = this.updateMethod)
+
+
+  /**
    * The optimizer of the heads encoder.
    */
   private val biRNNEncoderOptimizer: ParamsOptimizer<BiRNNParameters> = ParamsOptimizer(
@@ -215,6 +220,7 @@ class MorphoDisambiguatorTrainer(
    * Group the optimizers all together.
    */
   private val optimizers: List<Optimizer<*>?> = listOf(
+      this.tokensEncoderOptimizer,
       this.biRNNEncoderOptimizer,
       this.outputEncoderOptimizer)
 
@@ -261,9 +267,13 @@ class MorphoDisambiguatorTrainer(
 
     this.biRNNEncoder.backward(outputErrors = this.outputEncoder.getInputErrors(copy = false))
 
+    this.tokensEncoder.backward(outputErrors = this.biRNNEncoder.getInputErrors(copy = false))
+
     this.outputEncoderOptimizer.accumulate(paramsErrors = this.outputEncoder.getParamsErrors(copy = false))
 
     this.biRNNEncoderOptimizer.accumulate(paramsErrors = this.biRNNEncoder.getParamsErrors(copy = false))
+
+    this.tokensEncoderOptimizer.accumulate(paramsErrors = this.tokensEncoder.getParamsErrors(copy = false))
 
   }
 
@@ -296,6 +306,7 @@ class MorphoDisambiguatorTrainer(
       val outputErrors = mutableListOf<DenseNDArray>()
 
       tokenPredictions.forEachIndexed { propertyIndex, propertyPredicion ->
+
         val outputError: DenseNDArray
         val goldMorphology: String? = tokenGoldMorphologies.morphoProperties[propertyIndex]
         val goldMorphologyIndex: Int
@@ -319,8 +330,17 @@ class MorphoDisambiguatorTrainer(
             )
           }
         }
-        outputErrors.add(outputError)
+
+        if (propertyIndex == 0){
+          outputErrors.add(outputError)
+        }else{
+          outputErrors.add(propertyPredicion.zerosLike())
+        }
+
+
       }
+
+
 
       sentenceErrorsList.add(outputErrors)
     }
