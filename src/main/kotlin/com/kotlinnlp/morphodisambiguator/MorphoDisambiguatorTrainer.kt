@@ -331,16 +331,9 @@ class MorphoDisambiguatorTrainer(
           }
         }
 
-        if (propertyIndex == 0){
-          outputErrors.add(outputError)
-        }else{
-          outputErrors.add(propertyPredicion.zerosLike())
-        }
-
+        outputErrors.add(outputError)
 
       }
-
-
 
       sentenceErrorsList.add(outputErrors)
     }

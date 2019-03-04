@@ -86,6 +86,7 @@ class MorphoDisambiguatorValidator (
 
     disambiguatedToken.morphoProperties.zip(goldToken.morphoProperties).forEachIndexed {
       i, (predictedAnnotation, goldAnnotation) ->
+
       this.addCorrectMorphology(propertyName = PropertyNames().propertyNames[i],
           predictedAnnotation = predictedAnnotation, goldAnnotation = goldAnnotation)
     }
