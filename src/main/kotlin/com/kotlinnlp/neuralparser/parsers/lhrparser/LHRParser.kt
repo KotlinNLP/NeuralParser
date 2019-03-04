@@ -17,7 +17,6 @@ import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.MorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.DependencyTreeBuilder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.GreedyDependencyTreeBuilder
 
 /**
@@ -53,11 +52,7 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
 
     val lss: LatentSyntacticStructure<ParsingToken, ParsingSentence> = this.lssEncoder.forward(sentence)
 
-    val dependencyTree: DependencyTree = DependencyTreeBuilder(
-      lss = lss,
-      scoredArcs = CosineDecoder().decode(lss),
-      labeler = this.labeler
-    ).build() ?: GreedyDependencyTreeBuilder(
+    val dependencyTree: DependencyTree = GreedyDependencyTreeBuilder(
       lss = lss,
       scoresMap = CosineDecoder().decode(lss),
       labeler = this.labeler
