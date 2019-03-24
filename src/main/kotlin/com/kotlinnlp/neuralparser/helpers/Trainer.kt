@@ -136,11 +136,20 @@ abstract class Trainer(
 
     if (stats.noPunctuation.uas.perc > this.bestAccuracy) {
 
-      this.neuralParser.model.dump(FileOutputStream(File(this.modelFilename)))
-      println("\nNEW BEST ACCURACY! Model saved to \"${this.modelFilename}\"")
+      this.saveModel()
 
       this.bestAccuracy = stats.noPunctuation.uas.perc
     }
+  }
+
+  /**
+   * Save the model to [modelFilename].
+   */
+  private fun saveModel() {
+
+    this.neuralParser.model.dump(FileOutputStream(File(this.modelFilename)))
+
+    println("\nNEW BEST ACCURACY! Model saved to \"${this.modelFilename}\"")
   }
 
   /**
