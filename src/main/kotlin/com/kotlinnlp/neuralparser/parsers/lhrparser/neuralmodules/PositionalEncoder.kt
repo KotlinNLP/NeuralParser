@@ -30,8 +30,7 @@ class PositionalEncoder(
   List<DenseNDArray>, // InputType
   List<DenseNDArray>, // OutputType
   List<DenseNDArray>, // ErrorsType
-  PointerNetworkProcessor.InputErrors, // InputErrorsType
-  PointerNetworkParameters // ParamsType
+  PointerNetworkProcessor.InputErrors // InputErrorsType
   > {
 
   companion object {

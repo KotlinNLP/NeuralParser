@@ -9,7 +9,6 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser
 
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.lssencoder.LSSEncoder
-import com.kotlinnlp.lssencoder.LSSOptimizer
 import com.kotlinnlp.lssencoder.LatentSyntacticStructure
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.Trainer
@@ -20,6 +19,7 @@ import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.simplednn.core.functionalities.losses.MSECalculator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
+import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.utils.scheduling.ExampleScheduling
 
@@ -71,10 +71,7 @@ class LHRTransferLearning(
   /**
    * The optimizer of the context encoder.
    */
-  private val targetLSSEncoderOptimizer = LSSOptimizer(
-    model = this.targetParser.model.lssModel,
-    updateMethod = this.updateMethod
-  )
+  private val targetLSSEncoderOptimizer = ParamsOptimizer(this.updateMethod)
 
   /**
    * Train the [targetParser] with the given [sentence] and [goldTree].

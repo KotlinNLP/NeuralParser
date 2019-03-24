@@ -62,10 +62,10 @@
         <dokka.version>0.9.16</dokka.version>
         <surfire.version>2.19.1</surfire.version>
         <conllio.version>0.2.7</conllio.version>
-        <simplednn.version>0.12.0</simplednn.version>
+        <simplednn.version>0.13.0</simplednn.version>
         <dependencytree.version>0.4.2</dependencytree.version>
         <tokensencoder.version>0.5.1</tokensencoder.version>
-        <lssencoder.version>0.1.3</lssencoder.version>
+        <lssencoder.version>0.2.0</lssencoder.version>
         <linguisticdescription.version>0.11.0</linguisticdescription.version>
         <morphologicalanalyzer.version>0.4.3</morphologicalanalyzer.version>
         <utils.version>2.1.1</utils.version>

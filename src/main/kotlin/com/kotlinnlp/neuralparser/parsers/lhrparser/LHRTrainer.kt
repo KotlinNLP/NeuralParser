@@ -8,10 +8,8 @@
 package com.kotlinnlp.neuralparser.parsers.lhrparser
 
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.LabelerOptimizer
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.lssencoder.LSSEncoder
-import com.kotlinnlp.lssencoder.LSSOptimizer
 import com.kotlinnlp.lssencoder.LatentSyntacticStructure
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.Trainer
@@ -24,7 +22,6 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.PositionalEnco
 import com.kotlinnlp.simplednn.core.functionalities.losses.MSECalculator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
-import com.kotlinnlp.simplednn.core.optimizer.Optimizer
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkProcessor
 import com.kotlinnlp.simplednn.simplemath.assignSum
@@ -95,19 +92,18 @@ class LHRTrainer(
   /**
    * The pointer network optimizer.
    */
-  private val pointerNetworkOptimizer = ParamsOptimizer(
-    params = this.parser.model.pointerNetworkModel.params, updateMethod = this.updateMethod)
+  private val pointerNetworkOptimizer = ParamsOptimizer(this.updateMethod)
 
   /**
    * The optimizer of the LSS encoder.
    */
-  private val lssEncoderOptimizer = LSSOptimizer(model = this.parser.model.lssModel, updateMethod = this.updateMethod)
+  private val lssEncoderOptimizer = ParamsOptimizer(this.updateMethod)
 
   /**
    * The optimizer of the labeler (can be null).
    */
-  private val labelerOptimizer: LabelerOptimizer? = this.parser.model.labelerModel?.let {
-    LabelerOptimizer(model = this.parser.model.labelerModel, updateMethod = this.updateMethod)
+  private val labelerOptimizer: ParamsOptimizer? = this.parser.model.labelerModel?.let {
+    ParamsOptimizer(this.updateMethod)
   }
 
   /**
@@ -118,7 +114,7 @@ class LHRTrainer(
   /**
    * Group the optimizers all together.
    */
-  private val optimizers: List<Optimizer<*>?> = listOf(
+  private val optimizers: List<ParamsOptimizer?> = listOf(
     this.lssEncoderOptimizer,
     this.labelerOptimizer,
     this.pointerNetworkOptimizer)
@@ -270,6 +266,6 @@ class LHRTrainer(
    * @param errors the errors
    */
   private fun propagateRootErrors(errors: DenseNDArray) {
-    this.updateMethod.update(array = this.parser.model.lssModel.rootEmbedding.array, errors = errors)
+    this.updateMethod.update(array = this.parser.model.lssModel.rootEmbedding, errors = errors)
   }
 }

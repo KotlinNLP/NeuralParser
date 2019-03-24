@@ -34,8 +34,8 @@ class Labeler(
   Labeler.Input, // InputType
   List<DenseNDArray>, // OutputType
   List<DenseNDArray>, // ErrorsType
-  Labeler.InputErrors, // InputErrorsType
-  LabelerParams> { // ParamsType
+  Labeler.InputErrors // InputErrorsType
+  > {
 
   /**
    * The input of this labeler.
@@ -161,7 +161,7 @@ class Labeler(
    *
    * @return the errors of the [Labeler] parameters
    */
-  override fun getParamsErrors(copy: Boolean) = LabelerParams(this.processor.getParamsErrors(copy = copy))
+  override fun getParamsErrors(copy: Boolean) = this.processor.getParamsErrors(copy = copy)
 
   /**
    * Transform the array resulting from the prediction into a list of [ScoredGrammar].
