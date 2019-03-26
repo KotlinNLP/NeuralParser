@@ -5,7 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * -----------------------------------------------------------------------------*/
 
-import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
@@ -19,4 +18,4 @@ import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
  * @return a new sentence preprocessor
  */
 internal fun buildSentencePreprocessor(morphoDictionary: MorphologyDictionary?): SentencePreprocessor =
-  morphoDictionary?.let { MorphoPreprocessor(MorphologicalAnalyzer(dictionary = it)) } ?: BasePreprocessor()
+  morphoDictionary?.let { MorphoPreprocessor(dictionary = it) } ?: BasePreprocessor()
