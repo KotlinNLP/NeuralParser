@@ -11,6 +11,7 @@ import com.kotlinnlp.linguisticdescription.morphology.MorphologicalAnalysis
 import com.kotlinnlp.linguisticdescription.sentence.RealSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
+import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.language.BaseSentence
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
@@ -19,9 +20,9 @@ import com.kotlinnlp.neuralparser.helpers.labelerselector.MorphoSelector
 /**
  * Pre-process a sentence with a morphological analyzer, before the parsing starts.
  *
- * @param morphologicalAnalyzer a morphological analyzer
+ * @param dictionary a morphologies dictionary
  */
-class MorphoPreprocessor(private val morphologicalAnalyzer: MorphologicalAnalyzer) : SentencePreprocessor {
+class MorphoPreprocessor(dictionary: MorphologyDictionary) : SentencePreprocessor {
 
   companion object {
 
@@ -31,6 +32,11 @@ class MorphoPreprocessor(private val morphologicalAnalyzer: MorphologicalAnalyze
     @Suppress("unused")
     private const val serialVersionUID: Long = 1L
   }
+
+  /**
+   * A morphological analyzer.
+   */
+  private val morphologicalAnalyzer: MorphologicalAnalyzer = MorphologicalAnalyzer(dictionary)
 
   /**
    * Convert a [BaseSentence] to a [ParsingSentence].
