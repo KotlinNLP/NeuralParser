@@ -19,13 +19,16 @@ import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.PositionalEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.PositionalEncoder.Companion.calculateErrors
-import com.kotlinnlp.simplednn.core.functionalities.losses.MSECalculator
+import com.kotlinnlp.simplednn.core.arrays.AugmentedArray
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
+import com.kotlinnlp.simplednn.core.layers.models.merge.cosinesimilarity.CosineLayer
+import com.kotlinnlp.simplednn.core.layers.models.merge.cosinesimilarity.CosineLayerParameters
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkProcessor
 import com.kotlinnlp.simplednn.simplemath.assignSum
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 import com.kotlinnlp.simplednn.utils.scheduling.BatchScheduling
 import com.kotlinnlp.simplednn.utils.scheduling.EpochScheduling
 import com.kotlinnlp.simplednn.utils.scheduling.ExampleScheduling
@@ -179,7 +182,7 @@ class LHRTrainer(
     this.beforeSentenceLearning()
 
     val lss: LatentSyntacticStructure<ParsingToken, ParsingSentence> = this.lssEncoder.forward(sentence)
-    val latentHeadsErrors = calculateLatentHeadsErrors(lss, goldTree)
+    val (latentHeadsErrors, contextVectorsErrors) = calculateLSSErrors(lss, goldTree)
 
     val labelerErrors: List<DenseNDArray>? = this.labeler?.let {
       val labelerPrediction: List<DenseNDArray> = it.forward(Labeler.Input(lss, goldTree))
@@ -192,45 +195,62 @@ class LHRTrainer(
 
     this.propagateErrors(
       latentHeadsErrors = latentHeadsErrors,
+      contextVectorsErrors = contextVectorsErrors,
       labelerErrors = labelerErrors,
       positionalEncoderErrors = positionalEncoderErrors)
   }
 
   /**
-   * Calculate the errors of the latent heads
+   * Calculate the errors of the latent heads and the context vectors respect to the cosine similarity
    *
    * @param lss the latent syntactic structure
    * @param goldTree the gold tree of the sentence
    *
-   * @return the errors of the latent heads
+   * @return the errors of the latent heads and the context vectors
    */
-  private fun calculateLatentHeadsErrors(lss: LatentSyntacticStructure<ParsingToken, ParsingSentence>,
-                                         goldTree: DependencyTree): List<DenseNDArray> =
-    MSECalculator().calculateErrors(
-      outputSequence = lss.latentHeads,
-      outputGoldSequence = this.getExpectedLatentHeads(lss, goldTree))
+  private fun calculateLSSErrors(lss: LatentSyntacticStructure<ParsingToken, ParsingSentence>,
+                                 goldTree: DependencyTree): Pair<List<DenseNDArray>, List<DenseNDArray>> {
 
-  /**
-   * Return a list containing the expected latent heads, one for each token of the sentence.
-   *
-   * @param lss the latent syntactic structure
-   * @param goldTree the gold tree of the sentence
-   *
-   * @return the expected latent heads
-   */
-  private fun getExpectedLatentHeads(lss: LatentSyntacticStructure<ParsingToken, ParsingSentence>,
-                                     goldTree: DependencyTree): List<DenseNDArray> =
+    val contextVectorsErrors: List<DenseNDArray> = lss.contextVectors.map { it.zerosLike() }
+    val latentHeadsErrors: List<DenseNDArray> = lss.latentHeads.map { it.zerosLike() }
+
+    val latentHead = AugmentedArray<DenseNDArray>(size = this.parser.model.lssModel.contextVectorsSize)
+    val contextVector = AugmentedArray<DenseNDArray>(size = this.parser.model.lssModel.contextVectorsSize)
+
+    val diffLayer = CosineLayer(
+      inputArray1 = latentHead,
+      inputArray2 = contextVector,
+      params = CosineLayerParameters(this.parser.model.lssModel.contextVectorsSize))
 
     lss.sentence.tokens.map { token ->
 
       val goldHeadId: Int? = goldTree.getHead(token.id)
 
-      when {
-        goldHeadId == null -> lss.virtualRoot
-        this.lhrErrorsOptions.skipPunctuationErrors && token.isComma -> lss.getLatentHeadById(token.id) // no errors
-        else -> lss.getContextVectorById(goldHeadId)
+      latentHead.assignValues(lss.getLatentHeadById(token.id))
+
+      lss.sentence.tokens.map { otherToken ->
+
+        contextVector.assignValues(lss.getContextVectorById(otherToken.id))
+
+        diffLayer.forward()
+
+        val score: Double = diffLayer.outputArray.values[0]
+
+        val scoreError = if (goldHeadId != null && goldHeadId == otherToken.id)
+          score - 1.0 // correct
+        else
+          score // wrong
+
+        diffLayer.setErrors(DenseNDArrayFactory.arrayOf(doubleArrayOf(scoreError)))
+        diffLayer.backward(propagateToInput = true)
+
+        contextVectorsErrors[lss.sentence.getTokenIndex(otherToken.id)].assignSum(contextVector.errors)
+        latentHeadsErrors[lss.sentence.getTokenIndex(token.id)].assignSum(latentHead.errors)
       }
     }
+
+    return Pair(latentHeadsErrors, contextVectorsErrors)
+  }
 
   /**
    * Propagate the errors through the encoders.
@@ -240,10 +260,9 @@ class LHRTrainer(
    * @param positionalEncoderErrors the positional encoder errors
    */
   private fun propagateErrors(latentHeadsErrors: List<DenseNDArray>,
+                              contextVectorsErrors: List<DenseNDArray>,
                               labelerErrors: List<DenseNDArray>?,
                               positionalEncoderErrors: PointerNetworkProcessor.InputErrors?) {
-
-    val contextVectorsErrors: List<DenseNDArray> = latentHeadsErrors.map { it.zerosLike() }
 
     positionalEncoderErrors?.let { contextVectorsErrors.assignSum(it.inputVectorsErrors) }
 
