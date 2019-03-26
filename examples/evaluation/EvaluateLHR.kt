@@ -46,8 +46,8 @@ fun main(args: Array<String>) = mainBody {
       morphoDictionary = parsedArgs.morphoDictionaryPath?.let {
         println("Loading serialized dictionary from '$it'...")
         MorphologyDictionary.load(FileInputStream(File(it)))
-      },
-      language = parser.model.language))
+      }
+    ))
 
   val timer = Timer()
   val evaluation = validator.evaluate()

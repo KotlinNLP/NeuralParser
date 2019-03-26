@@ -255,9 +255,7 @@ private fun buildTokensEncoderWrapperModel(
 
     CommandLineArguments.TokensEncodingType.MORPHO_FEATURES -> {
 
-      val analyzer = MorphologicalAnalyzer(
-        language = getLanguageByIso(parsedArgs.langCode),
-        dictionary = morphologyDictionary!!)
+      val analyzer = MorphologicalAnalyzer(dictionary = morphologyDictionary!!)
 
       val lexiconDictionary = parsedArgs.lexiconDictionaryPath?.let {
         println("Loading lexicon from '$it'...")
@@ -320,9 +318,7 @@ private fun buildTrainer(parser: LHRParser,
                          parsedArgs: CommandLineArguments,
                          morphologyDictionary: MorphologyDictionary?): LHRTrainer {
 
-  val preprocessor: SentencePreprocessor = buildSentencePreprocessor(
-    morphoDictionary = morphologyDictionary,
-    language = getLanguageByIso(parsedArgs.langCode))
+  val preprocessor: SentencePreprocessor = buildSentencePreprocessor(morphologyDictionary)
 
   return LHRTrainer(
     parser = parser,
