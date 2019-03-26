@@ -162,28 +162,32 @@ private fun buildTokensEncoderWrapperModel(
         model = EnsembleTokensEncoderModel(
           components = listOf(
             EnsembleTokensEncoderModel.ComponentModel(
-              TokensEncoderWrapperModel(
+              model = TokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = preEmbeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
                   dropout = parsedArgs.wordDropoutCoefficient),
-                converter = FormConverter())),
+                converter = FormConverter()),
+              trainable = true),
             EnsembleTokensEncoderModel.ComponentModel(
-              TokensEncoderWrapperModel(
+              model = TokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = embeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
                   frequencyDictionary = corpus.words.getElements().associate { it to corpus.words.getCount(it) },
                   dropout = parsedArgs.wordDropoutCoefficient),
-                converter = FormConverter())),
+                converter = FormConverter()),
+              trainable = true),
             EnsembleTokensEncoderModel.ComponentModel(
-              TokensEncoderWrapperModel(
+              model = TokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = posEmbeddingsMap,
                   embeddingKeyExtractor = PosTagKeyExtractor,
                   frequencyDictionary = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }.associate { it to 1 },
                   dropout = parsedArgs.posDropoutCoefficient),
-                converter = MirrorConverter()))),
+                converter = MirrorConverter()),
+              trainable = true)
+          ),
           outputMergeConfiguration = AffineMerge(
             outputSize = 100, // TODO
             activationFunction = null)),
@@ -205,21 +209,24 @@ private fun buildTokensEncoderWrapperModel(
         model = EnsembleTokensEncoderModel(
           components = listOf(
             EnsembleTokensEncoderModel.ComponentModel(
-              TokensEncoderWrapperModel(
+              model = TokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = embeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
                   frequencyDictionary = corpus.words.getElements().associate { it to corpus.words.getCount(it) },
                   dropout = parsedArgs.wordDropoutCoefficient),
-                converter = FormConverter())),
+                converter = FormConverter()),
+              trainable = true),
             EnsembleTokensEncoderModel.ComponentModel(
-              TokensEncoderWrapperModel(
+              model = TokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = posEmbeddingsMap,
                   embeddingKeyExtractor = PosTagKeyExtractor,
                   frequencyDictionary = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }.associate { it to 1 },
                   dropout = parsedArgs.posDropoutCoefficient),
-                converter = MirrorConverter()))),
+                converter = MirrorConverter()),
+              trainable = true)
+          ),
           outputMergeConfiguration = ConcatMerge()),
         converter = MirrorConverter()
       )
