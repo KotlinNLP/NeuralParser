@@ -42,15 +42,13 @@ internal class GreedyDependencyTreeBuilder(
    */
   private fun DependencyTree.assignHighestScoringHeads() {
 
-    val (topId: Int, topScore: Double) = scoresMap.findHighestScoringTop()
+    val topId: Int = scoresMap.findHighestScoringTop()
 
-    this.setAttachmentScore(dependent = topId, score = topScore)
+    this.setAttachmentScore(dependent = topId, score = 1.0) // TODO: top score
 
     this.elements.filter { it != topId }.forEach { depId ->
 
-      val (govId: Int, score: Double) = scoresMap.findHighestScoringHead(
-        dependentId = depId,
-        except = listOf(ScoredArcs.rootId))!!
+      val (govId: Int, score: Double) = scoresMap.findHighestScoringHead(dependentId = depId)!!
 
       this.setArc(
         dependent = depId,
