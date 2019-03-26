@@ -22,7 +22,7 @@ import com.kotlinnlp.neuralparser.helpers.labelerselector.MorphoSelector
  *
  * @param dictionary a morphologies dictionary
  */
-class MorphoPreprocessor(dictionary: MorphologyDictionary) : SentencePreprocessor {
+class MorphoPreprocessor(private val dictionary: MorphologyDictionary) : SentencePreprocessor {
 
   companion object {
 
@@ -34,9 +34,9 @@ class MorphoPreprocessor(dictionary: MorphologyDictionary) : SentencePreprocesso
   }
 
   /**
-   * A morphological analyzer.
+   * A morphological analyzer as transient property.
    */
-  private val morphologicalAnalyzer: MorphologicalAnalyzer = MorphologicalAnalyzer(dictionary)
+  @kotlin.jvm.Transient private var morphologicalAnalyzer: MorphologicalAnalyzer? = null
 
   /**
    * Convert a [BaseSentence] to a [ParsingSentence].
@@ -48,7 +48,7 @@ class MorphoPreprocessor(dictionary: MorphologyDictionary) : SentencePreprocesso
   override fun convert(sentence: BaseSentence): ParsingSentence {
 
     @Suppress("UNCHECKED_CAST")
-    val morphoAnalysis: MorphologicalAnalysis = this.morphologicalAnalyzer.analyze(sentence as RealSentence<RealToken>)
+    val morphoAnalysis: MorphologicalAnalysis = this.getOrInitAnalyzer().analyze(sentence as RealSentence<RealToken>)
 
     return ParsingSentence(
       tokens = sentence.tokens.map {
@@ -61,5 +61,19 @@ class MorphoPreprocessor(dictionary: MorphologyDictionary) : SentencePreprocesso
       morphoAnalysis = morphoAnalysis,
       labelerSelector = MorphoSelector
     )
+  }
+
+  /**
+   * Get the [MorphologicalAnalyzer] of this preprocessor, eventually initializing it (in case this class has just been
+   * deserialized).
+   *
+   * @return the morphological analyzer of this preprocessor
+   */
+  private fun getOrInitAnalyzer(): MorphologicalAnalyzer {
+
+    if (this.morphologicalAnalyzer == null)
+      this.morphologicalAnalyzer = MorphologicalAnalyzer(this.dictionary)
+
+    return this.morphologicalAnalyzer!!
   }
 }
