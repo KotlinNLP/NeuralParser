@@ -131,7 +131,8 @@ fun buildTokensEncoderModel(
               embeddingKeyExtractor = NormWordKeyExtractor(),
               frequencyDictionary = corpus.words.getElements().associate { it to corpus.words.getCount(it) },
               dropout = parsedArgs.wordDropoutCoefficient),
-            converter = FormConverter()))),
+            converter = FormConverter()),
+          trainable = true)),
       outputMergeConfiguration = ConcatMerge()),
     converter = MirrorConverter()
   )
