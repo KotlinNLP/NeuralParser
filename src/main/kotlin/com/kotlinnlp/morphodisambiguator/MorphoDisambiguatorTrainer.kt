@@ -11,7 +11,7 @@ import com.kotlinnlp.lssencoder.tokensencoder.LSSTokensEncoder
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.PreprocessedDataset
 import com.kotlinnlp.morphodisambiguator.language.MorphoToken
 import com.kotlinnlp.morphodisambiguator.language.PropertyNames
-import com.kotlinnlp.morphodisambiguator.utils.Statistics
+import com.kotlinnlp.morphodisambiguator.utils.MetricsCounter
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.core.functionalities.losses.SoftmaxCrossEntropyCalculator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
@@ -132,7 +132,7 @@ class MorphoDisambiguatorTrainer(
    */
   private fun validateAndSaveModel() {
 
-    val stats: Statistics = this.validator!!.evaluate()
+    val stats: MetricsCounter = this.validator!!.evaluate()
 
     println("\n$stats")
 

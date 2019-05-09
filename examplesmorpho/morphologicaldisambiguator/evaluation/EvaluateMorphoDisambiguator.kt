@@ -12,7 +12,7 @@ import com.kotlinnlp.morphodisambiguator.MorphoDisambiguatorModel
 import com.kotlinnlp.morphodisambiguator.MorphoDisambiguatorValidator
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.Dataset
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.PreprocessedDataset
-import com.kotlinnlp.morphodisambiguator.utils.Statistics
+import com.kotlinnlp.morphodisambiguator.utils.MetricsCounter
 import com.kotlinnlp.utils.Timer
 import com.xenomachina.argparser.mainBody
 import evaluation.CommandLineArguments
@@ -21,7 +21,7 @@ import java.io.FileInputStream
 
 
 /**
- * Evaluate the model of an [MorpoDisambiguator].
+ * Evaluate the model of an [MorphoDisambiguator].
  *
  * Launch with the '-h' option for help about the command line arguments.
  */
@@ -38,7 +38,7 @@ fun main(args: Array<String>) = mainBody {
   val disambiguator = MorphoDisambiguator(
       model = parsedArgs.modelPath.let {
         println("Loading model from '$it'.")
-        MorphoDisambiguatorModel.load(FileInputStream(File(it))) as MorphoDisambiguatorModel
+        MorphoDisambiguatorModel.load(FileInputStream(File(it)))
       })
 
   val validator = MorphoDisambiguatorValidator(
@@ -48,7 +48,7 @@ fun main(args: Array<String>) = mainBody {
       )
 
   val timer = Timer()
-  val evaluation: Statistics = validator.evaluate()
+  val evaluation: MetricsCounter = validator.evaluate()
 
   println("\n$evaluation")
   println("\nElapsed time: ${timer.formatElapsedTime()}")

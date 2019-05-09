@@ -3,9 +3,11 @@ package com.kotlinnlp.morphodisambiguator
 import com.kotlinnlp.morphodisambiguator.helpers.dataset.PreprocessedDataset
 import com.kotlinnlp.morphodisambiguator.language.MorphoToken
 import com.kotlinnlp.morphodisambiguator.language.PropertyNames
-import com.kotlinnlp.morphodisambiguator.utils.Statistics
+import com.kotlinnlp.morphodisambiguator.utils.MetricsCounter
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
+import com.kotlinnlp.utils.stats.MetricCounter
+
 
 class MorphoDisambiguatorValidator (
     val morphoDisambiguator: MorphoDisambiguator,
@@ -17,7 +19,7 @@ class MorphoDisambiguatorValidator (
   /**
    * A statistics of statistic metrics.
    */
-  private lateinit var statistics: Statistics
+  private lateinit var statistics: MetricsCounter
 
 
   /**
@@ -25,7 +27,7 @@ class MorphoDisambiguatorValidator (
    *
    * @return the statistics of the parsing accuracy
    */
-  fun evaluate(): Statistics {
+  fun evaluate(): MetricsCounter {
 
     val disambiguatedSentences: List<List<MorphoToken>> = this.disambiguateSentences()
 
@@ -70,8 +72,7 @@ class MorphoDisambiguatorValidator (
    */
   private fun initCounters(goldSentences: List<PreprocessedDataset.MorphoSentence>) {
 
-    this.statistics = Statistics(corpusMorphologies = this.morphoDisambiguator.model.corpusMorphologies,
-        goldSentences = goldSentences)
+    this.statistics = MetricsCounter(corpusMorphologies = this.morphoDisambiguator.model.corpusMorphologies)
     this.statistics.totalSentences = goldSentences.size
 
   }
@@ -101,7 +102,7 @@ class MorphoDisambiguatorValidator (
    */
   private fun addCorrectMorphology(propertyName: String, predictedAnnotation: String?, goldAnnotation: String?) {
 
-    val metricCounter = this.statistics.metricCounters.get(propertyName)
+    val metricCounter: MetricCounter? = this.statistics.counterMorphologyProperties.get(propertyName)
 
     if (goldAnnotation != PropertyNames().unknownAnnotation){ // todo may have unknown label
 
