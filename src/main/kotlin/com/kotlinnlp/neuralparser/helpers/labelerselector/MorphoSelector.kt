@@ -79,7 +79,8 @@ object MorphoSelector : LabelerSelector {
                                     tokenIndex: Int,
                                     configuration: GrammaticalConfiguration): Morphologies {
 
-    val possibleMorphologies = sentence.getCompatibleMorphologies(c = configuration, tokenIndex = tokenIndex)
+    val possibleMorphologies: Morphologies =
+      sentence.getCompatibleMorphologies(c = configuration, tokenIndex = tokenIndex)
 
     return when {
 
@@ -88,11 +89,11 @@ object MorphoSelector : LabelerSelector {
       configuration.type == GrammaticalConfiguration.Type.Single -> {
 
         val pos: POSTag.Base = checkNotNull(configuration.components.single().pos as? POSTag.Base) {
-          "The POS must be not null."
+          "The POS cannot be null."
         }
 
         require(pos.type.isContentWord) {
-          "Grammatical configuration for tokens without morphological analysis must define a content word."
+          "The grammatical configuration of tokens without morphological analysis must define a content word."
         }
 
         Morphologies(Morphology(SingleMorphology(
