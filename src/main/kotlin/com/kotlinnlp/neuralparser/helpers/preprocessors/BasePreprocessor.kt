@@ -34,10 +34,8 @@ class BasePreprocessor : SentencePreprocessor {
    * @return a sentence ready to be parsed
    */
   override fun convert(sentence: BaseSentence) = ParsingSentence(
-    tokens = sentence.tokens.map {
-      ParsingToken(id = it.id, form = it.form, position = it.position)
-    },
-    labelerSelector = NoFilterSelector
+    tokens = sentence.tokens.map { ParsingToken(id = it.id, form = it.form, position = it.position) },
+    labelerSelector = NoFilterSelector,
+    position = sentence.position
   )
 }
-

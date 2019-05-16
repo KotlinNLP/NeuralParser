@@ -59,7 +59,8 @@ class MorphoPreprocessor(private val dictionary: MorphologyDictionary) : Sentenc
         )
       },
       morphoAnalysis = morphoAnalysis,
-      labelerSelector = MorphoSelector
+      labelerSelector = MorphoSelector,
+      position = sentence.position
     )
   }
 

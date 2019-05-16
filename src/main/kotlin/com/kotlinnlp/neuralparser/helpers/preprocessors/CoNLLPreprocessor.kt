@@ -50,7 +50,8 @@ class CoNLLPreprocessor(private val conllSentences: List<CoNLLSentence>) : Sente
           pos = conllTokens[i].posList
         )
       },
-      labelerSelector = NoFilterSelector
+      labelerSelector = NoFilterSelector,
+      position = sentence.position
     )
   }
 }

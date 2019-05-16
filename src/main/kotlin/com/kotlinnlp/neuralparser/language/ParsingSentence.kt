@@ -13,7 +13,9 @@ import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.MorphologicalAnalysis
 import com.kotlinnlp.linguisticdescription.morphology.Morphologies
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSentence
+import com.kotlinnlp.linguisticdescription.sentence.RealSentence
 import com.kotlinnlp.linguisticdescription.sentence.SentenceIdentificable
+import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.neuralparser.helpers.labelerselector.LabelerSelector
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.ScoredGrammar
 
@@ -22,13 +24,15 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.utils.
  *
  * @property tokens the list of tokens of the sentence
  * @property morphoAnalysis the morphological analysis of the tokens (can be null)
+ * @property position the position of the sentence in the text
  * @param labelerSelector the labeler selector used to select the grammatical configurations compatible with the sentence
  */
 class ParsingSentence(
   override val tokens: List<ParsingToken>,
   override val morphoAnalysis: MorphologicalAnalysis? = null,
+  override val position: Position,
   private val labelerSelector: LabelerSelector
-) : MorphoSentence<ParsingToken>, SentenceIdentificable<ParsingToken>() {
+) : MorphoSentence<ParsingToken>, RealSentence<ParsingToken>, SentenceIdentificable<ParsingToken>() {
 
   /**
    * Check whether the morphologies of the token are compatible with the given configuration [c].
