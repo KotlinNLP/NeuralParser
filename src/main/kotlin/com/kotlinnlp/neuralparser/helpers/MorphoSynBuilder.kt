@@ -47,11 +47,14 @@ class MorphoSynBuilder(
     confidence = 0.0,
     tokens = this.parsingSentence.tokens.mapIndexed { i, token ->
 
-      // TODO: set the morphologies scores adding the labeler prediction scores of configurations with the same pos
+      val attachmentScore: Double = this.dependencyTree.getAttachmentScore(token.id)
+
       val morphologies: List<ScoredMorphology> = this.parsingSentence.getValidMorphologies(
         tokenIndex = i,
         configuration = this.dependencyTree.getConfiguration(token.id)!!
-      ).map { morpho -> ScoredMorphology(components = morpho.components, score = 1.0) }
+      ).map { morpho ->
+        ScoredMorphology(components = morpho.components, score = attachmentScore)
+      }
 
       this.buildToken(tokenId = token.id, morphologies = morphologies)
     },
