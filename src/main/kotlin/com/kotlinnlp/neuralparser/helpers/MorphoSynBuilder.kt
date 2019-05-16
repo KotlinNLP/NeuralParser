@@ -69,7 +69,7 @@ class MorphoSynBuilder(
    *
    * @return a new morpho-syntactic token build from the given parsing token
    */
-  fun buildToken(tokenId: Int, morphologies: List<ScoredMorphology>): MorphoSynToken {
+  private fun buildToken(tokenId: Int, morphologies: List<ScoredMorphology>): MorphoSynToken {
 
     val config: GrammaticalConfiguration = this.dependencyTree.getConfiguration(tokenId)!!
 
