@@ -39,15 +39,12 @@ class MorphoSynBuilder(
 
   /**
    * Build the morpho-syntactic sentence using a [LabelerSelector] to select the valid morphologies.
-   * TODO: Set missing properties.
    *
    * @return a new morpho-syntactic sentence built from the given [parsingSentence]
    */
   fun buildSentence(): MorphoSynSentence = MorphoSynSentence(
     id = 0,
     confidence = 0.0,
-    dateTimes = this.parsingSentence.morphoAnalysis?.dateTimes,
-    entities = null,
     tokens = this.parsingSentence.tokens.mapIndexed { i, it ->
 
       // TODO: set the morphologies scores adding the labeler prediction scores of configurations with the same pos
@@ -57,7 +54,8 @@ class MorphoSynBuilder(
       ).map { ScoredMorphology(components = it.components, score = 1.0) }
 
       this.buildToken(tokenId = it.id, morphologies = morphologies)
-    }
+    },
+    position = this.parsingSentence.position
   )
 
   /**
