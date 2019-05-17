@@ -145,13 +145,17 @@ class MorphoSynBuilder(
       attachmentScore = this.dependencyTree.getAttachmentScore(tokenId),
       dependency = grammaticalComponent.syntacticDependency)
 
+    // Unique morphologies by lemma and POS.
+    val uniqueMorphologies: List<ScoredSingleMorphology> =
+      morphologies.associateBy { Pair(it.value.lemma, it.value.pos) }.values.toList()
+
     return if (parsingToken.position != null)
       Word(
         id = componentId ?: tokenId,
         form = parsingToken.form,
         position = parsingToken.position,
         pos = grammaticalComponent.pos,
-        morphologies = morphologies,
+        morphologies = uniqueMorphologies,
         contextMorphologies = listOf(), // TODO: set it
         syntacticRelation = syntacticRelation,
         coReferences = null, // TODO: set it
@@ -161,7 +165,7 @@ class MorphoSynBuilder(
         id = componentId ?: tokenId,
         form = parsingToken.form,
         pos = grammaticalComponent.pos,
-        morphologies = morphologies,
+        morphologies = uniqueMorphologies,
         contextMorphologies = listOf(), // TODO: set it
         syntacticRelation = syntacticRelation,
         coReferences = null, // TODO: set it
