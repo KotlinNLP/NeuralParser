@@ -66,7 +66,7 @@
         <dependencytree.version>0.4.2</dependencytree.version>
         <tokensencoder.version>0.5.2</tokensencoder.version>
         <lssencoder.version>0.2.1</lssencoder.version>
-        <linguisticdescription.version>0.11.0</linguisticdescription.version>
+        <linguisticdescription.version>0.12.0</linguisticdescription.version>
         <morphologicalanalyzer.version>0.4.4</morphologicalanalyzer.version>
         <utils.version>2.1.2</utils.version>
     </properties>
