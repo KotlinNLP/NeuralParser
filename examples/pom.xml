@@ -25,7 +25,7 @@
         <morphologicalanalyzer.version>0.4.4</morphologicalanalyzer.version>
         <tokensencoder.version>0.5.2</tokensencoder.version>
         <lssencoder.version>0.2.1</lssencoder.version>
-        <utils.version>2.1.1</utils.version>
+        <utils.version>2.1.2</utils.version>
     </properties>
 
     <repositories>
