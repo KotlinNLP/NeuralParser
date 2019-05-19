@@ -8,6 +8,7 @@
 package training
 
 import buildSentencePreprocessor
+import com.google.common.collect.HashMultiset
 import com.kotlinnlp.languagemodel.CharLM
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.linguisticdescription.lexicon.LexiconDictionary
@@ -25,6 +26,7 @@ import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.neuralparser.helpers.validator.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
+import com.kotlinnlp.neuralparser.helpers.treeutils.*
 import com.kotlinnlp.neuralparser.language.*
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
@@ -48,6 +50,8 @@ import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.morpho.FeaturesCollector
 import com.kotlinnlp.tokensencoder.morpho.MorphoEncoderModel
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
+import com.kotlinnlp.utils.DictionarySet
+import com.kotlinnlp.utils.combine
 import java.io.File
 import java.io.FileInputStream
 
@@ -65,6 +69,8 @@ fun main(args: Array<String>) = mainBody {
     filePath = parsedArgs.trainingSetPath,
     maxSentences = parsedArgs.maxSentences,
     skipNonProjective = parsedArgs.skipNonProjective)
+
+  collectAndPrintTreeStats(trainingSentences)
 
   val corpus: CorpusDictionary = trainingSentences.let {
     println("Creating corpus dictionary...")
@@ -346,4 +352,55 @@ private fun buildTrainer(parser: LHRParser,
     updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
     sentencePreprocessor = preprocessor,
     verbose = !parsedArgs.quiet)
+}
+
+/**
+ * TODO: remove this method, used for debug purpose only
+ */
+fun collectAndPrintTreeStats(sentences: List<com.kotlinnlp.conllio.Sentence>) {
+
+  val depthSet: HashMultiset<Int> = HashMultiset.create()
+  val distanceSet: HashMultiset<Int> = HashMultiset.create()
+  val pairsSet: HashMultiset<Int> = HashMultiset.create()
+  val lengthSet: HashMultiset<Int> = HashMultiset.create()
+
+  sentences.forEach { sentence ->
+
+    val elements = sentence.tokens.map { Element(id = it.id, label = it.form) }
+    val heads = sentence.tokens.map { it.id to it.head?.let { h -> if (h == 0) null else h } }
+    val nodes = DAGNodesFactory(elements, heads).newNodes()
+
+    nodes.forEach { depthSet.add(it.depth) }
+
+    val combinations = nodes.combine()
+
+    pairsSet.add(combinations.size)
+
+    combinations.forEach { (first, second) ->
+      distanceSet.add(first.distance(second))
+    }
+
+    lengthSet.add(sentence.tokens.size)
+
+    //println("Nodes and heads/tree:")
+    //nodes.printNodes()
+
+    //println("\nNodes depth:")
+    //nodes.printNodesDepth()
+
+    //println("\nAll pairs with distance:")
+    //nodes.printAllPairsDistance()
+  }
+
+  println("Depth stats:")
+  depthSet.elementSet().associate { it to depthSet.count(it) }.toSortedMap().forEach(::println)
+
+  println("Distance stats:")
+  distanceSet.elementSet().associate { it to distanceSet.count(it) }.toSortedMap().forEach(::println)
+
+  println("Pairs stats:")
+  pairsSet.elementSet().associate { it to pairsSet.count(it) }.toSortedMap().forEach(::println)
+
+  println("Sentence length stats:")
+  lengthSet.elementSet().associate { it to lengthSet.count(it) }.toSortedMap().forEach(::println)
 }
