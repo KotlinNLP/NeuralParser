@@ -154,16 +154,30 @@ class StructuralDistanceParserTrainer(
     val contextVectors: List<DenseNDArray> = this.contextEncoder.forward(tokensEncodings).map { it.copy() }
     val pairs: List<Pair<Int, Int>> = contextVectors.indices.toList().combine()
     val distances: List<Double> = this.distancePredictor.forward(SDPInput(hiddens = contextVectors, pairs = pairs))
-
     val goldDistances: List<Int> = this.getGoldDistances(sentence, goldTree)
 
-    val distanceErrors: List<Double> = (goldDistances).zip(distances).map {
-      (dT, dB) -> Math.abs(dT - dB)
-    }
-
-    goldDistances.zip(distances).forEach { println(it) } // TODO: debug, remove it!
+    val distanceErrors: List<Double> = this.calcDistanceErrors(
+      length = sentence.tokens.size,
+      prediction = distances,
+      gold = goldDistances)
 
     this.propagateErrors(sentenceLength = sentence.tokens.size, pairsDistanceErrors = distanceErrors)
+  }
+
+  /**
+   * Calculate the distance errors.
+   *
+   * @param length the sequence length used to normalize
+   * @param prediction the predicted distances
+   * @param gold the gold distances
+   *
+   * @return the errors of each prediction
+   */
+  private fun calcDistanceErrors(length: Int, prediction: List<Double>, gold: List<Int>): List<Double> {
+
+    val s2 = length.toDouble().pow(2)
+
+    return (gold).zip(prediction).map { (g, o) -> if (o < g) -1.0/s2 else 1.0/s2 }
   }
 
   /**
