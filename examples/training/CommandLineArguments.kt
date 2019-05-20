@@ -130,11 +130,11 @@ class CommandLineArguments(args: Array<String>) {
     .addValidator { if (value < 1) throw InvalidArgumentException( "The number of context-layers must >= 1") }
 
   /**
-   * The size of the word embedding vectors.
+   * The size of the word embedding hiddens.
    */
   val wordEmbeddingSize: Int by parser.storing(
     "--word-emb-size",
-    help="the size of the word embedding vectors (default 150)"
+    help="the size of the word embedding hiddens (default 150)"
   ){ toInt() }.default(150)
 
   /**
@@ -146,11 +146,11 @@ class CommandLineArguments(args: Array<String>) {
   ){ toDouble() }.default(0.25)
 
   /**
-   * The size of the part-of-speech embedding vectors.
+   * The size of the part-of-speech embedding hiddens.
    */
   val posEmbeddingSize: Int by parser.storing(
     "--pos-emb-size",
-    help="the size of the part-of-speech embedding vectors (default 50)"
+    help="the size of the part-of-speech embedding hiddens (default 50)"
   ){ toInt() }.default(50)
 
   /**
