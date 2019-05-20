@@ -12,6 +12,7 @@ import com.kotlinnlp.neuralparser.helpers.Trainer
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
+import com.kotlinnlp.neuralparser.helpers.treeutils.DAGNode
 import com.kotlinnlp.neuralparser.helpers.treeutils.DAGNodesFactory
 import com.kotlinnlp.neuralparser.helpers.treeutils.Element
 import com.kotlinnlp.neuralparser.language.ParsingSentence
@@ -65,7 +66,7 @@ class StructuralDistanceParserTrainer(
   /**
    * The tokens encoder.
    */
-  private val tokensEncoderWrapper = this.parser.model.tokensEncoderModel.buildEncoder(useDropout = false)
+  private val tokensEncoder = this.parser.model.tokensEncoderModel.buildEncoder(useDropout = false)
 
   /**
    * The encoder of tokens encodings sentential context.
@@ -80,6 +81,13 @@ class StructuralDistanceParserTrainer(
    */
   private val distancePredictor = StructuralDistancePredictor(
     model = this.parser.model.distanceModel,
+    useDropout = false)
+
+  /**
+   * The structural depth predictor.
+   */
+  private val depthPredictor = StructuralDepthPredictor(
+    model = this.parser.model.depthModel,
     useDropout = false)
 
   /**
@@ -150,18 +158,31 @@ class StructuralDistanceParserTrainer(
     if (sentence.tokens.size <= 1)
       return // skip training of sentences with a single token
 
-    val tokensEncodings: List<DenseNDArray> = this.tokensEncoderWrapper.forward(sentence)
+    val tokensEncodings: List<DenseNDArray> = this.tokensEncoder.forward(sentence)
     val contextVectors: List<DenseNDArray> = this.contextEncoder.forward(tokensEncodings).map { it.copy() }
+
     val pairs: List<Pair<Int, Int>> = contextVectors.indices.toList().combine()
     val distances: List<Double> = this.distancePredictor.forward(SDPInput(hiddens = contextVectors, pairs = pairs))
-    val goldDistances: List<Int> = this.getGoldDistances(sentence, goldTree)
+    val depths: List<Double> = this.depthPredictor.forward(contextVectors)
+
+    val treeNodes: List<DAGNode<Int>> = this.createNodes(sentence, goldTree)
+    val goldDistances: List<Int> = this.getGoldDistances(treeNodes)
+    val goldDepths: List<Int> = this.getGoldDepths(treeNodes)
 
     val distanceErrors: List<Double> = this.calcDistanceErrors(
       length = sentence.tokens.size,
       prediction = distances,
       gold = goldDistances)
 
-    this.propagateErrors(sentenceLength = sentence.tokens.size, pairsDistanceErrors = distanceErrors)
+    val depthErrors: List<Double> = this.calcDepthErrors(
+      length = sentence.tokens.size,
+      prediction = depths,
+      gold = goldDepths)
+
+    this.propagateErrors(
+      sentenceLength = sentence.tokens.size,
+      pairsDistanceErrors = distanceErrors,
+      depthErrors = depthErrors)
   }
 
   /**
@@ -181,21 +202,54 @@ class StructuralDistanceParserTrainer(
   }
 
   /**
+   * Calculate the depth errors.
    *
+   * @param length the sequence length used to normalize
+   * @param prediction the predicted depths
+   * @param gold the gold distances
+   *
+   * @return the errors of each prediction
    */
-  private fun getGoldDistances(sentence: ParsingSentence, goldTree: DependencyTree): List<Int> {
+  private fun calcDepthErrors(length: Int, prediction: List<Double>, gold: List<Int>): List<Double> {
+
+    val s = length.toDouble()
+
+    return (gold).zip(prediction).map { (g, o) -> if (o < g) -1.0/s else 1.0/s }
+  }
+
+  /**
+   * @param sentence the sentence
+   * @param goldTree the gold dependency tree
+   *
+   * @return the list of gold nodes
+   */
+  private fun createNodes(sentence: ParsingSentence, goldTree: DependencyTree): List<DAGNode<Int>> {
 
     val elements = sentence.tokens.map { Element(id = it.id, label = it.form) }
     val heads = sentence.tokens.map { it.id to goldTree.getHead(it.id) }
-    val nodes = DAGNodesFactory(elements, heads).newNodes()
 
-    return nodes.combine().map { (first, second) -> first.distance(second) }
+    return DAGNodesFactory(elements, heads).newNodes()
   }
+
+  /**
+   * @param nodes the nodes
+   *
+   * @return the distances of all pairs of nodes
+   */
+  private fun getGoldDistances(nodes: List<DAGNode<Int>>): List<Int> =
+    nodes.combine().map { (first, second) -> first.distance(second) }
 
   /**
    *
    */
-  private fun propagateErrors(sentenceLength: Int, pairsDistanceErrors: List<Double>) {
+  private fun getGoldDepths(nodes: List<DAGNode<Int>>): List<Int> = nodes.map { it.depth }
+
+  /**
+   * @param sentenceLength the sentence length
+   * @param pairsDistanceErrors the errors of the distance for each pair
+   * @param depthErrors the errors of the depth for each token
+   */
+  private fun propagateErrors(sentenceLength: Int, pairsDistanceErrors: List<Double>, depthErrors: List<Double>) {
 
     val tokensEncodingsErrors: List<DenseNDArray> = List(size = sentenceLength, init = {
       DenseNDArrayFactory.zeros(Shape(this.parser.model.tokenEncodingSize))
@@ -209,10 +263,14 @@ class StructuralDistanceParserTrainer(
       contextVectorsErrors.assignSum(it)
     }
 
+    this.depthPredictor.propagateErrors(depthErrors, optimizer = this.optimizer, copy = false).let {
+      contextVectorsErrors.assignSum(it)
+    }
+
     this.contextEncoder.propagateErrors(contextVectorsErrors, optimizer = this.optimizer, copy = false).let {
       tokensEncodingsErrors.assignSum(it)
     }
 
-    this.tokensEncoderWrapper.propagateErrors(tokensEncodingsErrors, optimizer = this.optimizer)
+    this.tokensEncoder.propagateErrors(tokensEncodingsErrors, optimizer = this.optimizer)
   }
 }

@@ -15,6 +15,7 @@ import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.utils.combine
+import com.kotlinnlp.neuralparser.parsers.structuraldistaceparser.StructuralDistancePredictor.Input as SDPInput
 
 /**
  * @property model the parser model
@@ -42,6 +43,13 @@ class StructuralDistanceParser(override val model: StructuralDistanceParserModel
     useDropout = false)
 
   /**
+   * The structural depth predictor.
+   */
+  private val depthPredictor = StructuralDepthPredictor(
+    model = this.model.depthModel,
+    useDropout = false)
+
+  /**
    * Parse a sentence, returning its dependency tree.
    *
    * @param sentence a parsing sentence
@@ -53,10 +61,8 @@ class StructuralDistanceParser(override val model: StructuralDistanceParserModel
     val tokensEncodings: List<DenseNDArray> = this.tokensEncoder.forward(sentence)
     val contextVectors: List<DenseNDArray> = this.contextEncoder.forward(tokensEncodings).map { it.copy() }
     val pairs: List<Pair<Int, Int>> = contextVectors.indices.toList().combine()
-    val distances: List<Double> = this.distancePredictor.forward(StructuralDistancePredictor.Input(
-      hiddens = contextVectors,
-      pairs = pairs
-    ))
+    val distances: List<Double> = this.distancePredictor.forward(SDPInput(hiddens = contextVectors, pairs = pairs))
+    val depths: List<Double> = this.depthPredictor.forward(contextVectors)
 
     /**
      * Scores are mapped by dependents to governors ids (the root is intended to have id = -1).
