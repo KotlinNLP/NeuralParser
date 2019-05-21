@@ -12,26 +12,29 @@ import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.parsers.distance.DistanceParser
 import com.kotlinnlp.neuralparser.parsers.distance.DistanceParserModel
+import com.kotlinnlp.neuralparser.parsers.distance.decoder.DependencyDecoder
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.utils.Timer
-import com.xenomachina.argparser.mainBody
 import java.io.File
 import java.io.FileInputStream
+import kotlin.reflect.KClass
 
 /**
  * Evaluate the model of a [DistanceParserModel].
  *
- * Launch with the '-h' option for help about the command line arguments.
+ * @param args the command line arguments
+ * @param dependencyDecoderClass the class of the dependency decoder to use to build the parser
  */
-fun main(args: Array<String>) = mainBody {
+internal fun <T : DependencyDecoder>evaluateDistanceParser(args: Array<String>, dependencyDecoderClass: KClass<T>) {
 
   val parsedArgs = CommandLineArguments(args)
 
   val parser = DistanceParser(
     model = parsedArgs.modelPath.let {
       println("Loading model from '$it'.")
-      NeuralParserModel.load(FileInputStream(File(it))) as DistanceParserModel<*>
-    })
+      NeuralParserModel.load(FileInputStream(File(it))) as DistanceParserModel
+    },
+    decoderClass = dependencyDecoderClass)
 
   val validator = Validator(
     neuralParser = parser,
