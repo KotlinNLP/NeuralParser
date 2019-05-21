@@ -10,7 +10,7 @@ package com.kotlinnlp.neuralparser.parsers.structuraldistaceparser
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.helpers.MorphoSynBuilder
+import com.kotlinnlp.neuralparser.helpers.UnlabeledMorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -59,7 +59,7 @@ class StructuralDistanceParser(override val model: StructuralDistanceParserModel
       dependencyTree.setArc(dependent = depId, governor = govId, score = score)
     }
 
-    return MorphoSynBuilder(
+    return UnlabeledMorphoSynBuilder(
       parsingSentence = sentence,
       dependencyTree = dependencyTree
     ).buildSentence()
