@@ -42,15 +42,6 @@ class DistanceParserModel<DecoderType>(
      */
     @Suppress("unused")
     private const val serialVersionUID: Long = 1L
-
-    /**
-     * Read a [DistanceParserModel] (serialized) from an input stream and decode it.
-     *
-     * @param inputStream the [InputStream] from which to read the serialized [DistanceParserModel]
-     *
-     * @return the [DistanceParserModel] read from [inputStream] and decoded
-     */
-    fun load(inputStream: InputStream): DistanceParserModel = Serializer.deserialize(inputStream)
   }
 
   /**
