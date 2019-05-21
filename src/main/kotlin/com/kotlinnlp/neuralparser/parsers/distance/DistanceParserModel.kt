@@ -11,7 +11,6 @@ import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.distance.decoder.DependencyDecoder
 import com.kotlinnlp.simplednn.core.layers.LayerInterface
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.simplednn.core.layers.StackedLayersParameters
@@ -19,7 +18,6 @@ import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNN
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNN
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
-import kotlin.reflect.KClass
 
 /**
  * The model of a [DistanceParser].
@@ -27,14 +25,12 @@ import kotlin.reflect.KClass
  * @property language the parser language
  * @property tokensEncoderModel the model of the Tokens encoder
  * @param contextBiRNNConfig the configuration of the context BiRNN
- * @param decoderClass the class of the decoder that will be instantiated from this model
  */
-class DistanceParserModel<DecoderType>(
+class DistanceParserModel(
   language: Language,
   val tokensEncoderModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>,
-  contextBiRNNConfig: BiRNNConfig,
-  internal val decoderClass: KClass<DecoderType>
-) : NeuralParserModel(language) where DecoderType : DependencyDecoder {
+  contextBiRNNConfig: BiRNNConfig
+) : NeuralParserModel(language) {
 
   companion object {
 

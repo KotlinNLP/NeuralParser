@@ -15,6 +15,7 @@ import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.distance.decoder.DependencyDecoder
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import kotlin.reflect.KClass
 import com.kotlinnlp.neuralparser.parsers.distance.helpers.DistancePredictor.Input as SDPInput
 
 /**
@@ -22,12 +23,15 @@ import com.kotlinnlp.neuralparser.parsers.distance.helpers.DistancePredictor.Inp
  *
  * @property model the parser model
  */
-class DistanceParser(override val model: DistanceParserModel<*>) : NeuralParser<DistanceParserModel<*>> {
+class DistanceParser<DecoderType : DependencyDecoder>(
+  override val model: DistanceParserModel,
+  decoderClass: KClass<DecoderType>
+) : NeuralParser<DistanceParserModel> {
 
   /**
    * The dependency decoder.
    */
-  private val decoder: DependencyDecoder = this.model.decoderClass.constructors.first().call(this.model)
+  private val decoder: DependencyDecoder = decoderClass.constructors.first().call(this.model)
 
   /**
    * The tokens encoder.

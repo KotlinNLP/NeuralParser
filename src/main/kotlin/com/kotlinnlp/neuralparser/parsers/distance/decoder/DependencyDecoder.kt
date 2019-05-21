@@ -16,7 +16,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  *
  * @param model the model of a distance parser
  */
-abstract class DependencyDecoder(model: DistanceParserModel<*>) {
+abstract class DependencyDecoder(model: DistanceParserModel) {
 
   /**
    * The processor to predict the 'tree-distance'.

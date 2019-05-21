@@ -45,7 +45,7 @@ import kotlin.math.pow
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
 class DistanceParserTrainer(
-  private val parser: DistanceParser,
+  private val parser: DistanceParser<*>,
   private val batchSize: Int,
   private val epochs: Int,
   validator: Validator?,

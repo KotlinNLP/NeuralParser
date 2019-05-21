@@ -15,7 +15,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  *
  * @param model the model of a distance parser
  */
-class LowerDistanceFirstDecoder(model: DistanceParserModel<LowerDistanceFirstDecoder>) : DependencyDecoder(model) {
+class LowerDistanceFirstDecoder(model: DistanceParserModel) : DependencyDecoder(model) {
 
   /**
    * Decode the encoded representation into a list of arcs.
