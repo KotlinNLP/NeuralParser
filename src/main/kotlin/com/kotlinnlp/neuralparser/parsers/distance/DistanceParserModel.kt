@@ -22,10 +22,11 @@ import com.kotlinnlp.utils.Serializer
 import java.io.InputStream
 
 /**
- * The model of the [DistanceParser].
+ * The model of a [DistanceParser].
  *
- * @param language
- * @property tokensEncoderModel the model of the Tokens0 encoder
+ * @property language the parser language
+ * @property tokensEncoderModel the model of the Tokens encoder
+ * @param contextBiRNNConfig the configuration of the context BiRNN
  */
 class DistanceParserModel(
   language: Language,
@@ -54,7 +55,7 @@ class DistanceParserModel(
   /**
    * The size of the encoded tokens.
    */
-  val tokenEncodingSize: Int = this.tokensEncoderModel.model.tokenEncodingSize
+  private val tokenEncodingSize: Int = this.tokensEncoderModel.model.tokenEncodingSize
 
   /**
    * The model of the context encoder.
@@ -91,7 +92,7 @@ class DistanceParserModel(
   /**
    * The size of the context vectors.
    */
-  val contextVectorsSize: Int = this.contextEncoderModel.outputSize
+  private val contextVectorsSize: Int = this.contextEncoderModel.outputSize
 
   /**
    * The parameters of the model that predicts the structural distance among pairs of nodes.

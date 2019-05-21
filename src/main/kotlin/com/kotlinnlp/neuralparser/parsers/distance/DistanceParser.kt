@@ -17,9 +17,15 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.neuralparser.parsers.distance.DistancePredictor.Input as SDPInput
 
 /**
+ * A neural parser that takes advantage of the prediction of the distance among tokens.
+ *
  * @property model the parser model
+ * @param decoder the dependency decoder.
  */
-class DistanceParser(override val model: DistanceParserModel) : NeuralParser<DistanceParserModel> {
+class DistanceParser<DecoderType : DependencyDecoder>(
+  override val model: DistanceParserModel,
+  private val decoder: DecoderType
+) : NeuralParser<DistanceParserModel> {
 
   /**
    * The tokens encoder.
@@ -35,13 +41,6 @@ class DistanceParser(override val model: DistanceParserModel) : NeuralParser<Dis
     useDropout = false)
 
   /**
-   * The decoder.
-   */
-  private val decoder = LowerDistanceFirstDecoder(
-    distanceModel = this.model.distanceModel,
-    depthModel = this.model.depthModel)
-
-  /**
    * Parse a sentence, returning its dependency tree.
    *
    * @param sentence a parsing sentence
@@ -54,8 +53,10 @@ class DistanceParser(override val model: DistanceParserModel) : NeuralParser<Dis
     val contextVectors: List<DenseNDArray> = this.contextEncoder.forward(tokensEncodings).map { it.copy() }
 
     val dependencyTree = DependencyTree(elements = sentence.tokens.map { it.id } )
+    val indexedVectors: List<IndexedValue<DenseNDArray>> =
+      sentence.tokens.zip(contextVectors).map { IndexedValue(it.first.id, it.second) }
 
-    this.decoder.decode(ids = sentence.tokens.map { it.id }, vectors = contextVectors).forEach { (govId, depId, score) ->
+    this.decoder.decode(indexedVectors).forEach { (govId, depId, score) ->
       dependencyTree.setArc(dependent = depId, governor = govId, score = score)
     }
 
