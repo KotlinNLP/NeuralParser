@@ -34,7 +34,7 @@ abstract class DependencyDecoder(model: DistanceParserModel) {
     propagateToInput = false)
 
   /**
-     * Cache of the estimated distances of a token with another.
+   * Cache of the estimated distances of a token with another.
    */
   private val distanceCache: MutableMap<Token, MutableMap<Token, Double>> = mutableMapOf()
 
@@ -71,6 +71,7 @@ abstract class DependencyDecoder(model: DistanceParserModel) {
    * @return the list of arcs as triples of the form <governor, dependent, score>
    */
   abstract fun decode(indexedVectors: List<IndexedValue<DenseNDArray>>): List<Triple<Int, Int, Double>>
+
   /**
    * @param a a token
    * @param b a token
@@ -83,7 +84,7 @@ abstract class DependencyDecoder(model: DistanceParserModel) {
     val secondToken: Token = sequenceOf(a, b).maxBy { it.id }!!
 
     return this.distanceCache.getOrPut(firstToken) { mutableMapOf() }.getOrPut(secondToken) {
-       this.distanceProcessor.forward(listOf(firstToken.vector, secondToken.vector)).expectScalar()
+      this.distanceProcessor.forward(listOf(firstToken.vector, secondToken.vector)).expectScalar()
     }
   }
 }
