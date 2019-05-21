@@ -1,77 +1,33 @@
+/* Copyright 2018-present KotlinNLP Authors. All Rights Reserved.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * -----------------------------------------------------------------------------*/
+
 package com.kotlinnlp.neuralparser.parsers.distance
 
-import com.kotlinnlp.simplednn.core.layers.StackedLayersParameters
-import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
  * Decode the dependencies using the Lower-Distance First (LDF) parsing strategy (Grella, 2019).
+ *
+ * @param model the model of a distance parser
  */
-class LowerDistanceFirstDecoder(
-  val distanceModel: StackedLayersParameters,
-  val depthModel: StackedLayersParameters
-) {
-
-  /**
-   * The Element.
-   *
-   * @param id the id
-   * @param vector the vector representation
-   */
-  inner class Element(val id: Int, val vector: DenseNDArray) {
-
-    /**
-     * The estimated depth of this element in the sentence vector space.
-     */
-    val depth: Double by lazy { this@LowerDistanceFirstDecoder.depthProcessor.forward(this.vector).expectScalar() }
-
-    /**
-     * Cache of the estimated distances of this element with another element in the sentence vector space.
-     */
-    private val distanceCache = mutableMapOf<Element, Double>()
-
-    /**
-     * Predict the distance this element with the [other] in the sentence vector space.
-     *
-     * @param other an element
-     *
-     * @return the distance
-     */
-    fun distance(other: Element): Double = this.distanceCache[other]
-      ?: this@LowerDistanceFirstDecoder.distanceProcessor.forward(listOf(this.vector, other.vector)).expectScalar().also {
-        this.distanceCache[other] = it
-      }
-  }
-
-  /**
-   * The processor to predict the 'tree-depth'.
-   */
-  private val depthProcessor = FeedforwardNeuralProcessor<DenseNDArray>(
-    model = this.depthModel,
-    useDropout = false,
-    propagateToInput = false)
-
-  /**
-   * The processor to predict the 'tree-distance'.
-   */
-  private val distanceProcessor = FeedforwardNeuralProcessor<DenseNDArray>(
-    model = this.distanceModel,
-    useDropout = false,
-    propagateToInput = false)
+class LowerDistanceFirstDecoder(model: DistanceParserModel) : DependencyDecoder(model) {
 
   /**
    * Decode the encoded representation into a list of arcs.
    *
-   * @param ids the ids of the elements
-   * @param vectors the encoded representation of the elements (aligned with the [ids])
+   * @param indexedVectors the encoded representation of the tokens with the related ids
    *
-   * @return the list of arcs of the form <governor, dependent, score>
+   * @return the list of arcs as triples of the form <governor, dependent, score>
    */
-  fun decode(ids: List<Int>, vectors: List<DenseNDArray>): List<Triple<Int, Int, Double>> {
+  override fun decode(indexedVectors: List<IndexedValue<DenseNDArray>>): List<Triple<Int, Int, Double>> {
 
     val arcs = mutableListOf<Triple<Int, Int, Double>>()
-    val elements = ids.zip(vectors).map { (id, v) -> Element(id = id, vector = v) }
-    val pendingList = elements.toMutableList()
+    val tokens: List<Token> = indexedVectors.map { Token(id = it.index, vector = it.value) }
+    val pendingList: MutableList<Token> = tokens.toMutableList()
 
     while (pendingList.size > 1) {
 
@@ -79,8 +35,8 @@ class LowerDistanceFirstDecoder(
 
       val (first, second, distance) = this.selectBest(pairs)
 
-      val dep: Element
-      val gov: Element
+      val dep: Token
+      val gov: Token
 
       if (first.depth > second.depth) {
         dep = first
@@ -103,7 +59,7 @@ class LowerDistanceFirstDecoder(
    *
    * @return a triple <first, second, distance>
    */
-  private fun selectBest(pairs: List<Pair<Element, Element>>): Triple<Element, Element, Double> = pairs
+  private fun selectBest(pairs: List<Pair<Token, Token>>): Triple<Token, Token, Double> = pairs
     .sortedBy { (a, b) -> a.distance(b) }
     .first()
     .let { (a, b) -> Triple(a, b, a.distance(b)) }
