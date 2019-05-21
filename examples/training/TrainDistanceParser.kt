@@ -15,12 +15,11 @@ import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.*
 import com.kotlinnlp.neuralparser.parsers.distance.*
-import com.kotlinnlp.neuralparser.parsers.distance.decoder.LowerDistanceFirstDecoder
+import com.kotlinnlp.neuralparser.parsers.distance.decoder.DependencyDecoder
 import com.kotlinnlp.neuralparser.parsers.distance.helpers.DistanceParserTrainer
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
-import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.FormConverter
 import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
@@ -28,13 +27,15 @@ import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
+import kotlin.reflect.KClass
 
 /**
- * Train a [DistanceParser] that uses a [LowerDistanceFirstDecoder].
+ * Train a [DistanceParser].
  *
- * Launch with the '-h' option for help about the command line arguments.
+ * @param args the command line arguments
+ * @param dependencyDecoderClass the class of the dependency decoder to use to build the parser
  */
-fun main(args: Array<String>) = mainBody {
+internal fun <T : DependencyDecoder>trainDistanceParser(args: Array<String>, dependencyDecoderClass: KClass<T>) {
 
   val parsedArgs = CommandLineArguments(args)
 
@@ -53,7 +54,8 @@ fun main(args: Array<String>) = mainBody {
     parsedArgs = parsedArgs,
     tokensEncoderModel = buildTokensEncoderModel(
       parsedArgs = parsedArgs,
-      corpus = corpus))
+      corpus = corpus),
+    dependencyDecoderClass = dependencyDecoderClass)
 
   val trainer = buildTrainer(parser = parser, parsedArgs = parsedArgs)
 
@@ -70,11 +72,15 @@ fun main(args: Array<String>) = mainBody {
  * Build the LHR Parser.
  *
  * @param parsedArgs the parsed command line arguments
+ * @param tokensEncoderModel the model of the tokens encoder
+ * @param dependencyDecoderClass the class of the dependency decoder to use to build the parser
+ *
  * @return a new parser
  */
-private fun buildParser(
+private fun <T : DependencyDecoder>buildParser(
   parsedArgs: CommandLineArguments,
-  tokensEncoderModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>
+  tokensEncoderModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>,
+  dependencyDecoderClass: KClass<T>
 ) = DistanceParser(
   model = DistanceParserModel(
     language = getLanguageByIso(parsedArgs.langCode),
@@ -83,7 +89,7 @@ private fun buildParser(
       connectionType = LayerType.Connection.LSTM,
       hiddenActivation = Tanh(),
       numberOfLayers = parsedArgs.numOfContextLayers),
-    decoderClass = LowerDistanceFirstDecoder::class))
+    decoderClass = dependencyDecoderClass))
 
 /**
  * Build a tokens-encoder wrapper model.
