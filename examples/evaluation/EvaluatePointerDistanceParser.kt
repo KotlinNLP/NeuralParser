@@ -20,4 +20,3 @@ fun main(args: Array<String>) = mainBody {
 
   evaluateDistanceParser(args = args, dependencyDecoderClass = PointerDistanceDecoder::class)
 }
-
