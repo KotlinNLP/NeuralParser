@@ -10,11 +10,11 @@ package com.kotlinnlp.neuralparser.parsers.structuraldistaceparser
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.helpers.MorphoSynBuilder
+import com.kotlinnlp.neuralparser.helpers.UnlabeledMorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.utils.combine
+import com.kotlinnlp.neuralparser.parsers.structuraldistaceparser.StructuralDistancePredictor.Input as SDPInput
 
 /**
  * @property model the parser model
@@ -35,11 +35,11 @@ class StructuralDistanceParser(override val model: StructuralDistanceParserModel
     useDropout = false)
 
   /**
-   * The structural distance predictor.
+   * The decoder.
    */
-  private val distancePredictor = StructuralDistancePredictor(
-    model = this.model.distanceModel,
-    useDropout = false)
+  private val decoder = LowerDistanceFirstDecoder(
+    distanceModel = this.model.distanceModel,
+    depthModel = this.model.depthModel)
 
   /**
    * Parse a sentence, returning its dependency tree.
@@ -52,24 +52,14 @@ class StructuralDistanceParser(override val model: StructuralDistanceParserModel
 
     val tokensEncodings: List<DenseNDArray> = this.tokensEncoder.forward(sentence)
     val contextVectors: List<DenseNDArray> = this.contextEncoder.forward(tokensEncodings).map { it.copy() }
-    val pairs: List<Pair<Int, Int>> = contextVectors.indices.toList().combine()
-    val distances: List<Double> = this.distancePredictor.forward(StructuralDistancePredictor.Input(
-      hiddens = contextVectors,
-      pairs = pairs
-    ))
 
-    /**
-     * Scores are mapped by dependents to governors ids (the root is intended to have id = -1).
-     */
-    val matrix = mutableMapOf<Int, MutableMap<Int, Double>>()
+    val dependencyTree = DependencyTree(elements = sentence.tokens.map { it.id } )
 
-    sentence.tokens.forEach { matrix[it.id] = mutableMapOf() }
+    this.decoder.decode(ids = sentence.tokens.map { it.id }, vectors = contextVectors).forEach { (govId, depId, score) ->
+      dependencyTree.setArc(dependent = depId, governor = govId, score = score)
+    }
 
-    val dependencyTree = DependencyTree(sentence.tokens.size)
-
-    // TODO
-
-    return MorphoSynBuilder(
+    return UnlabeledMorphoSynBuilder(
       parsingSentence = sentence,
       dependencyTree = dependencyTree
     ).buildSentence()

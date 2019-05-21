@@ -86,7 +86,7 @@ abstract class Trainer(
         logValidationStart()
         validateAndSaveModel()
         logValidationEnd()
-      }
+      } ?: this.saveModel()
     }
   }
 

@@ -99,7 +99,7 @@ object MorphoSelector : LabelerSelector {
         Morphologies(Morphology(SingleMorphology(
           lemma = sentence.tokens[tokenIndex].form,
           pos = pos.type,
-          allowIncompleteProperties = true)))
+          allowDefaultValues = true)))
       }
 
       else -> Morphologies()
