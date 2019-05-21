@@ -34,7 +34,7 @@ class DistanceParserModel<DecoderType>(
   val tokensEncoderModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>,
   contextBiRNNConfig: BiRNNConfig,
   internal val decoderClass: KClass<DecoderType>
-) : NeuralParserModel(language) where DecoderType: DependencyDecoder {
+) : NeuralParserModel(language) where DecoderType : DependencyDecoder {
 
   companion object {
 
