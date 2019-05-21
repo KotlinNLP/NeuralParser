@@ -44,7 +44,7 @@ abstract class DependencyDecoder(model: DistanceParserModel) {
    * @param id the id
    * @param vector the vector representation
    */
-  protected inner class Token(val id: Int, val vector: DenseNDArray) {
+  protected open inner class Token(val id: Int, val vector: DenseNDArray) {
 
     /**
      * The estimated depth of this element in the sentence vector space.
