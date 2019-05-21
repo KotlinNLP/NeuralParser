@@ -50,7 +50,7 @@ internal fun <T : DependencyDecoder>trainDistanceParser(args: Array<String>, dep
     CorpusDictionary(it)
   }
 
-  val parser: DistanceParser = buildParser(
+  val parser: DistanceParser<T> = buildParser(
     parsedArgs = parsedArgs,
     tokensEncoderModel = buildTokensEncoderModel(
       parsedArgs = parsedArgs,
@@ -88,8 +88,8 @@ private fun <T : DependencyDecoder>buildParser(
     contextBiRNNConfig = BiRNNConfig(
       connectionType = LayerType.Connection.LSTM,
       hiddenActivation = Tanh(),
-      numberOfLayers = parsedArgs.numOfContextLayers),
-    decoderClass = dependencyDecoderClass))
+      numberOfLayers = parsedArgs.numOfContextLayers)),
+  decoderClass = dependencyDecoderClass)
 
 /**
  * Build a tokens-encoder wrapper model.
@@ -161,7 +161,7 @@ private fun buildTokensEncoderModel(
  *
  * @return a trainer for the given [parser]
  */
-private fun buildTrainer(parser: DistanceParser,
+private fun buildTrainer(parser: DistanceParser<*>,
                          parsedArgs: CommandLineArguments): DistanceParserTrainer {
 
   val preprocessor: SentencePreprocessor = BasePreprocessor()
