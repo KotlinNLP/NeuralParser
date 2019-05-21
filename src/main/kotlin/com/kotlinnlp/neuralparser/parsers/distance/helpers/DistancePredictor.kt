@@ -21,7 +21,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
  * @property useDropout whether to apply the dropout during the forward
  * @property id an identification number useful to track a specific encoder
  */
-class DistancePredictor(
+internal class DistancePredictor(
   private val model: StackedLayersParameters,
   override val useDropout: Boolean,
   override val id: Int = 0
