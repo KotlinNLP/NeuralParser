@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.distance
+package com.kotlinnlp.neuralparser.parsers.distance.helpers
 
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.helpers.Trainer
@@ -16,6 +16,7 @@ import com.kotlinnlp.neuralparser.helpers.treeutils.DAGNode
 import com.kotlinnlp.neuralparser.helpers.treeutils.DAGNodesFactory
 import com.kotlinnlp.neuralparser.helpers.treeutils.Element
 import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.parsers.distance.DistanceParser
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
@@ -27,7 +28,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 import com.kotlinnlp.simplednn.utils.scheduling.BatchScheduling
 import com.kotlinnlp.simplednn.utils.scheduling.EpochScheduling
 import com.kotlinnlp.simplednn.utils.scheduling.ExampleScheduling
-import com.kotlinnlp.neuralparser.parsers.distance.DistancePredictor.Input as SDPInput
+import com.kotlinnlp.neuralparser.parsers.distance.helpers.DistancePredictor.Input as SDPInput
 import com.kotlinnlp.utils.combine
 import kotlin.math.pow
 

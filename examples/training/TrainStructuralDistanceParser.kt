@@ -15,6 +15,8 @@ import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.*
 import com.kotlinnlp.neuralparser.parsers.distance.*
+import com.kotlinnlp.neuralparser.parsers.distance.decoder.LowerDistanceFirstDecoder
+import com.kotlinnlp.neuralparser.parsers.distance.helpers.DistanceParserTrainer
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel

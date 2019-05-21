@@ -12,9 +12,10 @@ import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.UnlabeledMorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.parsers.distance.decoder.DependencyDecoder
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.neuralparser.parsers.distance.DistancePredictor.Input as SDPInput
+import com.kotlinnlp.neuralparser.parsers.distance.helpers.DistancePredictor.Input as SDPInput
 
 /**
  * A neural parser that takes advantage of the prediction of the distance among tokens.

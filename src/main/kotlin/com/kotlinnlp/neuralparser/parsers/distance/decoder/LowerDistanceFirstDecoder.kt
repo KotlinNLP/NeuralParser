@@ -5,8 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * -----------------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.distance
+package com.kotlinnlp.neuralparser.parsers.distance.decoder
 
+import com.kotlinnlp.neuralparser.parsers.distance.DistanceParserModel
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**

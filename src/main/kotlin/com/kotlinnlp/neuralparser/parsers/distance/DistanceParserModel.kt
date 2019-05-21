@@ -11,6 +11,7 @@ import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.parsers.distance.decoder.DependencyDecoder
 import com.kotlinnlp.simplednn.core.layers.LayerInterface
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.simplednn.core.layers.StackedLayersParameters

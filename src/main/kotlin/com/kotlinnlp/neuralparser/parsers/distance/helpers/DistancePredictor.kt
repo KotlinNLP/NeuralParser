@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.distance
+package com.kotlinnlp.neuralparser.parsers.distance.helpers
 
 import com.kotlinnlp.simplednn.core.layers.StackedLayersParameters
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
@@ -15,22 +15,27 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 
 /**
- * The StructuralDepthPredictor.
+ * The StructuralDistancePredictor.
  *
  * @param model the model of this labeler
  * @property useDropout whether to apply the dropout during the forward
  * @property id an identification number useful to track a specific encoder
  */
-class DepthPredictor(
+class DistancePredictor(
   private val model: StackedLayersParameters,
   override val useDropout: Boolean,
   override val id: Int = 0
 ) : NeuralProcessor<
-  List<DenseNDArray>,
+  DistancePredictor.Input, // InputType
   List<Double>, // OutputType
   List<Double>, // ErrorsType
   List<DenseNDArray> // InputErrorsType
   > {
+
+  /**
+   *
+   */
+  class Input(val hiddens: List<DenseNDArray>, val pairs: List<Pair<Int, Int>>)
 
   /**
    * This encoder propagate the errors to the input.
@@ -46,14 +51,25 @@ class DepthPredictor(
     propagateToInput = true)
 
   /**
+   *
+   */
+  private lateinit var lastInput: Input
+
+  /**
    * Return the distance of each pair.
    *
    * @param input all the pairs
    *
    * @return the distance of each pair
    */
-  override fun forward(input: List<DenseNDArray>): List<Double> =
-    this.processor.forward(input).map { it.expectScalar() }
+  override fun forward(input: Input): List<Double> {
+
+    this.lastInput = input
+
+    return this.processor.forward(ArrayList(
+      input.pairs.map { (i, j) -> listOf(input.hiddens[i], input.hiddens[j]) }
+    )).map { it.expectScalar() }
+  }
 
   /**
    * The backward.
@@ -70,24 +86,27 @@ class DepthPredictor(
    */
   override fun getInputErrors(copy: Boolean): List<DenseNDArray> {
 
-    val outputErrors: List<DenseNDArray>
+    val pairsErrors: List<List<DenseNDArray>> = this.processor.getInputsErrors(copy = false)
 
-    this.processor.getInputErrors(copy = false).let { inputErrors ->
+    val hiddenErrors = List(size = this.lastInput.hiddens.size, init = {
+      DenseNDArrayFactory.zeros(Shape(this.model.layersConfiguration.first().sizes.first()))
+    })
 
-      outputErrors = List(size = inputErrors.size, init = {
-        DenseNDArrayFactory.zeros(Shape(this.model.layersConfiguration.first().size))
-      })
+    pairsErrors.forEachIndexed { pairIndex, (iErrors, jErrors) ->
 
-      inputErrors.forEachIndexed { i, e -> outputErrors[i].assignSum(e) }
+      val (i, j) = this.lastInput.pairs[pairIndex]
+
+      hiddenErrors[i].assignSum(iErrors)
+      hiddenErrors[j].assignSum(jErrors)
     }
 
-    return outputErrors
+    return hiddenErrors
   }
 
   /**
    * @param copy a Boolean indicating whether the returned errors must be a copy or a reference
    *
-   * @return the errors of the [DepthPredictor] parameters
+   * @return the errors of the [DistancePredictor] parameters
    */
   override fun getParamsErrors(copy: Boolean) = this.processor.getParamsErrors(copy = copy)
 }
