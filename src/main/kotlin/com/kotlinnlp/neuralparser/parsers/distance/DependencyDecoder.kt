@@ -39,7 +39,7 @@ abstract class DependencyDecoder(model: DistanceParserModel) {
   private val distanceCache: MutableMap<Token, MutableMap<Token, Double>> = mutableMapOf()
 
   /**
-   * The Element.
+   * An encoded token.
    *
    * @param id the id
    * @param vector the vector representation
