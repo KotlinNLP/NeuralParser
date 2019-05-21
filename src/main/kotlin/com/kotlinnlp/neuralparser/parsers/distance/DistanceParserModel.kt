@@ -48,7 +48,7 @@ class DistanceParserModel<DecoderType>(
   /**
    * The size of the encoded tokens.
    */
-  private val tokenEncodingSize: Int = this.tokensEncoderModel.model.tokenEncodingSize
+  val tokenEncodingSize: Int = this.tokensEncoderModel.model.tokenEncodingSize
 
   /**
    * The model of the context encoder.
@@ -85,7 +85,7 @@ class DistanceParserModel<DecoderType>(
   /**
    * The size of the context vectors.
    */
-  private val contextVectorsSize: Int = this.contextEncoderModel.outputSize
+  val contextVectorsSize: Int = this.contextEncoderModel.outputSize
 
   /**
    * The parameters of the model that predicts the structural distance among pairs of nodes.
