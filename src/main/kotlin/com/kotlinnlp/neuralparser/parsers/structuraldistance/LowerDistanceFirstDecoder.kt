@@ -77,7 +77,7 @@ class LowerDistanceFirstDecoder(
 
       val pairs = pendingList.zipWithNext()
 
-      val (first, second, distance) = pairs.selectBest()
+      val (first, second, distance) = this.selectBest(pairs)
 
       val dep: Element
       val gov: Element
@@ -103,7 +103,7 @@ class LowerDistanceFirstDecoder(
    *
    * @return a triple <first, second, distance>
    */
-  private fun List<Pair<Element, Element>>.selectBest(): Triple<Element, Element, Double> = this
+  private fun selectBest(pairs: List<Pair<Element, Element>>): Triple<Element, Element, Double> = pairs
     .sortedBy { (a, b) -> a.distance(b) }
     .first()
     .let { (a, b) -> Triple(a, b, a.distance(b)) }
