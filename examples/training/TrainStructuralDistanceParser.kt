@@ -20,7 +20,6 @@ import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMetho
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.xenomachina.argparser.mainBody
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.FormConverter
 import com.kotlinnlp.neuralparser.parsers.distance.DistanceParserTrainer
@@ -32,7 +31,7 @@ import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 
 /**
- * Train the [LHRParser].
+ * Train a [DistanceParser] that uses a [LowerDistanceFirstDecoder].
  *
  * Launch with the '-h' option for help about the command line arguments.
  */
