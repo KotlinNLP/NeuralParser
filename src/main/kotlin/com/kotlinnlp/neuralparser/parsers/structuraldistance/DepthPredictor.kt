@@ -15,27 +15,22 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 
 /**
- * The StructuralDistancePredictor.
+ * The StructuralDepthPredictor.
  *
  * @param model the model of this labeler
  * @property useDropout whether to apply the dropout during the forward
  * @property id an identification number useful to track a specific encoder
  */
-class StructuralDistancePredictor(
+class DepthPredictor(
   private val model: StackedLayersParameters,
   override val useDropout: Boolean,
   override val id: Int = 0
 ) : NeuralProcessor<
-  StructuralDistancePredictor.Input, // InputType
+  List<DenseNDArray>,
   List<Double>, // OutputType
   List<Double>, // ErrorsType
   List<DenseNDArray> // InputErrorsType
   > {
-
-  /**
-   *
-   */
-  class Input(val hiddens: List<DenseNDArray>, val pairs: List<Pair<Int, Int>>)
 
   /**
    * This encoder propagate the errors to the input.
@@ -51,25 +46,14 @@ class StructuralDistancePredictor(
     propagateToInput = true)
 
   /**
-   *
-   */
-  private lateinit var lastInput: Input
-
-  /**
    * Return the distance of each pair.
    *
    * @param input all the pairs
    *
    * @return the distance of each pair
    */
-  override fun forward(input: Input): List<Double> {
-
-    this.lastInput = input
-
-    return this.processor.forward(ArrayList(
-      input.pairs.map { (i, j) -> listOf(input.hiddens[i], input.hiddens[j]) }
-    )).map { it.expectScalar() }
-  }
+  override fun forward(input: List<DenseNDArray>): List<Double> =
+    this.processor.forward(input).map { it.expectScalar() }
 
   /**
    * The backward.
@@ -86,27 +70,24 @@ class StructuralDistancePredictor(
    */
   override fun getInputErrors(copy: Boolean): List<DenseNDArray> {
 
-    val pairsErrors: List<List<DenseNDArray>> = this.processor.getInputsErrors(copy = false)
+    val outputErrors: List<DenseNDArray>
 
-    val hiddenErrors = List(size = this.lastInput.hiddens.size, init = {
-      DenseNDArrayFactory.zeros(Shape(this.model.layersConfiguration.first().sizes.first()))
-    })
+    this.processor.getInputErrors(copy = false).let { inputErrors ->
 
-    pairsErrors.forEachIndexed { pairIndex, (iErrors, jErrors) ->
+      outputErrors = List(size = inputErrors.size, init = {
+        DenseNDArrayFactory.zeros(Shape(this.model.layersConfiguration.first().size))
+      })
 
-      val (i, j) = this.lastInput.pairs[pairIndex]
-
-      hiddenErrors[i].assignSum(iErrors)
-      hiddenErrors[j].assignSum(jErrors)
+      inputErrors.forEachIndexed { i, e -> outputErrors[i].assignSum(e) }
     }
 
-    return hiddenErrors
+    return outputErrors
   }
 
   /**
    * @param copy a Boolean indicating whether the returned errors must be a copy or a reference
    *
-   * @return the errors of the [StructuralDistancePredictor] parameters
+   * @return the errors of the [DepthPredictor] parameters
    */
   override fun getParamsErrors(copy: Boolean) = this.processor.getParamsErrors(copy = copy)
 }

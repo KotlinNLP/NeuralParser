@@ -21,9 +21,9 @@ import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.FormConverter
-import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistanceParser
-import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistanceParserModel
-import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistanceParserTrainer
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.DistanceParser
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.DistanceParserModel
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.DistanceParserTrainer
 import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
@@ -50,7 +50,7 @@ fun main(args: Array<String>) = mainBody {
     CorpusDictionary(it)
   }
 
-  val parser: StructuralDistanceParser = buildParser(
+  val parser: DistanceParser = buildParser(
     parsedArgs = parsedArgs,
     tokensEncoderModel = buildTokensEncoderModel(
       parsedArgs = parsedArgs,
@@ -76,7 +76,7 @@ fun main(args: Array<String>) = mainBody {
 private fun buildParser(
   parsedArgs: CommandLineArguments,
   tokensEncoderModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>
-): StructuralDistanceParser = StructuralDistanceParser(model = StructuralDistanceParserModel(
+): DistanceParser = DistanceParser(model = DistanceParserModel(
   language = getLanguageByIso(parsedArgs.langCode),
   tokensEncoderModel = tokensEncoderModel,
   contextBiRNNConfig = BiRNNConfig(
@@ -154,12 +154,12 @@ private fun buildTokensEncoderModel(
  *
  * @return a trainer for the given [parser]
  */
-private fun buildTrainer(parser: StructuralDistanceParser,
-                         parsedArgs: CommandLineArguments): StructuralDistanceParserTrainer {
+private fun buildTrainer(parser: DistanceParser,
+                         parsedArgs: CommandLineArguments): DistanceParserTrainer {
 
   val preprocessor: SentencePreprocessor = BasePreprocessor()
 
-  return StructuralDistanceParserTrainer(
+  return DistanceParserTrainer(
     parser = parser,
     epochs = parsedArgs.epochs,
     batchSize = parsedArgs.batchSize,

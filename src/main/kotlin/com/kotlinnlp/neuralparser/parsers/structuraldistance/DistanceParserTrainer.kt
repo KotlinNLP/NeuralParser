@@ -27,7 +27,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 import com.kotlinnlp.simplednn.utils.scheduling.BatchScheduling
 import com.kotlinnlp.simplednn.utils.scheduling.EpochScheduling
 import com.kotlinnlp.simplednn.utils.scheduling.ExampleScheduling
-import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistancePredictor.Input as SDPInput
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.DistancePredictor.Input as SDPInput
 import com.kotlinnlp.utils.combine
 import kotlin.math.pow
 
@@ -43,8 +43,8 @@ import kotlin.math.pow
  * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
-class StructuralDistanceParserTrainer(
-  private val parser: StructuralDistanceParser,
+class DistanceParserTrainer(
+  private val parser: DistanceParser,
   private val batchSize: Int,
   private val epochs: Int,
   validator: Validator?,
@@ -79,14 +79,14 @@ class StructuralDistanceParserTrainer(
   /**
    * The structural distance predictor.
    */
-  private val distancePredictor = StructuralDistancePredictor(
+  private val distancePredictor = DistancePredictor(
     model = this.parser.model.distanceModel,
     useDropout = false)
 
   /**
    * The structural depth predictor.
    */
-  private val depthPredictor = StructuralDepthPredictor(
+  private val depthPredictor = DepthPredictor(
     model = this.parser.model.depthModel,
     useDropout = false)
 

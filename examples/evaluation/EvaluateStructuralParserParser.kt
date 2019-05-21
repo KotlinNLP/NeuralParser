@@ -12,8 +12,8 @@ import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
-import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistanceParser
-import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistanceParserModel
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.DistanceParser
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.DistanceParserModel
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.utils.Timer
 import com.xenomachina.argparser.mainBody
@@ -29,10 +29,10 @@ fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
 
-  val parser: NeuralParser<*> = StructuralDistanceParser(
+  val parser: NeuralParser<*> = DistanceParser(
     model = parsedArgs.modelPath.let {
       println("Loading model from '$it'.")
-      NeuralParserModel.load(FileInputStream(File(it))) as StructuralDistanceParserModel
+      NeuralParserModel.load(FileInputStream(File(it))) as DistanceParserModel
     })
 
   val validator = Validator(

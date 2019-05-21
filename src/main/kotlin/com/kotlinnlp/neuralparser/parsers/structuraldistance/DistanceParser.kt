@@ -14,12 +14,12 @@ import com.kotlinnlp.neuralparser.helpers.UnlabeledMorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistancePredictor.Input as SDPInput
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.DistancePredictor.Input as SDPInput
 
 /**
  * @property model the parser model
  */
-class StructuralDistanceParser(override val model: StructuralDistanceParserModel) : NeuralParser<StructuralDistanceParserModel> {
+class DistanceParser(override val model: DistanceParserModel) : NeuralParser<DistanceParserModel> {
 
   /**
    * The tokens encoder.

@@ -22,12 +22,12 @@ import com.kotlinnlp.utils.Serializer
 import java.io.InputStream
 
 /**
- * The model of the [StructuralDistanceParser].
+ * The model of the [DistanceParser].
  *
  * @param language
  * @property tokensEncoderModel the model of the Tokens0 encoder
  */
-class StructuralDistanceParserModel(
+class DistanceParserModel(
   language: Language,
   val tokensEncoderModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>,
   contextBiRNNConfig: BiRNNConfig
@@ -42,13 +42,13 @@ class StructuralDistanceParserModel(
     private const val serialVersionUID: Long = 1L
 
     /**
-     * Read a [StructuralDistanceParserModel] (serialized) from an input stream and decode it.
+     * Read a [DistanceParserModel] (serialized) from an input stream and decode it.
      *
-     * @param inputStream the [InputStream] from which to read the serialized [StructuralDistanceParserModel]
+     * @param inputStream the [InputStream] from which to read the serialized [DistanceParserModel]
      *
-     * @return the [StructuralDistanceParserModel] read from [inputStream] and decoded
+     * @return the [DistanceParserModel] read from [inputStream] and decoded
      */
-    fun load(inputStream: InputStream): StructuralDistanceParserModel = Serializer.deserialize(inputStream)
+    fun load(inputStream: InputStream): DistanceParserModel = Serializer.deserialize(inputStream)
   }
 
   /**
