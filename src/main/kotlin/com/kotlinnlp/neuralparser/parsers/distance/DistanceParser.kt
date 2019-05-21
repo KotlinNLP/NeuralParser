@@ -63,7 +63,10 @@ class DistanceParser<DecoderType : DependencyDecoder>(
       sentence.tokens.zip(contextVectors).map { IndexedValue(it.first.id, it.second) }
 
     this.decoder.decode(indexedVectors).forEach { (govId, depId, score) ->
-      dependencyTree.setArc(dependent = depId, governor = govId, score = score)
+      if (govId == depId)
+        dependencyTree.setAttachmentScore(dependent = depId, score = score) // it is the root
+      else
+        dependencyTree.setArc(dependent = depId, governor = govId, score = score)
     }
 
     return UnlabeledMorphoSynBuilder(
