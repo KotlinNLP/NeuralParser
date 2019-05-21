@@ -11,7 +11,6 @@ import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
-import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.*
@@ -20,17 +19,14 @@ import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
-import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.PosTagKeyExtractor
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.FormConverter
-import com.kotlinnlp.neuralparser.parsers.structuraldistaceparser.StructuralDistanceParser
-import com.kotlinnlp.neuralparser.parsers.structuraldistaceparser.StructuralDistanceParserModel
-import com.kotlinnlp.neuralparser.parsers.structuraldistaceparser.StructuralDistanceParserTrainer
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistanceParser
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistanceParserModel
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistanceParserTrainer
 import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
-import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.ConcatMerge
-import com.kotlinnlp.tokensencoder.embeddings.keyextractor.WordKeyExtractor
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 
