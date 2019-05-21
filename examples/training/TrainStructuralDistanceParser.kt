@@ -21,9 +21,9 @@ import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.FormConverter
-import com.kotlinnlp.neuralparser.parsers.structuraldistance.DistanceParser
-import com.kotlinnlp.neuralparser.parsers.structuraldistance.DistanceParserModel
-import com.kotlinnlp.neuralparser.parsers.structuraldistance.DistanceParserTrainer
+import com.kotlinnlp.neuralparser.parsers.distance.DistanceParser
+import com.kotlinnlp.neuralparser.parsers.distance.DistanceParserModel
+import com.kotlinnlp.neuralparser.parsers.distance.DistanceParserTrainer
 import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap

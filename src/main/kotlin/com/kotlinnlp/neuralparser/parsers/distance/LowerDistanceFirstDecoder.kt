@@ -1,4 +1,4 @@
-package com.kotlinnlp.neuralparser.parsers.structuraldistance
+package com.kotlinnlp.neuralparser.parsers.distance
 
 import com.kotlinnlp.simplednn.core.layers.StackedLayersParameters
 import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
