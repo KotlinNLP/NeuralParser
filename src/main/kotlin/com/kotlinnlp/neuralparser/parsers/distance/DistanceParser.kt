@@ -20,12 +20,13 @@ import com.kotlinnlp.neuralparser.parsers.distance.DistancePredictor.Input as SD
  * A neural parser that takes advantage of the prediction of the distance among tokens.
  *
  * @property model the parser model
- * @param decoder the dependency decoder.
  */
-class DistanceParser<DecoderType : DependencyDecoder>(
-  override val model: DistanceParserModel,
-  private val decoder: DecoderType
-) : NeuralParser<DistanceParserModel> {
+class DistanceParser(override val model: DistanceParserModel<*>) : NeuralParser<DistanceParserModel<*>> {
+
+  /**
+   * The dependency decoder.
+   */
+  private val decoder: DependencyDecoder = this.model.decoderClass.constructors.first().call(this.model)
 
   /**
    * The tokens encoder.

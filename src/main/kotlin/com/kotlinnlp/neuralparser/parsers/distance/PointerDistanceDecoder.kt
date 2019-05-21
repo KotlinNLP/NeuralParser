@@ -16,7 +16,7 @@ import kotlin.math.roundToInt
  *
  * @param model the model of a distance parser
  */
-class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(model) {
+class PointerDistanceDecoder(model: DistanceParserModel<PointerDistanceDecoder>) : DependencyDecoder(model) {
 
   /**
    * An encoded token, providing a method to calculate the rounded distance with another.

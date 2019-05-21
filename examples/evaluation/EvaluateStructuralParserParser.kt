@@ -7,11 +7,9 @@
 
 package evaluation
 
-import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuralparser.parsers.distance.DistanceParser
 import com.kotlinnlp.neuralparser.parsers.distance.DistanceParserModel
 import com.kotlinnlp.neuralparser.utils.loadSentences
@@ -21,7 +19,7 @@ import java.io.File
 import java.io.FileInputStream
 
 /**
- * Evaluate the model of an [LHRParser].
+ * Evaluate the model of a [DistanceParserModel].
  *
  * Launch with the '-h' option for help about the command line arguments.
  */
@@ -29,10 +27,10 @@ fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
 
-  val parser: NeuralParser<*> = DistanceParser(
+  val parser = DistanceParser(
     model = parsedArgs.modelPath.let {
       println("Loading model from '$it'.")
-      NeuralParserModel.load(FileInputStream(File(it))) as DistanceParserModel
+      NeuralParserModel.load(FileInputStream(File(it))) as DistanceParserModel<*>
     })
 
   val validator = Validator(

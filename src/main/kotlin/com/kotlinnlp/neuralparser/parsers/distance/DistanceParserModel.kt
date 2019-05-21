@@ -18,8 +18,7 @@ import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNN
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNN
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
-import com.kotlinnlp.utils.Serializer
-import java.io.InputStream
+import kotlin.reflect.KClass
 
 /**
  * The model of a [DistanceParser].
@@ -27,12 +26,14 @@ import java.io.InputStream
  * @property language the parser language
  * @property tokensEncoderModel the model of the Tokens encoder
  * @param contextBiRNNConfig the configuration of the context BiRNN
+ * @param decoderClass the class of the decoder that will be instantiated from this model
  */
-class DistanceParserModel(
+class DistanceParserModel<DecoderType>(
   language: Language,
   val tokensEncoderModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>,
-  contextBiRNNConfig: BiRNNConfig
-) : NeuralParserModel(language) {
+  contextBiRNNConfig: BiRNNConfig,
+  internal val decoderClass: KClass<DecoderType>
+) : NeuralParserModel(language) where DecoderType: DependencyDecoder {
 
   companion object {
 

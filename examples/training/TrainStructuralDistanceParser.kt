@@ -14,16 +14,13 @@ import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.*
-import com.kotlinnlp.neuralparser.parsers.distance.DistanceParser
-import com.kotlinnlp.neuralparser.parsers.distance.DistanceParserModel
+import com.kotlinnlp.neuralparser.parsers.distance.*
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.FormConverter
-import com.kotlinnlp.neuralparser.parsers.distance.DistanceParserTrainer
-import com.kotlinnlp.neuralparser.parsers.distance.LowerDistanceFirstDecoder
 import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
@@ -50,7 +47,7 @@ fun main(args: Array<String>) = mainBody {
     CorpusDictionary(it)
   }
 
-  val parser: DistanceParser<*> = buildParser(
+  val parser: DistanceParser = buildParser(
     parsedArgs = parsedArgs,
     tokensEncoderModel = buildTokensEncoderModel(
       parsedArgs = parsedArgs,
@@ -76,18 +73,15 @@ fun main(args: Array<String>) = mainBody {
 private fun buildParser(
   parsedArgs: CommandLineArguments,
   tokensEncoderModel: TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *>
-): DistanceParser<*> {
-
-  val model = DistanceParserModel(
+) = DistanceParser(
+  model = DistanceParserModel(
     language = getLanguageByIso(parsedArgs.langCode),
     tokensEncoderModel = tokensEncoderModel,
     contextBiRNNConfig = BiRNNConfig(
       connectionType = LayerType.Connection.LSTM,
       hiddenActivation = Tanh(),
-      numberOfLayers = parsedArgs.numOfContextLayers))
-
-  return DistanceParser(model = model, decoder = LowerDistanceFirstDecoder(model))
-}
+      numberOfLayers = parsedArgs.numOfContextLayers),
+    decoderClass = LowerDistanceFirstDecoder::class))
 
 /**
  * Build a tokens-encoder wrapper model.
@@ -159,7 +153,7 @@ private fun buildTokensEncoderModel(
  *
  * @return a trainer for the given [parser]
  */
-private fun buildTrainer(parser: DistanceParser<*>,
+private fun buildTrainer(parser: DistanceParser,
                          parsedArgs: CommandLineArguments): DistanceParserTrainer {
 
   val preprocessor: SentencePreprocessor = BasePreprocessor()
