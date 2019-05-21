@@ -28,12 +28,47 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
   private inner class RoundedDistToken(id: Int, vector: DenseNDArray) : Token(id = id, vector = vector) {
 
     /**
+     * The cache map for the best governror of this token.
+     */
+    private val bestGovernorCache: MutableMap<Int, RoundedDistToken?> = mutableMapOf()
+
+    /**
      * @param other another token
      *
      * @return the structural distance between this token and the [other], rounded to the nearest non-zero positive
      *         integer
      */
     fun roundedDistance(other: Token): Int = this@PointerDistanceDecoder.getRoundedDistance(this, other)
+
+    /**
+     * @param tokens a list of tokens
+     *
+     * @return the best governor of this token, within the given list, or null if there is no governor
+     */
+    fun getBestGovernor(tokens: List<RoundedDistToken>): RoundedDistToken? =
+      this.bestGovernorCache.getOrPut(0) {
+        tokens
+          .filter { it != this && it.roundedDistance(this) == 1 }
+          .maxBy { it.attachmentScore(this) }
+      }
+
+    /**
+     * @param tokens a list of tokens
+     *
+     * @return the nearest token within a given list of tokens
+     */
+    fun getNearest(tokens: List<RoundedDistToken>): RoundedDistToken =
+      tokens.filter { it != this }.minBy { it.distance(this) }!!
+
+    /**
+     * Get the attachment score between this token and the [other].
+     * The rounded distance between the two tokens is intended to be 1.
+     *
+     * @param other another token
+     *
+     * @return the attachment score between this token and the [other]
+     */
+    fun attachmentScore(other: Token): Double = 1.0 - Math.abs(this.distance(other) - 1.0)
   }
 
   /**
@@ -51,50 +86,41 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
   override fun decode(indexedVectors: List<IndexedValue<DenseNDArray>>): List<Triple<Int, Int, Double>> {
 
     val tokens: List<RoundedDistToken> = indexedVectors.map { RoundedDistToken(id = it.index, vector = it.value) }
-
-    val pendingList: MutableList<RoundedDistToken> = tokens.toMutableList()
     val root: RoundedDistToken = tokens.minBy { it.depth }!!
 
-    val arcs: MutableList<Triple<Int, Int, Double>> = mutableListOf()
-    var leaves: List<RoundedDistToken> = listOf(root)
-
-    pendingList.remove(root)
+    val pendingList: MutableList<RoundedDistToken> = (tokens - root).toMutableList()
+    val attachedTokens: MutableList<RoundedDistToken> = mutableListOf(root)
+    var newAttachedTokens: List<RoundedDistToken> = listOf(root)
+    val arcs: MutableList<Triple<Int, Int, Double>> =
+      mutableListOf(Triple(root.id, root.id, 1.0 - Math.abs(root.depth)))
 
     while (pendingList.size > 1) {
 
-      if (leaves.isNotEmpty()) {
+      if (newAttachedTokens.isNotEmpty()) {
 
-        val newLeaves: MutableList<RoundedDistToken> = mutableListOf()
-
-        leaves.forEach { leaf ->
-
+        newAttachedTokens = newAttachedTokens.flatMap { attachedToken ->
           pendingList
-            .asSequence()
-            .filter { it.roundedDistance(leaf) == 1 }
-            .forEach { dependent ->
-
-              val score: Double = 1.0 - dependent.distance(leaf)
-
-              arcs.add(Triple(leaf.id, dependent.id, score))
-              newLeaves.add(dependent)
+            .filter { it.roundedDistance(attachedToken) == 1 && it.getBestGovernor(tokens) == attachedToken }
+            .map { dependent ->
               pendingList.remove(dependent)
+              arcs.add(Triple(attachedToken.id, dependent.id, dependent.attachmentScore(attachedToken)))
+              dependent
             }
         }
 
-        leaves = newLeaves
-
       } else {
 
-        // Note: it is necessary to make a copy of the pendingList in order to iterate it while removing its elements
-        pendingList.toList().forEach { remainingToken ->
+        val nearestRemaining: RoundedDistToken = pendingList.minBy { it.distance(it.getNearest(attachedTokens)) }!!
+        val governor: Token = nearestRemaining.getNearest(attachedTokens)
+        val score: Double = 1.0 - nearestRemaining.distance(governor)
 
-          val governor: Token = tokens.minBy { it.distance(remainingToken) }!!
-          val score: Double = 1.0 - remainingToken.distance(governor)
+        pendingList.remove(nearestRemaining)
+        arcs.add(Triple(governor.id, nearestRemaining.id, score))
 
-          arcs.add(Triple(governor.id, remainingToken.id, score))
-          pendingList.remove(remainingToken)
-        }
+        newAttachedTokens = listOf(nearestRemaining)
       }
+
+      attachedTokens.addAll(newAttachedTokens)
     }
 
     return arcs
