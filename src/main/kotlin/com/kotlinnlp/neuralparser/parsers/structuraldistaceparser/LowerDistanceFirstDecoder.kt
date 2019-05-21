@@ -92,7 +92,7 @@ class LowerDistanceFirstDecoder(
 
       arcs.add(Triple(gov.id, dep.id, distance))
 
-      pendingList.removeAt(pendingList.indexOfFirst { it.id == dep.id })
+      pendingList.removeAtIndexOfFirst { it.id == dep.id }
     }
 
     return arcs
@@ -107,4 +107,12 @@ class LowerDistanceFirstDecoder(
     .sortedBy { (a, b) -> a.distance(b) }
     .first()
     .let { (a, b) -> Triple(a, b, a.distance(b)) }
+
+  /**
+   * Removes an element at the position of the first element that matches the given [predicate].
+   *
+   * @return the element that has been removed.
+   */
+  private fun <T> MutableList<T>.removeAtIndexOfFirst(predicate: (T) -> Boolean)
+    = this.removeAt(this.indexOfFirst(predicate))
 }
