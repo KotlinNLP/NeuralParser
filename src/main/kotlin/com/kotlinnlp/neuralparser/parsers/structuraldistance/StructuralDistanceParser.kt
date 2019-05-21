@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * -----------------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.parsers.structuraldistaceparser
+package com.kotlinnlp.neuralparser.parsers.structuraldistance
 
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
@@ -14,7 +14,7 @@ import com.kotlinnlp.neuralparser.helpers.UnlabeledMorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.neuralparser.parsers.structuraldistaceparser.StructuralDistancePredictor.Input as SDPInput
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistancePredictor.Input as SDPInput
 
 /**
  * @property model the parser model
