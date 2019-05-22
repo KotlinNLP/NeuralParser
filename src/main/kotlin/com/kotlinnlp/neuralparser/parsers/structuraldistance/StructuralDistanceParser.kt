@@ -37,7 +37,7 @@ class StructuralDistanceParser(override val model: StructuralDistanceParserModel
   /**
    * The decoder.
    */
-  private val decoder = LowerDistanceFirstDecoder(
+  private val decoder = ShortDistanceFirstDecoder(
     distanceModel = this.model.distanceModel,
     depthModel = this.model.depthModel)
 
