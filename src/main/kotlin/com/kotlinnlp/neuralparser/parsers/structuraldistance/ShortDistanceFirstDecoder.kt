@@ -14,9 +14,9 @@ import com.kotlinnlp.utils.removeAtIndexOfFirst
 import com.kotlinnlp.utils.removeFrom
 
 /**
- * Decode the dependencies using the Lower-Distance First (LDF) parsing strategy (Grella, 2019).
+ * Decode the dependencies using the Short-Distance First (SDF) strategy (Grella, 2019).
  */
-class LowerDistanceFirstDecoder(
+class ShortDistanceFirstDecoder(
   val distanceModel: StackedLayersParameters,
   val depthModel: StackedLayersParameters
 ) {
@@ -33,7 +33,7 @@ class LowerDistanceFirstDecoder(
     /**
      * The estimated depth of this element in the vector space of the sentence.
      */
-    val depth: Double by lazy { this@LowerDistanceFirstDecoder.depthProcessor.forward(this.vector).expectScalar() }
+    val depth: Double by lazy { this@ShortDistanceFirstDecoder.depthProcessor.forward(this.vector).expectScalar() }
 
     /**
      * Cache of the estimated distances of this element with another element in the sentence vector space.
@@ -48,7 +48,7 @@ class LowerDistanceFirstDecoder(
      * @return the distance
      */
     fun distance(other: PendingElement): Double = this.distanceCache.getOrPut(other) {
-      this@LowerDistanceFirstDecoder.distanceProcessor.forward(listOf(this.vector, other.vector)).expectScalar()
+      this@ShortDistanceFirstDecoder.distanceProcessor.forward(listOf(this.vector, other.vector)).expectScalar()
     }
 
     /**
@@ -186,7 +186,7 @@ class LowerDistanceFirstDecoder(
    * @return the list of actions
    */
   private fun generatePossibleActions(pairs: List<Pair<PendingElement, PendingElement>>):
-    List<LowerDistanceFirstDecoder.Action> {
+    List<ShortDistanceFirstDecoder.Action> {
 
     return pairs.foldIndexed(mutableListOf()) { i, acc, (first, second) ->
 
@@ -220,6 +220,6 @@ class LowerDistanceFirstDecoder(
    *
    * @return the best action
    */
-  private fun selectBestAction(actions: List<LowerDistanceFirstDecoder.Action>) =
+  private fun selectBestAction(actions: List<ShortDistanceFirstDecoder.Action>) =
     actions.sortedBy { it.distance }.first()
 }
