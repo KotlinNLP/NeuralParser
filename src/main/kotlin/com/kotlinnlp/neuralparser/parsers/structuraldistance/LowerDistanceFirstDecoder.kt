@@ -54,22 +54,6 @@ class LowerDistanceFirstDecoder(
      */
     val rightSpine: MutableList<PendingElement> = mutableListOf(this)
 
-    /**
-     * @param k the index from which to add the [elements].
-     * @param elements elements to add.
-     */
-    fun addToLeftSpine(k: Int, elements: List<PendingElement>) {
-      this.leftSpine.removeFrom(k + 1).addAll(elements)
-    }
-
-    /**
-     * @param k the index from which to add the [elements].
-     * @param elements elements to add.
-     */
-    fun addToRightSpine(k: Int, elements: List<PendingElement>) {
-      this.rightSpine.removeFrom(k + 1).addAll(elements)
-    }
-
     override fun equals(other: Any?): Boolean = other is PendingElement && this.id == other.id
 
     override fun hashCode(): Int = this.id
@@ -110,7 +94,7 @@ class LowerDistanceFirstDecoder(
         val dep = pairs[this.pairIndex].first
         val gov = pairs[this.pairIndex].second
 
-        gov.addToLeftSpine(this.k, dep.leftSpine)
+        gov.leftSpine.removeFrom(this.k + 1).addAll(dep.leftSpine)
 
         return Triple(gov.leftSpine[this.k].id, dep.id, this.distance)
       }
@@ -135,7 +119,7 @@ class LowerDistanceFirstDecoder(
         val dep = pairs[this.pairIndex].second
         val gov = pairs[this.pairIndex].first
 
-        gov.addToRightSpine(this.k, dep.rightSpine)
+        gov.rightSpine.removeFrom(this.k + 1).addAll(dep.rightSpine)
 
         return Triple(gov.rightSpine[this.k].id, dep.id, this.distance)
       }
@@ -201,37 +185,21 @@ class LowerDistanceFirstDecoder(
 
       if (first.depth < second.depth) { // first -> governor
 
-        acc.add(LowerDistanceFirstDecoder.Action.ArcRight(
-          pairIndex = i,
-          k = 0,
-          distance = first.distance(second)))
+        acc.add(Action.ArcRight(pairIndex = i, k = 0, distance = first.distance(second))) // between roots
 
         first.rightSpine.forEachIndexed { k, element ->
-
           if (k > 0 && second.depth > element.depth) { // filter impossible attachment
-
-            acc.add(LowerDistanceFirstDecoder.Action.ArcRight(
-              pairIndex = i,
-              k = k,
-              distance = element.distance(second)))
+            acc.add(Action.ArcRight(pairIndex = i, k = k, distance = element.distance(second)))
           }
         }
 
       } else { // second -> governor
 
-        acc.add(LowerDistanceFirstDecoder.Action.ArcLeft(
-          pairIndex = i,
-          k = 0,
-          distance = first.distance(second)))
+        acc.add(Action.ArcLeft(pairIndex = i, k = 0, distance = first.distance(second))) // between roots
 
         second.leftSpine.forEachIndexed { k, element ->
-
           if (k > 0 && first.depth > element.depth) { // filter impossible attachment
-
-            acc.add(LowerDistanceFirstDecoder.Action.ArcLeft(
-              pairIndex = i,
-              k = k,
-              distance = element.distance(first)))
+            acc.add(Action.ArcLeft(pairIndex = i, k = k, distance = element.distance(first)))
           }
         }
       }
