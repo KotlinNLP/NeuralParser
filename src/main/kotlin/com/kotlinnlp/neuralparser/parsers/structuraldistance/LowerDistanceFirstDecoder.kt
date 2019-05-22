@@ -69,6 +69,10 @@ class LowerDistanceFirstDecoder(
     fun addToRightSpine(k: Int, elements: List<PendingElement>) {
       this.rightSpine.removeFrom(k + 1).addAll(elements)
     }
+
+    override fun equals(other: Any?): Boolean = other is PendingElement && this.id == other.id
+
+    override fun hashCode(): Int = this.id
   }
 
   /**
