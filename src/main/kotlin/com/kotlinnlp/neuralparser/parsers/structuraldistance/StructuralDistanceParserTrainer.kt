@@ -16,6 +16,7 @@ import com.kotlinnlp.neuralparser.helpers.treeutils.DAGNode
 import com.kotlinnlp.neuralparser.helpers.treeutils.DAGNodesFactory
 import com.kotlinnlp.neuralparser.helpers.treeutils.Element
 import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.helpers.MSTHelper
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
@@ -168,6 +169,10 @@ class StructuralDistanceParserTrainer(
     val treeNodes: List<DAGNode<Int>> = this.createNodes(sentence, goldTree)
     val goldDistances: List<Int> = this.getGoldDistances(treeNodes)
     val goldDepths: List<Int> = this.getGoldDepths(treeNodes)
+
+//    val mstHelper = MSTHelper(graphSize = sentence.tokens.size, pairs = pairs, distances = distances)
+//
+//    val mst = mstHelper.getMST()
 
     val distanceErrors: List<Double> = this.calcDistanceErrors(
       length = sentence.tokens.size,
