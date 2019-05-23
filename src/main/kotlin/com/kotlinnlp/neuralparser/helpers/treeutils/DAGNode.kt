@@ -24,6 +24,11 @@ class DAGNode<IdType: Comparable<IdType>>(
    * The head of the node (default null).
    */
   var head: DAGNode<IdType>? = null
+    set(value) { require(!this.headSet) { "Head already set." }
+      field = value
+      this.headSet = true
+    }
+
 
   /**
    * The depth of this node in the tree.
@@ -59,19 +64,6 @@ class DAGNode<IdType: Comparable<IdType>>(
     val lca = this.pathToRoot.first { other.pathToRoot.contains(it) }
 
     return this.pathToRoot.indexOf(lca) + other.pathToRoot.indexOf(lca)
-  }
-
-  /**
-   * Set another node as [head] of this.
-   *
-   * @param other a node
-   */
-  fun assignHead(other: DAGNode<IdType>?) {
-
-    require(!this.headSet) { "Head already set."}
-
-    this.head = other
-    this.headSet = true
   }
 
   /**

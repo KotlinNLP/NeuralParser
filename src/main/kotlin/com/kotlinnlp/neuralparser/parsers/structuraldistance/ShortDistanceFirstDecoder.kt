@@ -14,9 +14,9 @@ import com.kotlinnlp.utils.removeAtIndexOfFirst
 import com.kotlinnlp.utils.removeFrom
 
 /**
- * Decode the dependencies using the Lower-Distance First (LDF) parsing strategy (Grella, 2019).
+ * Decode the dependencies using the Short-Distance First (SDF) strategy (Grella, 2019).
  */
-class LowerDistanceFirstDecoder(
+class ShortDistanceFirstDecoder(
   val distanceModel: StackedLayersParameters,
   val depthModel: StackedLayersParameters
 ) {
@@ -33,7 +33,7 @@ class LowerDistanceFirstDecoder(
     /**
      * The estimated depth of this element in the vector space of the sentence.
      */
-    val depth: Double by lazy { this@LowerDistanceFirstDecoder.depthProcessor.forward(this.vector).expectScalar() }
+    val depth: Double by lazy { this@ShortDistanceFirstDecoder.depthProcessor.forward(this.vector).expectScalar() }
 
     /**
      * Cache of the estimated distances of this element with another element in the sentence vector space.
@@ -48,8 +48,18 @@ class LowerDistanceFirstDecoder(
      * @return the distance
      */
     fun distance(other: PendingElement): Double = this.distanceCache.getOrPut(other) {
-      this@LowerDistanceFirstDecoder.distanceProcessor.forward(listOf(this.vector, other.vector)).expectScalar()
+      this@ShortDistanceFirstDecoder.distanceProcessor.forward(listOf(this.vector, other.vector)).expectScalar()
     }
+
+    /**
+     * Whether this element is higher in the predicted hierarchy (i.e. closer to the root node) than
+     * the [other] element, or not.
+     *
+     * @param other an element
+     *
+     * @return whether this element is higher than the [other], or not
+     */
+    fun higherThan(other: PendingElement): Boolean = this.depth < other.depth
 
     /**
      * The left spine (including itself for convenience)
@@ -186,26 +196,26 @@ class LowerDistanceFirstDecoder(
    * @return the list of actions
    */
   private fun generatePossibleActions(pairs: List<Pair<PendingElement, PendingElement>>):
-    List<LowerDistanceFirstDecoder.Action> {
+    List<ShortDistanceFirstDecoder.Action> {
 
     return pairs.foldIndexed(mutableListOf()) { i, acc, (first, second) ->
 
-      if (first.depth < second.depth) { // first -> governor
+      if (first.higherThan(second)) { // first = governor
 
         acc.add(Action.ArcRight(pairIndex = i, k = 0, distance = first.distance(second))) // between roots
 
         first.rightSpine.forEachIndexed { k, element ->
-          if (k > 0 && second.depth > element.depth) { // filter impossible attachment
+          if (k > 0 && element.higherThan(second)) { // filter impossible attachment
             acc.add(Action.ArcRight(pairIndex = i, k = k, distance = element.distance(second)))
           }
         }
 
-      } else { // second -> governor
+      } else { // second = governor
 
         acc.add(Action.ArcLeft(pairIndex = i, k = 0, distance = first.distance(second))) // between roots
 
         second.leftSpine.forEachIndexed { k, element ->
-          if (k > 0 && first.depth > element.depth) { // filter impossible attachment
+          if (k > 0 && element.higherThan(first)) { // filter impossible attachment
             acc.add(Action.ArcLeft(pairIndex = i, k = k, distance = element.distance(first)))
           }
         }
@@ -220,6 +230,6 @@ class LowerDistanceFirstDecoder(
    *
    * @return the best action
    */
-  private fun selectBestAction(actions: List<LowerDistanceFirstDecoder.Action>) =
+  private fun selectBestAction(actions: List<ShortDistanceFirstDecoder.Action>) =
     actions.sortedBy { it.distance }.first()
 }
