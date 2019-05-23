@@ -51,10 +51,10 @@ class DAGNodesFactory<IdType: Comparable<IdType>>(
     val depNodeIndex: Int = this.idsToIndexes.getValue(depId)
 
     if (govId == null)
-      nodes[depNodeIndex].setHead(null) // root
+      nodes[depNodeIndex].assignHead(null) // root
     else
       this.idsToIndexes.getValue(govId).let { govNodeIndex ->
-        nodes[depNodeIndex].setHead(nodes[govNodeIndex])
+        nodes[depNodeIndex].assignHead(nodes[govNodeIndex])
       }
   }
 }

@@ -24,7 +24,6 @@ class DAGNode<IdType: Comparable<IdType>>(
    * The head of the node (default null).
    */
   var head: DAGNode<IdType>? = null
-    private set
 
   /**
    * The depth of this node in the tree.
@@ -67,7 +66,7 @@ class DAGNode<IdType: Comparable<IdType>>(
    *
    * @param other a node
    */
-  fun setHead(other: DAGNode<IdType>?) {
+  fun assignHead(other: DAGNode<IdType>?) {
 
     require(!this.headSet) { "Head already set."}
 
