@@ -52,6 +52,16 @@ class ShortDistanceFirstDecoder(
     }
 
     /**
+     * Whether this element is higher in the predicted hierarchy (i.e. closer to the root node) than
+     * the [other] element, or not.
+     *
+     * @param other an element
+     *
+     * @return whether this element is higher than the [other], or not
+     */
+    fun higherThan(other: PendingElement): Boolean = this.depth < other.depth
+
+    /**
      * The left spine (including itself for convenience)
      */
     val leftSpine: MutableList<PendingElement> = mutableListOf(this)
@@ -190,22 +200,22 @@ class ShortDistanceFirstDecoder(
 
     return pairs.foldIndexed(mutableListOf()) { i, acc, (first, second) ->
 
-      if (first.depth < second.depth) { // first -> governor
+      if (first.higherThan(second)) { // first = governor
 
         acc.add(Action.ArcRight(pairIndex = i, k = 0, distance = first.distance(second))) // between roots
 
         first.rightSpine.forEachIndexed { k, element ->
-          if (k > 0 && second.depth > element.depth) { // filter impossible attachment
+          if (k > 0 && element.higherThan(second)) { // filter impossible attachment
             acc.add(Action.ArcRight(pairIndex = i, k = k, distance = element.distance(second)))
           }
         }
 
-      } else { // second -> governor
+      } else { // second = governor
 
         acc.add(Action.ArcLeft(pairIndex = i, k = 0, distance = first.distance(second))) // between roots
 
         second.leftSpine.forEachIndexed { k, element ->
-          if (k > 0 && first.depth > element.depth) { // filter impossible attachment
+          if (k > 0 && element.higherThan(first)) { // filter impossible attachment
             acc.add(Action.ArcLeft(pairIndex = i, k = k, distance = element.distance(first)))
           }
         }
