@@ -44,6 +44,13 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
     fun roundedDistance(other: Token): Int = this@PointerDistanceDecoder.getRoundedDistance(this, other)
 
     /**
+     * @param other another token
+     *
+     * @return whether this token is a direct governor of the [other]
+     */
+    fun isDirectGovernor(other: RoundedDistToken): Boolean = this != other && this.roundedDistance(other) == 1
+
+    /**
      * Get the best direct governor of this token or null if there is no a direct governor.
      *
      * (A direct governor is a token which predicted rounded distance from this is 1).
@@ -55,7 +62,7 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
     fun getBestDirectGovernor(tokens: List<RoundedDistToken>): RoundedDistToken? =
       this.bestDirectGovernorCache.getOrPut(0) {
         tokens
-          .filter { it != this && it.roundedDistance(this) == 1 }
+          .filter { it.isDirectGovernor(this) }
           .maxBy { it.attachmentScore(this) }
       }
 
@@ -156,14 +163,19 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
    */
   private fun attachDirectTokens(tokens: List<RoundedDistToken>) {
 
-    this.lastAttachedTokens = this.lastAttachedTokens.flatMap { attachedToken ->
-      this.pendingList
-        .filter { it.roundedDistance(attachedToken) == 1 && it.getBestDirectGovernor(tokens) == attachedToken }
-        .map { dependent ->
+    val pendingListCopy: List<RoundedDistToken> = this.pendingList.toList() // avoid concurrent modification
+
+    this.lastAttachedTokens = pendingListCopy.flatMap { dependent ->
+
+      this.lastAttachedTokens
+        .asSequence()
+        .filter { it == dependent.getBestDirectGovernor(tokens) }
+        .map { attachedToken ->
           this.pendingList.remove(dependent)
           this.arcs.add(Triple(attachedToken.id, dependent.id, dependent.attachmentScore(attachedToken)))
           dependent
         }
+        .toList()
     }
   }
 
