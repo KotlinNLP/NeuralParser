@@ -186,11 +186,10 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
     val nearestRemaining: RoundedDistToken =
       this.pendingList.minBy { it.distance(it.getNearest(this.attachedTokens)) }!!
 
-    val governor: Token = nearestRemaining.getNearest(this.attachedTokens)
-    val score: Double = 1.0 - nearestRemaining.distance(governor)
+    val governor: RoundedDistToken = nearestRemaining.getNearest(this.attachedTokens)
 
     this.pendingList.remove(nearestRemaining)
-    this.arcs.add(Triple(governor.id, nearestRemaining.id, score))
+    this.arcs.add(Triple(governor.id, nearestRemaining.id, nearestRemaining.attachmentScore(governor)))
 
     this.lastAttachedTokens = listOf(nearestRemaining)
   }
