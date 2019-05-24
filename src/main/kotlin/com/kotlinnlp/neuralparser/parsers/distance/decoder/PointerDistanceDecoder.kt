@@ -68,7 +68,8 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
      *
      * @return the attachment score between this token and the [other]
      */
-    fun attachmentScore(other: Token): Double = 1.0 - Math.abs(this.distance(other) - 1.0)
+    fun attachmentScore(other: RoundedDistToken): Double =
+      1.0 - Math.abs(this.distance(other) - this.roundedDistance(other))
   }
 
   /**
