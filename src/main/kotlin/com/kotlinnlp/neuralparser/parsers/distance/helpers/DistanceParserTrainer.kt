@@ -9,12 +9,12 @@ package com.kotlinnlp.neuralparser.parsers.distance.helpers
 
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.helpers.Trainer
-import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.treeutils.DAGNode
 import com.kotlinnlp.neuralparser.helpers.treeutils.DAGNodesFactory
 import com.kotlinnlp.neuralparser.helpers.treeutils.Element
+import com.kotlinnlp.neuralparser.helpers.validator.Validator
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.parsers.distance.DistanceParser
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
@@ -152,7 +152,7 @@ class DistanceParserTrainer(
    * @param sentence the sentence
    * @param goldTree the gold tree of the sentence
    */
-  override fun trainSentence(sentence: ParsingSentence, goldTree: DependencyTree) {
+  override fun trainSentence(sentence: ParsingSentence, goldTree: DependencyTree.Labeled) {
 
     this.beforeSentenceLearning()
 
