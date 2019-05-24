@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.neuralparser.helpers
+package com.kotlinnlp.neuralparser.helpers.validator
 
 import com.kotlinnlp.conllio.CoNLLUEvaluator
 import com.kotlinnlp.conllio.CoNLLWriter
