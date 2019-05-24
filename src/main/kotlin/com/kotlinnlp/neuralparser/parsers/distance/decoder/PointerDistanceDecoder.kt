@@ -28,9 +28,12 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
   private inner class RoundedDistToken(id: Int, vector: DenseNDArray) : Token(id = id, vector = vector) {
 
     /**
-     * The cache map for the best governror of this token.
+     * The cache map for the best direct governor of this token.
+     * It is null if there is no a direct governor.
+     *
+     * (A direct governor is a token which predicted rounded distance from this is 1).
      */
-    private val bestGovernorCache: MutableMap<Int, RoundedDistToken?> = mutableMapOf()
+    private val bestDirectGovernorCache: MutableMap<Int, RoundedDistToken?> = mutableMapOf()
 
     /**
      * @param other another token
@@ -41,12 +44,16 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
     fun roundedDistance(other: Token): Int = this@PointerDistanceDecoder.getRoundedDistance(this, other)
 
     /**
-     * @param tokens a list of tokens
+     * Get the best direct governor of this token or null if there is no a direct governor.
      *
-     * @return the best governor of this token, within the given list, or null if there is no governor
+     * (A direct governor is a token which predicted rounded distance from this is 1).
+     *
+     * @param tokens the list of all the tokens of the sentence
+     *
+     * @return the best direct governor of this token or null if there is no governor
      */
-    fun getBestGovernor(tokens: List<RoundedDistToken>): RoundedDistToken? =
-      this.bestGovernorCache.getOrPut(0) {
+    fun getBestDirectGovernor(tokens: List<RoundedDistToken>): RoundedDistToken? =
+      this.bestDirectGovernorCache.getOrPut(0) {
         tokens
           .filter { it != this && it.roundedDistance(this) == 1 }
           .maxBy { it.attachmentScore(this) }
@@ -78,6 +85,30 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
   private val distanceCache: MutableMap<Token, MutableMap<Token, Int>> = mutableMapOf()
 
   /**
+   * The tokens not already attached.
+   * It is a support variable used during the decoding.
+   */
+  private lateinit var pendingList: MutableList<RoundedDistToken>
+
+  /**
+   * All the attached tokens.
+   * It is a support variable used during the decoding.
+   */
+  private lateinit var attachedTokens: MutableList<RoundedDistToken>
+
+  /**
+   * The last attached tokens.
+   * It is a support variable used during the decoding.
+   */
+  private lateinit var lastAttachedTokens: List<RoundedDistToken>
+
+  /**
+   * The arcs that has been decoded.
+   * It is a support variable used during the decoding.
+   */
+  private lateinit var arcs: MutableList<Triple<Int, Int, Double>>
+
+  /**
    * Decode the encoded representation into a list of arcs.
    *
    * @param indexedVectors the encoded representation of the tokens with the related ids
@@ -87,44 +118,70 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
   override fun decode(indexedVectors: List<IndexedValue<DenseNDArray>>): List<Triple<Int, Int, Double>> {
 
     val tokens: List<RoundedDistToken> = indexedVectors.map { RoundedDistToken(id = it.index, vector = it.value) }
-    val root: RoundedDistToken = tokens.minBy { it.depth }!!
 
-    val pendingList: MutableList<RoundedDistToken> = (tokens - root).toMutableList()
-    val attachedTokens: MutableList<RoundedDistToken> = mutableListOf(root)
-    var newAttachedTokens: List<RoundedDistToken> = listOf(root)
-    val arcs: MutableList<Triple<Int, Int, Double>> =
-      mutableListOf(Triple(root.id, root.id, 1.0 - Math.abs(root.depth)))
+    this.initDecoding(tokens)
 
-    while (pendingList.size > 0) {
+    while (this.pendingList.isNotEmpty()) {
 
-      if (newAttachedTokens.isNotEmpty()) {
+      if (this.lastAttachedTokens.isNotEmpty())
+        this.attachDirectTokens(tokens)
+      else
+        this.attachNearestToken()
 
-        newAttachedTokens = newAttachedTokens.flatMap { attachedToken ->
-          pendingList
-            .filter { it.roundedDistance(attachedToken) == 1 && it.getBestGovernor(tokens) == attachedToken }
-            .map { dependent ->
-              pendingList.remove(dependent)
-              arcs.add(Triple(attachedToken.id, dependent.id, dependent.attachmentScore(attachedToken)))
-              dependent
-            }
-        }
-
-      } else {
-
-        val nearestRemaining: RoundedDistToken = pendingList.minBy { it.distance(it.getNearest(attachedTokens)) }!!
-        val governor: Token = nearestRemaining.getNearest(attachedTokens)
-        val score: Double = 1.0 - nearestRemaining.distance(governor)
-
-        pendingList.remove(nearestRemaining)
-        arcs.add(Triple(governor.id, nearestRemaining.id, score))
-
-        newAttachedTokens = listOf(nearestRemaining)
-      }
-
-      attachedTokens.addAll(newAttachedTokens)
+      this.attachedTokens.addAll(this.lastAttachedTokens)
     }
 
-    return arcs
+    return this.arcs
+  }
+
+  /**
+   * Initialize the support variables for the decoding of a sentence.
+   *
+   * @param tokens the tokens of the sentence
+   */
+  private fun initDecoding(tokens: List<RoundedDistToken>) {
+
+    val root: RoundedDistToken = tokens.minBy { it.depth }!!
+
+    this.pendingList = (tokens - root).toMutableList()
+    this.attachedTokens = mutableListOf(root)
+    this.lastAttachedTokens = listOf(root)
+    this.arcs = mutableListOf(Triple(root.id, root.id, 1.0 - Math.abs(root.depth)))
+  }
+
+  /**
+   * Attach the tokens of the [pendingList] that have a direct governor among the last attached tokens.
+   *
+   * @param tokens the tokens of the sentence
+   */
+  private fun attachDirectTokens(tokens: List<RoundedDistToken>) {
+
+    this.lastAttachedTokens = this.lastAttachedTokens.flatMap { attachedToken ->
+      this.pendingList
+        .filter { it.roundedDistance(attachedToken) == 1 && it.getBestDirectGovernor(tokens) == attachedToken }
+        .map { dependent ->
+          this.pendingList.remove(dependent)
+          this.arcs.add(Triple(attachedToken.id, dependent.id, dependent.attachmentScore(attachedToken)))
+          dependent
+        }
+    }
+  }
+
+  /**
+   * Attach the token of the [pendingList] that is the nearest to one of the [attachedTokens].
+   */
+  private fun attachNearestToken() {
+
+    val nearestRemaining: RoundedDistToken =
+      this.pendingList.minBy { it.distance(it.getNearest(this.attachedTokens)) }!!
+
+    val governor: Token = nearestRemaining.getNearest(this.attachedTokens)
+    val score: Double = 1.0 - nearestRemaining.distance(governor)
+
+    this.pendingList.remove(nearestRemaining)
+    this.arcs.add(Triple(governor.id, nearestRemaining.id, score))
+
+    this.lastAttachedTokens = listOf(nearestRemaining)
   }
 
   /**
