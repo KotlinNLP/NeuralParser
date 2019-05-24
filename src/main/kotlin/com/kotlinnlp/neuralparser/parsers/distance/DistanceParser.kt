@@ -29,6 +29,11 @@ class DistanceParser<DecoderType : DependencyDecoder>(
 ) : NeuralParser<DistanceParserModel> {
 
   /**
+   * Whether this parser executes the morpho-syntactic labelling.
+   */
+  override val labellingEnabled: Boolean = false
+
+  /**
    * The dependency decoder.
    */
   private val decoder: DependencyDecoder = decoderClass.constructors.first().call(this.model)
@@ -58,7 +63,7 @@ class DistanceParser<DecoderType : DependencyDecoder>(
     val tokensEncodings: List<DenseNDArray> = this.tokensEncoder.forward(sentence)
     val contextVectors: List<DenseNDArray> = this.contextEncoder.forward(tokensEncodings).map { it.copy() }
 
-    val dependencyTree = DependencyTree(elements = sentence.tokens.map { it.id } )
+    val dependencyTree = DependencyTree.Unlabeled(elements = sentence.tokens.map { it.id } )
     val indexedVectors: List<IndexedValue<DenseNDArray>> =
       sentence.tokens.zip(contextVectors).map { IndexedValue(it.first.id, it.second) }
 
