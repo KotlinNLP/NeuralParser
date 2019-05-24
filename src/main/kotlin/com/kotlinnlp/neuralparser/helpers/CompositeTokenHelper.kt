@@ -8,7 +8,7 @@ import com.kotlinnlp.linguisticdescription.syntax.SyntacticType
 /**
  * @param dependencyTree the dependency tree
  */
-class CompositeTokenHelper(private val dependencyTree: DependencyTree) {
+class CompositeTokenHelper(private val dependencyTree: DependencyTree.Labeled) {
 
   /**
    * Get the ID of the governor of a component of a composite token.
@@ -24,7 +24,7 @@ class CompositeTokenHelper(private val dependencyTree: DependencyTree) {
                              prevComponentId: Int?): Int? {
 
     val governorId: Int? = this.dependencyTree.getHead(tokenId)
-    val config: GrammaticalConfiguration = this.dependencyTree.getConfiguration(tokenId)!!
+    val config: GrammaticalConfiguration = this.dependencyTree.getConfiguration(tokenId)
 
     val isContin: Boolean = config.isContin()
     val isPrepArt: Boolean = config.isPrepArt()
@@ -48,11 +48,11 @@ class CompositeTokenHelper(private val dependencyTree: DependencyTree) {
    *
    * @return the governor id of the multi-word of which the given token is part of
    */
-  private fun DependencyTree.getMultiWordGovernorId(tokenId: Int): Int? {
+  private fun DependencyTree.Labeled.getMultiWordGovernorId(tokenId: Int): Int? {
 
     var multiWordStartId: Int = this.getHead(tokenId)!!
 
-    while (this.getConfiguration(multiWordStartId)!!.isContin())
+    while (this.getConfiguration(multiWordStartId).isContin())
       multiWordStartId = this.getHead(multiWordStartId)!!
 
     return this.getHead(multiWordStartId)

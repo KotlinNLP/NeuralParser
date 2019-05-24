@@ -31,11 +31,19 @@ internal class GreedyDependencyTreeBuilder(
    *
    * @return the annotated dependency tree with the highest score, built from the given LSS
    */
-  fun build() = DependencyTree(this.lss.sentence.tokens.map { it.id }).apply {
-    assignHighestScoringHeads()
-    fixCycles()
-    assignLabels()
-  }
+  fun build(): DependencyTree =
+    if (this.labeler != null)
+      DependencyTree.Labeled(this.lss.sentence.tokens.map { it.id }).apply {
+        assignHighestScoringHeads()
+        fixCycles()
+        assignLabels()
+      }
+    else
+      DependencyTree.Unlabeled(this.lss.sentence.tokens.map { it.id }).apply {
+        assignHighestScoringHeads()
+        fixCycles()
+      }
+
 
   /**
    * Assign the heads to this dependency tree using the highest scoring arcs of the [scoresMap].
@@ -68,7 +76,7 @@ internal class GreedyDependencyTreeBuilder(
   /**
    * Annotate this dependency tree with the labels.
    */
-  private fun DependencyTree.assignLabels() {
+  private fun DependencyTree.Labeled.assignLabels() {
 
     labeler!!.predict(Labeler.Input(lss, this)).forEach { tokenId, configurations ->
       this.setGrammaticalConfiguration(dependent = tokenId, configuration = configurations.first().config)

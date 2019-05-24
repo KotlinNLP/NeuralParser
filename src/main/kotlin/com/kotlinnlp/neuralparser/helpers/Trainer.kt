@@ -111,11 +111,13 @@ abstract class Trainer(
 
       val sentence: CoNLLSentence = trainingSentences[sentenceIndex]
 
-      require(sentence.hasAnnotatedHeads()) { "The gold dependency tree of a sentence cannot be null during the evaluation." }
+      require(sentence.hasAnnotatedHeads()) {
+        "The gold dependency tree of a sentence cannot be null during the evaluation."
+      }
 
       this.trainSentence(
         sentence = this.sentencePreprocessor.convert(BaseSentence.fromCoNLL(sentence, index = sentenceIndex)),
-        goldTree = DependencyTree(sentence))
+        goldTree = DependencyTree.Labeled(sentence))
 
       if (endOfBatch && this.getRelevantErrorsCount() >= this.minRelevantErrorsCountToUpdate) {
         this.update()
@@ -220,7 +222,7 @@ abstract class Trainer(
    * @param sentence a sentence
    * @param goldTree the gold dependency tree
    */
-  protected abstract fun trainSentence(sentence: ParsingSentence, goldTree: DependencyTree)
+  protected abstract fun trainSentence(sentence: ParsingSentence, goldTree: DependencyTree.Labeled)
 
   /**
    * @return the count of the relevant errors

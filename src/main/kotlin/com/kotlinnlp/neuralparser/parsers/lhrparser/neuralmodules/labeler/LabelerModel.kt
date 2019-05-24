@@ -77,7 +77,7 @@ class LabelerModel(
    *
    * @return a list of predictions errors
    */
-  fun calculateLoss(predictions: List<DenseNDArray>, goldTree: DependencyTree): List<DenseNDArray> {
+  fun calculateLoss(predictions: List<DenseNDArray>, goldTree: DependencyTree.Labeled): List<DenseNDArray> {
 
     val errorsList = mutableListOf<DenseNDArray>()
 
@@ -86,7 +86,7 @@ class LabelerModel(
       val tokenId: Int = goldTree.elements[tokenIndex]
       val errors: DenseNDArray = LossCriterion(this.lossCriterionType).getPredictionErrors(
         prediction = prediction,
-        goldIndex = this.grammaticalConfigurations.getId(goldTree.getConfiguration(tokenId)!!)!!)
+        goldIndex = this.grammaticalConfigurations.getId(goldTree.getConfiguration(tokenId))!!)
 
       errorsList.add(errors)
     }

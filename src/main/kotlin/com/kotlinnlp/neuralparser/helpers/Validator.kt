@@ -28,7 +28,7 @@ import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
  * @property verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
 class Validator(
-  neuralParser: NeuralParser<*>,
+  private val neuralParser: NeuralParser<*>,
   val sentences: List<CoNLLSentence>,
   sentencePreprocessor: SentencePreprocessor,
   private val verbose: Boolean = true
@@ -67,7 +67,7 @@ class Validator(
    * The parser wrapper to parse sentences in CoNLL format.
    */
   private val conllParser = CoNLLDependencyParser(
-    neuralParser = neuralParser,
+    neuralParser = this.neuralParser,
     sentencePreprocessor = sentencePreprocessor)
 
   /**
@@ -83,8 +83,8 @@ class Validator(
 
     this.sentences.zip(parsedSentences).forEach { (goldSentence, parsedSentence) ->
 
-      val goldTree = DependencyTree(goldSentence)
-      val parsedTree = DependencyTree(parsedSentence, allowCycles = true)
+      val goldTree: DependencyTree = this.buildTree(goldSentence)
+      val parsedTree: DependencyTree = this.buildTree(parsedSentence, allowCycles = true)
 
       require(parsedTree.size == goldTree.size) { "The dependency tree and its gold haven't the same size" }
 
@@ -97,6 +97,18 @@ class Validator(
 
     return this.buildStats()
   }
+
+  /**
+   * @param sentence a CoNLL sentence
+   * @param allowCycles if true it allows to create cycles when building the tree
+   *
+   * @return a new dependency tree based on the given sentence
+   */
+  private fun buildTree(sentence: CoNLLSentence, allowCycles: Boolean = false): DependencyTree =
+    if (this.neuralParser.labellingEnabled)
+      DependencyTree.Labeled(sentence = sentence, allowCycles = allowCycles)
+    else
+      DependencyTree.Unlabeled(sentence = sentence, allowCycles = allowCycles)
 
   /**
    * Parse the validation CoNLL sentences.
@@ -142,12 +154,12 @@ class Validator(
   private fun addTokenMetrics(token: CoNLLToken, parsedTree: DependencyTree, goldTree: DependencyTree) {
 
     val isNotPunct: Boolean = !punctuationRegex.matches(token.form)
-    val parsedConfig: GrammaticalConfiguration? = parsedTree.getConfiguration(token.id)
-    val goldConfig: GrammaticalConfiguration? = goldTree.getConfiguration(token.id)
+    val parsedConfig: GrammaticalConfiguration? = (parsedTree as? DependencyTree.Labeled)?.getConfiguration(token.id)
+    val goldConfig: GrammaticalConfiguration? = (goldTree as? DependencyTree.Labeled)?.getConfiguration(token.id)
     val parsedDependencies: List<SyntacticDependency>? =
       parsedConfig?.components?.map { it.syntacticDependency }
     val goldDependencies: List<SyntacticDependency>? =
-      goldTree.getConfiguration(token.id)?.components?.map { it.syntacticDependency }
+      (goldTree as? DependencyTree.Labeled)?.getConfiguration(token.id)?.components?.map { it.syntacticDependency }
 
     if (isNotPunct) this.counterNoPunct.totalTokens++
 

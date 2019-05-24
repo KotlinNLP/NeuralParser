@@ -64,9 +64,13 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
       labeler = this.labeler
     ).build()
 
-    return MorphoSynBuilder(
-      parsingSentence = sentence,
-      dependencyTree = dependencyTree
-    ).buildSentence()
+    return when (dependencyTree) {
+
+      is DependencyTree.Labeled ->
+        LabeledMorphoSynBuilder(parsingSentence = sentence, dependencyTree = dependencyTree).buildSentence()
+
+      is DependencyTree.Unlabeled ->
+        UnlabeledMorphoSynBuilder(parsingSentence = sentence, dependencyTree = dependencyTree).buildSentence()
+    }
   }
 }

@@ -174,7 +174,7 @@ class LHRTrainer(
    * @param sentence the sentence
    * @param goldTree the gold tree of the sentence
    */
-  override fun trainSentence(sentence: ParsingSentence, goldTree: DependencyTree) {
+  override fun trainSentence(sentence: ParsingSentence, goldTree: DependencyTree.Labeled) {
 
     this.beforeSentenceLearning()
 
