@@ -22,6 +22,11 @@ interface NeuralParser<out ModelType: NeuralParserModel> {
   val model: ModelType
 
   /**
+   * Whether this parser executes the morpho-syntactic labelling.
+   */
+  val labellingEnabled: Boolean
+
+  /**
    * Parse a sentence, giving its dependency tree.
    *
    * @param sentence a [Sentence]

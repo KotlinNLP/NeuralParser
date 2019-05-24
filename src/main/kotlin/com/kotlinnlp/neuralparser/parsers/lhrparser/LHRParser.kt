@@ -14,7 +14,8 @@ import com.kotlinnlp.lssencoder.LatentSyntacticStructure
 import com.kotlinnlp.lssencoder.decoder.CosineDecoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.labeler.Labeler
 import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.helpers.MorphoSynBuilder
+import com.kotlinnlp.neuralparser.helpers.LabeledMorphoSynBuilder
+import com.kotlinnlp.neuralparser.helpers.UnlabeledMorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.GreedyDependencyTreeBuilder
@@ -28,6 +29,11 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.GreedyDependencyTree
  * @property model the parser model
  */
 class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
+
+  /**
+   * Whether this parser executes the morpho-syntactic labelling.
+   */
+  override val labellingEnabled: Boolean = this.model.useLabeler
 
   /**
    * The Encoder of the Latent Syntactic Structure.
