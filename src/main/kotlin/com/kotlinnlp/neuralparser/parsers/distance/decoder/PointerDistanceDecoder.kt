@@ -28,6 +28,11 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
   private inner class RoundedDistToken(id: Int, vector: DenseNDArray) : Token(id = id, vector = vector) {
 
     /**
+     * The estimated depth of this element in the sentence vector space, rounded to the nearest integer
+     */
+    val roundedDepth: Int by lazy { Math.round(this.depth).toInt() }
+
+    /**
      * The cache map for the best direct governor of this token.
      * It is null if there is no a direct governor.
      *
@@ -183,15 +188,24 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
    */
   private fun attachNearestToken() {
 
-    val nearestRemaining: RoundedDistToken =
-      this.pendingList.minBy { it.distance(it.getNearest(this.attachedTokens)) }!!
+    data class CandidateArc(val dependent: RoundedDistToken, val governor: RoundedDistToken)
 
-    val governor: RoundedDistToken = nearestRemaining.getNearest(this.attachedTokens)
+    val candidateArcs: List<CandidateArc> =
+      this.pendingList.map { CandidateArc(dependent = it, governor = it.getNearest(this.attachedTokens)) }
 
-    this.pendingList.remove(nearestRemaining)
-    this.arcs.add(Triple(governor.id, nearestRemaining.id, nearestRemaining.attachmentScore(governor)))
+    val bestCandidate: CandidateArc =
+      candidateArcs
+        .filter { it.dependent.roundedDepth == (it.governor.roundedDepth + 1) }
+        .maxBy { it.dependent.attachmentScore(it.governor) }
+        ?:
+        candidateArcs.minBy { it.dependent.distance(it.governor) }!!
 
-    this.lastAttachedTokens = listOf(nearestRemaining)
+    val score: Double = bestCandidate.dependent.attachmentScore(bestCandidate.governor)
+
+    this.pendingList.remove(bestCandidate.dependent)
+    this.arcs.add(Triple(bestCandidate.governor.id, bestCandidate.dependent.id, score))
+
+    this.lastAttachedTokens = listOf(bestCandidate.dependent)
   }
 
   /**
