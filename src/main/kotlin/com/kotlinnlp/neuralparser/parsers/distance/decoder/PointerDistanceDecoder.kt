@@ -165,17 +165,16 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
 
     val pendingListCopy: List<RoundedDistToken> = this.pendingList.toList() // avoid concurrent modification
 
-    this.lastAttachedTokens = pendingListCopy.flatMap { dependent ->
+    this.lastAttachedTokens = pendingListCopy.mapNotNull { dependent ->
 
-      this.lastAttachedTokens
-        .asSequence()
-        .filter { it == dependent.getBestDirectGovernor(tokens) }
-        .map { attachedToken ->
-          this.pendingList.remove(dependent)
-          this.arcs.add(Triple(attachedToken.id, dependent.id, dependent.attachmentScore(attachedToken)))
-          dependent
-        }
-        .toList()
+      val bestGovernor: RoundedDistToken? =
+        this.lastAttachedTokens.firstOrNull { it == dependent.getBestDirectGovernor(tokens) }
+
+      bestGovernor?.let {
+        this.pendingList.remove(dependent)
+        this.arcs.add(Triple(bestGovernor.id, dependent.id, dependent.attachmentScore(bestGovernor)))
+        dependent
+      }
     }
   }
 
