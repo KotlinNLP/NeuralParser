@@ -26,7 +26,7 @@ import com.kotlinnlp.neuralparser.helpers.labelerselector.LabelerSelector
  * @param parsingSentence a parsing sentence
  * @param dependencyTree the tree that represents the dependencies and the grammatical configuration of the sentence
  */
-class LabeledMorphoSynBuilder(
+internal class LabeledMorphoSynBuilder(
   private val parsingSentence: ParsingSentence,
   private val dependencyTree: DependencyTree.Labeled
 ) {

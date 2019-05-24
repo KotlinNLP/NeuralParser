@@ -8,7 +8,7 @@ import com.kotlinnlp.linguisticdescription.syntax.SyntacticType
 /**
  * @param dependencyTree the dependency tree
  */
-class CompositeTokenHelper(private val dependencyTree: DependencyTree.Labeled) {
+internal class CompositeTokenHelper(private val dependencyTree: DependencyTree.Labeled) {
 
   /**
    * Get the ID of the governor of a component of a composite token.

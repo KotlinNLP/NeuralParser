@@ -24,7 +24,7 @@ import com.kotlinnlp.neuralparser.language.ParsingToken
  * @param parsingSentence a parsing sentence
  * @param dependencyTree the tree that represents the dependencies and the grammatical configuration of the sentence
  */
-class UnlabeledMorphoSynBuilder(
+internal class UnlabeledMorphoSynBuilder(
   private val parsingSentence: ParsingSentence,
   private val dependencyTree: DependencyTree.Unlabeled
 ) {
