@@ -95,7 +95,7 @@ class PointerDistanceDecoder(model: DistanceParserModel) : DependencyDecoder(mod
     val arcs: MutableList<Triple<Int, Int, Double>> =
       mutableListOf(Triple(root.id, root.id, 1.0 - Math.abs(root.depth)))
 
-    while (pendingList.size > 1) {
+    while (pendingList.size > 0) {
 
       if (newAttachedTokens.isNotEmpty()) {
 
