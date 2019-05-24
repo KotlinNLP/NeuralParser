@@ -26,9 +26,9 @@ import com.kotlinnlp.neuralparser.helpers.labelerselector.LabelerSelector
  * @param parsingSentence a parsing sentence
  * @param dependencyTree the tree that represents the dependencies and the grammatical configuration of the sentence
  */
-class MorphoSynBuilder(
+class LabeledMorphoSynBuilder(
   private val parsingSentence: ParsingSentence,
-  private val dependencyTree: DependencyTree
+  private val dependencyTree: DependencyTree.Labeled
 ) {
 
   /**
@@ -40,7 +40,7 @@ class MorphoSynBuilder(
   /**
    * Build the morpho-syntactic sentence using a [LabelerSelector] to select the valid morphologies.
    *
-   * @return a new morpho-syntactic sentence built from the given [parsingSentence]
+   * @return a new morpho-syntactic sentence built from the given [parsingSentence] and [dependencyTree]
    */
   fun buildSentence(): MorphoSynSentence = MorphoSynSentence(
     id = 0,
@@ -51,7 +51,7 @@ class MorphoSynBuilder(
 
       val morphologies: List<ScoredMorphology> = this.parsingSentence.getValidMorphologies(
         tokenIndex = i,
-        configuration = this.dependencyTree.getConfiguration(token.id)!!
+        configuration = this.dependencyTree.getConfiguration(token.id)
       ).map { morpho ->
         ScoredMorphology(components = morpho.components, score = attachmentScore)
       }
@@ -62,16 +62,14 @@ class MorphoSynBuilder(
   )
 
   /**
-   * Build a morpho-syntactic token from a given parsing token.
-   *
-   * @param tokenId the id of a parsing token of the [parsingSentence]
+   * @param tokenId the id of a parsing token
    * @param morphologies the possible morphologies of the token
    *
    * @return a new morpho-syntactic token build from the given parsing token
    */
   private fun buildToken(tokenId: Int, morphologies: List<ScoredMorphology>): MorphoSynToken {
 
-    val config: GrammaticalConfiguration = this.dependencyTree.getConfiguration(tokenId)!!
+    val config: GrammaticalConfiguration = this.dependencyTree.getConfiguration(tokenId)
 
     require(morphologies.all { it.components.size == config.components.size }) {
       "The given morphologies must have the same number of components of the given grammatical configuration."
@@ -96,7 +94,7 @@ class MorphoSynBuilder(
   private fun buildCompositeToken(tokenId: Int, morphologies: List<ScoredMorphology>): MorphoSynToken.Composite {
 
     val parsingToken: ParsingToken = this.parsingSentence.getTokenById(tokenId)
-    val config: GrammaticalConfiguration = this.dependencyTree.getConfiguration(tokenId)!!
+    val config: GrammaticalConfiguration = this.dependencyTree.getConfiguration(tokenId)
     val compositeTokenHandler = CompositeTokenHelper(this.dependencyTree)
 
     val newToken = MorphoSynToken.Composite(
