@@ -8,7 +8,7 @@
 package evaluation
 
 import com.kotlinnlp.neuralparser.NeuralParserModel
-import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.helpers.validator.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.parsers.distance.DistanceParser
 import com.kotlinnlp.neuralparser.parsers.distance.DistanceParserModel
