@@ -12,6 +12,7 @@ import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.UnlabeledMorphoSynBuilder
 import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.sdf.ShortDistanceFirstDecoder
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistancePredictor.Input as SDPInput
@@ -37,9 +38,7 @@ class StructuralDistanceParser(override val model: StructuralDistanceParserModel
   /**
    * The decoder.
    */
-  private val decoder = ShortDistanceFirstDecoder(
-    distanceModel = this.model.distanceModel,
-    depthModel = this.model.depthModel)
+  private val decoder = ShortDistanceFirstDecoder(this.model)
 
   /**
    * Parse a sentence, returning its dependency tree.
@@ -55,7 +54,11 @@ class StructuralDistanceParser(override val model: StructuralDistanceParserModel
 
     val dependencyTree = DependencyTree(elements = sentence.tokens.map { it.id } )
 
-    this.decoder.decode(ids = sentence.tokens.map { it.id }, vectors = contextVectors).forEach { (govId, depId, score) ->
+    this.decoder.decode(
+      ids = sentence.tokens.map { it.id },
+      vectors = contextVectors,
+      words = sentence.tokens.map { it.form }
+    ).forEach { (govId, depId, score) ->
       dependencyTree.setArc(dependent = depId, governor = govId, score = score)
     }
 

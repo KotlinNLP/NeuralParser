@@ -57,6 +57,11 @@ class StructuralDistanceParserModel(
   val tokenEncodingSize: Int = this.tokensEncoderModel.model.tokenEncodingSize
 
   /**
+   *
+   */
+  val biRNNHiddenSize: Int = 100
+
+  /**
    * The model of the context encoder.
    */
   val contextEncoderModel = if (contextBiRNNConfig.numberOfLayers == 2)
@@ -66,15 +71,15 @@ class StructuralDistanceParserModel(
         inputSize = this.tokenEncodingSize,
         dropout = 0.0,
         recurrentConnectionType = contextBiRNNConfig.connectionType,
-        hiddenSize = this.tokenEncodingSize,
+        hiddenSize = this.biRNNHiddenSize,
         hiddenActivation = contextBiRNNConfig.hiddenActivation,
         biasesInitializer = null),
       BiRNN(
         inputType = LayerType.Input.Dense,
-        inputSize = this.tokenEncodingSize * 2,
+        inputSize = this.biRNNHiddenSize * 2,
         dropout = 0.0,
         recurrentConnectionType = contextBiRNNConfig.connectionType,
-        hiddenSize = this.tokenEncodingSize,
+        hiddenSize = this.biRNNHiddenSize,
         hiddenActivation = contextBiRNNConfig.hiddenActivation,
         biasesInitializer = null))
   else
@@ -84,7 +89,7 @@ class StructuralDistanceParserModel(
         inputSize = this.tokenEncodingSize,
         dropout = 0.0,
         recurrentConnectionType = contextBiRNNConfig.connectionType,
-        hiddenSize = this.tokenEncodingSize,
+        hiddenSize = this.biRNNHiddenSize,
         hiddenActivation = contextBiRNNConfig.hiddenActivation,
         biasesInitializer = null))
 
@@ -97,8 +102,8 @@ class StructuralDistanceParserModel(
    * The parameters of the model that predicts the structural distance among pairs of nodes.
    */
   val distanceModel = StackedLayersParameters(
-    LayerInterface(sizes = listOf(this.contextVectorsSize, this.contextVectorsSize)),
-    LayerInterface(size = this.contextVectorsSize, connectionType = LayerType.Connection.Sub),
+    LayerInterface(sizes = listOf( this.contextVectorsSize,  this.contextVectorsSize)),
+    LayerInterface(size =  this.contextVectorsSize, connectionType = LayerType.Connection.Sub),
     LayerInterface(size = 1, connectionType = LayerType.Connection.SquaredDistance))
 
   /**

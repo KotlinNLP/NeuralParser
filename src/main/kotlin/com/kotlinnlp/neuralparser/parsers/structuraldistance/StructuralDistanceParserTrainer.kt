@@ -18,6 +18,7 @@ import com.kotlinnlp.neuralparser.helpers.treeutils.Element
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
+import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.assignSum
@@ -161,8 +162,8 @@ class StructuralDistanceParserTrainer(
     val tokensEncodings: List<DenseNDArray> = this.tokensEncoder.forward(sentence)
     val contextVectors: List<DenseNDArray> = this.contextEncoder.forward(tokensEncodings).map { it.copy() }
 
-    val pairs: List<Pair<Int, Int>> = contextVectors.indices.toList().combine()
-    val distances: List<Double> = this.distancePredictor.forward(SDPInput(hiddens = contextVectors, pairs = pairs))
+    val pairs: List<Pair<Int, Int>> = sentence.tokens.indices.toList().combine()
+    val distances: List<Double> = this.distancePredictor.forward(SDPInput(hiddens =contextVectors, pairs = pairs))
     val depths: List<Double> = this.depthPredictor.forward(contextVectors)
 
     val treeNodes: List<DAGNode<Int>> = this.createNodes(sentence, goldTree)
