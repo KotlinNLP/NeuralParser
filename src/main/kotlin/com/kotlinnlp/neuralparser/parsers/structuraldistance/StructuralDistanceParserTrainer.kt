@@ -170,9 +170,9 @@ class StructuralDistanceParserTrainer(
     val goldDistances: List<Int> = this.getGoldDistances(treeNodes)
     val goldDepths: List<Int> = this.getGoldDepths(treeNodes)
 
-//    val mstHelper = MSTHelper(graphSize = sentence.tokens.size, pairs = pairs, distances = distances)
-//
-//    val mst = mstHelper.getMST()
+    val mstHelper = MSTHelper(graphSize = sentence.tokens.size, pairs = pairs, distances = distances)
+
+    val mst = mstHelper.getMST()
 
     val distanceErrors: List<Double> = this.calcDistanceErrors(
       length = sentence.tokens.size,

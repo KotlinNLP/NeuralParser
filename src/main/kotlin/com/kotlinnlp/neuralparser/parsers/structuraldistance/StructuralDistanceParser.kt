@@ -37,7 +37,7 @@ class StructuralDistanceParser(override val model: StructuralDistanceParserModel
   /**
    * The decoder.
    */
-  private val decoder = ShortDistanceFirstDecoder(
+  private val decoder = MstDistanceDecoder(
     distanceModel = this.model.distanceModel,
     depthModel = this.model.depthModel)
 
@@ -55,7 +55,7 @@ class StructuralDistanceParser(override val model: StructuralDistanceParserModel
 
     val dependencyTree = DependencyTree(elements = sentence.tokens.map { it.id } )
 
-    this.decoder.decode(ids = sentence.tokens.map { it.id }, vectors = contextVectors).forEach { (govId, depId, score) ->
+    this.decoder.decode(ids = sentence.tokens.map { it.id }, contextVectors = contextVectors).forEach { (govId, depId, score) ->
       dependencyTree.setArc(dependent = depId, governor = govId, score = score)
     }
 
