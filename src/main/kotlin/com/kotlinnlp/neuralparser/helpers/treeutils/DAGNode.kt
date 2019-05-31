@@ -26,13 +26,29 @@ class DAGNode<IdType: Comparable<IdType>>(
   var head: DAGNode<IdType>? = null
     set(value) { require(!this.headSet) { "Head already set." }
       field = value
+      value?._dependents?.add(this)
       this.headSet = true
     }
+
+  /**
+   * Backing property for [dependents].
+   */
+  private val _dependents = mutableListOf<DAGNode<IdType>>()
+
+  /**
+   * The dependents of the node.
+   */
+  val dependents: List<DAGNode<IdType>> get() = this._dependents
 
   /**
    * The depth of this node in the tree.
    */
   val depth: Int by lazy { this.pathToRoot.lastIndex }
+
+  /**
+   * The height of this node in the tree.
+   */
+  val height: Int by lazy { this._dependents.maxBy { it.height }?.let { it.height + 1 } ?: 0 }
 
   /**
    * Contains the indexes of the node itself and its ancestors.
