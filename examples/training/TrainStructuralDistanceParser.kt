@@ -8,6 +8,7 @@
 package training
 
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
+import com.kotlinnlp.neuralparser.helpers.Validator
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerType
@@ -163,7 +164,14 @@ private fun buildTrainer(parser: StructuralDistanceParser,
     parser = parser,
     epochs = parsedArgs.epochs,
     batchSize = parsedArgs.batchSize,
-    validator = null,
+    validator = Validator(
+      neuralParser = parser,
+  sentences = loadSentences(
+      type = "validation",
+      filePath = parsedArgs.validationSetPath,
+      maxSentences = null,
+      skipNonProjective = false),
+  sentencePreprocessor = BasePreprocessor()),
     modelFilename = parsedArgs.modelPath,
     updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
     sentencePreprocessor = preprocessor,
