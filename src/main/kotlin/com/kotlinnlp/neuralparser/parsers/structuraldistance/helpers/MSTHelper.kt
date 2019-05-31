@@ -1,9 +1,10 @@
 package com.kotlinnlp.neuralparser.parsers.structuraldistance.helpers
 
+
 /**
  * The Minimum Spanning Tree helper. This class implements Prim algorithm.
  *
- * @param graphSize The number of nodes in the graph.
+ * @param size The numer of nodes in the graph.
  * @param pairs The list of nodes pairs.
  * @param distances The list of distances between corresponding nodes pairs.
  */
@@ -54,7 +55,7 @@ class MSTHelper (
    * Update the cost for the adjacent nodes of the [element]. I
    * If the cost is less than previous stored value, the array is updated.
    *
-   * @param element a node of the graph
+   * @param elem a node of the graph
    */
   private fun updateCost(element: Int){
 
@@ -108,5 +109,7 @@ class MSTHelper (
     }
 
     return MST
+
   }
+
 }
