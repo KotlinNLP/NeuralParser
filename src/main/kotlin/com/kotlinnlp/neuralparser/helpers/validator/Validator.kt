@@ -26,12 +26,14 @@ import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
  * @property sentences the sentences to parse containing the gold annotation
  * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
  * @property verbose a Boolean indicating if the verbose mode is enabled (default = true)
+ * @property printParsed whether to print the parsed sentences during the evaluation (default = false)
  */
 class Validator(
   private val neuralParser: NeuralParser<*>,
   val sentences: List<CoNLLSentence>,
   sentencePreprocessor: SentencePreprocessor,
-  private val verbose: Boolean = true
+  private val verbose: Boolean = true,
+  private val printParsed: Boolean = false
 ) {
 
   companion object {
@@ -125,7 +127,13 @@ class Validator(
 
       progress?.tick()
 
-      this.conllParser.parse(sentence, index = i)
+      this.conllParser.parse(sentence, index = i).also {
+
+        if (this.printParsed) {
+          println(it.toCoNLLString(writeComments = false))
+          println()
+        }
+      }
     }
   }
 
