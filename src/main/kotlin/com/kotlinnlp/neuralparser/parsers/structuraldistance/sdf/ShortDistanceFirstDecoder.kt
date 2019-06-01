@@ -36,6 +36,13 @@ class ShortDistanceFirstDecoder(private val model: StructuralDistanceParserModel
     }
 
     /**
+     * The estimated depth of this element in the vector space of the sentence.
+     */
+    val height: Double by lazy {
+      this@ShortDistanceFirstDecoder.heightProcessor.forward(this.vector).expectScalar()
+    }
+
+    /**
      * Cache of the estimated distances of this element with another element in the sentence vector space.
      */
     private val distanceCache = mutableMapOf<PendingElement, Double>()
@@ -59,7 +66,7 @@ class ShortDistanceFirstDecoder(private val model: StructuralDistanceParserModel
      *
      * @return whether this element is higher than the [other], or not
      */
-    fun higherThan(other: PendingElement): Boolean = this.depth < other.depth
+    fun higherThan(other: PendingElement): Boolean = this.depth < other.depth //|| this.height > other.height
 
     /**
      * The left spine (including itself for convenience)
@@ -73,7 +80,7 @@ class ShortDistanceFirstDecoder(private val model: StructuralDistanceParserModel
 
     override fun toString(): String {
 
-      fun str(element: PendingElement) = "${element.id}:${element.word}:${element.depth.toFixed(2)}"
+      fun str(element: PendingElement) = "${element.id}:${element.word}:d${element.depth.toFixed(2)},h${element.height.toFixed(2)}"
 
       val ls = this.leftSpine.drop(1).reversed().map(::str)
       val rs = this.rightSpine.drop(1).map(::str)
@@ -183,6 +190,14 @@ class ShortDistanceFirstDecoder(private val model: StructuralDistanceParserModel
     propagateToInput = false)
 
   /**
+   * The processor to predict the 'tree-depth'.
+   */
+  private val heightProcessor = FeedforwardNeuralProcessor<DenseNDArray>(
+    model = this.model.heightModel,
+    useDropout = false,
+    propagateToInput = false)
+
+  /**
    * The processor to predict the 'tree-distance'.
    */
   private val distanceProcessor = FeedforwardNeuralProcessor<DenseNDArray>(
@@ -206,7 +221,7 @@ class ShortDistanceFirstDecoder(private val model: StructuralDistanceParserModel
       PendingElement(id = id, vector = v, position = position, word = words[position])
     })
 
-    // pendingList.forEach { print("($it) ") } // TODO: remove it
+    //pendingList.forEach { print("($it) ") }; println() // TODO: remove it
 
     while (pendingList.size > 1) {
 
@@ -216,7 +231,7 @@ class ShortDistanceFirstDecoder(private val model: StructuralDistanceParserModel
 
       arcs.add(newArc)
 
-      // pendingList.forEach { print("($it) ") }; println() // TODO: remove it
+      //pendingList.forEach { print("($it) ") }; println() // TODO: remove it
     }
 
     return arcs
