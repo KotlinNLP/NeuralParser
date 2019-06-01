@@ -112,4 +112,11 @@ class StructuralDistanceParserModel(
   val depthModel = StackedLayersParameters(
     LayerInterface(size = this.contextVectorsSize),
     LayerInterface(size = 1, connectionType = LayerType.Connection.SquaredDistance))
+
+  /**
+   * The parameters of the model that predicts the structural height of a node.
+   */
+  val heightModel = StackedLayersParameters(
+    LayerInterface(size = this.contextVectorsSize),
+    LayerInterface(size = 1, connectionType = LayerType.Connection.SquaredDistance))
 }
