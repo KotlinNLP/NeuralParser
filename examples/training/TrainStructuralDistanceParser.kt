@@ -19,7 +19,6 @@ import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
-import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.FormConverter
 import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistanceParser
 import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistanceParserModel
@@ -27,7 +26,6 @@ import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistanceP
 import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
-import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 
 /**
@@ -97,21 +95,24 @@ private fun buildTokensEncoderModel(
   corpus: CorpusDictionary
 ): TokensEncoderWrapperModel<ParsingToken, ParsingSentence, *, *> {
 
+
   val embeddingsMap = EmbeddingsMap.fromSet(
     size = parsedArgs.wordEmbeddingSize,
     elements = corpus.words.getElementsReversedSet())
 
   return TokensEncoderWrapperModel(
-    EnsembleTokensEncoderModel.ComponentModel(
-      TokensEncoderWrapperModel(
-        model = EmbeddingsEncoderModel.Base(
-          embeddingsMap = embeddingsMap,
-          embeddingKeyExtractor = NormWordKeyExtractor(),
-          frequencyDictionary = corpus.words.getElements().associate { it to corpus.words.getCount(it) },
-          dropout = parsedArgs.wordDropoutCoefficient),
-        converter = FormConverter()),
-      trainable = true),
-    converter = MirrorConverter())
+    model = EmbeddingsEncoderModel.Base(
+      embeddingsMap = embeddingsMap,
+      embeddingKeyExtractor = NormWordKeyExtractor(),
+      frequencyDictionary = corpus.words.getElements().associate { it to corpus.words.getCount(it) },
+      dropout = parsedArgs.wordDropoutCoefficient),
+    converter = FormConverter())
+
+  /*
+  return TokensEncoderWrapperModel(
+    model = CharsBiRNNEncoderModel(words = corpus.words.getElements()),
+    converter = FormConverter())
+  */
 
   /*
   val preEmbeddingsMap = parsedArgs.embeddingsPath!!.let {
@@ -119,6 +120,20 @@ private fun buildTokensEncoderModel(
     EmbeddingsMap.load(filename = it)
   }
 
+  return TokensEncoderWrapperModel(
+    EnsembleTokensEncoderModel.ComponentModel(
+      TokensEncoderWrapperModel(
+        model = EmbeddingsEncoderModel.Base(
+          embeddingsMap = preEmbeddingsMap,
+          embeddingKeyExtractor = WordKeyExtractor(),
+          fallbackEmbeddingKeyExtractors = listOf(NormWordKeyExtractor()),
+          dropout = 0.0),
+        converter = FormConverter()),
+      trainable = true),
+    converter = MirrorConverter())
+  */
+
+  /*
   return TokensEncoderWrapperModel(
     model = EnsembleTokensEncoderModel(
       components = listOf(
@@ -140,7 +155,9 @@ private fun buildTokensEncoderModel(
               dropout = parsedArgs.wordDropoutCoefficient),
             converter = FormConverter()),
           trainable = true)),
-      outputMergeConfiguration = ConcatMerge()),
+      outputMergeConfiguration = AffineMerge(
+        outputSize = parsedArgs.wordEmbeddingSize, // TODO
+        activationFunction = Tanh())),
     converter = MirrorConverter()
   )
   */
