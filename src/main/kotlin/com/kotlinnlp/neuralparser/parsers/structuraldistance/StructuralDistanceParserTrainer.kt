@@ -18,7 +18,7 @@ import com.kotlinnlp.neuralparser.helpers.treeutils.Element
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
-import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
+import com.kotlinnlp.simplednn.core.neuralprocessor.batchfeedforward.BatchFeedforwardProcessor
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.deeplearning.birnn.deepbirnn.DeepBiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.assignSum
@@ -87,9 +87,18 @@ class StructuralDistanceParserTrainer(
   /**
    * The structural depth predictor.
    */
-  private val depthPredictor = StructuralDepthPredictor(
+  private val depthPredictor = BatchFeedforwardProcessor<DenseNDArray>(
     model = this.parser.model.depthModel,
-    useDropout = false)
+    useDropout = false,
+    propagateToInput = true)
+
+  /**
+   * The structural height predictor.
+   */
+  private val heightPredictor = BatchFeedforwardProcessor<DenseNDArray>(
+    model = this.parser.model.heightModel,
+    useDropout = false,
+    propagateToInput = true)
 
   /**
    * The optimizer of the tokens encoder.
@@ -164,26 +173,34 @@ class StructuralDistanceParserTrainer(
 
     val pairs: List<Pair<Int, Int>> = sentence.tokens.indices.toList().combine()
     val distances: List<Double> = this.distancePredictor.forward(SDPInput(hiddens =contextVectors, pairs = pairs))
-    val depths: List<Double> = this.depthPredictor.forward(contextVectors)
+    val depths: List<Double> = this.depthPredictor.forward(contextVectors).map { it.expectScalar() }
+    val heights: List<Double> = this.heightPredictor.forward(contextVectors).map { it.expectScalar() }
 
     val treeNodes: List<DAGNode<Int>> = this.createNodes(sentence, goldTree)
     val goldDistances: List<Int> = this.getGoldDistances(treeNodes)
     val goldDepths: List<Int> = this.getGoldDepths(treeNodes)
+    val goldHeights: List<Int> = this.getGoldHeights(treeNodes)
 
     val distanceErrors: List<Double> = this.calcDistanceErrors(
       length = sentence.tokens.size,
       prediction = distances,
       gold = goldDistances)
 
-    val depthErrors: List<Double> = this.calcDepthErrors(
+    val depthErrors: List<Double> = getDiffErrors(
       length = sentence.tokens.size,
       prediction = depths,
       gold = goldDepths)
 
+    val heightErrors: List<Double> = getDiffErrors(
+      length = sentence.tokens.size,
+      prediction = heights,
+      gold = goldHeights)
+
     this.propagateErrors(
       sentenceLength = sentence.tokens.size,
       pairsDistanceErrors = distanceErrors,
-      depthErrors = depthErrors)
+      depthErrors = depthErrors,
+      heightErrors = heightErrors)
   }
 
   /**
@@ -203,15 +220,15 @@ class StructuralDistanceParserTrainer(
   }
 
   /**
-   * Calculate the depth errors.
+   * Calculate the errors.
    *
-   * @param length the sequence length used to normalize
-   * @param prediction the predicted depths
-   * @param gold the gold distances
+   * @param length the sequence length, used to normalize
+   * @param prediction the predicted values
+   * @param gold the gold values
    *
    * @return the errors of each prediction
    */
-  private fun calcDepthErrors(length: Int, prediction: List<Double>, gold: List<Int>): List<Double> {
+  private fun getDiffErrors(length: Int, prediction: List<Double>, gold: List<Int>): List<Double> {
 
     val s = length.toDouble()
 
@@ -246,11 +263,20 @@ class StructuralDistanceParserTrainer(
   private fun getGoldDepths(nodes: List<DAGNode<Int>>): List<Int> = nodes.map { it.depth }
 
   /**
+   *
+   */
+  private fun getGoldHeights(nodes: List<DAGNode<Int>>): List<Int> = nodes.map { it.height }
+
+  /**
    * @param sentenceLength the sentence length
    * @param pairsDistanceErrors the errors of the distance for each pair
    * @param depthErrors the errors of the depth for each token
+   * @param heightErrors the errors of the depth for each token
    */
-  private fun propagateErrors(sentenceLength: Int, pairsDistanceErrors: List<Double>, depthErrors: List<Double>) {
+  private fun propagateErrors(sentenceLength: Int,
+                              pairsDistanceErrors: List<Double>,
+                              depthErrors: List<Double>,
+                              heightErrors: List<Double>) {
 
     val tokensEncodingsErrors: List<DenseNDArray> = List(size = sentenceLength, init = {
       DenseNDArrayFactory.zeros(Shape(this.parser.model.tokenEncodingSize))
@@ -264,7 +290,19 @@ class StructuralDistanceParserTrainer(
       contextVectorsErrors.assignSum(it)
     }
 
-    this.depthPredictor.propagateErrors(depthErrors, optimizer = this.optimizer, copy = false).let {
+    this.depthPredictor.propagateErrors(
+      errors = depthErrors.map { DenseNDArrayFactory.scalarOf(it) },
+      optimizer = this.optimizer,
+      copy = false
+    ).let {
+      contextVectorsErrors.assignSum(it)
+    }
+
+    this.heightPredictor.propagateErrors(
+      errors = heightErrors.map { DenseNDArrayFactory.scalarOf(it) },
+      optimizer = this.optimizer,
+      copy = false
+    ).let {
       contextVectorsErrors.assignSum(it)
     }
 
