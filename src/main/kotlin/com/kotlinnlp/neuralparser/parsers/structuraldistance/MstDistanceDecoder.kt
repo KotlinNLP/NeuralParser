@@ -1,5 +1,7 @@
 package com.kotlinnlp.neuralparser.parsers.structuraldistance
 
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.helpers.DirectedGraph
+import com.kotlinnlp.neuralparser.parsers.structuraldistance.helpers.DirectedGraphHelper
 import com.kotlinnlp.neuralparser.parsers.structuraldistance.helpers.MSTHelper
 import com.kotlinnlp.simplednn.core.layers.StackedLayersParameters
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -101,7 +103,26 @@ class MstDistanceDecoder (
 
     val mstHelper = MSTHelper(graphSize = ids.size, pairs = pairs, distances = distances)
 
+    val graph = DirectedGraph(graphSize = ids.size, pairs = pairs, distances = distances, depths = depths, penalty = true)
+
+    val root = DirectedGraphHelper.findRoot(graph)
+
+    val best = DirectedGraphHelper.minIncomingArcs(graph, root)
+
+    val discovered = DirectedGraphHelper.dfs(graph)
+
+//    if (discovered.size != ids.size){
+//      println("not discovered")
+//    }
+//
+//    val cycles = DirectedGraphHelper.findCycles(graph)
+//
+//    if (cycles.size != ids.size){
+//      println("cycle ")
+//    }
     val mst = mstHelper.getMST()
+
+    //val arcs = best.toTriples()
 
     val arcs = this.findDirectedArcs(mst, depths)
 
