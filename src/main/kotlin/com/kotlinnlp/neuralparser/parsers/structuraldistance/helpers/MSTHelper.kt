@@ -1,10 +1,16 @@
-package com.kotlinnlp.neuralparser.parsers.structuraldistance.helpers
+/* Copyright 2019-present KotlinNLP Authors. All Rights Reserved.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * ------------------------------------------------------------------*/
 
+package com.kotlinnlp.neuralparser.parsers.structuraldistance.helpers
 
 /**
  * The Minimum Spanning Tree helper. This class implements Prim algorithm.
  *
- * @param size The numer of nodes in the graph.
+ * @param size The number of nodes in the graph.
  * @param pairs The list of nodes pairs.
  * @param distances The list of distances between corresponding nodes pairs.
  */
