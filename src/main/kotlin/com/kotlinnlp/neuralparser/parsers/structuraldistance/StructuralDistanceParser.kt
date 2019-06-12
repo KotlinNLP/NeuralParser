@@ -20,7 +20,10 @@ import com.kotlinnlp.neuralparser.parsers.structuraldistance.StructuralDistanceP
 /**
  * @property model the parser model
  */
-class StructuralDistanceParser(override val model: StructuralDistanceParserModel) : NeuralParser<StructuralDistanceParserModel> {
+class StructuralDistanceParser(
+  override val model: StructuralDistanceParserModel,
+  override val labellingEnabled: Boolean = false
+) : NeuralParser<StructuralDistanceParserModel> {
 
   /**
    * The tokens encoder.
@@ -52,7 +55,7 @@ class StructuralDistanceParser(override val model: StructuralDistanceParserModel
     val tokensEncodings: List<DenseNDArray> = this.tokensEncoder.forward(sentence)
     val contextVectors: List<DenseNDArray> = this.contextEncoder.forward(tokensEncodings).map { it.copy() }
 
-    val dependencyTree = DependencyTree(elements = sentence.tokens.map { it.id } )
+    val dependencyTree = DependencyTree.Unlabeled(elements = sentence.tokens.map { it.id } )
 
     this.decoder.decode(
       ids = sentence.tokens.map { it.id },

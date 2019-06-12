@@ -9,7 +9,7 @@ package com.kotlinnlp.neuralparser.parsers.structuraldistance
 
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.neuralparser.helpers.Trainer
-import com.kotlinnlp.neuralparser.helpers.Validator
+import com.kotlinnlp.neuralparser.helpers.validator.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.treeutils.DAGNode
@@ -161,7 +161,7 @@ class StructuralDistanceParserTrainer(
    * @param sentence the sentence
    * @param goldTree the gold tree of the sentence
    */
-  override fun trainSentence(sentence: ParsingSentence, goldTree: DependencyTree) {
+  override fun trainSentence(sentence: ParsingSentence, goldTree: DependencyTree.Labeled) {
 
     this.beforeSentenceLearning()
 
