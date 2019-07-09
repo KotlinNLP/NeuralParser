@@ -19,6 +19,7 @@ import com.kotlinnlp.neuralparser.helpers.sentencebuilder.UnlabeledMorphoSynBuil
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.GreedyDependencyTreeBuilder
+import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
  * The Latent Head Representation (LHR) Parser.
@@ -72,5 +73,15 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
       is DependencyTree.Unlabeled ->
         UnlabeledMorphoSynBuilder(parsingSentence = sentence, dependencyTree = dependencyTree).buildSentence()
     }
+  }
+
+  /**
+   * Get the roles and symbols scores
+   *
+   * @return a list of pairs <roleScores, symbolScores>
+   */
+  fun getTPRScores(): List<Pair<DenseNDArray?, DenseNDArray?>> {
+
+    return lssEncoder.contextEncoder.encoders[0].getTPRImportanceScores()
   }
 }
