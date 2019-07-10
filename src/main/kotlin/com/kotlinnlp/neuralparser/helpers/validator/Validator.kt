@@ -17,7 +17,11 @@ import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.helpers.statistics.MetricsCounter
 import com.kotlinnlp.neuralparser.helpers.statistics.SentenceMetrics
 import com.kotlinnlp.neuralparser.helpers.statistics.Statistics
+import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
+import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
+import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
+import kotlin.math.sqrt
 
 /**
  * The Validator.
@@ -62,6 +66,11 @@ class Validator(
    * The metrics of a sentence.
    */
   private lateinit var sentenceMetrics: SentenceMetrics
+
+  /**
+   * The map containing word scores, based on TPR layer
+   */
+  private var tprScoresMap: HashMap<String, Pair<DenseNDArray?, DenseNDArray?>> = HashMap()
 
   /**
    * The parser wrapper to parse sentences in CoNLL format.
@@ -111,6 +120,84 @@ class Validator(
       DependencyTree.Unlabeled(sentence = sentence, allowCycles = allowCycles)
 
   /**
+   * Update the map containing word forms and corresponding roles and symbols scores
+   */
+  private fun updateTPRScoresMap(token : String, scores: Pair<DenseNDArray?, DenseNDArray?>) {
+    this.tprScoresMap.put(token, scores)
+  }
+
+  /**
+   * Assign a role to each word form.
+   *
+   * @param threshold Given roles vector r, if ri > threshold assign role i to the word
+   *
+   * @return a map where keys are roles and values are the pairs of words and scores belonging to them.
+   */
+  private fun calculateRolesScores(threshold: Double): HashMap<Int, ArrayList<Pair<String, Double>>> {
+    val scoresMap: HashMap<Int, ArrayList<Pair<String, Double>>> = HashMap()
+
+    this.tprScoresMap.forEach {entry ->
+      val form: String = entry.key
+      val rolesVector: DenseNDArray? = entry.value.first
+      for (i in 0 until rolesVector!!.length)
+        if (rolesVector[i] > threshold) {
+          if (!scoresMap.containsKey(i))
+            scoresMap[i] = ArrayList()
+          scoresMap[i]!!.add(Pair(form, rolesVector[i]))
+        }
+    }
+    return scoresMap
+  }
+
+  private fun norm(v: DenseNDArray): Double {
+    var norm = 0.0
+    for (i in 0 until v.length)
+      norm += v[i] * v[i]
+
+    return sqrt(norm)
+  }
+
+  private fun cosine(a: DenseNDArray, b: DenseNDArray): Double{
+    var dot = 0.0
+    for (i in 0 until a.length)
+      dot += a[i] * b[i]
+
+    return dot / (norm(a) * norm(b))
+  }
+
+  /**
+   * Assign a symbol score to each word form.
+   *
+   * @param model The lhr model.
+   *
+   * @return a map where keys are symbols and values are the pairs of words and scores belonging to them.
+   */
+  private fun calculateSymbolsScores(model: LHRModel): HashMap<Int, ArrayList<Pair<String, Double>>> {
+    val scoresMap: HashMap<Int, ArrayList<Pair<String, Double>>> = HashMap()
+    val symbolEmbeddings: DenseNDArray = model.lssModel.contextEncoderModel.model.paramsPerBiRNN[0].leftToRight[4].values
+
+    this.tprScoresMap.forEach {entry ->
+      val form: String = entry.key
+      val symbolsVector: DenseNDArray? = entry.value.second
+      var argmax = 0
+      var max = Double.MIN_VALUE
+      for (i in 0 until symbolEmbeddings.columns){
+        val symbolEmbedding: DenseNDArray = symbolEmbeddings.getColumn(i)
+        val similarity = cosine(symbolEmbedding, symbolsVector!!)
+        if (similarity > max) {
+          argmax = i
+          max = similarity
+        }
+      }
+      if (!scoresMap.containsKey(argmax))
+        scoresMap[argmax] = ArrayList()
+      scoresMap[argmax]!!.add(Pair(form, max))
+    }
+
+    return scoresMap
+  }
+
+  /**
    * Parse the validation CoNLL sentences.
    *
    * @return the list of parsed CoNLL sentences
@@ -120,13 +207,36 @@ class Validator(
     val progress: ProgressIndicatorBar? = if (this.verbose) ProgressIndicatorBar(this.sentences.size) else null
 
     if (this.verbose) println("Start parsing of %d sentences:".format(this.sentences.size))
-
-    return this.sentences.mapIndexed { i, sentence ->
+    val lhrParser: LHRParser = this.neuralParser as LHRParser
+    val parsedSentences: ArrayList<CoNLLSentence> = arrayListOf()
+    this.sentences.forEachIndexed { i, sentence ->
 
       progress?.tick()
 
-      this.conllParser.parse(sentence, index = i)
+      parsedSentences.add(this.conllParser.parse(sentence, index = i))
+      val scores:List<Pair<DenseNDArray?, DenseNDArray?>> = lhrParser.getTPRScores()
+      scores.zip(sentence.tokens).forEach { (scores, token) ->
+        updateTPRScoresMap(token.form, scores)
+
+      }
     }
+    val scoresMap = this.calculateSymbolsScores(model = this.neuralParser.model)
+    val rolesMap = this.calculateRolesScores(threshold = 0.6)
+    println(rolesMap)
+    printScoresMap(scoresMap)
+    return parsedSentences
+  }
+
+  /**
+   * Print the score map, the words are sorted by scores.
+   */
+  private fun printScoresMap(map : HashMap<Int, ArrayList<Pair<String, Double>>>){
+    map.forEach { entry ->
+      print (entry.key.toString() + " ")
+      val sortedArray = entry.value.sortedWith(compareBy({ it.second }, { it.first })).asReversed()
+      println(sortedArray)
+    }
+
   }
 
   /**
