@@ -17,15 +17,15 @@
         <xenocom.version>0.0.5</xenocom.version>
         <argparser.version>2.0.7</argparser.version>
         <klaxon.version>3.0.5</klaxon.version>
-        <neuralparser.version>0.6.4</neuralparser.version>
-        <simplednn.version>0.13.2</simplednn.version>
-        <conllio.version>0.2.9</conllio.version>
-        <dependencytree.version>0.5.1</dependencytree.version>
-        <linguisticdescription.version>0.12.1</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.4.5</morphologicalanalyzer.version>
-        <tokensencoder.version>0.5.3</tokensencoder.version>
-        <lssencoder.version>0.2.2</lssencoder.version>
-        <utils.version>2.1.3</utils.version>
+        <neuralparser.version>0.6.5</neuralparser.version>
+        <simplednn.version>0.13.3</simplednn.version>
+        <conllio.version>0.2.10</conllio.version>
+        <dependencytree.version>0.5.2</dependencytree.version>
+        <linguisticdescription.version>0.12.2</linguisticdescription.version>
+        <morphologicalanalyzer.version>0.4.6</morphologicalanalyzer.version>
+        <tokensencoder.version>0.5.4</tokensencoder.version>
+        <lssencoder.version>0.2.3</lssencoder.version>
+        <utils.version>2.1.4</utils.version>
     </properties>
 
     <repositories>
