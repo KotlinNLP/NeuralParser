@@ -251,7 +251,7 @@ private fun buildTokensEncoderWrapperModel(
     CommandLineArguments.TokensEncodingType.CHARLM -> { // TODO: separate with a dedicated builder
       TokensEncoderWrapperModel(
         model = CharLMEncoderModel(
-          charLM = CharLM.load(FileInputStream(File(""))), // TODO
+          dirCharLM = CharLM.load(FileInputStream(File(""))), // TODO
           revCharLM = CharLM.load(FileInputStream(File(""))), // TODO
           outputMergeConfiguration = AffineMerge(
             outputSize = 100, // TODO
