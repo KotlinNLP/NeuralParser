@@ -61,14 +61,8 @@
         <kotlin.version>1.3.31</kotlin.version>
         <klaxon.version>3.0.5</klaxon.version>
         <dokka.version>0.9.16</dokka.version>
-        <conllio.version>0.2.10</conllio.version>
-        <simplednn.version>0.13.3</simplednn.version>
         <dependencytree.version>0.5.2</dependencytree.version>
-        <tokensencoder.version>0.5.4</tokensencoder.version>
         <lssencoder.version>0.2.3</lssencoder.version>
-        <linguisticdescription.version>0.12.2</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.4.6</morphologicalanalyzer.version>
-        <utils.version>2.1.4</utils.version>
     </properties>
 
     <repositories>
@@ -217,50 +211,14 @@
 
         <dependency>
             <groupId>com.kotlinnlp</groupId>
-            <artifactId>conllio</artifactId>
-            <version>${conllio.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>simplednn</artifactId>
-            <version>${simplednn.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>tokensencoder</artifactId>
-            <version>${tokensencoder.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
             <artifactId>lssencoder</artifactId>
             <version>${lssencoder.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.kotlinnlp</groupId>
-            <artifactId>linguisticdescription</artifactId>
-            <version>${linguisticdescription.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>morphologicalanalyzer</artifactId>
-            <version>${morphologicalanalyzer.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
             <artifactId>dependencytree</artifactId>
             <version>${dependencytree.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>utils</artifactId>
-            <version>${utils.version}</version>
         </dependency>
     </dependencies>
 </project>
