@@ -59,7 +59,7 @@
         <oss.server.id>oss_kotlinnlp</oss.server.id>
         <gpg.keyname>C73F18F0</gpg.keyname>
         <kotlin.version>1.3.31</kotlin.version>
-        <klaxon.version>3.0.5</klaxon.version>
+        <klaxon.version>5.2</klaxon.version>
         <dokka.version>0.9.16</dokka.version>
         <dependencytree.version>0.5.2</dependencytree.version>
         <lssencoder.version>0.2.3</lssencoder.version>
