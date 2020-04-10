@@ -16,7 +16,7 @@ import com.kotlinnlp.neuralparser.helpers.statistics.Statistics
 import com.kotlinnlp.neuralparser.helpers.validator.Validator
 import com.kotlinnlp.neuralparser.language.BaseSentence
 import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.utils.ExamplesIndices
+import com.kotlinnlp.utils.ShuffledIndices
 import com.kotlinnlp.utils.Shuffler
 import com.kotlinnlp.utils.Timer
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
@@ -104,7 +104,7 @@ abstract class Trainer(
 
     this.newBatch()
 
-    ExamplesIndices(trainingSentences.size, shuffler = shuffler).forEachIndexed { i, sentenceIndex ->
+    ShuffledIndices(trainingSentences.size, shuffler = shuffler).forEachIndexed { i, sentenceIndex ->
 
       val endOfBatch: Boolean = (i + 1) % this.batchSize == 0 || i == trainingSentences.lastIndex
 
