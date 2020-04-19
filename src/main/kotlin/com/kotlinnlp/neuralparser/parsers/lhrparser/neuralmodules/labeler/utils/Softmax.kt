@@ -22,5 +22,5 @@ class Softmax : LossCriterion {
    * @return the errors of the given prediction
    */
   override fun getPredictionErrors(prediction: DenseNDArray, goldIndex: Int): DenseNDArray =
-    SoftmaxCrossEntropyCalculator().calculateErrors(output = prediction, goldIndex = goldIndex)
+    SoftmaxCrossEntropyCalculator.calculateErrors(output = prediction, goldIndex = goldIndex)
 }

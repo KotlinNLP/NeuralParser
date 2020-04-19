@@ -10,7 +10,6 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules
 import com.kotlinnlp.simplednn.core.functionalities.losses.SoftmaxCrossEntropyCalculator
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkModel
-import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkParameters
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkProcessor
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
@@ -44,7 +43,7 @@ class PositionalEncoder(
 
       return predictions.mapIndexed { index, prediction ->
         val expectedValues = DenseNDArrayFactory.oneHotEncoder(length = predictions.size, oneAt = index)
-        SoftmaxCrossEntropyCalculator().calculateErrors(output = prediction, outputGold = expectedValues)
+        SoftmaxCrossEntropyCalculator.calculateErrors(output = prediction, outputGold = expectedValues)
       }
     }
   }
