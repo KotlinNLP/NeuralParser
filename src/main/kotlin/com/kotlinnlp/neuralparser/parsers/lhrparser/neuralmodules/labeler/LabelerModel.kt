@@ -56,7 +56,7 @@ class LabelerModel(
     LayerInterface(
       size = this.contextEncodingSize,
       connectionType = LayerType.Connection.Affine,
-      activationFunction = Tanh()),
+      activationFunction = Tanh),
     LayerInterface(
       type = LayerType.Input.Dense,
       size = this.grammaticalConfigurations.size,

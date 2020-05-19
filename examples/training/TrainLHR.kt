@@ -116,11 +116,11 @@ private fun buildParser(
     tokensEncoderWrapperModel = tokensEncoderWrapperModel,
     contextBiRNNConfig = BiRNNConfig(
       connectionType = LayerType.Connection.LSTM,
-      hiddenActivation = Tanh(),
+      hiddenActivation = Tanh,
       numberOfLayers = parsedArgs.numOfContextLayers),
     headsBiRNNConfig = BiRNNConfig(
       connectionType = LayerType.Connection.LSTM,
-      hiddenActivation = Tanh())
+      hiddenActivation = Tanh)
   ),
   useLabeler = !parsedArgs.noLabeler,
   lossCriterionType = LossCriterionType.Softmax,
@@ -255,7 +255,7 @@ private fun buildTokensEncoderWrapperModel(
           revCharLM = CharLM.load(FileInputStream(File(""))), // TODO
           outputMergeConfiguration = AffineMerge(
             outputSize = 100, // TODO
-            activationFunction = Tanh())),
+            activationFunction = Tanh)),
         converter = FormConverter()
       )
     }

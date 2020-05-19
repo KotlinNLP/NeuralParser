@@ -73,9 +73,7 @@ class LHRModel(
   val pointerNetworkModel = PointerNetworkModel(
     inputSize = this.lssModel.contextVectorsSize,
     vectorSize = this.lssModel.contextVectorsSize,
-    mergeConfig = AffineMerge(
-      outputSize = 100,
-      activationFunction = Tanh()))
+    mergeConfig = AffineMerge(outputSize = 100, activationFunction = Tanh))
 
   /**
    * @return the string representation of this model
