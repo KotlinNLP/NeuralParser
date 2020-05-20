@@ -21,7 +21,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.PositionalEnco
 import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.PositionalEncoder.Companion.calculateErrors
 import com.kotlinnlp.simplednn.core.functionalities.losses.MSECalculator
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
-import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
+import com.kotlinnlp.simplednn.core.functionalities.updatemethods.radam.RADAMMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkProcessor
 import com.kotlinnlp.simplednn.simplemath.assignSum
@@ -49,7 +49,7 @@ class LHRTrainer(
   private val epochs: Int,
   validator: Validator?,
   modelFilename: String,
-  private val updateMethod: UpdateMethod<*> = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
+  private val updateMethod: UpdateMethod<*> = RADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
   private val lhrErrorsOptions: LHRErrorsOptions,
   sentencePreprocessor: SentencePreprocessor = BasePreprocessor(),
   verbose: Boolean = true

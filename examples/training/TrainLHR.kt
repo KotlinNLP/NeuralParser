@@ -26,7 +26,6 @@ import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.neuralparser.helpers.validator.Validator
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.*
-import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNConfig
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.xenomachina.argparser.mainBody
@@ -41,6 +40,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.sentenceconverters.FormConve
 import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
 import com.kotlinnlp.neuralparser.utils.loadSentences
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
+import com.kotlinnlp.simplednn.core.functionalities.updatemethods.radam.RADAMMethod
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.AffineMerge
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.ConcatMerge
 import com.kotlinnlp.tokensencoder.charlm.CharLMEncoderModel
@@ -347,7 +347,7 @@ private fun buildTrainer(parser: LHRParser,
     lhrErrorsOptions = LHRTrainer.LHRErrorsOptions(
       skipPunctuationErrors = parsedArgs.skipPunctuationErrors,
       usePositionalEncodingErrors = false),
-    updateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
+    updateMethod = RADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
     sentencePreprocessor = preprocessor,
     verbose = !parsedArgs.quiet)
 }
