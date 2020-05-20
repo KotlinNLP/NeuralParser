@@ -174,7 +174,7 @@ private fun buildTokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = embeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
-                  frequencyDictionary = corpus.words.getElements().associate { it to corpus.words.getCount(it) },
+                  frequencyDictionary = corpus.words.getElements().associateWith { corpus.words.getCount(it) },
                   dropout = parsedArgs.wordDropoutCoefficient),
                 converter = FormConverter()),
               trainable = true),
@@ -183,7 +183,9 @@ private fun buildTokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = posEmbeddingsMap,
                   embeddingKeyExtractor = PosTagKeyExtractor,
-                  frequencyDictionary = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }.associate { it to 1 },
+                  frequencyDictionary = corpus.grammaticalConfigurations.getElements()
+                    .mapNotNull { it.posToString }
+                    .associateWith { 1 },
                   dropout = parsedArgs.posDropoutCoefficient),
                 converter = MirrorConverter()),
               trainable = true)
@@ -213,7 +215,7 @@ private fun buildTokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = embeddingsMap,
                   embeddingKeyExtractor = NormWordKeyExtractor(),
-                  frequencyDictionary = corpus.words.getElements().associate { it to corpus.words.getCount(it) },
+                  frequencyDictionary = corpus.words.getElements().associateWith { corpus.words.getCount(it) },
                   dropout = parsedArgs.wordDropoutCoefficient),
                 converter = FormConverter()),
               trainable = true),
@@ -222,7 +224,9 @@ private fun buildTokensEncoderWrapperModel(
                 model = EmbeddingsEncoderModel.Base(
                   embeddingsMap = posEmbeddingsMap,
                   embeddingKeyExtractor = PosTagKeyExtractor,
-                  frequencyDictionary = corpus.grammaticalConfigurations.getElements().mapNotNull { it.posToString }.associate { it to 1 },
+                  frequencyDictionary = corpus.grammaticalConfigurations.getElements()
+                    .mapNotNull { it.posToString }
+                    .associateWith { 1 },
                   dropout = parsedArgs.posDropoutCoefficient),
                 converter = MirrorConverter()),
               trainable = true)
@@ -242,7 +246,7 @@ private fun buildTokensEncoderWrapperModel(
         model = EmbeddingsEncoderModel.Base(
           embeddingsMap = embeddingsMap,
           embeddingKeyExtractor = NormWordKeyExtractor(),
-          frequencyDictionary = corpus.words.getElements().associate { it to corpus.words.getCount(it) },
+          frequencyDictionary = corpus.words.getElements().associateWith { corpus.words.getCount(it) },
           dropout = parsedArgs.wordDropoutCoefficient),
         converter = FormConverter()
       )
