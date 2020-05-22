@@ -113,9 +113,8 @@ class Labeler(
 
     this.dependencyTree = input.dependencyTree
 
-    return this.processor.forward(featuresListBatch = ArrayList(input.lss.sentence.tokens.map {
-      this.extractFeatures(tokenId = it.id, lss = input.lss)
-    }))
+    return this.processor.forward(
+      input = input.lss.sentence.tokens.map { this.extractFeatures(tokenId = it.id, lss = input.lss) }.toTypedArray())
   }
 
   /**
