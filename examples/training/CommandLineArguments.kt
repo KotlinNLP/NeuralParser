@@ -46,13 +46,13 @@ class CommandLineArguments(args: Array<String>) {
   )
 
   /**
-   * The number of training epochs (default = 30).
+   * The number of training epochs (default = 10).
    */
   val epochs: Int by parser.storing(
     "-e",
     "--epochs",
-    help="the number of training epochs (default = 30)"
-  ) { toInt() }.default(30)
+    help="the number of training epochs (default = 10)"
+  ) { toInt() }.default(10)
 
   /**
    * The size of the batches of sentences (default = 1).
