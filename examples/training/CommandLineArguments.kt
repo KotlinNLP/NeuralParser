@@ -212,6 +212,22 @@ class CommandLineArguments(args: Array<String>) {
   ).default { null }
 
   /**
+   * The file path of the serialized characters language model.
+   */
+  val charLMModelPath: String? by parser.storing(
+    "--charlm",
+    help="the file path of the serialized characters language model"
+  ).default { null }
+
+  /**
+   * The file path of the serialized characters language model for reverse encodings.
+   */
+  val charLMRevModelPath: String? by parser.storing(
+    "--charlm-rev",
+    help="the file path of the serialized characters language model for reverse encodings"
+  ).default { null }
+
+  /**
    * The type of morphology encoding.
    */
   val tokensEncodingType: TokensEncodingType by parser.mapping(
@@ -234,8 +250,23 @@ class CommandLineArguments(args: Array<String>) {
 
   /**
    * Force parsing all arguments (only read ones are parsed by default).
+   * Check the dependencies between more arguments.
    */
   init {
+
     parser.force()
+
+    this.checkDependencies()
+  }
+
+  /**
+   * Check the dependencies between more arguments.
+   */
+  private fun checkDependencies() {
+
+    if (this.tokensEncodingType == TokensEncodingType.CHARLM) {
+      this.charLMModelPath ?: throw RuntimeException("Missing characters language model path")
+      this.charLMRevModelPath ?: throw RuntimeException("Missing reverse characters language model path")
+    }
   }
 }
