@@ -7,8 +7,6 @@
 
 package com.kotlinnlp.neuralparser.language
 
-import com.kotlinnlp.conllio.Sentence as CoNLLSentence
-import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.morphology.MorphologicalAnalysis
 import com.kotlinnlp.linguisticdescription.morphology.Morphologies
