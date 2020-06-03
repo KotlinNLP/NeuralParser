@@ -71,11 +71,11 @@
                 <version>${assembly-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>lhr-training-assembly</id>
+                        <id>lhr-training</id>
                         <phase>package</phase>
                         <goals> <goal>single</goal> </goals>
                         <configuration>
-                            <finalName>lhr-parser-train</finalName>
+                            <finalName>train-lhr-parser</finalName>
                             <archive>
                                 <manifest>
                                     <addClasspath>true</addClasspath>
@@ -88,15 +88,32 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>lhr-evaluation-assembly</id>
+                        <id>lhr-evaluation</id>
                         <phase>package</phase>
                         <goals> <goal>single</goal> </goals>
                         <configuration>
-                            <finalName>lhr-parser-eval</finalName>
+                            <finalName>evaluate-lhr-parser</finalName>
                             <archive>
                                 <manifest>
                                     <addClasspath>true</addClasspath>
                                     <mainClass>evaluation.EvaluateLHRKt</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>lhr-test</id>
+                        <phase>package</phase>
+                        <goals> <goal>single</goal> </goals>
+                        <configuration>
+                            <finalName>test-lhr-parser</finalName>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                    <mainClass>test.TestLHRKt</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
