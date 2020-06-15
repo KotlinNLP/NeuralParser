@@ -22,13 +22,13 @@ import com.kotlinnlp.utils.notEmptyOr
 /**
  * The Labeler.
  *
- * @param model the model of this labeler
- * @property useDropout whether to apply the dropout during the forward
+ * @property model the model
+ * @param dropout the dropout probability (default 0.0)
  * @property id an identification number useful to track a specific encoder
  */
 class Labeler(
-  private val model: LabelerModel,
-  override val useDropout: Boolean,
+  val model: LabelerModel,
+  dropout: Double = 0.0,
   override val id: Int = 0
 ) : NeuralProcessor<
   Labeler.Input, // InputType
@@ -43,12 +43,7 @@ class Labeler(
    * @param lss the latent syntactic structure
    * @param dependencyTree the dependency tree
    */
-  class Input(val lss: LatentSyntacticStructure<*, *>, val dependencyTree: DependencyTree)
-
-  /**
-   * This encoder propagate the errors to the input.
-   */
-  override val propagateToInput: Boolean = true
+  data class Input(val lss: LatentSyntacticStructure<*, *>, val dependencyTree: DependencyTree)
 
   /**
    * The input errors of this labeler.
@@ -56,17 +51,18 @@ class Labeler(
    * @param rootErrors the errors of the virtual root
    * @param contextErrors the errors of the context vectors
    */
-  class InputErrors(
-    val rootErrors: DenseNDArray,
-    val contextErrors: List<DenseNDArray>)
+  data class InputErrors(val rootErrors: DenseNDArray, val contextErrors: List<DenseNDArray>)
+
+  /**
+   * This encoder propagate the errors to the input.
+   */
+  override val propagateToInput: Boolean = true
 
   /**
    * The processor that classify the grammar of a token.
    */
-  private val processor = BatchFeedforwardProcessor<DenseNDArray>(
-    model = this.model.networkModel,
-    useDropout = this.useDropout,
-    propagateToInput = true)
+  private val processor =
+    BatchFeedforwardProcessor<DenseNDArray>(model = this.model.networkModel, dropout = dropout, propagateToInput = true)
 
   /**
    * The dependency tree of the last input, used during the training.

@@ -60,7 +60,6 @@ class LabelerModel(
     LayerInterface(
       type = LayerType.Input.Dense,
       size = this.grammaticalConfigurations.size,
-      dropout = 0.0,
       connectionType = LayerType.Connection.Feedforward,
       activationFunction = when (this.lossCriterionType) {
         LossCriterionType.Softmax -> Softmax()

@@ -31,6 +31,9 @@ import com.kotlinnlp.simplednn.utils.scheduling.ExampleScheduling
  * @param epochs the number of training epochs
  * @param validator the validation helper (if it is null no validation is done after each epoch)
  * @param modelFilename the name of the file in which to save the best trained model
+ * @param updateMethod the update method (Learning Rate, ADAM, AdaGrad, ...)
+ * @param contextDropout the dropout probability of the target context encodings (default 0.0)
+ * @param headsDropout the dropout probability of the target latent heads encodings (default 0.0)
  * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
@@ -41,6 +44,8 @@ class LHRTransferLearning(
   validator: Validator?,
   modelFilename: String,
   private val updateMethod: UpdateMethod<*> = RADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
+  contextDropout: Double = 0.0,
+  headsDropout: Double = 0.0,
   sentencePreprocessor: SentencePreprocessor = BasePreprocessor(),
   verbose: Boolean = true
 ) : Trainer(
@@ -57,16 +62,14 @@ class LHRTransferLearning(
   /**
    * The [LSSEncoder] of the reference parser.
    */
-  private val referenceLSSEncoder: LSSEncoder<ParsingToken, ParsingSentence> = LSSEncoder(
-    model = this.referenceParser.model.lssModel,
-    useDropout = false)
+  private val referenceLSSEncoder: LSSEncoder<ParsingToken, ParsingSentence> =
+    LSSEncoder(model = this.referenceParser.model.lssModel)
 
   /**
    * The [LSSEncoder] of the target parser.
    */
-  private val targetLSSEncoder: LSSEncoder<ParsingToken, ParsingSentence> = LSSEncoder(
-    model = this.targetParser.model.lssModel,
-    useDropout = true)
+  private val targetLSSEncoder: LSSEncoder<ParsingToken, ParsingSentence> =
+    LSSEncoder(model = this.targetParser.model.lssModel, contextDropout = contextDropout, headsDropout = headsDropout)
 
   /**
    * The optimizer of the context encoder.

@@ -39,6 +39,9 @@ import com.kotlinnlp.simplednn.utils.scheduling.ExampleScheduling
  * @param validator the validation helper (if it is null no validation is done after each epoch)
  * @param modelFilename the name of the file in which to save the best trained model
  * @param updateMethod the update method shared to all the parameters of the parser (Learning Rate, ADAM, AdaGrad, ...)
+ * @param contextDropout the dropout probability of the context encodings (default 0.25)
+ * @param headsDropout the dropout probability of the latent heads encodings (default 0.25)
+ * @param labelerDropout the dropout probability of the labeler (default 0.25)
  * @param skipPunctuationErrors whether to do not consider punctuation errors
  * @param usePositionalEncodingErrors whether to calculate and propagate the positional encoding errors
  * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
@@ -51,6 +54,9 @@ class LHRTrainer(
   validator: Validator?,
   modelFilename: String,
   private val updateMethod: UpdateMethod<*> = RADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
+  contextDropout: Double = 0.25,
+  headsDropout: Double = 0.25,
+  labelerDropout: Double = 0.25,
   private val skipPunctuationErrors: Boolean,
   usePositionalEncodingErrors: Boolean,
   sentencePreprocessor: SentencePreprocessor = BasePreprocessor(),
@@ -67,20 +73,21 @@ class LHRTrainer(
 ) {
 
   /**
-   * The Encoder of the Latent Syntactic Structure.
+   * The encoder of the Latent Syntactic Structure.
    */
-  private val lssEncoder = LSSEncoder(model = this.parser.model.lssModel, useDropout = true)
+  private val lssEncoder =
+    LSSEncoder(model = this.parser.model.lssModel, contextDropout = contextDropout, headsDropout = headsDropout)
 
   /**
-   * The builder of the labeler.
+   * The labeler.
    */
-  private val labeler: Labeler? = this.parser.model.labelerModel?.let { Labeler(it, useDropout = true) }
+  private val labeler: Labeler? = this.parser.model.labelerModel?.let { Labeler(model = it, dropout = labelerDropout) }
 
   /**
    * The positional encoder.
    */
   private val positionalEncoder: PositionalEncoder? = if (usePositionalEncodingErrors)
-    PositionalEncoder(this.parser.model.pointerNetworkModel, useDropout = true)
+    PositionalEncoder(this.parser.model.pointerNetworkModel)
   else
     null
 

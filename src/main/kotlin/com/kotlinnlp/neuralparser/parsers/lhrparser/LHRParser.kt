@@ -27,8 +27,14 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.GreedyDependencyTree
  *   [Non-Projective Dependency Parsing via Latent Heads Representation (LHR)](https://arxiv.org/abs/1802.02116)
  *
  * @property model the parser model
+ * @param contextDropout the dropout probability of the context encodings (default 0.0)
+ * @param headsDropout the dropout probability of the latent heads encodings (default 0.0)
  */
-class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
+class LHRParser(
+  override val model: LHRModel,
+  contextDropout: Double = 0.0,
+  headsDropout: Double = 0.0
+) : NeuralParser<LHRModel> {
 
   /**
    * Whether this parser executes the morpho-syntactic labelling.
@@ -38,12 +44,13 @@ class LHRParser(override val model: LHRModel) : NeuralParser<LHRModel> {
   /**
    * The Encoder of the Latent Syntactic Structure.
    */
-  private val lssEncoder = LSSEncoder(this.model.lssModel, useDropout = false)
+  private val lssEncoder =
+    LSSEncoder(model = this.model.lssModel, contextDropout = contextDropout, headsDropout = headsDropout)
 
   /**
    * The builder of the labeler.
    */
-  private val labeler: Labeler? = this.model.labelerModel?.let { Labeler(model = it, useDropout = false) }
+  private val labeler: Labeler? = this.model.labelerModel?.let { Labeler(it) }
 
   /**
    * Parse a sentence, returning its dependency tree.

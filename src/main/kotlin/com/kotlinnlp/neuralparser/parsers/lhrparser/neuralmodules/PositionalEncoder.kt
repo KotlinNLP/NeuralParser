@@ -18,12 +18,10 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
  * The PositionalEncoder.
  *
  * @param model the model of the pointer network
-  * @property useDropout whether to apply the dropout during the forward
  * @property id an identification number useful to track a specific encoder
  */
 class PositionalEncoder(
   private val model: PointerNetworkModel,
-  override val useDropout: Boolean,
   override val id: Int = 0
 ) : NeuralProcessor<
   List<DenseNDArray>, // InputType
