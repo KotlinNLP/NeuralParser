@@ -39,7 +39,8 @@ import com.kotlinnlp.simplednn.utils.scheduling.ExampleScheduling
  * @param validator the validation helper (if it is null no validation is done after each epoch)
  * @param modelFilename the name of the file in which to save the best trained model
  * @param updateMethod the update method shared to all the parameters of the parser (Learning Rate, ADAM, AdaGrad, ...)
- * @param lhrErrorsOptions the settings for calculating the latent heads errors
+ * @param skipPunctuationErrors whether to do not consider punctuation errors
+ * @param usePositionalEncodingErrors whether to calculate and propagate the positional encoding errors
  * @param sentencePreprocessor the sentence preprocessor (e.g. to perform morphological analysis)
  * @param verbose a Boolean indicating if the verbose mode is enabled (default = true)
  */
@@ -50,7 +51,8 @@ class LHRTrainer(
   validator: Validator?,
   modelFilename: String,
   private val updateMethod: UpdateMethod<*> = RADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
-  private val lhrErrorsOptions: LHRErrorsOptions,
+  private val skipPunctuationErrors: Boolean,
+  usePositionalEncodingErrors: Boolean,
   sentencePreprocessor: SentencePreprocessor = BasePreprocessor(),
   verbose: Boolean = true
 ) : Trainer(
@@ -65,13 +67,6 @@ class LHRTrainer(
 ) {
 
   /**
-   * @property skipPunctuationErrors whether to do not consider punctuation errors
-   */
-  data class LHRErrorsOptions(
-    val skipPunctuationErrors: Boolean,
-    val usePositionalEncodingErrors: Boolean)
-
-  /**
    * The Encoder of the Latent Syntactic Structure.
    */
   private val lssEncoder = LSSEncoder(model = this.parser.model.lssModel, useDropout = true)
@@ -84,7 +79,7 @@ class LHRTrainer(
   /**
    * The positional encoder.
    */
-  private val positionalEncoder: PositionalEncoder? = if (this.lhrErrorsOptions.usePositionalEncodingErrors)
+  private val positionalEncoder: PositionalEncoder? = if (usePositionalEncodingErrors)
     PositionalEncoder(this.parser.model.pointerNetworkModel, useDropout = true)
   else
     null
@@ -129,7 +124,7 @@ class LHRTrainer(
   """.trimIndent().format(
     "Epochs", this.epochs,
     "Batch size", this.batchSize,
-    "Skip punctuation errors", this.lhrErrorsOptions.skipPunctuationErrors
+    "Skip punctuation errors", this.skipPunctuationErrors
   )
 
   /**
@@ -227,7 +222,7 @@ class LHRTrainer(
 
       when {
         goldHeadId == null -> lss.virtualRoot
-        this.lhrErrorsOptions.skipPunctuationErrors && token.isComma -> lss.getLatentHeadById(token.id) // no errors
+        this.skipPunctuationErrors && token.isComma -> lss.getLatentHeadById(token.id) // no errors
         else -> lss.getContextVectorById(goldHeadId)
       }
     }

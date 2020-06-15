@@ -344,9 +344,8 @@ private fun buildTrainer(parser: LHRParser,
         skipNonProjective = false),
       sentencePreprocessor = preprocessor),
     modelFilename = parsedArgs.modelPath,
-    lhrErrorsOptions = LHRTrainer.LHRErrorsOptions(
-      skipPunctuationErrors = parsedArgs.skipPunctuationErrors,
-      usePositionalEncodingErrors = false),
+    skipPunctuationErrors = parsedArgs.skipPunctuationErrors,
+    usePositionalEncodingErrors = false,
     updateMethod = RADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
     sentencePreprocessor = preprocessor,
     verbose = !parsedArgs.quiet)
