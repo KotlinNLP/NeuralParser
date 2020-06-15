@@ -9,6 +9,7 @@ package com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules
 
 import com.kotlinnlp.simplednn.core.functionalities.losses.SoftmaxCrossEntropyCalculator
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
+import com.kotlinnlp.simplednn.core.optimizer.ParamsErrorsList
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkModel
 import com.kotlinnlp.simplednn.deeplearning.attention.pointernetwork.PointerNetworkProcessor
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -52,9 +53,9 @@ class PositionalEncoder(
   override val propagateToInput: Boolean = true
 
   /**
-   * The processor of the pointer network.
+   * The pointer processor used as encoder.
    */
-  private val networkProcessor = PointerNetworkProcessor(this.model)
+  private val encoder = PointerNetworkProcessor(this.model)
 
   /**
    * The Forward.
@@ -65,9 +66,9 @@ class PositionalEncoder(
    */
   override fun forward(input: List<DenseNDArray>): List<DenseNDArray> {
 
-    this.networkProcessor.setInputSequence(input)
+    this.encoder.setInputSequence(input)
 
-    return input.map { this.networkProcessor.forward(it) }
+    return input.map { this.encoder.forward(it) }
   }
 
   /**
@@ -75,7 +76,9 @@ class PositionalEncoder(
    *
    * @param outputErrors the errors of the last forward
    */
-  override fun backward(outputErrors: List<DenseNDArray>) = this.networkProcessor.backward(outputErrors)
+  override fun backward(outputErrors: List<DenseNDArray>) {
+    this.encoder.backward(outputErrors)
+  }
 
   /**
    * Return the input errors of the last backward.
@@ -84,7 +87,7 @@ class PositionalEncoder(
    *
    * @return the input errors
    */
-  override fun getInputErrors(copy: Boolean) = this.networkProcessor.getInputErrors()
+  override fun getInputErrors(copy: Boolean): PointerNetworkProcessor.InputErrors = this.encoder.getInputErrors()
 
   /**
    * Return the params errors of the last backward.
@@ -93,5 +96,5 @@ class PositionalEncoder(
    *
    * @return the parameters errors
    */
-  override fun getParamsErrors(copy: Boolean) = this.networkProcessor.getParamsErrors(copy = copy)
+  override fun getParamsErrors(copy: Boolean): ParamsErrorsList = this.encoder.getParamsErrors(copy = copy)
 }
